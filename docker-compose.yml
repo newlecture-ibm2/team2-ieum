@@ -1,0 +1,44 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    environment:
+      - BACKEND_URL=http://backend:8080
+      - SESSION_SECRET=complex_password_at_least_32_characters_long
+    depends_on:
+      - backend
+
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ieum
+      - SPRING_DATASOURCE_USERNAME=ieum
+      - SPRING_DATASOURCE_PASSWORD=ieum1234
+      - JWT_SECRET=your-secret-key-at-least-256-bits-long-for-hs256
+    depends_on:
+      - postgres
+
+  postgres:
+    image: postgres:17
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=ieum
+      - POSTGRES_USER=ieum
+      - POSTGRES_PASSWORD=ieum1234
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - frontend
+
+volumes:
+  pgdata:

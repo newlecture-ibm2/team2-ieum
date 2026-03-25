@@ -1,1 +1,229 @@
-# team2-ieum
+# 🎪 이음 — 지역 축제 통합 정보 플랫폼
+
+> 전국 축제 정보를 지도 기반으로 탐색하고, 커뮤니티에서 소통하는 통합 플랫폼
+
+## 📋 프로젝트 개요
+
+| 항목 | 내용 |
+|------|------|
+| **프로젝트명** | 이음 (ieum) — 지역 축제 통합 정보 플랫폼 |
+| **팀명** | Team 2 |
+| **기간** | 2026.03.25 ~ 2026.04.21 |
+| **발표** | 4/20 리허설, **4/21 1차 프로젝트 발표** |
+
+### 주요 기능
+
+- 🗺️ **카카오맵 기반 전국 축제 탐색** — 시/도별 클러스터링, GPS 현재 위치
+- 📅 **달력 뷰** — 월별 축제 일정 확인
+- 📜 **지난 축제** — 후기/별점 열람
+- ⭐ **리뷰/별점** — 축제 후기 작성 (회원)
+- ❤️ **즐겨찾기** — 관심 축제 저장 (회원)
+- 💬 **커뮤니티** — Q&A / 축제 꿀팁 / 먹거리 게시판
+- ⚙️ **관리자** — 축제 데이터 관리, 통계 대시보드, 신고 처리, 설문 조사
+
+---
+
+## 🛠️ 기술 스택
+
+| 영역 | 기술 |
+|------|------|
+| **Frontend** | Next.js (App Router), TypeScript, CSS Modules, Zustand |
+| **BFF** | Next.js API Routes, iron-session |
+| **Backend** | Spring Boot 4.0.1, Java 21, Hexagonal Architecture |
+| **Database** | PostgreSQL 17 |
+| **지도** | Kakao Maps API (react-kakao-maps-sdk) |
+| **인증** | JWT (Spring Security) + iron-session (BFF) |
+| **배포** | Docker Compose, Nginx |
+| **문서** | Swagger (OpenAPI 3.0) |
+
+---
+
+## 📁 프로젝트 구조
+
+```
+team2-ieum/
+├── frontend/                    # Next.js (BFF 포함)
+│   └── src/
+│       ├── app/                 # App Router (Co-location 패턴)
+│       │   ├── (user)/          # 사용자 페이지
+│       │   ├── admin/           # 관리자 페이지
+│       │   ├── auth/            # 인증 페이지
+│       │   └── api/             # BFF API Routes
+│       ├── _shared/             # 공통 컴포넌트
+│       ├── lib/                 # session, api 클라이언트
+│       ├── stores/              # Zustand (전역 상태)
+│       └── middleware.ts        # 라우트 보호
+│
+├── backend/                     # Spring Boot (Hexagonal)
+│   └── src/main/java/com/ieum/festival/
+│       ├── shared/domain/       # 공유 도메인 (Festival, Notice, Report)
+│       ├── user/                # 사용자 영역 (7개 Context)
+│       ├── admin/               # 관리자 영역 (7개 Context)
+│       └── global/              # 공통 인프라 (Security, Exception)
+│
+├── database/                    # DDL, 마이그레이션
+│   └── init.sql                 # PostgreSQL 초기 스키마
+│
+├── nginx/                       # Nginx 리버스 프록시 설정
+├── docker-compose.yml           # 전체 서비스 오케스트레이션
+└── docs/
+    ├── blueprints/              # 아키텍처 청사진, 기획서
+    └── wireframes/              # 와이어프레임
+```
+
+---
+
+## ⚙️ 개발 환경 설정
+
+### 필수 설치 목록
+
+| # | 도구 | 버전 | 용도 | 설치 방법 |
+|---|------|------|------|----------|
+| 1 | **Homebrew** | 최신 | Mac 패키지 관리자 | 아래 참고 |
+| 2 | **Node.js** | 22 LTS | 프론트엔드 (Next.js) | `brew install node` |
+| 3 | **Java (JDK)** | 21+ | 백엔드 (Spring Boot) | `brew install openjdk@21` |
+| 4 | **Docker Desktop** | 최신 | DB, 배포 | `brew install --cask docker` |
+
+### 선택 설치 (Docker 없이 로컬 개발 시)
+
+| # | 도구 | 설치 방법 |
+|---|------|----------|
+| 1 | **PostgreSQL** | `brew install postgresql@17` |
+
+---
+
+### 1단계: Homebrew 설치 (Mac 패키지 관리자)
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+> 설치 후 터미널에 나오는 안내에 따라 PATH 설정을 해주세요.
+
+### 2단계: Node.js 설치
+
+```bash
+# 방법 A: Homebrew로 직접 설치
+brew install node
+
+# 방법 B: nvm으로 설치 (버전 관리 가능, 권장)
+brew install nvm
+mkdir ~/.nvm
+# .zshrc에 아래 추가:
+# export NVM_DIR="$HOME/.nvm"
+# [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
+source ~/.zshrc
+nvm install 22
+```
+
+설치 확인:
+```bash
+node -v   # v22.x.x
+npm -v    # 10.x.x
+```
+
+### 3단계: Java 설치 (이미 설치된 경우 생략)
+
+```bash
+brew install openjdk@21
+
+# .zshrc에 PATH 추가
+echo 'export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+설치 확인:
+```bash
+java -version   # openjdk 21.x.x
+```
+
+### 4단계: Docker Desktop 설치
+
+```bash
+brew install --cask docker
+```
+
+> 설치 후 Docker Desktop 앱을 실행해주세요. (첫 실행 시 권한 허용 필요)
+
+설치 확인:
+```bash
+docker -v           # Docker version 27.x.x
+docker compose version  # Docker Compose version v2.x.x
+```
+
+---
+
+## 🚀 프로젝트 실행
+
+### 프론트엔드 (Next.js)
+
+```bash
+cd frontend
+npm install          # 패키지 설치
+npm run dev          # 개발 서버 실행 → http://localhost:3000
+```
+
+### 백엔드 (Spring Boot)
+
+```bash
+cd backend
+./gradlew bootRun    # 개발 서버 실행 → http://localhost:8080
+```
+
+### Docker Compose (전체 서비스)
+
+```bash
+docker compose up -d    # 모든 서비스 백그라운드 실행
+docker compose logs -f  # 로그 확인
+docker compose down     # 종료
+```
+
+---
+
+## 🔐 API URL 규칙
+
+| URL 패턴 | 권한 | 설명 |
+|----------|------|------|
+| `GET /api/festivals/**` | 누구나 | 축제 조회 (비회원 허용) |
+| `GET /api/notices/**` | 누구나 | 공지사항 조회 |
+| `GET /api/community/**` | 누구나 | 게시글 열람 |
+| `POST /api/reviews/**` | USER | 리뷰 작성 (회원만) |
+| `/api/favorites/**` | USER | 즐겨찾기 (회원만) |
+| `POST /api/reports` | USER | 신고 접수 (회원만) |
+| `/api/auth/**` | 누구나 | 로그인/회원가입 |
+| `/api/admin/**` | ADMIN | 관리자 전용 |
+
+---
+
+## 📅 일정
+
+| 단계 | 기간 | 주요 작업 |
+|------|------|----------|
+| 1단계: 기획 & 설계 | 3/25 ~ 3/31 | 기획서, 와이어프레임, ERD, API 설계 |
+| 2단계: 핵심 개발 | 4/1 ~ 4/7 | DB, 인증 API, 축제 조회, 지도 UI |
+| 3단계: 기능 완성 | 4/8 ~ 4/14 | 커뮤니티, 마이페이지, 관리자 페이지 |
+| 4단계: 배포 & 마무리 | 4/15 ~ 4/19 | Docker, CI/CD, 테스트, 버그 수정 |
+| 📌 발표 리허설 | **4/20 (월)** | 시연 점검, PPT 최종 |
+| 🎤 1차 프로젝트 발표 | **4/21 (화)** | 최종 발표 |
+
+---
+
+## 👥 팀원
+
+| 팀원 | 역할 | 담당 |
+|------|------|------|
+| (팀원 A) | 팀장 / 프론트 | 메인, 지도 연동, 레이아웃 |
+| (팀원 B) | 프론트 | 달력, 축제 상세, 마이페이지 |
+| (팀원 C) | 프론트 / 퍼블리싱 | 커뮤니티, 공지, 관리자 UI |
+| (팀원 D) | 백엔드 | 축제 API, 검색, 공공데이터 연동 |
+| (팀원 E) | 백엔드 / 인프라 | 인증, 리뷰/게시판 API, Docker |
+
+---
+
+## 📚 참고 문서
+
+- [아키텍처 청사진](./docs/blueprints/ARCHITECTURE_BLUEPRINT.md)
+- [프로젝트 기획서](./docs/blueprints/프로젝트_기획서_템플릿.md)
+- [와이어프레임](./docs/wireframes/와이어프레임_가이드.md)
+- [공공데이터포털 축제 API](https://www.data.go.kr)
+- [카카오맵 API](https://apis.map.kakao.com/)
