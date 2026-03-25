@@ -1,4 +1,120 @@
-# team2-ieum
+# 🎪 이음 (ieum) — 지역 축제 통합 정보 플랫폼
+
+> 전국 축제 정보를 지도 기반으로 탐색하고, 커뮤니티에서 소통하는 통합 플랫폼
+
+---
+
+## 🚀 빠른 시작 가이드 (Quick Start)
+
+> 프로젝트를 클론받고 실행하기까지 필요한 **모든 과정**을 순서대로 정리했습니다.
+
+### 📦 사전 준비 (필수 소프트웨어)
+
+아래 도구들이 설치되어 있어야 합니다. 미설치 시 [개발 환경 설정](#%EF%B8%8F-개발-환경-설정) 섹션을 참고하세요.
+
+| 도구 | 최소 버전 | 확인 명령어 |
+|------|----------|------------|
+| **Git** | 2.x | `git --version` |
+| **Node.js** | 22 LTS | `node -v` |
+| **npm** | 10.x | `npm -v` |
+| **Java (JDK)** | 21+ | `java -version` |
+| **Docker Desktop** | 최신 | `docker -v` |
+
+---
+
+### 방법 1️⃣ Docker로 전체 한 번에 실행 (권장)
+
+> Docker Desktop이 실행 중이어야 합니다.
+
+```bash
+# 1. 프로젝트 클론
+git clone https://github.com/newlecture-ibm2/team2-ieum.git
+cd team2-ieum
+
+# 2. 전체 서비스 실행 (PostgreSQL + Backend + Frontend + Nginx)
+docker compose up -d
+
+# 3. 실행 확인
+docker compose ps        # 모든 서비스가 running 상태인지 확인
+docker compose logs -f   # 실시간 로그 확인 (Ctrl+C로 종료)
+```
+
+| 서비스 | URL |
+|--------|-----|
+| 🌐 프론트엔드 | http://localhost:3000 |
+| ⚙️ 백엔드 API | http://localhost:8080 |
+| 📖 Swagger 문서 | http://localhost:8080/swagger-ui.html |
+| 🗄️ PostgreSQL | `localhost:5432` (DB: `ieum`) |
+
+```bash
+# 종료
+docker compose down
+
+# 데이터까지 완전 초기화
+docker compose down -v
+```
+
+---
+
+### 방법 2️⃣ 로컬에서 개별 실행 (개발 시 권장)
+
+#### Step 1. 프로젝트 클론
+
+```bash
+git clone https://github.com/newlecture-ibm2/team2-ieum.git
+cd team2-ieum
+```
+
+#### Step 2. PostgreSQL 실행
+
+```bash
+# Docker로 DB만 실행
+docker run -d \
+  --name ieum-db \
+  -p 5432:5432 \
+  -e POSTGRES_DB=ieum \
+  -e POSTGRES_USER=ieum \
+  -e POSTGRES_PASSWORD=ieum1234 \
+  postgres:17
+```
+
+> 또는 로컬에 설치된 PostgreSQL을 사용해도 됩니다. DB명: `ieum`, 유저: `ieum`, 비밀번호: `ieum1234`
+
+#### Step 3. 백엔드 실행 (Spring Boot)
+
+```bash
+cd backend
+./gradlew bootRun
+# → http://localhost:8080 에서 API 실행
+# → http://localhost:8080/swagger-ui.html 에서 API 문서 확인
+```
+
+> ⚠️ 최초 실행 시 Gradle 의존성 다운로드에 시간이 걸릴 수 있습니다.
+
+#### Step 4. 프론트엔드 실행 (Next.js)
+
+```bash
+# 새 터미널을 열고
+cd frontend
+npm install       # 최초 1회: 패키지 설치
+npm run dev
+# → http://localhost:3000 에서 프론트엔드 실행
+```
+
+---
+
+### 🔑 환경 변수 참고
+
+| 변수 | 기본값 | 설명 |
+|------|--------|------|
+| `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/ieum` | DB 접속 URL |
+| `SPRING_DATASOURCE_USERNAME` | `ieum` | DB 유저명 |
+| `SPRING_DATASOURCE_PASSWORD` | `ieum1234` | DB 비밀번호 |
+| `JWT_SECRET` | (내장 기본값) | JWT 서명 키 |
+| `BACKEND_URL` | `http://backend:8080` | BFF → Backend URL |
+| `SESSION_SECRET` | (Docker 내장) | iron-session 암호화 키 |
+
+---
 
 <br>
 
@@ -58,10 +174,6 @@ fix: 메뉴 이미지 경로 오류 수정
 4. **하나의 커밋 = 하나의 작업** — 여러 작업을 한 커밋에 넣지 않기
 5. **왜 변경했는지** 설명이 필요하면 본문에 작성
 
-<br>
-# 🎪 이음 — 지역 축제 통합 정보 플랫폼
-
-> 전국 축제 정보를 지도 기반으로 탐색하고, 커뮤니티에서 소통하는 통합 플랫폼
 
 ## 📋 프로젝트 개요
 
