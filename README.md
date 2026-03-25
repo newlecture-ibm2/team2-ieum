@@ -69,7 +69,6 @@ cd team2-ieum
 
 ```bash
 # Docker로 DB만 실행
-# 예시 아이디, 비밀번호입니다.
 docker run -d \
   --name ieum-db \
   -p 5432:5432 \
