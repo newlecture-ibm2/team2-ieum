@@ -31,7 +31,6 @@ services:
       - POSTGRES_PASSWORD=ieum1234
     volumes:
       - pgdata:/var/lib/postgresql/data
-      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   nginx:
     build: ./nginx
