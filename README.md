@@ -246,55 +246,25 @@ team2-ieum/
 
 ## ⚙️ 개발 환경 설정
 
-### 필수 설치 목록
+### 🍎 Mac (macOS) 전용 설정 가이드
 
-| # | 도구 | 버전 | 용도 | 설치 방법 |
-|---|------|------|------|----------|
-| 1 | **Homebrew** | 최신 | Mac 패키지 관리자 | 아래 참고 |
-| 2 | **Node.js** | 22 LTS | 프론트엔드 (Next.js) | `brew install node` |
-| 3 | **Java (JDK)** | 21+ | 백엔드 (Spring Boot) | `brew install openjdk@21` |
-| 4 | **Docker Desktop** | 최신 | DB, 배포 | `brew install --cask docker` |
-
-### 선택 설치 (Docker 없이 로컬 개발 시)
-
-| # | 도구 | 설치 방법 |
-|---|------|----------|
-| 1 | **PostgreSQL** | `brew install postgresql@17` |
-
----
-
-### 1단계: Homebrew 설치 (Mac 패키지 관리자)
-
+#### 1단계: Homebrew 설치 (Mac 패키지 관리자)
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
-
 > 설치 후 터미널에 나오는 안내에 따라 PATH 설정을 해주세요.
 
-### 2단계: Node.js 설치
-
+#### 2단계: Node.js (v22 LTS) 설치
 ```bash
 # 방법 A: Homebrew로 직접 설치
 brew install node
 
-# 방법 B: nvm으로 설치 (버전 관리 가능, 권장)
+# 방법 B: NVM으로 설치 (버전 관리 가능, 권장)
 brew install nvm
-mkdir ~/.nvm
-# .zshrc에 아래 추가:
-# export NVM_DIR="$HOME/.nvm"
-# [ -s "/opt/homebrew/opt/nvm/nvm.sh" ] && \. "/opt/homebrew/opt/nvm/nvm.sh"
-source ~/.zshrc
 nvm install 22
 ```
 
-설치 확인:
-```bash
-node -v   # v22.x.x
-npm -v    # 10.x.x
-```
-
-### 3단계: Java 설치 (이미 설치된 경우 생략)
-
+#### 3단계: Java (OpenJDK 21) 설치
 ```bash
 brew install openjdk@21
 
@@ -303,22 +273,45 @@ echo 'export PATH="/opt/homebrew/opt/openjdk@21/bin:$PATH"' >> ~/.zshrc
 source ~/.zshrc
 ```
 
-설치 확인:
-```bash
-java -version   # openjdk 21.x.x
-```
-
-### 4단계: Docker Desktop 설치
-
+#### 4단계: Docker Desktop 설치
 ```bash
 brew install --cask docker
 ```
 
-> 설치 후 Docker Desktop 앱을 실행해주세요. (첫 실행 시 권한 허용 필요)
+---
 
-설치 확인:
+### 🪟 Windows 전용 설정 가이드
+
+#### 1단계: NVM for Windows (Node.js 관리) 설치
+1. [NVM-Windows 공식 다운로드 페이지](https://github.com/coreybutler/nvm-windows/releases) 접속
+2. `nvm-setup.exe` 다운로드 및 설치 진행
+3. 명령 프롬프트(CMD) 또는 PowerShell 환경에서 Node 22 버전을 설치합니다.
+```cmd
+nvm install 22
+nvm use 22
+```
+
+#### 2단계: Java (OpenJDK 21) 설치
+1. [Adoptium (Eclipse Temurin) 오픈소스 JDK 21](https://adoptium.net/temurin/releases/?version=21) 다운로드
+2. MSI 인스톨러 등을 다운로드 후 설치합니다.
+3. ⚠️ **중요**: 설치 화면에서 **[Add to PATH]** 와 **[Set JAVA_HOME variable]** 옵션을 꼭 "사용함(Will be installed...)"으로 켜두세요.
+
+#### 3단계: Docker Desktop 설치
+1. [Docker Desktop for Windows 공식 사이트](https://docs.docker.com/desktop/install/windows-install/)에서 설치 파일 다운로드 및 실행
+2. 설치 전 WSL2(Windows Subsystem for Linux) 기능이 필요한 경우가 많으므로 인스톨러 안내에 따르세요.
+3. 설치 후 반드시 **Docker Desktop 프로그램을 한번 실행**해야 백그라운드 엔진이 켜집니다.
+
+---
+
+### 🔍 설치 확인 (Mac / Windows 공통)
+
+새로운 터미널 창(또는 CMD, PowerShell)을 열고 아래 명령어들이 정상적으로 버전을 출력하는지 확인해주세요.
+
 ```bash
-docker -v           # Docker version 27.x.x
+node -v                 # v22.x.x
+npm -v                  # 10.x.x
+java -version           # openjdk 21.x.x
+docker -v               # Docker version 27.x.x
 docker compose version  # Docker Compose version v2.x.x
 ```
 
