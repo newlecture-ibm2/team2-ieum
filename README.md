@@ -233,9 +233,7 @@ team2-ieum/
 │       ├── user/                # 사용자 영역 (7개 Context)
 │       ├── admin/               # 관리자 영역 (7개 Context)
 │       └── global/              # 공통 인프라 (Security, Exception)
-│
-├── database/                    # DDL, 마이그레이션
-│   └── init.sql                 # PostgreSQL 초기 스키마
+│           └── init/            # DB 초기화 데이터 (DataInitializer)
 │
 ├── nginx/                       # Nginx 리버스 프록시 설정
 ├── docker-compose.yml           # 전체 서비스 오케스트레이션
