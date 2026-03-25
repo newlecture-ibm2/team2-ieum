@@ -69,16 +69,17 @@ cd team2-ieum
 
 ```bash
 # Docker로 DB만 실행
+# 예시 아이디, 비밀번호입니다.
 docker run -d \
   --name ieum-db \
   -p 5432:5432 \
   -e POSTGRES_DB=ieum \
   -e POSTGRES_USER=ieum \
-  -e POSTGRES_PASSWORD=ieum1234 \
+  -e POSTGRES_PASSWORD=YOUR_SECRET_PASSWORD \
   postgres:17
 ```
 
-> 또는 로컬에 설치된 PostgreSQL을 사용해도 됩니다. DB명: `ieum`, 유저: `ieum`, 비밀번호: `ieum1234`
+> 또는 로컬에 설치된 PostgreSQL을 사용해도 됩니다. DB명: `ieum`, 유저: `ieum`, 비밀번호: `YOUR_SECRET_PASSWORD`
 
 #### Step 3. 백엔드 실행 (Spring Boot)
 
@@ -109,7 +110,7 @@ npm run dev
 |------|--------|------|
 | `SPRING_DATASOURCE_URL` | `jdbc:postgresql://localhost:5432/ieum` | DB 접속 URL |
 | `SPRING_DATASOURCE_USERNAME` | `ieum` | DB 유저명 |
-| `SPRING_DATASOURCE_PASSWORD` | `ieum1234` | DB 비밀번호 |
+| `SPRING_DATASOURCE_PASSWORD` | `YOUR_SECRET_PASSWORD` | DB 비밀번호 |
 | `JWT_SECRET` | (내장 기본값) | JWT 서명 키 |
 | `BACKEND_URL` | `http://backend:8080` | BFF → Backend URL |
 | `SESSION_SECRET` | (Docker 내장) | iron-session 암호화 키 |

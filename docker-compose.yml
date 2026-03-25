@@ -16,7 +16,7 @@ services:
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ieum
       - SPRING_DATASOURCE_USERNAME=ieum
-      - SPRING_DATASOURCE_PASSWORD=ieum1234
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-YOUR_SECRET_PASSWORD}
       - JWT_SECRET=your-secret-key-at-least-256-bits-long-for-hs256
     depends_on:
       - postgres
@@ -28,7 +28,7 @@ services:
     environment:
       - POSTGRES_DB=ieum
       - POSTGRES_USER=ieum
-      - POSTGRES_PASSWORD=ieum1234
+      - POSTGRES_PASSWORD=${DB_PASSWORD:-YOUR_SECRET_PASSWORD}
     volumes:
       - pgdata:/var/lib/postgresql/data
 
