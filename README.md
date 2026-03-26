@@ -359,6 +359,87 @@ docker compose down     # 종료
 
 ---
 
+## 📖 Swagger (API 문서) 사용 가이드
+
+> 팀원 모두가 API 명세를 확인하고, 바로 테스트할 수 있는 Swagger UI가 설정되어 있습니다.
+
+### 📌 접속 URL
+
+| 항목 | URL |
+|------|-----|
+| **🔗 Swagger UI** | http://localhost:8080/swagger-ui.html |
+| API 문서 (JSON) | http://localhost:8080/v3/api-docs |
+| API 문서 (YAML) | http://localhost:8080/v3/api-docs.yaml |
+
+> ⚠️ 백엔드 서버가 실행 중이어야 접속 가능합니다. (`./gradlew bootRun` 또는 `docker compose up`)
+
+### 🔑 JWT 인증 테스트 방법
+
+Swagger UI에서 인증이 필요한 API를 테스트하려면:
+
+```
+1. Swagger UI 접속 (http://localhost:8080/swagger-ui.html)
+2. 상단 드롭다운에서 "1. User API" 선택
+3. POST /api/auth/login 실행 → 응답의 accessToken 복사
+4. 우측 상단 🔓 [Authorize] 버튼 클릭
+5. Value 칸에 토큰 붙여넣기 (Bearer 접두사 없이 토큰만!)
+6. [Authorize] → [Close]
+7. 이제 인증 필요 API (리뷰 작성, 즐겨찾기 등) 테스트 가능!
+```
+
+### 📂 API 그룹
+
+Swagger UI 상단 드롭다운에서 API 그룹을 선택할 수 있습니다.
+
+| 그룹 | 포함 경로 | 대상 |
+|------|----------|------|
+| **1. User API** | `/api/**` (admin 제외) | 프론트엔드 팀원 |
+| **2. Admin API** | `/api/admin/**` | 관리자 기능 담당 |
+
+### 🏷️ Controller에 API 문서 어노테이션 추가하기
+
+새로운 Controller를 만들 때 아래 어노테이션을 추가하면 Swagger에 자동 반영됩니다.
+
+```java
+// 클래스 레벨
+@Tag(name = "축제", description = "축제 조회 관련 API")
+@RestController
+@RequestMapping("/api/festivals")
+public class FestivalController {
+
+    // 메서드 레벨
+    @Operation(summary = "축제 목록 조회", description = "페이지네이션 기반 축제 목록")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "조회 성공"),
+        @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    })
+    @GetMapping
+    public ApiResponse<List<FestivalResponse>> getFestivals(
+            @Parameter(description = "페이지 번호", example = "0")
+            @RequestParam(defaultValue = "0") int page
+    ) { ... }
+}
+```
+
+```java
+// DTO 레벨
+@Schema(description = "로그인 요청")
+public record LoginRequest(
+    @Schema(description = "이메일", example = "user@ieum.com")
+    String email,
+    @Schema(description = "비밀번호", example = "password123")
+    String password
+) {}
+```
+
+### 👥 팀원 공유 팁
+
+- **같은 네트워크**라면 → `http://{서버IP}:8080/swagger-ui.html`로 다른 팀원도 접속 가능
+- **Postman import** → `/v3/api-docs.yaml` 접속 후 저장 → Postman에서 Import
+- **Docker 사용 시** → `docker compose up` 후 동일 URL로 접속
+
+---
+
 ## 📅 일정
 
 | 단계 | 기간 | 주요 작업 |
@@ -388,6 +469,7 @@ docker compose down     # 종료
 
 - [아키텍처 청사진](./docs/blueprints/ARCHITECTURE_BLUEPRINT.md)
 - [프로젝트 기획서](./docs/blueprints/프로젝트_기획서_템플릿.md)
+- [Swagger 설정 청사진](./docs/blueprints/Swagger_설정_청사진.md)
 - [와이어프레임](./docs/wireframes/와이어프레임_가이드.md)
 - [공공데이터포털 축제 API](https://www.data.go.kr)
 - [카카오맵 API](https://apis.map.kakao.com/)

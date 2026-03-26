@@ -31,5 +31,11 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     groups-order: DESC
+    tags-sorter: alpha
+    operations-sorter: method
+    doc-expansion: none
+    default-models-expand-depth: 2
   api-docs:
     path: /v3/api-docs
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
