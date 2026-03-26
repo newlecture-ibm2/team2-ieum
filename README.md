@@ -440,6 +440,89 @@ public record LoginRequest(
 
 ---
 
+## 🛠️ 백엔드 Controller 개발 가이드
+
+> 모든 API 엔드포인트의 **Controller 스텁(뼈대)**이 이미 생성되어 있습니다.  
+> 각 Controller 안의 `// TODO: 구현` 부분을 채워 넣으면 됩니다.
+
+### 📂 생성된 Controller 목록
+
+#### User API (일반 사용자)
+
+| Controller | 위치 | API |
+|-----------|------|-----|
+| `AuthController` | `user/auth/adapter/in/web/` | 회원가입, 로그인, 로그아웃 |
+| `UserController` | `user/auth/adapter/in/web/` | 내 정보, 즐겨찾기/게시글/리뷰/알림 조회, FCM 토큰 |
+| `FestivalController` | `user/festival/adapter/in/web/` | 축제 목록, 상세, 검색, 지도, 달력 |
+| `ReviewController` | `user/review/adapter/in/web/` | 리뷰 작성, 목록, 수정, 삭제 |
+| `PostController` | `user/community/adapter/in/web/` | 게시글 CRUD, 댓글 작성 |
+| `CommentController` | `user/community/adapter/in/web/` | 댓글 삭제 |
+| `FavoriteController` | `user/favorite/adapter/in/web/` | 즐겨찾기 추가, 삭제 |
+| `NoticeController` | `user/notice/adapter/in/web/` | 공지사항 목록, 상세 (조회만) |
+| `ReportController` | `user/report/adapter/in/web/` | 신고 접수 |
+
+#### Admin API (관리자)
+
+| Controller | 위치 | API |
+|-----------|------|-----|
+| `FestivalAdminController` | `admin/festivalmgmt/adapter/in/web/` | 축제 데이터 동기화 |
+| `NoticeAdminController` | `admin/noticemgmt/adapter/in/web/` | 공지사항 작성, 수정, 삭제 |
+| `ReportAdminController` | `admin/reportmgmt/adapter/in/web/` | 신고 목록, 처리 |
+| `StatisticsController` | `admin/statistics/adapter/in/web/` | 축제/사용자 통계 |
+| `SurveyController` | `admin/survey/adapter/in/web/` | 설문 생성, 응답 제출, 결과 조회 |
+
+> 💡 모든 경로의 루트: `backend/src/main/java/com/ieum/festival/`
+
+### 🔧 개발 절차
+
+담당 Controller를 개발할 때 아래 순서대로 진행하세요.
+
+```
+1️⃣ Domain 모델 작성 (domain/model/)
+   → 순수 Java 객체, 비즈니스 규칙 정의
+
+2️⃣ Port 인터페이스 작성 (application/port/)
+   → in/: UseCase 인터페이스 (Controller가 호출)
+   → out/: Repository Port 인터페이스 (Service가 사용)
+
+3️⃣ Service 구현 (application/service/)
+   → UseCase 인터페이스를 구현하는 비즈니스 로직
+
+4️⃣ Adapter 구현
+   → out/persistence/: JPA Entity + Repository (Port 구현)
+   → in/web/: Controller의 TODO 부분을 Service 호출로 교체
+```
+
+### 📁 예시: 축제 조회 기능 개발
+
+```
+user/festival/
+├── adapter/
+│   ├── in/web/
+│   │   └── FestivalController.java      ← ✅ 이미 있음 (TODO 채우기)
+│   └── out/persistence/
+│       ├── entity/FestivalJpaEntity.java ← 새로 생성
+│       ├── repository/FestivalJpaRepository.java
+│       └── FestivalPersistenceAdapter.java
+├── application/
+│   ├── port/
+│   │   ├── in/GetFestivalListUseCase.java
+│   │   └── out/LoadFestivalPort.java
+│   ├── result/FestivalListResult.java
+│   └── service/FestivalQueryService.java
+└── domain/
+    └── model/  ← shared/domain/model/Festival 사용
+```
+
+### ⚠️ 주의사항
+
+- **Controller의 `@RequestMapping` 경로를 변경하지 마세요** — Swagger 문서와 SecurityConfig 권한 규칙이 연동되어 있습니다
+- **`Map<String, Object>` 타입은 임시입니다** — 실제 개발 시 Request/Response DTO 클래스로 교체하세요
+- DTO에 `@Schema` 어노테이션을 추가하면 Swagger에서 예시값이 표시됩니다
+- 개발 완료 후 `http://localhost:8080/swagger-ui.html`에서 직접 API 테스트 가능
+
+---
+
 ## 📅 일정
 
 | 단계 | 기간 | 주요 작업 |
