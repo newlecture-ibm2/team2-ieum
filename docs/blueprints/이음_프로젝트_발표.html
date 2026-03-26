@@ -621,11 +621,13 @@ for(let i=0;i<total;i++){
 const dots=dotsEl.querySelectorAll('.dot');
 
 function goTo(n){
-  slides[current].classList.remove('active');
-  slides[current].classList.add(n>current?'prev':'');
-  setTimeout(()=>slides[current].className=slides[current].className.replace(' prev',''),600);
+  const old=current;
+  slides[old].classList.remove('active');
+  if(n>old) slides[old].classList.add('prev');
   current=n;
+  slides[current].classList.remove('prev');
   slides[current].classList.add('active');
+  setTimeout(()=>slides[old].classList.remove('prev'),600);
   counter.textContent=`${current+1} / ${total}`;
   dots.forEach((d,i)=>d.classList.toggle('active',i===current));
 }
