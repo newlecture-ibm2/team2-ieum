@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>화면설계서 - 축제 달력</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.page{width:1200px;margin:20px auto;border:1.5px solid #333;background:#fff;page-break-after:always}
+.meta-header{display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid #333}
+.meta-left,.meta-right{display:grid;grid-template-columns:auto 1fr auto 1fr}
+.meta-left{border-right:1.5px solid #333}
+.meta-label{background:#f5f5f5;font-weight:700;font-size:12px;padding:10px 14px;border-right:1px solid #ccc;display:flex;align-items:center;white-space:nowrap}
+.meta-value{font-size:12px;padding:10px 14px;display:flex;align-items:center;border-right:1px solid #ccc}
+.meta-value:last-child{border-right:none}
+.meta-row2{display:grid;grid-template-columns:auto 1fr;border-bottom:1.5px solid #333}
+.main-content{display:grid;grid-template-columns:65% 35%;min-height:750px}
+.screen-area{border-right:1.5px solid #333;padding:20px;position:relative;background:#fafafa}
+.marker{position:absolute;width:28px;height:28px;border-radius:50%;background:#FF4D6A;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(255,77,106,0.4);z-index:10}
+.description-area{display:flex;flex-direction:column}
+.desc-title{background:#f5f5f5;font-weight:700;font-size:14px;padding:10px 16px;border-bottom:1.5px solid #333;text-align:center;letter-spacing:1px}
+.summary-section{padding:14px 16px;border-bottom:1px solid #ddd}
+.summary-section h4{font-size:13px;font-weight:700;margin-bottom:8px;color:#444;font-style:italic}
+.summary-section ul{list-style:disc;padding-left:18px}
+.summary-section li{font-size:12px;line-height:1.7;color:#555}
+.desc-table{width:100%;border-collapse:collapse;flex:1}
+.desc-table tr{border-bottom:1px solid #ddd}
+.desc-table tr:last-child{border-bottom:none}
+.desc-table td{padding:10px 12px;vertical-align:top;font-size:12px;line-height:1.7}
+.desc-table .num{width:36px;text-align:center;font-weight:700;color:#FF4D6A;font-size:13px;vertical-align:middle;border-right:1px solid #eee}
+.desc-table .desc-text{color:#333}
+.checkpoint{border-top:1.5px solid #333;padding:12px 16px}
+.checkpoint h4{font-size:13px;font-weight:700;color:#1a56db;margin-bottom:6px}
+.checkpoint p{font-size:12px;line-height:1.7;color:#555}
+/* 와이어프레임 */
+.wire{border:1px solid #ddd;border-radius:4px;background:#fff;position:relative;overflow:hidden}
+.wire-header{height:48px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;justify-content:space-between}
+.wire-logo{font-weight:700;font-size:14px;color:#6B46C1}
+.wire-nav{display:flex;gap:16px;font-size:11px;color:#666}
+.wire-nav span.active{color:#6B46C1;border-bottom:2px solid #6B46C1;padding-bottom:2px}
+.wire-icons{display:flex;gap:10px;font-size:13px;color:#888}
+.cal-title{padding:16px 20px 8px;font-size:13px;font-weight:600;color:#333}
+.cal-ym{font-size:22px;font-weight:700;color:#6B46C1;padding:0 20px 12px;display:flex;align-items:center;gap:12px}
+.cal-ym .arrows{font-size:12px;color:#888;cursor:pointer}
+.cal-grid{margin:0 20px;border:1px solid #e5e7eb;border-radius:6px;overflow:hidden}
+.cal-weekdays{display:grid;grid-template-columns:repeat(7,1fr);background:#6B46C1;color:#fff;font-size:10px;font-weight:600;text-align:center;padding:6px 0}
+.cal-weekdays span:first-child{color:#ffcdd2}
+.cal-weekdays span:last-child{color:#bbdefb}
+.cal-days{display:grid;grid-template-columns:repeat(7,1fr);gap:1px;background:#e5e7eb}
+.cal-day{background:#fff;padding:6px 4px;text-align:center;font-size:11px;min-height:48px}
+.cal-day .day-num{font-weight:600}
+.cal-day .day-num.sun{color:#e53e3e}
+.cal-day .day-num.sat{color:#3182ce}
+.cal-day .day-count{font-size:9px;color:#888;margin-top:2px}
+.cal-day.today{background:#EDE9FE}
+.cal-day.today .day-num{background:#6B46C1;color:#fff;border-radius:50%;width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+.fest-list{margin:16px 20px;padding:12px;border:1px solid #e5e7eb;border-radius:8px;background:#f9fafb}
+.fest-list-title{font-size:12px;font-weight:700;margin-bottom:10px;color:#333}
+.fest-cards{display:flex;gap:10px}
+.fest-card{flex:1;background:#fff;border-radius:8px;border:1px solid #e5e7eb;overflow:hidden;font-size:9px}
+.fest-card-img{height:50px;background:linear-gradient(135deg,#f0abfc,#c084fc);position:relative}
+.fest-card-img .card-num{position:absolute;top:4px;left:4px;background:#6B46C1;color:#fff;border-radius:50%;width:16px;height:16px;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700}
+.fest-card-body{padding:6px}
+.fest-card-body .card-title{font-weight:600;font-size:10px;margin-bottom:2px}
+.fest-card-body .card-loc{color:#888;font-size:8px}
+.fest-card-body .card-date{color:#888;font-size:8px}
+.fest-card-body .card-tags{margin-top:3px;display:flex;gap:3px}
+.fest-card-body .tag{background:#EDE9FE;color:#6B46C1;padding:1px 4px;border-radius:3px;font-size:7px}
+.fest-card-body .btn-detail{border:1px solid #6B46C1;color:#6B46C1;padding:1px 6px;border-radius:3px;font-size:7px;background:none;margin-top:3px}
+</style>
+</head>
+<body>
+
+<!-- ====== PAGE 1: 축제 달력 (월별 뷰 + 축제 리스트) ====== -->
+<div class="page">
+  <div class="meta-header">
+    <div class="meta-left">
+      <div class="meta-label">Page Title.</div>
+      <div class="meta-value">축제 달력 (월별)</div>
+      <div class="meta-label">Screen ID</div>
+      <div class="meta-value">UI-CAL-001</div>
+    </div>
+    <div class="meta-right">
+      <div class="meta-label">Author</div>
+      <div class="meta-value">정혜연</div>
+      <div class="meta-label">Date</div>
+      <div class="meta-value">2026.03.27</div>
+    </div>
+  </div>
+  <div class="meta-row2">
+    <div class="meta-label">Screen Path</div>
+    <div class="meta-value">달력</div>
+  </div>
+
+  <div class="main-content">
+    <div class="screen-area">
+      <div class="wire">
+        <!-- GNB Header -->
+        <div class="wire-header">
+          <div class="wire-logo">Festa-Connect</div>
+          <div class="wire-nav">
+            <span>Home</span>
+            <span>National Festivals</span>
+            <span class="active">Festival Calendar</span>
+            <span>Map</span>
+          </div>
+          <div class="wire-icons">👤 🔍</div>
+        </div>
+        <!-- Calendar Title -->
+        <div class="cal-title">Monthly Festival Calendar</div>
+        <div class="cal-ym">2026.3 <span class="arrows">◀ ▶</span></div>
+        <!-- Calendar Grid -->
+        <div class="cal-grid">
+          <div class="cal-weekdays"><span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span></div>
+          <div class="cal-days">
+            <div class="cal-day"><span class="day-num sun">1</span><div class="day-count">17개</div></div>
+            <div class="cal-day"><span class="day-num">2</span><div class="day-count">17개</div></div>
+            <div class="cal-day"><span class="day-num">3</span><div class="day-count">1개</div></div>
+            <div class="cal-day"><span class="day-num">4</span><div class="day-count">17개</div></div>
+            <div class="cal-day"><span class="day-num">5</span><div class="day-count">17개</div></div>
+            <div class="cal-day"><span class="day-num">6</span><div class="day-count">1개</div></div>
+            <div class="cal-day"><span class="day-num sat">7</span><div class="day-count">17개</div></div>
+            <div class="cal-day"><span class="day-num sun">8</span></div>
+            <div class="cal-day"><span class="day-num">9</span></div>
+            <div class="cal-day"><span class="day-num">10</span></div>
+            <div class="cal-day today"><span class="day-num">18</span><div class="day-count">1개</div></div>
+            <div class="cal-day"><span class="day-num">19</span><div class="day-count">1개</div></div>
+            <div class="cal-day"><span class="day-num">20</span><div class="day-count">1개</div></div>
+            <div class="cal-day"><span class="day-num sat">14</span><div class="day-count">2개</div></div>
+          </div>
+        </div>
+        <!-- Festival List -->
+        <div class="fest-list">
+          <div class="fest-list-title">3월 18일(수) 축제 리스트</div>
+          <div class="fest-cards">
+            <div class="fest-card">
+              <div class="fest-card-img"><div class="card-num">1</div></div>
+              <div class="fest-card-body">
+                <div class="card-title">여의도 봄꽃 축제</div>
+                <div class="card-loc">📍 서울 영등포구</div>
+                <div class="card-date">2026.3.3~12.3</div>
+                <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button class="btn-detail">상세보기</button></div>
+              </div>
+            </div>
+            <div class="fest-card">
+              <div class="fest-card-img" style="background:linear-gradient(135deg,#86efac,#34d399)"><div class="card-num">2</div></div>
+              <div class="fest-card-body">
+                <div class="card-title">부산 낙동강 유채꽃 축제</div>
+                <div class="card-loc">📍 부산 강서구</div>
+                <div class="card-date">2026.3.3~12.5</div>
+                <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button class="btn-detail">상세보기</button></div>
+              </div>
+            </div>
+            <div class="fest-card">
+              <div class="fest-card-img" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)"><div class="card-num">3</div></div>
+              <div class="fest-card-body">
+                <div class="card-title">고란창 축제</div>
+                <div class="card-loc">📍 서울 강서구</div>
+                <div class="card-date">2026.3.3~12.3</div>
+                <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button class="btn-detail">상세보기</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- Markers -->
+      <div class="marker" style="top:58px;left:370px">1</div>
+      <div class="marker" style="top:88px;left:100px">2</div>
+      <div class="marker" style="top:118px;right:65px">3</div>
+      <div class="marker" style="top:148px;left:200px">4</div>
+      <div class="marker" style="top:310px;left:310px">5</div>
+      <div class="marker" style="top:420px;left:100px">6</div>
+      <div class="marker" style="top:540px;left:250px">7</div>
+    </div>
+
+    <div class="description-area">
+      <div class="desc-title">Description</div>
+      <div class="summary-section">
+        <h4>Summary.</h4>
+        <ul>
+          <li>월별 캘린더로 축제 일정을 한눈에 조회하는 페이지</li>
+          <li>날짜별 축제 개수 표시, 날짜 클릭 시 해당일 축제 카드 리스트 노출</li>
+          <li>비회원도 조회 가능 (API_FES_0005)</li>
+        </ul>
+      </div>
+      <table class="desc-table">
+        <tr><td class="num">1</td><td class="desc-text"><strong>GNB 네비게이션</strong><br>Home | National Festivals | Festival Calendar | Map<br>현재 선택 탭 "Festival Calendar"에 활성 표시</td></tr>
+        <tr><td class="num">2</td><td class="desc-text"><strong>페이지 타이틀</strong><br>"Monthly Festival Calendar" 고정 타이틀<br>페이지 진입 시 현재 월 자동 표시</td></tr>
+        <tr><td class="num">3</td><td class="desc-text"><strong>월 이동 네비게이션</strong><br>"2026.3" 연월 표시 + ◀ ▶ 화살표<br>클릭 시 이전/다음 월로 이동, API 재호출 (year, month 파라미터)</td></tr>
+        <tr><td class="num">4</td><td class="desc-text"><strong>캘린더 요일 헤더</strong><br>일~토 요일 표시 (보라색 배경)<br>일요일: 빨간색, 토요일: 파란색 텍스트</td></tr>
+        <tr><td class="num">5</td><td class="desc-text"><strong>날짜 셀 (축제 개수 표시)</strong><br>각 날짜에 해당 일에 진행중인 축제 개수 표시<br>오늘 날짜: 보라색 원형 배경으로 하이라이트<br>날짜 클릭 시 하단 ⑦ 축제 리스트 갱신</td></tr>
+        <tr><td class="num">6</td><td class="desc-text"><strong>축제 개수 카운트</strong><br>start_date~end_date 범위에 해당 날짜가 포함되면 카운트<br>0개인 날짜는 카운트 미표시</td></tr>
+        <tr><td class="num">7</td><td class="desc-text"><strong>선택 날짜 축제 카드 리스트</strong><br>선택한 날짜의 축제를 가로 스크롤 카드로 표시<br>카드 구성: 대표이미지, 축제명, 위치, 기간, 진행상태 태그, 해시태그, [상세보기] 버튼<br>[상세보기] 클릭 → /festivals/{id} 상세 페이지 이동<br>3개 초과 시 가로 스크롤 또는 "더보기" 처리</td></tr>
+      </table>
+      <div class="checkpoint">
+        <h4>Check Point</h4>
+        <p>
+          · FullCalendar 라이브러리 활용 (monthView)<br>
+          · API: GET /api/festivals/calendar?year=2026&month=3<br>
+          · 축제 기간(start~end)이 복수 날짜에 걸치면 각 날짜에 모두 카운트<br>
+          · 날짜 미선택 시 오늘 날짜 축제를 기본 표시<br>
+          · 카드 클릭 시 /festivals/{festivalId}로 이동
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
