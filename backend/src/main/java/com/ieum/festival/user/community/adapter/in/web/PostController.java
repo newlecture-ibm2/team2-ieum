@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Tag(name = "커뮤니티", description = "게시글 CRUD / 댓글")
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping("/api/community/posts")
 public class PostController {
 
     @Operation(summary = "게시글 작성", description = "커뮤니티 게시글을 작성합니다. (회원 전용)")

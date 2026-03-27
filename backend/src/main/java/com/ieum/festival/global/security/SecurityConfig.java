@@ -2,6 +2,7 @@ package com.ieum.festival.global.security;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -14,7 +15,9 @@ import org.springframework.security.web.SecurityFilterChain;
  *
  * - Swagger UI 경로 permitAll
  * - 공개 API (축제 조회, 인증) permitAll
- * - 관리자 API ADMIN 역할 필요
+ * - 관리자 로그인 permitAll
+ * - 회원 전용 API hasRole("USER")
+ * - 관리자 API hasRole("ADMIN")
  * - 나머지 인증 필요
  *
  * TODO: JWT 필터 완성 후 addFilterBefore() 추가
@@ -51,18 +54,47 @@ public class SecurityConfig {
                         // ✅ Swagger UI 허용
                         .requestMatchers(SWAGGER_WHITELIST).permitAll()
 
-                        // ✅ 인증 API 허용
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ 인증 API 허용 (회원가입, 로그인)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-                        // ✅ 축제/공지/커뮤니티 조회는 비회원도 허용
-                        .requestMatchers("GET", "/api/festivals/**").permitAll()
-                        .requestMatchers("GET", "/api/notices/**").permitAll()
-                        .requestMatchers("GET", "/api/community/**").permitAll()
+                        // ✅ 축제 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
 
-                        // 🔒 관리자 전용
+                        // ✅ 리뷰 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+
+                        // ✅ 커뮤니티 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
+
+                        // ✅ 공지사항 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
+
+                        // 🔒 회원 전용 — 프로필
+                        .requestMatchers("/api/users/me/**").hasRole("USER")
+
+                        // 🔒 회원 전용 — 리뷰 CUD
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasRole("USER")
+
+                        // 🔒 회원 전용 — 즐겨찾기
+                        .requestMatchers("/api/favorites/**").hasRole("USER")
+
+                        // 🔒 회원 전용 — 커뮤니티 CUD
+                        .requestMatchers(HttpMethod.POST, "/api/community/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/community/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasRole("USER")
+
+                        // 🔒 회원 전용 — 신고
+                        .requestMatchers(HttpMethod.POST, "/api/reports").hasRole("USER")
+
+                        // ✅ 관리자 로그인 — 인증 불필요
+                        .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
+
+                        // 🔐 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                        // 🔒 나머지는 인증 필요
+                        // 🔒 그 외 인증 필요
                         .anyRequest().authenticated()
                 );
 

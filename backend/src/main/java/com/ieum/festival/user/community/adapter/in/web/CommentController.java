@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Tag(name = "댓글", description = "댓글 삭제")
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/api/community/comments")
 public class CommentController {
 
     @Operation(summary = "댓글 삭제", description = "본인이 작성한 댓글을 삭제합니다.")
