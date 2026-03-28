@@ -90,19 +90,19 @@
 
 | No | 오퍼레이션 | Endpoint | 설명 |
 |----|----------|----------|------|
-| 1 | `areaCode1` | `/areaCode1` | 지역코드 조회 |
-| 2 | `detailPetTour1` | `/detailPetTour1` | 반려동물 동반 여행 정보 |
-| 3 | `categoryCode1` | `/categoryCode1` | 서비스 분류코드 조회 |
-| 4 | `areaBasedList1` | `/areaBasedList1` | 지역기반 관광정보 조회 |
-| 5 | `locationBasedList1` | `/locationBasedList1` | 위치기반 관광정보 조회 |
-| 6 | `searchKeyword1` | `/searchKeyword1` | 키워드 검색 조회 |
-| 7 | `detailCommon1` | `/detailCommon1` | 공통정보 조회 |
-| 8 | `detailIntro1` | `/detailIntro1` | 소개정보 조회 |
-| 9 | `detailInfo1` | `/detailInfo1` | 반복정보 조회 |
-| 10 | `detailImage1` | `/detailImage1` | 이미지정보 조회 |
-| 11 | `categoryCode1` | `/categoryCode1` | 분류체계 코드 조회 |
-| 12 | `areaBasedSyncList1` | `/areaBasedSyncList1` | 관광정보 동기화 목록 조회 |
-| 13 | `areaCode1` | `/areaCode1` | 법정동코드 조회 (areaCode 하위) |
+| 1 | `areaCode2` | `/areaCode2` | 지역코드 조회 |
+| 2 | `detailPetTour2` | `/detailPetTour2` | 반려동물 동반 여행 정보 |
+| 3 | `categoryCode2` | `/categoryCode2` | 서비스 분류코드 조회 |
+| 4 | `areaBasedList2` | `/areaBasedList2` | 지역기반 관광정보 조회 |
+| 5 | `locationBasedList2` | `/locationBasedList2` | 위치기반 관광정보 조회 |
+| 6 | `searchKeyword2` | `/searchKeyword2` | 키워드 검색 조회 |
+| 7 | `detailCommon2` | `/detailCommon2` | 공통정보 조회 |
+| 8 | `detailIntro2` | `/detailIntro2` | 소개정보 조회 |
+| 9 | `detailInfo2` | `/detailInfo2` | 반복정보 조회 |
+| 10 | `detailImage2` | `/detailImage2` | 이미지정보 조회 |
+| 11 | `categoryCode2` | `/categoryCode2` | 분류체계 코드 조회 |
+| 12 | `areaBasedSyncList2` | `/areaBasedSyncList2` | 관광정보 동기화 목록 조회 |
+| 13 | `areaCode2` | `/areaCode2` | 법정동코드 조회 (areaCode 하위) |
 
 ---
 
@@ -110,12 +110,12 @@
 
 ---
 
-### 3-1. 지역코드 조회 (`areaCode1`)
+### 3-1. 지역코드 조회 (`areaCode2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /areaCode1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaCode1` |
+| **엔드포인트** | `GET /areaCode2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaCode2` |
 | **설명** | 시/도 및 시군구 지역코드 목록을 조회 |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -126,8 +126,8 @@
 
 **요청 예시:**
 ```
-GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
-GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1
+GET /areaCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /areaCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1
 ```
 
 **응답 (200 OK):**
@@ -175,12 +175,12 @@ GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=
 
 ---
 
-### 3-2. 반려동물 동반 여행 정보 (`detailPetTour1`)
+### 3-2. 반려동물 동반 여행 정보 (`detailPetTour2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /detailPetTour1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailPetTour1` |
+| **엔드포인트** | `GET /detailPetTour2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailPetTour2` |
 | **설명** | 특정 콘텐츠의 반려동물 동반 여행 관련 정보 조회 |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -192,7 +192,7 @@ GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=
 
 **요청 예시:**
 ```
-GET /detailPetTour1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentId=2845612&contentTypeId=12
+GET /detailPetTour2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentId=2845612&contentTypeId=12
 ```
 
 **응답 (200 OK):**
@@ -242,12 +242,12 @@ GET /detailPetTour1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cont
 
 ---
 
-### 3-3. 서비스 분류코드 조회 (`categoryCode1`)
+### 3-3. 서비스 분류코드 조회 (`categoryCode2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /categoryCode1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/categoryCode1` |
+| **엔드포인트** | `GET /categoryCode2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/categoryCode2` |
 | **설명** | 서비스 분류(대/중/소분류) 코드 목록 조회 |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -262,13 +262,13 @@ GET /detailPetTour1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cont
 **요청 예시:**
 ```
 # 대분류 조회
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15
 
 # 중분류 조회
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15&cat1=A02
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15&cat1=A02
 
 # 소분류 조회
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15&cat1=A02&cat2=A0207
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&contentTypeId=15&cat1=A02&cat2=A0207
 ```
 
 **응답 (200 OK):**
@@ -306,12 +306,12 @@ GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&conte
 
 ---
 
-### 3-4. 지역기반 관광정보 조회 (`areaBasedList1`)
+### 3-4. 지역기반 관광정보 조회 (`areaBasedList2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /areaBasedList1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedList1` |
+| **엔드포인트** | `GET /areaBasedList2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedList2` |
 | **설명** | 지역 코드 기반으로 관광정보 목록 조회 (축제 목록 조회의 핵심 API) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -331,7 +331,7 @@ GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&conte
 **요청 예시:**
 ```
 # 서울 지역 축제 목록 조회
-GET /areaBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /areaBasedList2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentTypeId=15&areaCode=1&numOfRows=10&pageNo=1&arrange=D
 ```
 
@@ -404,12 +404,12 @@ GET /areaBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 ---
 
-### 3-5. 위치기반 관광정보 조회 (`locationBasedList1`)
+### 3-5. 위치기반 관광정보 조회 (`locationBasedList2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /locationBasedList1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/locationBasedList1` |
+| **엔드포인트** | `GET /locationBasedList2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/locationBasedList2` |
 | **설명** | GPS 좌표 기반으로 반경 내 관광정보 조회 (지도 화면 핵심 API) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -427,7 +427,7 @@ GET /areaBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 **요청 예시:**
 ```
 # 여의도 주변 2km 반경 축제 조회
-GET /locationBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /locationBasedList2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &mapX=126.9219&mapY=37.5217&radius=2000&contentTypeId=15&arrange=E
 ```
 
@@ -466,16 +466,16 @@ GET /locationBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 |------|------|------|
 | `dist` | string | 현재 위치로부터의 거리 (단위: m) |
 
-> 나머지 필드는 `areaBasedList1` 응답과 동일
+> 나머지 필드는 `areaBasedList2` 응답과 동일
 
 ---
 
-### 3-6. 키워드 검색 조회 (`searchKeyword1`)
+### 3-6. 키워드 검색 조회 (`searchKeyword2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /searchKeyword1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/searchKeyword1` |
+| **엔드포인트** | `GET /searchKeyword2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/searchKeyword2` |
 | **설명** | 키워드로 관광정보 검색 (검색 기능 핵심 API) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -495,22 +495,22 @@ GET /locationBasedList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 **요청 예시:**
 ```
 # "벚꽃" 키워드로 축제 검색
-GET /searchKeyword1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /searchKeyword2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &keyword=%EB%B2%9A%EA%BD%83&contentTypeId=15&arrange=P
 ```
 
 **응답 (200 OK):**
 
-> `areaBasedList1`과 동일한 응답 구조 (item 배열)
+> `areaBasedList2`과 동일한 응답 구조 (item 배열)
 
 ---
 
-### 3-7. 공통정보 조회 (`detailCommon1`)
+### 3-7. 공통정보 조회 (`detailCommon2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /detailCommon1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailCommon1` |
+| **엔드포인트** | `GET /detailCommon2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailCommon2` |
 | **설명** | 특정 콘텐츠의 공통 상세 정보 조회 (축제 상세 화면 핵심 API) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -529,7 +529,7 @@ GET /searchKeyword1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 **요청 예시:**
 ```
-GET /detailCommon1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /detailCommon2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentId=2845612&contentTypeId=15
     &defaultYN=Y&firstImageYN=Y&addrinfoYN=Y&mapinfoYN=Y&overviewYN=Y
 ```
@@ -601,12 +601,12 @@ GET /detailCommon1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 ---
 
-### 3-8. 소개정보 조회 (`detailIntro1`)
+### 3-8. 소개정보 조회 (`detailIntro2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /detailIntro1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailIntro1` |
+| **엔드포인트** | `GET /detailIntro2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailIntro2` |
 | **설명** | 콘텐츠 타입별 소개 정보 조회 (축제: 행사 시간, 장소, 이용 요금 등) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -618,7 +618,7 @@ GET /detailCommon1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 **요청 예시:**
 ```
-GET /detailIntro1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /detailIntro2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentId=2845612&contentTypeId=15
 ```
 
@@ -681,12 +681,12 @@ GET /detailIntro1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 ---
 
-### 3-9. 반복정보 조회 (`detailInfo1`)
+### 3-9. 반복정보 조회 (`detailInfo2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /detailInfo1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailInfo1` |
+| **엔드포인트** | `GET /detailInfo2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailInfo2` |
 | **설명** | 콘텐츠의 추가 반복 정보 조회 (수용인원, 주차시설 등) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -698,7 +698,7 @@ GET /detailIntro1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 **요청 예시:**
 ```
-GET /detailInfo1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /detailInfo2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentId=2845612&contentTypeId=15
 ```
 
@@ -749,12 +749,12 @@ GET /detailInfo1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 ---
 
-### 3-10. 이미지정보 조회 (`detailImage1`)
+### 3-10. 이미지정보 조회 (`detailImage2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /detailImage1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailImage1` |
+| **엔드포인트** | `GET /detailImage2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/detailImage2` |
 | **설명** | 특정 콘텐츠의 이미지 목록 조회 |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -767,7 +767,7 @@ GET /detailInfo1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 **요청 예시:**
 ```
-GET /detailImage1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /detailImage2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentId=2845612&imageYN=Y&subImageYN=Y
 ```
 
@@ -818,31 +818,31 @@ GET /detailImage1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 ---
 
-### 3-11. 분류체계 코드 조회 (`categoryCode1`)
+### 3-11. 분류체계 코드 조회 (`categoryCode2`)
 
-> 3-3. 서비스 분류코드 조회와 동일한 오퍼레이션 (`categoryCode1`)  
+> 3-3. 서비스 분류코드 조회와 동일한 오퍼레이션 (`categoryCode2`)  
 > `contentTypeId` 없이 호출하면 전체 분류 체계를 조회할 수 있음
 
 **요청 예시 (전체 분류 체계):**
 ```
 # contentTypeId 없이 전체 대분류 조회
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 
 # 특정 대분류의 하위 체계 조회
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cat1=A02
-GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cat1=A02&cat2=A0207
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cat1=A02
+GET /categoryCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cat1=A02&cat2=A0207
 ```
 
 > 응답 구조는 3-3과 동일 (code, name)
 
 ---
 
-### 3-12. 관광정보 동기화 목록 조회 (`areaBasedSyncList1`)
+### 3-12. 관광정보 동기화 목록 조회 (`areaBasedSyncList2`)
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /areaBasedSyncList1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedSyncList1` |
+| **엔드포인트** | `GET /areaBasedSyncList2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedSyncList2` |
 | **설명** | 최종 수정일 기준으로 변경된 관광정보 동기화 목록 조회 (배치 동기화 핵심 API) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -860,7 +860,7 @@ GET /categoryCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&cat1=
 **요청 예시:**
 ```
 # 2026년 3월 이후 수정된 축제 정보 동기화
-GET /areaBasedSyncList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
+GET /areaBasedSyncList2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
     &contentTypeId=15&modifiedtime=20260301000000&showflag=1&numOfRows=100
 ```
 
@@ -899,18 +899,18 @@ GET /areaBasedSyncList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 |------|------|------|
 | `showflag` | string | 공개 여부 (`1`=공개, `0`=비공개/삭제) |
 
-> 나머지 필드는 `areaBasedList1`과 동일
+> 나머지 필드는 `areaBasedList2`과 동일
 
 ---
 
-### 3-13. 법정동코드 조회 (`areaCode1`)
+### 3-13. 법정동코드 조회 (`areaCode2`)
 
-> `areaCode1` 오퍼레이션의 확장 기능으로, 법정동 코드를 조회
+> `areaCode2` 오퍼레이션의 확장 기능으로, 법정동 코드를 조회
 
 | 항목 | 내용 |
 |------|------|
-| **엔드포인트** | `GET /areaCode1` |
-| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaCode1` |
+| **엔드포인트** | `GET /areaCode2` |
+| **전체 URL** | `https://apis.data.go.kr/B551011/KorService2/areaCode2` |
 | **설명** | 법정동 단위의 상세 지역코드 조회 (신규 기능) |
 
 **요청 파라미터 (공통 파라미터 + 아래):**
@@ -923,10 +923,10 @@ GET /areaBasedSyncList1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json
 **요청 예시:**
 ```
 # 서울시 시군구 목록
-GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1
+GET /areaCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1
 
 # 서울 영등포구 법정동 목록
-GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1&sigunguCode=21
+GET /areaCode2?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=1&sigunguCode=21
 ```
 
 **응답 (200 OK):**
@@ -958,17 +958,17 @@ GET /areaCode1?serviceKey={KEY}&MobileOS=ETC&MobileApp=IEUM&_type=json&areaCode=
 
 | 화면 | 사용 API | 용도 |
 |------|---------|------|
-| 전국축제 메인 (목록) | `areaBasedList1` | 축제 목록 조회 (contentTypeId=15) |
-| 전국축제 메인 (검색) | `searchKeyword1` | 키워드 기반 축제 검색 |
-| 축제 상세페이지 | `detailCommon1` + `detailIntro1` | 축제 상세 정보 + 행사 소개 |
-| 축제 상세페이지 (이미지) | `detailImage1` | 축제 이미지 갤러리 |
-| 축제 상세페이지 (부가) | `detailInfo1` | 반복 정보 (참여방법, 수용인원 등) |
-| 지도 탭 | `locationBasedList1` | GPS 기반 주변 축제 조회 |
-| 달력 탭 | `areaBasedList1` | 기간 필터링 축제 목록 |
-| 필터 (지역) | `areaCode1` | 지역 드롭다운 목록 |
-| 필터 (카테고리) | `categoryCode1` | 카테고리 드롭다운 목록 |
-| 배치 동기화 (서버) | `areaBasedSyncList1` | 서버 DB 동기화 |
-| 반려동물 정보 | `detailPetTour1` | 반려동물 동반 가능 여부 |
+| 전국축제 메인 (목록) | `areaBasedList2` | 축제 목록 조회 (contentTypeId=15) |
+| 전국축제 메인 (검색) | `searchKeyword2` | 키워드 기반 축제 검색 |
+| 축제 상세페이지 | `detailCommon2` + `detailIntro2` | 축제 상세 정보 + 행사 소개 |
+| 축제 상세페이지 (이미지) | `detailImage2` | 축제 이미지 갤러리 |
+| 축제 상세페이지 (부가) | `detailInfo2` | 반복 정보 (참여방법, 수용인원 등) |
+| 지도 탭 | `locationBasedList2` | GPS 기반 주변 축제 조회 |
+| 달력 탭 | `areaBasedList2` | 기간 필터링 축제 목록 |
+| 필터 (지역) | `areaCode2` | 지역 드롭다운 목록 |
+| 필터 (카테고리) | `categoryCode2` | 카테고리 드롭다운 목록 |
+| 배치 동기화 (서버) | `areaBasedSyncList2` | 서버 DB 동기화 |
+| 반려동물 정보 | `detailPetTour2` | 반려동물 동반 가능 여부 |
 
 ### 4-2. 배치 동기화 흐름
 
@@ -978,13 +978,13 @@ sequenceDiagram
     participant P as 공공데이터포털
 
     Note over S,P: 매일 새벽 3시 배치 실행
-    S->>P: GET /areaBasedSyncList1?modifiedtime=마지막동기화시각&contentTypeId=15
+    S->>P: GET /areaBasedSyncList2?modifiedtime=마지막동기화시각&contentTypeId=15
     P-->>S: 변경된 축제 목록 반환
     
     loop 각 축제 데이터
-        S->>P: GET /detailCommon1?contentId={id}&contentTypeId=15
+        S->>P: GET /detailCommon2?contentId={id}&contentTypeId=15
         P-->>S: 축제 상세 정보
-        S->>P: GET /detailIntro1?contentId={id}&contentTypeId=15
+        S->>P: GET /detailIntro2?contentId={id}&contentTypeId=15
         P-->>S: 축제 소개 정보 (시작일/종료일/장소 등)
         S->>S: DB INSERT or UPDATE
     end

@@ -110,7 +110,8 @@
         "avgStar": 4.5,
         "reviewCount": 23,
         "viewCount": 1520,
-        "isScrapped": false
+        "isScrapped": false,
+        "ldongCode": "1156011000" // 법정동 코드 (V2: lDongRegnCd)
       }
     ],
     "total": 100,
@@ -161,19 +162,26 @@
       "endDate": "2026-04-10",
       "status": "ONGOING",
       "imageUrl": "https://example.com/images/festival_1.jpg",
+      "images": [ // detailImage2 연동 (추가 이미지 리스트)
+        "https://example.com/images/festival_1_extra1.jpg",
+        "https://example.com/images/festival_1_extra2.jpg"
+      ],
       "latitude": 37.5217,
       "longitude": 126.9219,
       "tel": "02-1234-5678",
       "homepage": "https://yeouido-cherry.kr",
-      "category": "A02",
-      "areaCode": "1",
+      "category": "A02", // 공공데이터 cat1 코드
+      "areaCode": "1",    // 공공데이터 areaCode
+      "ldongCode": "1156011000", // V2 법정동 코드 (ldongCode2)
+      "petFriendly": { // detailPetTour2 연동 (반려동물 동반 정보)
+        "isAllowed": true,
+        "acmpyPsblCpam": "소형견 가능",
+        "etcAcmpyInfo": "배변봉투 지참 및 전용 리드줄 착용 필수"
+      },
       "isScrapped": false
     },
     "stats": {
-      "avgStar": 4.5,
-      "reviewCount": 23,
-      "viewCount": 1521,
-      "scrapCount": 156
+      ...
     }
   }
 }
@@ -435,7 +443,7 @@ image: (binary file)
 
 **비즈니스 규칙:**
 - 축제당 1인 1리뷰만 가능
-- ~~ENDED 상태 축제만 리뷰 작성 가능 (프로젝트 정책에 따라 ONGOING 허용 여부 결정)~~
+- **ONGOING 및 ENDED** 상태 축제만 리뷰 작성 가능 (진행 중인 축제도 실시간 후기 작성 유도)
 
 **에러 응답:**
 

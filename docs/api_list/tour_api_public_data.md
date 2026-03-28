@@ -60,31 +60,32 @@ application-local.yml
 
 ---
 
-## 🗂️ 사용할 주요 오퍼레이션
+## 🗂️ 사용할 주요 오퍼레이션 (V2)
 
-이음 프로젝트에서 활용할 API 목록입니다.
+이음 프로젝트에서 활용할 API 목록입니다. (스크린샷 기반 V2 엔드포인트)
 
 | # | 오퍼레이션 | 용도 | 우선순위 |
 |---|-----------|------|----------|
-| 1 | `searchFestival1` | 행사/축제 정보 조회 | ⭐ 핵심 |
-| 2 | `areaBasedList1` | 지역 기반 관광정보 목록 | ⭐ 핵심 |
-| 3 | `detailCommon1` | 공통 상세 정보 조회 | ⭐ 핵심 |
-| 4 | `detailIntro1` | 소개 상세 정보 조회 | 🔵 중요 |
-| 5 | `detailImage1` | 이미지 정보 조회 | 🔵 중요 |
-| 6 | `areaCode1` | 지역 코드 조회 | 🟢 보조 |
-| 7 | `searchKeyword1` | 키워드 검색 | 🟢 보조 |
-| 8 | `locationBasedList1` | 위치 기반 관광정보 | 🟢 보조 |
+| 1 | `searchFestival2` | 행사/축제 정보 조회 | ⭐ 핵심 |
+| 2 | `areaBasedList2` | 지역 기반 관광정보 목록 | ⭐ 핵심 |
+| 3 | `detailCommon2` | 공통 상세 정보 조회 | ⭐ 핵심 |
+| 4 | `detailIntro2` | 소개 상세 정보 조회 | 🔵 중요 |
+| 5 | `detailImage2` | 이미지 정보 조회 | 🔵 중요 |
+| 6 | `areaCode2` | 지역 코드 조회 (법정동 대체 예정) | 🟢 보조 |
+| 7 | `searchKeyword2` | 키워드 검색 | 🟢 보조 |
+| 8 | `locationBasedList2` | 위치 기반 관광정보 | 🟢 보조 |
+| 9 | `detailPetTour2` | 반려동물 동반 정보 | 🟢 보조 |
 
 ---
 
-## ⭐ 1. 행사/축제 정보 조회 (`searchFestival1`)
+## ⭐ 1. 행사/축제 정보 조회 (`searchFestival2`)
 
 > 날짜 기반으로 전국 축제/행사 정보를 조회합니다. **이음 프로젝트의 핵심 API**
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `GET /searchFestival1` |
-| **Full URL** | `https://apis.data.go.kr/B551011/KorService2/searchFestival1` |
+| **URL** | `GET /searchFestival2` |
+| **Full URL** | `https://apis.data.go.kr/B551011/KorService2/searchFestival2` |
 
 ### Request Parameters
 
@@ -102,16 +103,16 @@ application-local.yml
 ### 호출 예시
 
 ```
-GET https://apis.data.go.kr/B551011/KorService2/searchFestival1
+GET https://apis.data.go.kr/B551011/KorService2/searchFestival2
   ?serviceKey={인증키}
   &MobileOS=ETC
   &MobileApp=ieum
   &_type=json
   &eventStartDate=20260401
   &eventEndDate=20260430
-  &areaCode=1
+  &areaCode=2
   &numOfRows=10
-  &pageNo=1
+  &pageNo=2
   &arrange=A
   &listYN=Y
 ```
@@ -177,14 +178,14 @@ GET https://apis.data.go.kr/B551011/KorService2/searchFestival1
 
 ---
 
-## ⭐ 2. 지역 기반 관광정보 조회 (`areaBasedList1`)
+## ⭐ 2. 지역 기반 관광정보 조회 (`areaBasedList2`)
 
 > 지역 기반으로 관광정보 목록을 조회합니다.
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `GET /areaBasedList1` |
-| **Full URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedList1` |
+| **URL** | `GET /areaBasedList2` |
+| **Full URL** | `https://apis.data.go.kr/B551011/KorService2/areaBasedList2` |
 
 ### Request Parameters
 
@@ -201,15 +202,15 @@ GET https://apis.data.go.kr/B551011/KorService2/searchFestival1
 ### 호출 예시
 
 ```
-GET https://apis.data.go.kr/B551011/KorService2/areaBasedList1
+GET https://apis.data.go.kr/B551011/KorService2/areaBasedList2
   ?serviceKey={인증키}
   &MobileOS=ETC
   &MobileApp=ieum
   &_type=json
   &contentTypeId=15
-  &areaCode=1
+  &areaCode=2
   &numOfRows=10
-  &pageNo=1
+  &pageNo=2
 ```
 
 ---
@@ -239,7 +240,7 @@ GET https://apis.data.go.kr/B551011/KorService2/areaBasedList1
 ### 호출 예시
 
 ```
-GET https://apis.data.go.kr/B551011/KorService2/detailCommon1
+GET https://apis.data.go.kr/B551011/KorService2/detailCommon2
   ?serviceKey={인증키}
   &MobileOS=ETC
   &MobileApp=ieum

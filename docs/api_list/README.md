@@ -8,7 +8,9 @@
 
 | 파일명 | 설명 | 권한 |
 |--------|------|------|
+| [common.md](./common.md) | 🛠️ 공통 (파일 업로드, 공통코드, 에러응답) | 누구나 |
 | [auth.md](./auth.md) | 회원가입 / 로그인 / 토큰 관리 | 누구나 |
+| [mypage.md](./mypage.md) | 👤 마이페이지 (프로필, 내 활동, 탈퇴) | USER |
 | [festival.md](./festival.md) | 축제 조회 / 검색 / 상세 | 누구나 |
 | [review.md](./review.md) | 축제 리뷰 / 별점 | USER |
 | [favorite.md](./favorite.md) | 즐겨찾기 (관심 축제) | USER |
