@@ -579,7 +579,7 @@
           <ul>
             <li>월별 캘린더로 축제 일정을 한눈에 조회하는 페이지</li>
             <li>날짜별 축제 개수 표시, 날짜 클릭 시 해당일 축제 카드 리스트 노출</li>
-            <li>비회원도 조회 가능 (API_FES_0005)</li>
+            <li>비회원도 조회 가능 (API_CAL_0010, API_CAL_0020)</li>
           </ul>
         </div>
         <table class="desc-table">
@@ -623,7 +623,8 @@
           <h4>Check Point</h4>
           <p>
             · FullCalendar 라이브러리 활용 (monthView)<br>
-            · API: GET /api/festivals/calendar?year=2026&month=3<br>
+            · API: GET /api/calendar?year=2026&month=3 (월별 축제 카운트)<br>
+            · API: GET /api/calendar/festivals?date=2026-03-18 (일자별 축제 목록)<br>
             · 축제 기간(start~end)이 복수 날짜에 걸치면 각 날짜에 모두 카운트<br>
             · 날짜 미선택 시 오늘 날짜 축제를 기본 표시<br>
             · 카드 클릭 시 /festivals/{festivalId}로 이동
