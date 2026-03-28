@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면 설계도 - 마이페이지 (내 댓글)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #fff;
+      color: #222;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 1200px;
+      margin: 20px auto;
+      border: 1.5px solid #333;
+      background: #fff;
+    }
+
+    .meta-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1.5px solid #333;
+    }
+
+    .meta-left {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      border-right: 1.5px solid #333;
+    }
+
+    .meta-right {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+    }
+
+    .meta-label {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 14px;
+      border-right: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .meta-value {
+      font-size: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #ccc;
+    }
+
+    .meta-value:last-child {
+      border-right: none;
+    }
+
+    .meta-row2 {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      border-bottom: 1.5px solid #333;
+    }
+
+    .main-content {
+      display: grid;
+      grid-template-columns: 65% 35%;
+      min-height: 800px;
+    }
+
+    .screen-area {
+      border-right: 1.5px solid #333;
+      padding: 20px;
+      position: relative;
+      background: #fafafa;
+    }
+
+    .description-area {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .desc-title {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-bottom: 1.5px solid #333;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .desc-table {
+      width: 100%;
+      border-collapse: collapse;
+      flex: 1;
+    }
+
+    .desc-table tr {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .desc-table td {
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .desc-table .num {
+      width: 36px;
+      text-align: center;
+      font-weight: 700;
+      color: #FF4D6A;
+      font-size: 13px;
+      vertical-align: middle;
+      border-right: 1px solid #eee;
+    }
+
+    .checkpoint {
+      border-top: 1.5px solid #333;
+      padding: 12px 16px;
+    }
+
+    /* Mockup UI CSS */
+    .mockup-ui {
+      width: 100%;
+      min-height: 600px;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      font-family: 'Noto Sans KR', sans-serif;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .mockup-header {
+      height: 60px;
+      background: #fff;
+      border-bottom: 1px solid #e9ecef;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+      justify-content: space-between;
+    }
+
+    .mockup-header-links {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      gap: 24px;
+    }
+
+    .mockup-body {
+      display: flex;
+      flex: 1;
+      min-height: 540px;
+    }
+
+    .mockup-sidebar {
+      width: 220px;
+      background: #fff;
+      border-right: 1px solid #e9ecef;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .mockup-profile {
+      text-align: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e9ecef;
+      margin-bottom: 15px;
+    }
+
+    .mockup-profile .avatar {
+      width: 64px;
+      height: 64px;
+      background: #cbd5e1;
+      border-radius: 50%;
+      margin: 0 auto 10px;
+      border: 2px solid #fff;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .mockup-menu {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 0 15px;
+    }
+
+    .mockup-menu-item {
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #475569;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .mockup-menu-item.active {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 700;
+    }
+
+    .mockup-content {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      background: #f8fafc;
+    }
+
+    .mockup-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 24px;
+      color: #1e293b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* 번호 마커 */
+    .marker {
+      position: absolute;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #FF4D6A;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
+      z-index: 10;
+      cursor: default;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">마이페이지 - 내 댓글</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-M-003</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">Team 2</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.29</div>
+      </div>
+    </div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">메인 홈 &gt; 마이페이지 &gt; 내 댓글</div>
+    </div>
+    <div class="main-content">
+      <div class="screen-area">
+        <!-- 순수 HTML/CSS 목업 UI -->
+        <div class="mockup-ui">
+          <div class="mockup-header">
+            <div style="display: flex; align-items: center; gap: 40px;">
+              <div style="font-weight: 900; color: #2563eb; font-size: 22px; tracking: -1px;">IEUM</div>
+              <div class="mockup-header-links">
+                <span>전국축제</span><span>지난축제</span><span>달력</span><span>커뮤니티</span><span>공지</span>
+              </div>
+            </div>
+            <div style="font-size: 13px; color:#64748b; font-weight: 500;">🔍 검색 &nbsp;&nbsp;|&nbsp;&nbsp; 🔔 알림
+              &nbsp;&nbsp;|&nbsp;&nbsp; 👤 축제매니아 님</div>
+          </div>
+          <div class="mockup-body">
+            <div class="mockup-sidebar">
+              <div class="mockup-profile">
+                <div class="avatar"></div>
+                <div style="font-weight: 700; font-size: 15px; color: #1e293b;">축제매니아</div>
+                <div style="font-size: 12px; color:#64748b; margin-top:4px;">user@example.com</div>
+                <div
+                  style="font-size: 11px; margin-top: 10px; color: #3b82f6; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 20px; display:inline-block; cursor:pointer;">
+                  프로필 · 알림 설정</div>
+              </div>
+              <div class="mockup-menu">
+                <div class="mockup-menu-item">❤️ 즐겨찾기 목록</div>
+                <div class="mockup-menu-item">📝 내 게시글 목록</div>
+                <div class="mockup-menu-item">⭐ 내 리뷰 목록</div>
+                <div class="mockup-menu-item active">💬 내 댓글 목록</div>
+                <div class="mockup-menu-item">❓ 내 문의 보기</div>
+                <div class="mockup-menu-item">⚙️ 내 알림 설정</div>
+              </div>
+            </div>
+            <div class="mockup-content">
+              <div class="mockup-title">
+                <span>💬 내 댓글 목록 <span style="font-size:14px; color:#64748b; font-weight:500;">(총 4개)</span></span>
+              </div>
+
+              <div style="display: flex; flex-direction: column; gap: 16px;">
+                <!-- Comment Group 1 -->
+                <div
+                  style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                  <div
+                    style="font-size:13px; font-weight:700; background:#eff6ff; color:#2563eb; padding:8px 12px; border-radius:6px; margin-bottom:16px;">
+                    원문: [공지] 2024 지역축제 참가 가이드 〉</div>
+
+                  <!-- My Comment -->
+                  <div style="margin-bottom:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                      <span style="font-weight:700; font-size:14px; color:#1e293b;">축제매니아 <span
+                          style="background:#2563eb; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">작성자</span></span>
+                      <span style="font-size:12px; color:#64748b;">2024.03.26 14:30</span>
+                    </div>
+                    <div style="font-size:14px; color:#334155; margin-bottom:10px;">가이드 정말 감사합니다! 숙박 부분도 꼭 업데이트 해주세요.
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px;">
+                      <button
+                        style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                      <button
+                        style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                    </div>
+                  </div>
+
+                  <!-- Reply to My Comment -->
+                  <div style="border-left: 2px solid #e2e8f0; padding-left:16px; margin-left:8px; margin-top:16px;">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                      <span style="font-weight:700; font-size:13px; color:#475569;">운영자 <span
+                          style="background:#e2e8f0; color:#475569; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">답글</span></span>
+                      <span style="font-size:12px; color:#64748b;">2024.03.26 15:00</span>
+                    </div>
+                    <div style="font-size:13px; color:#64748b; margin-bottom:8px;">넵, 다음 주소에 숙박 가이드도 업로드 예정입니다. 의견
+                      감사합니다!</div>
+
+                    <!-- My Reply to the Reply -->
+                    <div style="border-left: 2px solid #e2e8f0; padding-left:16px; margin-top:16px;">
+                      <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                        <span style="font-weight:700; font-size:13px; color:#1e293b;">축제매니아 <span
+                            style="background:#2563eb; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">작성자</span></span>
+                        <span style="font-size:12px; color:#64748b;">2024.03.26 15:10</span>
+                      </div>
+                      <div style="font-size:13px; color:#334155; margin-bottom:10px;">기대할게요 ^^</div>
+                      <div style="display:flex; justify-content:flex-end; gap:8px;">
+                        <button
+                          style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                        <button
+                          style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 번호 마커 -->
+        <!-- ① 댓글 카운트 (총 4개) 옆 -->
+        <div class="marker" style="top: 12%; left: 59%;">1</div>
+        <!-- ② 원문 게시글 그룹 블록 -->
+        <div class="marker" style="top: 18%; left: 38%;">2</div>
+        <!-- ③ 내 댓글 (축제매니아 - 작성자) -->
+        <div class="marker" style="top: 24%; left: 34%;">3</div>
+        <!-- ④ 타인의 답글 (운영자 - 답글) → 운영자 텍스트 바로 왼쪽 -->
+        <div class="marker" style="top: 35%; left: 37%;">4</div>
+        <!-- ⑤ 나의 대댓글 (축제매니아 - 2단) → 축제매니아 텍스트 바로 왼쪽 -->
+        <div class="marker" style="top: 42%; left: 39%;">5</div>
+        <!-- ⑥ 수정/삭제 버튼 → 삭제 버튼 오른쪽 -->
+        <div class="marker" style="top: 48%; right: 5%;">6</div>
+      </div>
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+
+        <div class="summary-section" style="padding:14px 16px; border-bottom:1px solid #ddd;">
+          <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:#444; font-style:italic;">Summary.</h4>
+          <ul style="list-style:disc; padding-left:18px;">
+            <li style="font-size:12px; line-height:1.7; color:#555;">사용자가 작성한 댓글 및 답글(대댓글)을 계층 구조로 모아보는 화면</li>
+            <li style="font-size:12px; line-height:1.7; color:#555;">댓글이 달린 원본 게시물 단위로 그루핑하여 시인성 확보</li>
+            <li style="font-size:12px; line-height:1.7; color:#555;">본인 댓글에 대한 수정/삭제 및 하위 답글 블라인드 정책 적용</li>
+          </ul>
+        </div>
+
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text">
+              <strong>댓글 카운트 표시</strong><br>
+              현재 내가 작성한 댓글의 총 갯수를 타이틀 옆에 표시<br>
+              예: "내 댓글 목록 (총 <strong>4</strong>개)"
+            </td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text">
+              <strong>원문 게시글 그룹 블록</strong><br>
+              댓글이 달린 원본 게시물(또는 축제명)을 파란색 배경의 타이틀 블록으로 표시<br>
+              블록 클릭 시 원본 게시글 페이지로 링크 이동 가능
+            </td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text">
+              <strong>내 댓글 (본인 작성)</strong><br>
+              · 닉네임 옆 파란색 <strong>[작성자]</strong> 배지로 본인 댓글 강조 표시<br>
+              · 댓글 본문 텍스트 + 작성 일시<br>
+              · 우측에 [수정] / [삭제] 버튼 노출
+            </td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text">
+              <strong>타인의 답글 (대댓글)</strong><br>
+              · 왼쪽 세로선(인덴트)으로 계층 구분 표시<br>
+              · 회색 <strong>[답글]</strong> 배지 + 닉네임 + 작성 일시<br>
+              · 타인 답글에는 수정/삭제 버튼 비활성
+            </td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text">
+              <strong>나의 대댓글 (답글에 대한 답글)</strong><br>
+              · 추가 인덴트(2단 들여쓰기)로 2차 계층 표현<br>
+              · 파란색 [작성자] 배지 + [수정] / [삭제] 버튼 활성
+            </td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td class="desc-text">
+              <strong>[수정] / [삭제] 액션 버튼</strong><br>
+              · <strong>[수정]</strong>: 인라인 수정 모드 또는 수정 폼 팝업 전환<br>
+              · <strong>[삭제]</strong>: 삭제 확인 팝업 호출 후 처리<br>
+              · 삭제 시 해당 댓글의 하위 답글(대댓글)도 일괄 블라인드 처리
+            </td>
+          </tr>
+        </table>
+
+        <div class="checkpoint">
+          <h4 style="font-size:13px; font-weight:700; color:#1a56db; margin-bottom:6px;">Check Point</h4>
+          <p style="font-size:12px; line-height:1.7; color:#555;">
+            · <strong>[중요 정책]</strong> 본인의 상위 댓글을 삭제할 경우 하위 답글(대댓글) 모두 함께 블라인드 처리<br>
+            · 삭제된 댓글의 답글 작성자의 마이페이지에서도 해당 데이터는 더 이상 노출되지 않음<br>
+            · 답글에 대한 답글도 포함하여 모아보기 제공 (계층 무제한은 아님, 최대 2단계까지)<br>
+            · 댓글 목록이 많을 경우 페이지네이션 적용
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면 설계도 - 마이페이지 (내 게시글/리뷰)</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: #fff; color: #222; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { width: 1200px; margin: 20px auto; border: 1.5px solid #333; background: #fff; }
+    .meta-header { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1.5px solid #333; }
+    .meta-left { display: grid; grid-template-columns: auto 1fr auto 1fr; border-right: 1.5px solid #333; }
+    .meta-right { display: grid; grid-template-columns: auto 1fr auto 1fr; }
+    .meta-label { background: #f5f5f5; font-weight: 700; font-size: 12px; padding: 10px 14px; border-right: 1px solid #ccc; display: flex; align-items: center; white-space: nowrap; }
+    .meta-value { font-size: 12px; padding: 10px 14px; display: flex; align-items: center; border-right: 1px solid #ccc; }
+    .meta-value:last-child { border-right: none; }
+    .meta-row2 { display: grid; grid-template-columns: auto 1fr; border-bottom: 1.5px solid #333; }
+    .main-content { display: grid; grid-template-columns: 65% 35%; min-height: 800px; }
+    .screen-area { border-right: 1.5px solid #333; padding: 20px; position: relative; background: #fafafa; }
+    .description-area { display: flex; flex-direction: column; }
+    .desc-title { background: #f5f5f5; font-weight: 700; font-size: 14px; padding: 10px 16px; border-bottom: 1.5px solid #333; text-align: center; letter-spacing: 1px; }
+    .desc-table { width: 100%; border-collapse: collapse; flex: 1; }
+    .desc-table tr { border-bottom: 1px solid #ddd; }
+    .desc-table td { padding: 10px 12px; vertical-align: top; font-size: 12px; line-height: 1.7; }
+    .desc-table .num { width: 36px; text-align: center; font-weight: 700; color: #FF4D6A; font-size: 13px; vertical-align: middle; border-right: 1px solid #eee; }
+    .checkpoint { border-top: 1.5px solid #333; padding: 12px 16px; }
+
+    /* Mockup UI CSS */
+    .mockup-ui { width: 100%; min-height: 600px; background: #fff; display: flex; flex-direction: column; font-family: 'Noto Sans KR', sans-serif; border: 1px solid #ccc; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .mockup-header { height: 60px; background: #fff; border-bottom: 1px solid #e9ecef; display: flex; align-items: center; padding: 0 20px; justify-content: space-between; }
+    .mockup-header-links { font-size: 14px; font-weight: 600; color: #333; display: flex; gap: 24px; }
+    .mockup-body { display: flex; flex: 1; min-height: 540px;}
+    .mockup-sidebar { width: 220px; background: #fff; border-right: 1px solid #e9ecef; padding: 20px 0; display: flex; flex-direction: column; }
+    .mockup-profile { text-align: center; padding-bottom: 20px; border-bottom: 1px solid #e9ecef; margin-bottom: 15px; }
+    .mockup-profile .avatar { width: 64px; height: 64px; background: #cbd5e1; border-radius: 50%; margin: 0 auto 10px; border:2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+    .mockup-menu { display: flex; flex-direction: column; gap: 4px; padding: 0 15px;}
+    .mockup-menu-item { padding: 12px 16px; font-size: 14px; color: #475569; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 500; display: flex; align-items: center; gap: 10px;}
+    .mockup-menu-item.active { background: #eff6ff; color: #2563eb; font-weight: 700; }
+    .mockup-content { flex: 1; padding: 30px; overflow-y: auto; background: #f8fafc; }
+    .mockup-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
+
+    /* 번호 마커 */
+    .marker { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: #FF4D6A; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4); z-index: 10; cursor: default; }
+  </style>
+</head>
+<body>
+<div class="page">
+  <div class="meta-header">
+    <div class="meta-left">
+      <div class="meta-label">Page Title.</div><div class="meta-value">마이페이지 - 내 글 목록</div>
+      <div class="meta-label">Screen ID</div><div class="meta-value">UI-M-002</div>
+    </div>
+    <div class="meta-right">
+      <div class="meta-label">Author</div><div class="meta-value">Team 2</div>
+      <div class="meta-label">Date</div><div class="meta-value">2026.03.29</div>
+    </div>
+  </div>
+  <div class="meta-row2">
+    <div class="meta-label">Screen Path</div><div class="meta-value">메인 홈 &gt; 마이페이지 &gt; 내 게시글/리뷰 목록</div>
+  </div>
+  <div class="main-content">
+    <div class="screen-area">
+      <!-- 순수 HTML/CSS 목업 UI -->
+      <div class="mockup-ui">
+        <div class="mockup-header">
+          <div style="display: flex; align-items: center; gap: 40px;">
+            <div style="font-weight: 900; color: #2563eb; font-size: 22px; tracking: -1px;">IEUM</div>
+            <div class="mockup-header-links">
+              <span>전국축제</span><span>지난축제</span><span>달력</span><span>커뮤니티</span><span>공지</span>
+            </div>
+          </div>
+          <div style="font-size: 13px; color:#64748b; font-weight: 500;">🔍 검색 &nbsp;&nbsp;|&nbsp;&nbsp; 🔔 알림 &nbsp;&nbsp;|&nbsp;&nbsp; 👤 축제매니아 님</div>
+        </div>
+        <div class="mockup-body">
+          <div class="mockup-sidebar">
+            <div class="mockup-profile">
+              <div class="avatar"></div>
+              <div style="font-weight: 700; font-size: 15px; color: #1e293b;">축제매니아</div>
+              <div style="font-size: 12px; color:#64748b; margin-top:4px;">user@example.com</div>
+              <div style="font-size: 11px; margin-top: 10px; color: #3b82f6; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 20px; display:inline-block; cursor:pointer;">프로필 · 알림 설정</div>
+            </div>
+            <div class="mockup-menu">
+              <div class="mockup-menu-item">❤️ 즐겨찾기 목록</div>
+              <div class="mockup-menu-item active">📝 내 게시글 목록</div>
+              <div class="mockup-menu-item">⭐ 내 리뷰 목록</div>
+              <div class="mockup-menu-item">💬 내 댓글 목록</div>
+              <div class="mockup-menu-item">❓ 내 문의 보기</div>
+              <div class="mockup-menu-item">⚙️ 내 알림 설정</div>
+            </div>
+          </div>
+          <div class="mockup-content">
+            <div style="display:flex; gap:16px; margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:0;">
+              <div style="font-size:16px; font-weight:700; color:#2563eb; border-bottom:3px solid #2563eb; padding-bottom:12px; cursor:pointer;">내 게시글 (12)</div>
+              <div style="font-size:16px; font-weight:600; color:#94a3b8; padding-bottom:12px; cursor:pointer;">내 리뷰 (4)</div>
+            </div>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+              <!-- 글 1 -->
+              <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                    <div style="font-weight:700; font-size:15px; color:#1e293b;">[후기] 보령 머드 축제 다녀왔어요! 정말 최고입니다 👍</div>
+                    <div style="font-size:12px; color:#64748b;">2024.03.25</div>
+                 </div>
+                 <div style="font-size:13px; color:#475569; margin-bottom:16px; line-height:1.5;">올해 축제는 작년보다 시설이 훨씬 깔끔해졌고, 프로그램도 다채로워서 좋았습니다. 주차도 생각보다 널널했네요. 내년에도 꼭 방문할 계획입니다.</div>
+                 <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                    <button style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                 </div>
+              </div>
+               <!-- 글 2 -->
+              <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
+                    <div style="font-weight:700; font-size:15px; color:#1e293b;">[정보] 축제 준비물 공유합니다.</div>
+                    <div style="font-size:12px; color:#64748b;">2024.03.21</div>
+                 </div>
+                 <div style="font-size:13px; color:#475569; margin-bottom:16px; line-height:1.5;">축제 갈 때 꼭 챙겨가야 할 아이템 5가지를 정리해보았습니다. 돗자리, 방수팩은 정말 필수입니다. 참고해주세요~</div>
+                 <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                    <button style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                 </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 번호 마커 -->
+      <div class="marker" style="top: 15%; left: 38%;">1</div>
+      <div class="marker" style="top: 28%; left: 38%;">2</div>
+      <div class="marker" style="top: 54%; right: 14%;">3</div>
+      <div class="marker" style="top: 54%; right: 8%;">4</div>
+      <div class="marker" style="top: 15%; left: 52%;">5</div>
+    </div>
+    <div class="description-area">
+      <div class="desc-title">Description</div>
+
+      <div class="summary-section" style="padding:14px 16px; border-bottom:1px solid #ddd;">
+        <h4 style="font-size:13px; font-weight:700; margin-bottom:8px; color:#444; font-style:italic;">Summary.</h4>
+        <ul style="list-style:disc; padding-left:18px;">
+          <li style="font-size:12px; line-height:1.7; color:#555;">사용자가 직접 작성한 커뮤니티 게시글 및 축제 리뷰를 모아보는 화면</li>
+          <li style="font-size:12px; line-height:1.7; color:#555;">리스트 형태로 제공되며, 각 항목에서 바로 글 수정/삭제가 가능</li>
+          <li style="font-size:12px; line-height:1.7; color:#555;">게시글/리뷰 탭 전환을 통해 필터링 가능</li>
+        </ul>
+      </div>
+
+      <table class="desc-table">
+        <tr>
+          <td class="num">1</td>
+          <td class="desc-text">
+            <strong>게시글 / 리뷰 분류 탭</strong><br>
+            · <strong>내 게시글 (12)</strong> — 현재 활성 탭, 파란색 하단 밑줄로 표시<br>
+            · <strong>내 리뷰 (4)</strong> — 비활성 상태, 클릭 시 리뷰 목록으로 전환<br>
+            탭 전환 시 하단 리스트가 해당 콘텐츠로 동적 교체
+          </td>
+        </tr>
+        <tr>
+          <td class="num">2</td>
+          <td class="desc-text">
+            <strong>게시글 리스트 항목</strong><br>
+            각 글 카드 구성:<br>
+            · 게시글 제목 (굵은 텍스트, 카테고리 태그 포함)<br>
+            · 작성 일자 (우측 회색 텍스트)<br>
+            · 본문 미리보기 (2~3줄 스니펫)<br>
+            제목 클릭 시 해당 게시글 원문 페이지로 이동
+          </td>
+        </tr>
+        <tr>
+          <td class="num">3</td>
+          <td class="desc-text">
+            <strong>[수정] 버튼</strong><br>
+            각 항목 우측 하단에 위치<br>
+            클릭 시 해당 글의 수정 폼(모달 또는 페이지)이 열리며 기존 데이터 바인딩
+          </td>
+        </tr>
+        <tr>
+          <td class="num">4</td>
+          <td class="desc-text">
+            <strong>[삭제] 버튼</strong><br>
+            각 항목 우측 하단에 위치 (빨간색 강조)<br>
+            클릭 시 삭제 확인 팝업 호출<br>
+            확인 시 해당 글 삭제 및 연동된 댓글·대댓글 일괄 블라인드 처리
+          </td>
+        </tr>
+        <tr>
+          <td class="num">5</td>
+          <td class="desc-text">
+            <strong>리뷰 탭 전환 시 추가 요소</strong><br>
+            리뷰 탭 활성 시 동일한 리스트 구조 내에 추가 표시:<br>
+            · ⭐ 별점 정보 (5점 만점)<br>
+            · 리뷰가 달린 축제명 표시
+          </td>
+        </tr>
+      </table>
+
+      <div class="checkpoint">
+        <h4 style="font-size:13px; font-weight:700; color:#1a56db; margin-bottom:6px;">Check Point</h4>
+        <p style="font-size:12px; line-height:1.7; color:#555;">
+          · 글 삭제 시 연결된 답글 및 하위 댓글들이 모두 화면에서 블라인드(숨김) 처리<br>
+          · 답글 작성자의 마이페이지에서도 해당 답글이 노출되지 않도록 데이터 블라인드<br>
+          · 리스트가 길어질 경우 무한 스크롤 또는 페이지네이션 적용<br>
+          · 리뷰 탭 전환 시 동일한 UI 구조 내에서 별점 컴포넌트만 추가 표시
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
