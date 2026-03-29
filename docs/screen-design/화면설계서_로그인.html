@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면 설계도 - 로그인</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #fff;
+      color: #222;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page {
+      width: 1200px;
+      margin: 20px auto;
+      border: 1.5px solid #333;
+      background: #fff;
+    }
+
+    /* ===== 상단 메타 정보 헤더 ===== */
+    .meta-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1.5px solid #333;
+    }
+
+    .meta-left {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+      border-right: 1.5px solid #333;
+    }
+
+    .meta-right {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr;
+    }
+
+    .meta-label {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 14px;
+      border-right: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      white-space: nowrap;
+    }
+
+    .meta-value {
+      font-size: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #ccc;
+    }
+
+    .meta-value:last-child {
+      border-right: none;
+    }
+
+    /* ===== 두번째 줄: Screen Path ===== */
+    .meta-row2 {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      border-bottom: 1.5px solid #333;
+    }
+
+    /* ===== 메인 콘텐츠 영역 ===== */
+    .main-content {
+      display: grid;
+      grid-template-columns: 65% 35%;
+      min-height: 800px;
+    }
+
+    /* 왼쪽: 스크린 캡처 영역 */
+    .screen-area {
+      border-right: 1.5px solid #333;
+      padding: 20px;
+      position: relative;
+      background: #fafafa;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+    }
+
+    .screen-image-container {
+      position: relative;
+      display: inline-block;
+      width: auto;
+      max-width: 400px; /* 로그인 화면은 좁으므로 제한 */
+      overflow: hidden;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .screen-image-container img {
+      width: 100%;
+      display: block;
+    }
+
+    /* 번호 마커 */
+    .marker {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #FF4D6A;
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
+      z-index: 10;
+      cursor: default;
+    }
+
+    /* 오른쪽: 설명 영역 */
+    .description-area {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .desc-title {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-bottom: 1.5px solid #333;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    /* Summary */
+    .summary-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .summary-section h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #444;
+      font-style: italic;
+    }
+
+    .summary-section ul {
+      list-style: disc;
+      padding-left: 18px;
+    }
+
+    .summary-section li {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    /* 번호별 설명 테이블 */
+    .desc-table {
+      width: 100%;
+      border-collapse: collapse;
+      flex: 1;
+    }
+
+    .desc-table tr {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .desc-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .desc-table td {
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .desc-table .num {
+      width: 36px;
+      text-align: center;
+      font-weight: 700;
+      color: #FF4D6A;
+      font-size: 13px;
+      vertical-align: middle;
+      border-right: 1px solid #eee;
+    }
+
+    .desc-table .desc-text {
+      color: #333;
+    }
+
+    /* Check Point 섹션 */
+    .checkpoint {
+      border-top: 1.5px solid #333;
+      padding: 12px 16px;
+    }
+
+    .checkpoint h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a56db;
+      margin-bottom: 6px;
+    }
+
+    .checkpoint p {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    @media print {
+      .page {
+        width: 100%;
+        margin: 0;
+        border: none;
+        page-break-after: always;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page">
+  <!-- 메타 정보 헤더 Row 1 -->
+  <div class="meta-header">
+    <div class="meta-left">
+      <div class="meta-label">Page Title.</div>
+      <div class="meta-value">로그인 (Login)</div>
+      <div class="meta-label">Screen ID</div>
+      <div class="meta-value">UI-F-000</div>
+    </div>
+    <div class="meta-right">
+      <div class="meta-label">Author</div>
+      <div class="meta-value">Team 2</div>
+      <div class="meta-label">Date</div>
+      <div class="meta-value">2026.03.27</div>
+    </div>
+  </div>
+
+  <!-- 메타 정보 Row 2 -->
+  <div class="meta-row2">
+    <div class="meta-label">Screen Path</div>
+    <div class="meta-value">사용자 &gt; 로그인</div>
+  </div>
+
+  <!-- 메인 콘텐츠 -->
+  <div class="main-content">
+    <!-- 왼쪽: 스크린 캡처 + 마커 -->
+    <div class="screen-area">
+      <div class="screen-image-container">
+        <img src="images/login.png" alt="로그인 화면">
+
+        <!-- ① 로고 및 타이틀 -->
+        <div class="marker" style="top: 15%; left: 38%;">1</div>
+
+        <!-- ② 이메일 입력 -->
+        <div class="marker" style="top: 38%; left: 32%;">2</div>
+
+        <!-- ③ 비밀번호 입력 -->
+        <div class="marker" style="top: 45%; left: 32%;">3</div>
+
+        <!-- ④ 로그인 옵션 -->
+        <div class="marker" style="top: 50%; left: 32%;">4</div>
+
+        <!-- ⑤ 로그인 버튼 -->
+        <div class="marker" style="top: 58%; left: 32%;">5</div>
+
+        <!-- ⑥ 소셜 로그인 -->
+        <div class="marker" style="top: 76%; left: 32%;">6</div>
+
+        <!-- ⑦ 회원가입 링크 -->
+        <div class="marker" style="top: 83%; left: 32%;">7</div>
+      </div>
+    </div>
+
+    <!-- 오른쪽: 설명 -->
+    <div class="description-area">
+      <div class="desc-title">Description</div>
+
+      <div class="summary-section">
+        <h4>Summary.</h4>
+        <ul>
+          <li>전국축제 플랫폼 '이음'의 통합 로그인 화면</li>
+          <li>이메일 기반 자체 로그인 및 카카오/네이버 소셜 로그인 지원</li>
+          <li>사용자 편의를 위한 자동 로그인 및 아이디 저장 기능 제공</li>
+        </ul>
+      </div>
+
+      <table class="desc-table">
+        <tr>
+          <td class="num">1</td>
+          <td class="desc-text">
+            <strong>로고 및 앱 타이틀</strong><br>
+            축제 플랫폼 브랜드 로고와 메인 타이틀 표시<br>
+            서비스의 성격을 알리는 서브 타이틀 포함
+          </td>
+        </tr>
+        <tr>
+          <td class="num">2</td>
+          <td class="desc-text">
+            <strong>이메일 입력 필드</strong><br>
+            사용자 이메일 계정 입력 (E-mail 형식 유효성 체크)<br>
+            입력 필드 내 메일 아이콘 및 플레이스홀더 표시
+          </td>
+        </tr>
+        <tr>
+          <td class="num">3</td>
+          <td class="desc-text">
+            <strong>비밀번호 입력 필드</strong><br>
+            비밀번호 입력 (8자 이상, 마스킹 처리)<br>
+            우측 '눈 아이콘' 클릭 시 비밀번호 텍스트 표시/숨김 토글
+          </td>
+        </tr>
+        <tr>
+          <td class="num">4</td>
+          <td class="desc-text">
+            <strong>로그인 환경 설정 및 링크</strong><br>
+            · <strong>자동 로그인</strong>: 체크 시 세션 유지<br>
+            · <strong>아이디 저장</strong>: 로컬 스토리지에 이메일 저장<br>
+            · <strong>비밀번호 찾기</strong>: 클릭 시 계정 찾기 페이지로 이동
+          </td>
+        </tr>
+        <tr>
+          <td class="num">5</td>
+          <td class="desc-text">
+            <strong>로그인 버튼</strong><br>
+            프라이머리 컬러(Blue) 버튼<br>
+            클릭 시 API 통신을 통해 JWT 토큰 발급 및 메인 페이지 이동
+          </td>
+        </tr>
+        <tr>
+          <td class="num">6</td>
+          <td class="desc-text">
+            <strong>소셜 로그인 영역</strong><br>
+            '또는' 텍스트를 포함한 구분선 아래에 배치<br>
+            · <strong>카카오 로그인</strong> (Yellow)<br>
+            · <strong>네이버 로그인</strong> (Green)<br>
+            각 플랫폼 별 OAuth 2.0 연동
+          </td>
+        </tr>
+        <tr>
+          <td class="num">7</td>
+          <td class="desc-text">
+            <strong>회원가입 안내</strong><br>
+            계정이 없는 사용자를 위한 회원가입 유도 텍스트<br>
+            '회원가입' 클릭 시 약관 동의 및 가입 페이지 이동
+          </td>
+        </tr>
+      </table>
+
+      <div class="checkpoint">
+        <h4>Check Point</h4>
+        <p>
+          · 입력 필드 미입력 시 에러 메시지 노출 (Validation)<br>
+          · 키보드 엔터(Enter) 입력 시 자동으로 로그인 버튼 동작<br>
+          · 소셜 로그인 성공 시 추가 정보 입력 필요 여부 확인<br>
+          · 반응형 디자인 고려 (모바일/웹 공통 레이아웃 유지)
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
