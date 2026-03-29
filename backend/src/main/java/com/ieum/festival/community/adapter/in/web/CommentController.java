@@ -1,4 +1,4 @@
-package com.ieum.festival.user.community.adapter.in.web;
+package com.ieum.festival.community.adapter.in.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;

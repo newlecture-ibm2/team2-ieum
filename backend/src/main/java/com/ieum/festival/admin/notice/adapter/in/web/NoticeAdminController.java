@@ -1,4 +1,4 @@
-package com.ieum.festival.admin.noticemgmt.adapter.in.web;
+package com.ieum.festival.admin.notice.adapter.in.web;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
