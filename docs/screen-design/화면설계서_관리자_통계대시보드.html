@@ -183,14 +183,25 @@
     /* Mockup UI */
     .mockup-ui {
       width: 100%;
-      background: #f1f5f9;
+      background: #fff;
       font-family: 'Noto Sans KR', sans-serif;
       border: 1px solid #ccc;
       border-radius: 8px;
       overflow: hidden;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      padding: 24px;
+      display: flex;
+      min-height: 640px;
     }
+
+    /* Sidebar */
+    .sidebar { width: 180px; background: #1e293b; color: #fff; padding: 16px 0; flex-shrink: 0; }
+    .sidebar-brand { font-size: 15px; font-weight: 700; padding: 0 16px 16px; border-bottom: 1px solid #334155; color: #60a5fa; }
+    .sidebar-menu { list-style: none; padding: 12px 0; }
+    .sidebar-menu li { font-size: 12px; padding: 9px 16px; cursor: pointer; color: #94a3b8; display: flex; align-items: center; gap: 8px; }
+    .sidebar-menu li:hover { background: #334155; color: #fff; }
+    .sidebar-menu li.active { background: #2563eb; color: #fff; font-weight: 600; }
+    .sidebar-divider { font-size: 10px; color: #475569; padding: 12px 16px 4px; text-transform: uppercase; letter-spacing: 1px; }
+    .content-area { flex: 1; padding: 24px; background: #f1f5f9; }
 
     /* 번호 마커 */
     .marker {
@@ -289,43 +300,46 @@
     <div class="meta-header">
       <div class="meta-left">
         <div class="meta-label">Page Title.</div>
-        <div class="meta-value">관리자 - 통계 대시보드</div>
+        <div class="meta-value">관리자 - 대시보드</div>
         <div class="meta-label">Screen ID</div>
-        <div class="meta-value">UI-A-001</div>
+        <div class="meta-value">UI-ADM-001</div>
       </div>
       <div class="meta-right">
         <div class="meta-label">Author</div>
-        <div class="meta-value">Team 2</div>
+        <div class="meta-value">Team 2 (나은)</div>
         <div class="meta-label">Date</div>
-        <div class="meta-value">2026.03.29</div>
+        <div class="meta-value">2026.03.30</div>
       </div>
     </div>
     <div class="meta-row2">
       <div class="meta-label">Screen Path</div>
-      <div class="meta-value">관리자 &gt; 통계 대시보드</div>
+      <div class="meta-value">관리자 &gt; 사이드바 &gt; 대시보드</div>
     </div>
 
     <!-- 메인 콘텐츠 -->
     <div class="main-content">
       <div class="screen-area">
         <div class="mockup-ui">
-
-          <!-- 페이지 타이틀 -->
-          <div style="margin-bottom: 20px;">
-            <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">관리자 대시보드</h1>
-            <p style="font-size: 13px; color: #94a3b8;">축제 플랫폼 전반을 관리하고 통계를 확인하세요</p>
+          <!-- 사이드바 -->
+          <div class="sidebar">
+            <div class="sidebar-brand">🎪 IEUM 관리자</div>
+            <div class="sidebar-divider">관리</div>
+            <ul class="sidebar-menu">
+              <li class="active">🏠 대시보드</li>
+              <li>🌐 공공축제 리스트</li>
+              <li>🎪 자체기획 축제</li>
+              <li>🚨 신고 관리</li>
+              <li>📢 공지/팝업</li>
+              <li>💬 문의 관리</li>
+            </ul>
           </div>
 
-          <!-- 탭 바 -->
-          <div
-            style="display: flex; gap: 24px; margin-bottom: 20px; border-bottom: 2px solid #e2e8f0; padding-bottom: 0;">
-            <span style="font-size: 13px; font-weight: 500; color: #94a3b8; padding-bottom: 10px; cursor: pointer;">축제
-              데이터 관리</span>
-            <span
-              style="font-size: 13px; font-weight: 500; color: #94a3b8; padding-bottom: 10px; cursor: pointer;">운영관리</span>
-            <span
-              style="font-size: 13px; font-weight: 700; color: #2563eb; padding-bottom: 10px; border-bottom: 2px solid #2563eb; cursor: pointer;">통계
-              대시보드</span>
+          <!-- 메인 콘텐츠 -->
+          <div class="content-area">
+          <!-- 페이지 타이틀 -->
+          <div style="margin-bottom: 20px;">
+            <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">🏠 관리자 대시보드</h1>
+            <p style="font-size: 13px; color: #94a3b8;">축제 플랫폼 전반을 관리하고 통계를 확인하세요</p>
           </div>
 
           <!-- ① 요약 카드 4개 -->
@@ -533,14 +547,15 @@
           </div>
 
         </div>
+        </div>
 
         <!-- 번호 마커 -->
-        <div class="marker" style="top: 5%; left: 38%;">1</div>
-        <div class="marker" style="top: 10%; left: 38%;">2</div>
-        <div class="marker" style="top: 15%; left: 34%;">3</div>
-        <div class="marker" style="top: 36%; left: 34%;">4</div>
-        <div class="marker" style="top: 58%; left: 34%;">5</div>
-        <div class="marker" style="top: 75%; left: 25%;">6</div>
+        <div class="marker" style="top: 3%; left: 3%;">1</div>
+        <div class="marker" style="top: 7%; left: 22%;">2</div>
+        <div class="marker" style="top: 15%; left: 25%;">3</div>
+        <div class="marker" style="top: 36%; left: 25%;">4</div>
+        <div class="marker" style="top: 58%; left: 25%;">5</div>
+        <div class="marker" style="top: 75%; left: 20%;">6</div>
       </div>
 
       <!-- Description -->
@@ -550,9 +565,10 @@
         <div class="summary-section">
           <h4>Summary.</h4>
           <ul>
-            <li>관리자 전용 통계 대시보드로, 플랫폼 전반의 핵심 지표를 한 화면에서 확인</li>
+            <li>관리자 전용 대시보드로, 플랫폼 전반의 핵심 지표를 한 화면에서 확인</li>
             <li>총 사용자, 리뷰, 진행 축제, 채팅 활동 등 4개 KPI 요약 카드 제공</li>
             <li>지역별/시간대별/카테고리별 3종 그래프로 데이터 시각화</li>
+            <li>좌측 사이드바로 관리자 메뉴 간 이동</li>
             <li>API_ADM_0010 (통계 요약) + API_ADM_0020~0022 (그래프 데이터) 연동</li>
           </ul>
         </div>
@@ -561,18 +577,18 @@
           <tr>
             <td class="num">1</td>
             <td class="desc-text">
-              <strong>페이지 타이틀 + 서브텍스트</strong><br>
-              · "관리자 대시보드" 제목과 안내 문구 표시<br>
-              · 관리자 권한(ADMIN)으로 로그인한 사용자만 접근 가능
+              <strong>관리자 사이드바 네비게이션</strong><br>
+              · 좌측 고정 사이드바, 다크(#1e293b) 배경<br>
+              · 관리 메뉴: 대시보드, 공공축제 리스트, 자체기획 축제, 신고, 공지/팝업, 문의<br>
+              · 현재 메뉴(대시보드)는 파란색(#2563eb) 활성 표시
             </td>
           </tr>
           <tr>
             <td class="num">2</td>
             <td class="desc-text">
-              <strong>관리자 탭 메뉴</strong><br>
-              · 축제 데이터 관리 | 운영관리 | <strong>통계 대시보드</strong> (현재 활성)<br>
-              · 탭 클릭 시 관리자 메뉴 간 화면 전환<br>
-              · 활성 탭은 파란색 텍스트 + 밑줄 하이라이트
+              <strong>페이지 타이틀 + 서브텍스트</strong><br>
+              · "관리자 대시보드" 제목과 안내 문구 표시<br>
+              · 관리자 권한(ADMIN)으로 로그인한 사용자만 접근 가능
             </td>
           </tr>
           <tr>
