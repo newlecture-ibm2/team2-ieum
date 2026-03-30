@@ -6,12 +6,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>화면 설계서 - 전국축제 (지도 탐색)</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
 
     * {
       margin: 0;
       padding: 0;
-      box-sizing: border-box;
+      box-sizing: border-box
     }
 
     body {
@@ -19,7 +19,7 @@
       background: #fff;
       color: #222;
       -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+      print-color-adjust: exact
     }
 
     .page {
@@ -27,23 +27,24 @@
       margin: 20px auto;
       border: 1.5px solid #333;
       background: #fff;
+      page-break-after: always
     }
 
+    /* ===== 메타 헤더 ===== */
     .meta-header {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      border-bottom: 1.5px solid #333;
+      border-bottom: 1.5px solid #333
+    }
+
+    .meta-left,
+    .meta-right {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr
     }
 
     .meta-left {
-      display: grid;
-      grid-template-columns: auto 1fr auto 1fr;
-      border-right: 1.5px solid #333;
-    }
-
-    .meta-right {
-      display: grid;
-      grid-template-columns: auto 1fr auto 1fr;
+      border-right: 1.5px solid #333
     }
 
     .meta-label {
@@ -54,7 +55,7 @@
       border-right: 1px solid #ccc;
       display: flex;
       align-items: center;
-      white-space: nowrap;
+      white-space: nowrap
     }
 
     .meta-value {
@@ -62,32 +63,525 @@
       padding: 10px 14px;
       display: flex;
       align-items: center;
-      border-right: 1px solid #ccc;
+      border-right: 1px solid #ccc
     }
 
     .meta-value:last-child {
-      border-right: none;
+      border-right: none
     }
 
     .meta-row2 {
       display: grid;
       grid-template-columns: auto 1fr;
-      border-bottom: 1.5px solid #333;
+      border-bottom: 1.5px solid #333
     }
 
+    /* ===== 메인 콘텐츠 ===== */
     .main-content {
       display: grid;
       grid-template-columns: 65% 35%;
-      min-height: 800px;
+      min-height: 800px
     }
 
     .screen-area {
       border-right: 1.5px solid #333;
       padding: 20px;
       position: relative;
-      background: #fafafa;
+      background: #fafafa
     }
 
+    .wire {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      position: relative;
+      overflow: hidden
+    }
+
+    /* ===== 공통 헤더 ===== */
+    .common-header {
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .ch-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ch-pin {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-45deg);
+    }
+
+    .ch-pin-inner {
+      width: 11px;
+      height: 11px;
+      background: white;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+
+    .ch-logo span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2d3436;
+      letter-spacing: -0.5px;
+    }
+
+    .ch-nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    .ch-nav a {
+      text-decoration: none;
+      color: #636e72;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 0;
+      position: relative;
+    }
+
+    .ch-nav a.active {
+      color: #6c5ce7;
+      font-weight: 700;
+    }
+
+    .ch-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a55eea, #6c5ce7);
+      border-radius: 2px;
+    }
+
+    .ch-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ch-bell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ch-bell svg {
+      width: 16px;
+      height: 16px;
+      color: #636e72;
+    }
+
+    .ch-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+
+    .ch-user {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ch-user svg {
+      width: 14px;
+      height: 14px;
+      color: white;
+    }
+
+    /* ===== 공통 푸터 ===== */
+    .common-footer {
+      background: #2d3436;
+    }
+
+    .cf-top {
+      display: flex;
+      justify-content: space-between;
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .cf-brand {
+      max-width: 200px;
+    }
+
+    .cf-brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .cf-pin {
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 3px;
+      transform: rotate(-45deg);
+    }
+
+    .cf-brand-logo span {
+      font-size: 13px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .cf-brand p {
+      font-size: 9px;
+      color: #969faa;
+      line-height: 1.6;
+    }
+
+    .cf-links {
+      display: flex;
+      gap: 36px;
+    }
+
+    .cf-col h4 {
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .cf-col ul {
+      list-style: none;
+    }
+
+    .cf-col li {
+      font-size: 9px;
+      color: #969faa;
+      margin-bottom: 4px;
+    }
+
+    .cf-bottom {
+      padding: 10px 24px;
+      font-size: 8px;
+      color: #636e72;
+    }
+
+    /* ===== 히어로 배너 + 탭 ===== */
+    .hero-banner {
+      background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
+      padding: 20px 24px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-banner::before {
+      content: '';
+      position: absolute;
+      top: -30px;
+      right: -30px;
+      width: 120px;
+      height: 120px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 50%;
+    }
+
+    .hero-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -20px;
+      left: 40px;
+      width: 80px;
+      height: 80px;
+      background: rgba(255, 255, 255, 0.04);
+      border-radius: 50%;
+    }
+
+    .hero-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: #fff;
+      margin-bottom: 4px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-sub {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.75);
+      margin-bottom: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-pills {
+      display: flex;
+      gap: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .tab-pills a {
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.7);
+      padding: 6px 16px;
+      border-radius: 20px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: all 0.2s;
+    }
+
+    .tab-pills a.active {
+      background: #fff;
+      color: #6c5ce7;
+      font-weight: 700;
+      border-color: #fff;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* ===== 지도 메인 영역 ===== */
+    .map-body {
+      display: flex;
+      flex: 1;
+    }
+
+    /* 필터 사이드바 */
+    .filter-sidebar {
+      width: 200px;
+      background: #fff;
+      border-right: 1px solid #e9ecef;
+      padding: 14px;
+      overflow-y: auto;
+      font-size: 12px;
+    }
+
+    .filter-section-title {
+      font-weight: 700;
+      font-size: 11px;
+      color: #6c5ce7;
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 2px solid #ede9fe;
+      letter-spacing: 0.5px;
+    }
+
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 0;
+      color: #475569;
+      font-size: 12px;
+    }
+
+    .filter-item input[type="checkbox"],
+    .filter-item input[type="radio"] {
+      accent-color: #6c5ce7;
+    }
+
+    .filter-select {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #ddd5f5;
+      border-radius: 6px;
+      font-size: 12px;
+      color: #334155;
+      margin-bottom: 10px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #a55eea;
+      box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.12);
+    }
+
+    .filter-btn-action {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid #ddd5f5;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: center;
+      margin-top: 6px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .filter-btn-action.reset {
+      background: #f8f9fa;
+      color: #64748b;
+    }
+
+    .filter-btn-action.search {
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      color: #fff;
+      border: none;
+      margin-top: 10px;
+    }
+
+    /* 지도 영역 */
+    .map-area {
+      flex: 1;
+      background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 40%, #c7e2b4 60%, #a7d994 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 클러스터 마커 */
+    .cluster {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(108, 92, 231, 0.85);
+      color: #fff;
+      font-weight: 800;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(108, 92, 231, 0.4);
+      border: 2px solid #fff;
+      cursor: pointer;
+    }
+
+    /* 개별 마커 */
+    .pin {
+      position: absolute;
+      font-size: 22px;
+      cursor: pointer;
+      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+    }
+
+    /* 인포윈도우 */
+    .infowindow {
+      position: absolute;
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px;
+      width: 240px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+      border: 1px solid #ede9fe;
+      font-size: 12px;
+    }
+
+    .infowindow::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 24px;
+      width: 16px;
+      height: 16px;
+      background: #fff;
+      border-right: 1px solid #ede9fe;
+      border-bottom: 1px solid #ede9fe;
+      transform: rotate(45deg);
+    }
+
+    /* GPS / 줌 컨트롤 */
+    .map-controls {
+      position: absolute;
+      bottom: 16px;
+      right: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .map-ctrl-btn {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      border: 1px solid #ddd5f5;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+      color: #6c5ce7;
+    }
+
+    /* 하단 목록 */
+    .bottom-list {
+      border-top: 1px solid #e9ecef;
+      background: #fff;
+      padding: 10px 16px;
+      max-height: 140px;
+      overflow-y: auto;
+    }
+
+    .list-row {
+      display: grid;
+      grid-template-columns: 40px 1fr 100px 120px 60px;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 12px;
+      gap: 10px;
+    }
+
+    .list-row:last-child {
+      border-bottom: none;
+    }
+
+    .list-img {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #c4b5fd, #a78bfa);
+      border-radius: 6px;
+    }
+
+    /* 번호 마커 */
+    .marker {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #FF4D6A;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
+      z-index: 10;
+    }
+
+    /* ===== Description ===== */
     .description-area {
       display: flex;
       flex-direction: column;
@@ -180,273 +674,6 @@
       color: #555;
     }
 
-    /* Mockup UI */
-    .mockup-ui {
-      width: 100%;
-      min-height: 680px;
-      background: #fff;
-      display: flex;
-      flex-direction: column;
-      font-family: 'Noto Sans KR', sans-serif;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-    }
-
-    .mockup-header {
-      height: 50px;
-      background: #fff;
-      border-bottom: 1px solid #e9ecef;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      justify-content: space-between;
-    }
-
-    .mockup-header-links {
-      font-size: 13px;
-      font-weight: 600;
-      color: #333;
-      display: flex;
-      gap: 20px;
-    }
-
-    .mockup-header-links .active-tab {
-      color: #2563eb;
-      border-bottom: 2px solid #2563eb;
-      padding-bottom: 2px;
-    }
-
-    /* 탭 바 */
-    .tab-bar {
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      height: 42px;
-      border-bottom: 1px solid #e9ecef;
-      gap: 20px;
-      font-size: 14px;
-      font-weight: 600;
-      color: #94a3b8;
-      background: #fff;
-    }
-
-    .tab-bar span {
-      padding: 10px 0;
-      cursor: pointer;
-    }
-
-    .tab-bar .active {
-      color: #2563eb;
-      border-bottom: 2px solid #2563eb;
-    }
-
-    /* 지도 메인 영역 */
-    .map-body {
-      display: flex;
-      flex: 1;
-    }
-
-    /* 필터 사이드바 */
-    .filter-sidebar {
-      width: 200px;
-      background: #fff;
-      border-right: 1px solid #e9ecef;
-      padding: 14px;
-      overflow-y: auto;
-      font-size: 12px;
-    }
-
-    .filter-section-title {
-      font-weight: 700;
-      font-size: 11px;
-      color: #94a3b8;
-      margin-bottom: 8px;
-      padding-bottom: 6px;
-      border-bottom: 1px solid #f1f5f9;
-      letter-spacing: 0.5px;
-    }
-
-    .filter-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 3px 0;
-      color: #475569;
-      font-size: 12px;
-    }
-
-    .filter-item input[type="checkbox"] {
-      accent-color: #2563eb;
-    }
-
-    .filter-select {
-      width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 12px;
-      color: #334155;
-      margin-bottom: 10px;
-    }
-
-    .filter-btn {
-      width: 100%;
-      padding: 8px;
-      border: 1px solid #cbd5e1;
-      border-radius: 6px;
-      font-size: 12px;
-      font-weight: 600;
-      cursor: pointer;
-      text-align: center;
-      margin-top: 6px;
-    }
-
-    .filter-btn.reset {
-      background: #f8fafc;
-      color: #64748b;
-    }
-
-    .filter-btn.search {
-      background: #2563eb;
-      color: #fff;
-      border: none;
-      margin-top: 10px;
-    }
-
-    /* 지도 영역 */
-    .map-area {
-      flex: 1;
-      background: linear-gradient(135deg, #e0f2fe 0%, #dbeafe 40%, #c7e2b4 60%, #a7d994 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    /* 클러스터 마커 */
-    .cluster {
-      position: absolute;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(37, 99, 235, 0.85);
-      color: #fff;
-      font-weight: 800;
-      font-size: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.4);
-      border: 2px solid #fff;
-      cursor: pointer;
-    }
-
-    /* 개별 마커 */
-    .pin {
-      position: absolute;
-      font-size: 22px;
-      cursor: pointer;
-      filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
-    }
-
-    /* 인포윈도우 */
-    .infowindow {
-      position: absolute;
-      background: #fff;
-      border-radius: 10px;
-      padding: 14px;
-      width: 240px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-      border: 1px solid #e2e8f0;
-      font-size: 12px;
-    }
-
-    .infowindow::after {
-      content: '';
-      position: absolute;
-      bottom: -8px;
-      left: 24px;
-      width: 16px;
-      height: 16px;
-      background: #fff;
-      border-right: 1px solid #e2e8f0;
-      border-bottom: 1px solid #e2e8f0;
-      transform: rotate(45deg);
-    }
-
-    /* GPS / 줌 컨트롤 */
-    .map-controls {
-      position: absolute;
-      bottom: 16px;
-      right: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 6px;
-    }
-
-    .map-ctrl-btn {
-      width: 36px;
-      height: 36px;
-      background: #fff;
-      border: 1px solid #cbd5e1;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      font-weight: 700;
-      cursor: pointer;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-    }
-
-    /* 하단 목록 */
-    .bottom-list {
-      border-top: 1px solid #e9ecef;
-      background: #fff;
-      padding: 10px 16px;
-      max-height: 140px;
-      overflow-y: auto;
-    }
-
-    .list-row {
-      display: grid;
-      grid-template-columns: 40px 1fr 100px 120px 60px;
-      align-items: center;
-      padding: 8px 0;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 12px;
-      gap: 10px;
-    }
-
-    .list-row:last-child {
-      border-bottom: none;
-    }
-
-    .list-img {
-      width: 36px;
-      height: 36px;
-      background: #cbd5e1;
-      border-radius: 6px;
-    }
-
-    /* 번호 마커 */
-    .marker {
-      position: absolute;
-      width: 28px;
-      height: 28px;
-      border-radius: 50%;
-      background: #FF4D6A;
-      color: #fff;
-      font-size: 13px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
-      z-index: 10;
-      cursor: default;
-    }
-
     /* API 명세 */
     .api-section {
       border-top: 1.5px solid #333;
@@ -531,6 +758,15 @@
       background: #fef3c7;
       color: #92400e;
     }
+
+    @media print {
+      .page {
+        width: 100%;
+        margin: 0;
+        border: none;
+        page-break-after: always;
+      }
+    }
   </style>
 </head>
 
@@ -548,7 +784,7 @@
         <div class="meta-label">Author</div>
         <div class="meta-value">Team 2</div>
         <div class="meta-label">Date</div>
-        <div class="meta-value">2026.03.29</div>
+        <div class="meta-value">2026.03.30</div>
       </div>
     </div>
     <div class="meta-row2">
@@ -559,32 +795,56 @@
     <!-- 메인 콘텐츠 -->
     <div class="main-content">
       <div class="screen-area">
-        <div class="mockup-ui">
-          <!-- GNB -->
-          <div class="mockup-header">
-            <div style="display:flex; align-items:center; gap:30px;">
-              <div style="font-weight:900; color:#2563eb; font-size:20px;">IEUM</div>
-              <div class="mockup-header-links">
-                <span class="active-tab">전국축제</span><span>지난축제</span><span>달력</span><span>커뮤니티</span><span>공지</span>
+        <div class="wire">
+          <!-- 공통 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
               </div>
+              <span>이음</span>
             </div>
-            <div style="font-size:12px; color:#64748b; font-weight:500;">🔍 검색 &nbsp;|&nbsp; 🔔 &nbsp;|&nbsp; 👤 로그인
+            <nav class="ch-nav">
+              <a href="#" class="active">전국축제</a>
+              <a href="#">지난축제</a>
+              <a href="#">달력</a>
+              <a href="#">커뮤니티</a>
+              <a href="#">공지</a>
+            </nav>
+            <div class="ch-actions">
+              <div class="ch-bell">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="ch-dot"></span>
+              </div>
+              <div class="ch-user">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
             </div>
           </div>
 
-          <!-- 탭 바 -->
-          <div class="tab-bar">
-            <span>전체</span>
-            <span>진행중</span>
-            <span>진행전</span>
-            <span class="active">🗺️ 지도</span>
+          <!-- 히어로 배너 + 탭 -->
+          <div class="hero-banner">
+            <div class="hero-title">전국축제</div>
+            <div class="hero-sub">지도로 전국의 축제를 한눈에 탐색하세요 🗺️</div>
+            <div class="tab-pills">
+              <a href="#">전체</a>
+              <a href="#">진행중</a>
+              <a href="#">진행전</a>
+              <a href="#" class="active">🗺️ 지도</a>
+            </div>
           </div>
 
           <!-- 지도 영역 -->
-          <div class="map-body">
+          <div class="map-body" style="min-height: 420px;">
             <!-- 필터 사이드바 -->
             <div class="filter-sidebar">
-              <div class="filter-section-title">── 지역 필터 ──</div>
+              <div class="filter-section-title">지역 필터</div>
               <select class="filter-select">
                 <option>▼ 시/도 선택</option>
               </select>
@@ -608,39 +868,39 @@
                 <label class="filter-item"><input type="checkbox"> 제주</label>
               </div>
 
-              <div class="filter-section-title">── 날짜 필터 ──</div>
+              <div class="filter-section-title">날짜 필터</div>
               <input type="date" class="filter-select" style="margin-bottom:4px;">
               <input type="date" class="filter-select">
 
-              <div class="filter-section-title" style="margin-top:12px;">── 상태 필터 ──</div>
+              <div class="filter-section-title" style="margin-top:12px;">상태 필터</div>
               <label class="filter-item"><input type="radio" name="status" checked> 전체</label>
               <label class="filter-item"><input type="radio" name="status"> 진행 예정</label>
               <label class="filter-item"><input type="radio" name="status"> 진행 중</label>
 
-              <div class="filter-section-title" style="margin-top:12px;">── 카테고리 ──</div>
+              <div class="filter-section-title" style="margin-top:12px;">카테고리</div>
               <label class="filter-item"><input type="checkbox"> 문화/예술</label>
               <label class="filter-item"><input type="checkbox"> 음식/특산물</label>
               <label class="filter-item"><input type="checkbox"> 전통/역사</label>
               <label class="filter-item"><input type="checkbox"> 자연/생태</label>
               <label class="filter-item"><input type="checkbox"> 야시장/마켓</label>
 
-              <div class="filter-section-title" style="margin-top:12px;">── 검색 ──</div>
+              <div class="filter-section-title" style="margin-top:12px;">검색</div>
               <input type="text" placeholder="🔍 축제명 검색" class="filter-select">
 
-              <button class="filter-btn reset">🔄 필터 초기화</button>
+              <button class="filter-btn-action reset">🔄 필터 초기화</button>
             </div>
 
             <!-- 카카오맵 영역 -->
             <div class="map-area">
               <!-- 세계→한국 진입 효과 안내 텍스트 (초기 로딩 시) -->
               <div
-                style="position:absolute; top:6px; left:50%; transform:translateX(-50%); background:rgba(0,0,0,0.6); color:#fff; padding:4px 14px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap;">
+                style="position:absolute; top:6px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, rgba(108,92,231,0.8), rgba(72,52,212,0.8)); color:#fff; padding:5px 16px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; backdrop-filter:blur(4px);">
                 🌍 세계 → 🇰🇷 한반도로 줌인 진입 중...
               </div>
 
               <!-- 한반도 윤곽 (추상적 표현) -->
               <div
-                style="position:absolute; top:15%; left:35%; width:160px; height:280px; border:2px dashed rgba(37,99,235,0.3); border-radius:40% 50% 60% 30%; transform:rotate(-5deg);">
+                style="position:absolute; top:15%; left:35%; width:160px; height:280px; border:2px dashed rgba(108,92,231,0.3); border-radius:40% 50% 60% 30%; transform:rotate(-5deg);">
               </div>
 
               <!-- 클러스터 마커들 -->
@@ -663,7 +923,7 @@
                 <div style="font-size:11px; color:#64748b; margin-bottom:8px;">⭐ 4.5 (128건) &nbsp;&nbsp; 👁️ 2,340 조회
                 </div>
                 <div style="text-align:right;">
-                  <span style="font-size:12px; font-weight:700; color:#2563eb; cursor:pointer;">상세보기 →</span>
+                  <span style="font-size:12px; font-weight:700; color:#6c5ce7; cursor:pointer;">상세보기 →</span>
                 </div>
               </div>
 
@@ -681,7 +941,7 @@
             <div
               style="font-weight:700; font-size:13px; color:#1e293b; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
               <span>📋 검색 결과 목록 (총 41개)</span>
-              <span style="font-size:11px; color:#2563eb; cursor:pointer;">▲ 목록 접기</span>
+              <span style="font-size:11px; color:#6c5ce7; cursor:pointer; font-weight:600;">▲ 목록 접기</span>
             </div>
             <div class="list-row" style="font-weight:600; color:#64748b; border-bottom:1px solid #e2e8f0;">
               <div></div>
@@ -712,17 +972,54 @@
               <div style="color:#f59e0b; font-weight:700;">⭐ 4.8</div>
             </div>
           </div>
+
+          <!-- 공통 푸터 -->
+          <div class="common-footer">
+            <div class="cf-top">
+              <div class="cf-brand">
+                <div class="cf-brand-logo">
+                  <div class="cf-pin"></div><span>이음</span>
+                </div>
+                <p>전국의 다양한 축제 정보를 하나로 연결합니다.</p>
+              </div>
+              <div class="cf-links">
+                <div class="cf-col">
+                  <h4>서비스</h4>
+                  <ul>
+                    <li>전국축제</li>
+                    <li>지난축제</li>
+                    <li>축제 달력</li>
+                  </ul>
+                </div>
+                <div class="cf-col">
+                  <h4>고객지원</h4>
+                  <ul>
+                    <li>공지사항</li>
+                    <li>1:1 문의</li>
+                    <li>이용약관</li>
+                  </ul>
+                </div>
+                <div class="cf-col">
+                  <h4>문의하기</h4>
+                  <ul>
+                    <li>ieum@festival.kr</li>
+                    <li>02-1234-5678</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            <div class="cf-bottom">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</div>
+          </div>
         </div>
 
         <!-- 번호 마커 -->
-        <div class="marker" style="top: 5%; left: 33%;">1</div>
-        <div class="marker" style="top: 8%; left: 42%;">2</div>
-        <div class="marker" style="top: 14%; left: 2%;">3</div>
-        <div class="marker" style="top: 26%; left: 55%;">4</div>
-        <div class="marker" style="top: 22%; right: 5%;">5</div>
-        <div class="marker" style="top: 62%; right: 10%;">6</div>
-        <div class="marker" style="top: 70%; left: 25%;">7</div>
-        <div class="marker" style="top: 8%; left: 60%;">8</div>
+        <div class="marker" style="top: 36px; right: 28px;">1</div>
+        <div class="marker" style="top: 112px; left: 28px;">2</div>
+        <div class="marker" style="top: 190px; left: 28px;">3</div>
+        <div class="marker" style="top: 200px; left: 355px;">4</div>
+        <div class="marker" style="top: 360px; right: 240px;">5</div>
+        <div class="marker" style="top: 900; right: 28px;">6</div>
+        <div class="marker" style="bottom: 300; right: 40px;">7</div>
       </div>
 
       <!-- Description -->
@@ -743,17 +1040,18 @@
           <tr>
             <td class="num">1</td>
             <td class="desc-text">
-              <strong>GNB (상단 네비게이션)</strong><br>
-              로고 "IEUM" + 메뉴 탭: 전국축제 | 지난축제 | 달력 | 커뮤니티 | 공지<br>
-              우측에 검색, 알림, 로그인/닉네임 표시<br>
-              전국축제 탭이 활성 상태 (파란색 밑줄)
+              <strong>GNB (공통 헤더)</strong><br>
+              핀 로고 "이음" + 메뉴 탭: 전국축제 | 지난축제 | 달력 | 커뮤니티 | 공지<br>
+              우측에 🔔 알림 + 👤 사용자 아이콘<br>
+              전국축제 탭이 활성 상태 (퍼플 밑줄 하이라이트)
             </td>
           </tr>
           <tr>
             <td class="num">2</td>
             <td class="desc-text">
-              <strong>탭 필터 (전체 / 진행중 / 진행전 / 🗺️ 지도)</strong><br>
-              · 현재 "지도" 탭이 활성 상태 (파란색 밑줄 하이라이트)<br>
+              <strong>히어로 배너 + 탭 필 (전체 / 진행중 / 진행전 / 🗺️ 지도)</strong><br>
+              · 퍼플 그라데이션 배경의 히어로 배너 영역<br>
+              · 현재 "🗺️ 지도" 탭이 활성 상태 (화이트 필 하이라이트)<br>
               · 다른 탭 클릭 시 카드 리스트 뷰로 전환<br>
               · 탭 전환 시 URL의 view 쿼리 파라미터 변경
             </td>
@@ -775,7 +1073,7 @@
             <td class="num">4</td>
             <td class="desc-text">
               <strong>클러스터 마커 (시/도별 그룹)</strong><br>
-              · 파란색 원형 마커 안에 해당 지역 축제 갯수 표시<br>
+              · 퍼플 원형 마커 안에 해당 지역 축제 갯수 표시<br>
               · 클릭 시 줌 인 → 하위 개별 마커 분리 표시<br>
               · 줌 아웃 시 다시 클러스터로 자동 병합
             </td>
@@ -809,16 +1107,6 @@
               · 목록 항목 호버/클릭 시 해당 마커 하이라이트 + 지도 이동<br>
               · ▲/▼ 토글로 목록 열기/접기 가능<br>
               · 페이지네이션 적용 (◀ 1 2 3 4 5 ▶)
-            </td>
-          </tr>
-          <tr>
-            <td class="num">8</td>
-            <td class="desc-text">
-              <strong>세계→한국 줌인 진입 애니메이션</strong><br>
-              · 페이지 최초 진입 시 세계지도가 보이다가 한반도로 자동 줌인<br>
-              · 카카오맵 setCenter + setLevel API 활용<br>
-              · 약 1.5~2초간의 부드러운 빨려들어가는 트랜지션 적용<br>
-              · 애니메이션 완료 후 클러스터 마커 fade-in 표시
             </td>
           </tr>
         </table>
