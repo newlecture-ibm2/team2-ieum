@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920">
+    <title>이음 - ERD (Entity Relationship Diagram)</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0f1117;
+            --surface: #1a1d27;
+            --surface-hover: #22263a;
+            --border: #2a2e3f;
+            --border-highlight: #3d4263;
+            --text: #e4e6ef;
+            --text-secondary: #8b8fa3;
+            --text-muted: #5a5e73;
+            --pk: #f59e0b;
+            --fk: #6366f1;
+            --unique: #10b981;
+            --notnull: #ef4444;
+            --core: #6366f1;
+            --relation: #10b981;
+            --support: #f59e0b;
+            --line-color: #4a4f6a;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: rgba(15, 17, 23, 0.85);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #6366f1, #a855f7);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header .subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .legend {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .controls button {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
+        }
+
+        .controls button:hover {
+            background: var(--surface-hover);
+            border-color: var(--border-highlight);
+        }
+
+        /* Canvas */
+        .canvas-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            cursor: grab;
+            padding-top: 56px;
+        }
+
+        .canvas-container.dragging { cursor: grabbing; }
+
+        .canvas {
+            position: relative;
+            transform-origin: 0 0;
+            width: 3200px;
+            height: 2400px;
+        }
+
+        /* SVG Lines */
+        .lines-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .relation-line {
+            stroke: var(--line-color);
+            stroke-width: 1.5;
+            fill: none;
+            opacity: 0.6;
+            transition: opacity 0.3s, stroke 0.3s;
+        }
+
+        .relation-line.highlight {
+            stroke: #6366f1;
+            stroke-width: 2.5;
+            opacity: 1;
+        }
+
+        /* Table Card */
+        .table-card {
+            position: absolute;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            min-width: 260px;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            z-index: 10;
+            transition: box-shadow 0.3s, border-color 0.3s;
+            cursor: move;
+            user-select: none;
+        }
+
+        .table-card:hover {
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.15);
+            border-color: var(--border-highlight);
+        }
+
+        .table-card.highlight {
+            border-color: #6366f1;
+            box-shadow: 0 8px 40px rgba(99, 102, 241, 0.25);
+        }
+
+        .table-header {
+            padding: 10px 14px;
+            border-radius: 10px 10px 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .table-header.core { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05)); }
+        .table-header.relation { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); }
+        .table-header.support { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); }
+
+        .table-name {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .table-name.core { color: #818cf8; }
+        .table-name.relation { color: #34d399; }
+        .table-name.support { color: #fbbf24; }
+
+        .table-label {
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        .table-label.core { background: rgba(99,102,241,0.15); color: #818cf8; }
+        .table-label.relation { background: rgba(16,185,129,0.15); color: #34d399; }
+        .table-label.support { background: rgba(245,158,11,0.15); color: #fbbf24; }
+
+        .table-body { padding: 4px 0; }
+
+        .column-row {
+            display: flex;
+            align-items: center;
+            padding: 3px 14px;
+            font-size: 12px;
+            gap: 8px;
+            transition: background 0.15s;
+        }
+
+        .column-row:hover { background: rgba(255,255,255,0.03); }
+
+        .col-badges {
+            display: flex;
+            gap: 3px;
+            min-width: 42px;
+        }
+
+        .badge {
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 4px;
+            border-radius: 3px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .badge.pk { background: rgba(245,158,11,0.2); color: #fbbf24; }
+        .badge.fk { background: rgba(99,102,241,0.2); color: #818cf8; }
+        .badge.uk { background: rgba(16,185,129,0.2); color: #34d399; }
+
+        .col-name {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--text);
+            min-width: 120px;
+        }
+
+        .col-type {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            color: var(--text-muted);
+            min-width: 80px;
+        }
+
+        .col-note {
+            font-size: 11px;
+            color: var(--text-secondary);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 120px;
+        }
+
+        .table-footer {
+            padding: 6px 14px;
+            border-top: 1px solid var(--border);
+            font-size: 10px;
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Minimap */
+        .minimap {
+            position: fixed;
+            bottom: 16px;
+            right: 16px;
+            width: 200px;
+            height: 150px;
+            background: rgba(26, 29, 39, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            z-index: 100;
+            overflow: hidden;
+        }
+
+        .minimap-viewport {
+            position: absolute;
+            border: 1.5px solid #6366f1;
+            background: rgba(99, 102, 241, 0.08);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        .minimap-table {
+            position: absolute;
+            border-radius: 2px;
+        }
+
+        /* Zoom indicator */
+        .zoom-indicator {
+            position: fixed;
+            bottom: 16px;
+            left: 16px;
+            background: rgba(26, 29, 39, 0.9);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 8px 16px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            z-index: 100;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: fixed;
+            background: var(--surface);
+            border: 1px solid var(--border-highlight);
+            border-radius: 8px;
+            padding: 10px 14px;
+            font-size: 12px;
+            color: var(--text);
+            z-index: 200;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.2s;
+            max-width: 300px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+
+        .tooltip.visible { opacity: 1; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <h1>🎪 이음 ERD</h1>
+        <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (13 Tables)</span>
+    </div>
+    <div class="legend">
+        <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>핵심 (Core)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>연관 (Relation)</div>
+        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>부가 (Support)</div>
+        <div class="legend-item"><span class="badge pk">PK</span> Primary</div>
+        <div class="legend-item"><span class="badge fk">FK</span> Foreign</div>
+        <div class="legend-item"><span class="badge uk">UK</span> Unique</div>
+    </div>
+    <div class="controls">
+        <button onclick="resetView()">⟲ 초기화</button>
+        <button onclick="zoomIn()">＋</button>
+        <button onclick="zoomOut()">－</button>
+    </div>
+</div>
+
+<div class="canvas-container" id="canvasContainer">
+    <div class="canvas" id="canvas">
+        <svg class="lines-svg" id="linesSvg"></svg>
+    </div>
+</div>
+
+<div class="minimap" id="minimap"></div>
+<div class="zoom-indicator" id="zoomIndicator">100%</div>
+<div class="tooltip" id="tooltip"></div>
+
+<script>
+// ─── Table Definitions ───
+const tables = [
+    {
+        id: 'users', name: 'users', label: '회원', type: 'core',
+        x: 100, y: 100,
+        columns: [
+            { name: 'user_id', type: 'bigint', pk: true, note: '회원 고유 ID' },
+            { name: 'email', type: 'varchar(100)', uk: true, note: '이메일' },
+            { name: 'password', type: 'varchar(255)', note: '비밀번호 (BCrypt)' },
+            { name: 'nickname', type: 'varchar(20)', uk: true, note: '닉네임' },
+            { name: 'profile_image', type: 'varchar(500)', note: '프로필 이미지 URL' },
+            { name: 'role', type: 'varchar(10)', note: 'USER / ADMIN' },
+            { name: 'push_enabled', type: 'boolean', note: '푸시 알림 수신' },
+            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / DELETED' },
+            { name: 'created_at', type: 'timestamp', note: '가입일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+            { name: 'deleted_at', type: 'timestamp', note: '탈퇴일 (소프트 삭제)' },
+        ]
+    },
+    {
+        id: 'festivals', name: 'festivals', label: '축제', type: 'core',
+        x: 700, y: 80,
+        columns: [
+            { name: 'festival_id', type: 'bigint', pk: true, note: '축제 고유 ID' },
+            { name: 'title', type: 'varchar(200)', note: '축제명' },
+            { name: 'description', type: 'text', note: '상세 설명' },
+            { name: 'address', type: 'varchar(300)', note: '주소' },
+            { name: 'start_date', type: 'date', note: '시작일' },
+            { name: 'end_date', type: 'date', note: '종료일' },
+            { name: 'status', type: 'varchar(10)', note: 'ONGOING/UPCOMING/ENDED' },
+            { name: 'image_url', type: 'varchar(500)', note: '대표 이미지 URL' },
+            { name: 'latitude', type: 'double', note: '위도' },
+            { name: 'longitude', type: 'double', note: '경도' },
+            { name: 'tel', type: 'varchar(20)', note: '연락처' },
+            { name: 'homepage', type: 'varchar(500)', note: '홈페이지 URL' },
+            { name: 'category', type: 'varchar(10)', note: '카테고리 코드' },
+            { name: 'area_code', type: 'varchar(10)', note: '지역 코드' },
+            { name: 'ldong_code', type: 'varchar(20)', note: '법정동 코드' },
+            { name: 'is_custom', type: 'boolean', note: '자체 기획 여부' },
+            { name: 'is_visible', type: 'boolean', note: '노출 여부' },
+            { name: 'view_count', type: 'int', note: '조회수' },
+            { name: 'created_at', type: 'timestamp', note: '등록일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+        ]
+    },
+    {
+        id: 'reviews', name: 'reviews', label: '리뷰', type: 'core',
+        x: 420, y: 500,
+        columns: [
+            { name: 'review_id', type: 'bigint', pk: true, note: '리뷰 고유 ID' },
+            { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'rating', type: 'int', note: '별점 (1~5)' },
+            { name: 'content', type: 'varchar(500)', note: '리뷰 내용' },
+            { name: 'image_url', type: 'varchar(500)', note: '리뷰 이미지' },
+            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+            { name: 'created_at', type: 'timestamp', note: '작성일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+            { name: 'deleted_at', type: 'timestamp', note: '삭제일' },
+        ],
+        footer: 'UK: (festival_id, user_id)'
+    },
+    {
+        id: 'scraps', name: 'scraps', label: '찜하기', type: 'relation',
+        x: 420, y: 850,
+        columns: [
+            { name: 'scrap_id', type: 'bigint', pk: true, note: '찜 고유 ID' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
+            { name: 'created_at', type: 'timestamp', note: '찜한 날짜' },
+        ],
+        footer: 'UK: (user_id, festival_id)'
+    },
+    {
+        id: 'posts', name: 'posts', label: '게시글', type: 'core',
+        x: 1300, y: 100,
+        columns: [
+            { name: 'post_id', type: 'bigint', pk: true, note: '게시글 고유 ID' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'title', type: 'varchar(200)', note: '제목' },
+            { name: 'content', type: 'text', note: '내용' },
+            { name: 'view_count', type: 'int', note: '조회수' },
+            { name: 'like_count', type: 'int', note: '좋아요 수' },
+            { name: 'comment_count', type: 'int', note: '댓글 수' },
+            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+            { name: 'created_at', type: 'timestamp', note: '작성일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+        ]
+    },
+    {
+        id: 'comments', name: 'comments', label: '댓글', type: 'core',
+        x: 1600, y: 100,
+        columns: [
+            { name: 'comment_id', type: 'bigint', pk: true, note: '댓글 고유 ID' },
+            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'content', type: 'text', note: '댓글 내용' },
+            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+            { name: 'created_at', type: 'timestamp', note: '작성일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+        ]
+    },
+    {
+        id: 'post_likes', name: 'post_likes', label: '게시글 좋아요', type: 'relation',
+        x: 1300, y: 450,
+        columns: [
+            { name: 'like_id', type: 'bigint', pk: true, note: '좋아요 고유 ID' },
+            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'created_at', type: 'timestamp', note: '좋아요 날짜' },
+        ],
+        footer: 'UK: (post_id, user_id)'
+    },
+    {
+        id: 'post_files', name: 'post_files', label: '게시글 첨부파일', type: 'relation',
+        x: 1600, y: 450,
+        columns: [
+            { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
+            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
+            { name: 'file_name', type: 'varchar(200)', note: '파일명' },
+            { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
+            { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
+            { name: 'created_at', type: 'timestamp', note: '업로드일' },
+        ]
+    },
+    {
+        id: 'notices', name: 'notices', label: '공지사항', type: 'support',
+        x: 100, y: 720,
+        columns: [
+            { name: 'notice_id', type: 'bigint', pk: true, note: '공지 고유 ID' },
+            { name: 'title', type: 'varchar(200)', note: '공지 제목' },
+            { name: 'content', type: 'text', note: '공지 내용' },
+            { name: 'summary', type: 'varchar(300)', note: '팝업용 요약' },
+            { name: 'view_count', type: 'int', note: '조회수' },
+            { name: 'is_pinned', type: 'boolean', note: '고정 여부' },
+            { name: 'is_popup', type: 'boolean', note: '팝업 표시 여부' },
+            { name: 'created_at', type: 'timestamp', note: '등록일' },
+            { name: 'updated_at', type: 'timestamp', note: '수정일' },
+        ]
+    },
+    {
+        id: 'notice_files', name: 'notice_files', label: '공지 첨부파일', type: 'support',
+        x: 100, y: 1020,
+        columns: [
+            { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
+            { name: 'notice_id', type: 'bigint', fk: true, note: 'FK → notices' },
+            { name: 'file_name', type: 'varchar(200)', note: '파일명' },
+            { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
+            { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
+            { name: 'created_at', type: 'timestamp', note: '업로드일' },
+        ]
+    },
+    {
+        id: 'inquiries', name: 'inquiries', label: '1:1 문의', type: 'support',
+        x: 820, y: 850,
+        columns: [
+            { name: 'inquiry_id', type: 'bigint', pk: true, note: '문의 고유 ID' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+            { name: 'title', type: 'varchar(200)', note: '문의 제목' },
+            { name: 'content', type: 'text', note: '문의 내용' },
+            { name: 'status', type: 'varchar(10)', note: 'PENDING / ANSWERED' },
+            { name: 'answer', type: 'text', note: '관리자 답변' },
+            { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
+            { name: 'created_at', type: 'timestamp', note: '작성일' },
+        ]
+    },
+    {
+        id: 'reports', name: 'reports', label: '신고', type: 'support',
+        x: 1200, y: 720,
+        columns: [
+            { name: 'report_id', type: 'bigint', pk: true, note: '신고 고유 ID' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
+            { name: 'target_type', type: 'varchar(10)', note: 'POST/REVIEW/COMMENT' },
+            { name: 'target_id', type: 'bigint', note: '신고 대상 ID' },
+            { name: 'reason', type: 'text', note: '신고 사유' },
+            { name: 'status', type: 'varchar(10)', note: 'PENDING/PROCESSED/DISMISSED' },
+            { name: 'action', type: 'varchar(10)', note: 'DELETE / DISMISS' },
+            { name: 'created_at', type: 'timestamp', note: '신고일' },
+            { name: 'processed_at', type: 'timestamp', note: '처리일' },
+        ],
+        footer: 'UK: (user_id, target_type, target_id)'
+    },
+    {
+        id: 'notifications', name: 'notifications', label: '알림', type: 'support',
+        x: 1550, y: 720,
+        columns: [
+            { name: 'notification_id', type: 'bigint', pk: true, note: '알림 고유 ID' },
+            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (수신자)' },
+            { name: 'type', type: 'varchar(20)', note: 'FESTIVAL_START/END/NOTICE/COMMENT' },
+            { name: 'message', type: 'varchar(500)', note: '알림 메시지' },
+            { name: 'is_read', type: 'boolean', note: '읽음 여부' },
+            { name: 'target_type', type: 'varchar(10)', note: 'FESTIVAL/NOTICE/POST' },
+            { name: 'target_id', type: 'bigint', note: '대상 ID' },
+            { name: 'created_at', type: 'timestamp', note: '생성일' },
+        ]
+    },
+];
+
+// ─── Relationships ───
+const relationships = [
+    { from: 'users', to: 'reviews', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'festivals', to: 'reviews', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
+    { from: 'users', to: 'scraps', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'festivals', to: 'scraps', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
+    { from: 'users', to: 'posts', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'users', to: 'comments', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'posts', to: 'comments', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+    { from: 'users', to: 'post_likes', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+    { from: 'posts', to: 'post_files', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+    { from: 'notices', to: 'notice_files', label: '1:N', fromCol: 'notice_id', toCol: 'notice_id' },
+    { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+    { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+];
+
+// ─── Render ───
+const canvas = document.getElementById('canvas');
+const svgEl = document.getElementById('linesSvg');
+const container = document.getElementById('canvasContainer');
+const tableElements = {};
+
+let scale = 0.75;
+let panX = 50, panY = 0;
+let isDragging = false, dragTarget = null;
+let startX, startY, startPanX, startPanY, startTableX, startTableY;
+
+function renderTable(t) {
+    const card = document.createElement('div');
+    card.className = 'table-card';
+    card.id = `table-${t.id}`;
+    card.style.left = t.x + 'px';
+    card.style.top = t.y + 'px';
+
+    let colHTML = '';
+    t.columns.forEach(c => {
+        let badges = '';
+        if (c.pk) badges += '<span class="badge pk">PK</span>';
+        if (c.fk) badges += '<span class="badge fk">FK</span>';
+        if (c.uk) badges += '<span class="badge uk">UK</span>';
+        colHTML += `
+            <div class="column-row" data-table="${t.id}" data-col="${c.name}">
+                <div class="col-badges">${badges}</div>
+                <span class="col-name">${c.name}</span>
+                <span class="col-type">${c.type}</span>
+                <span class="col-note">${c.note || ''}</span>
+            </div>`;
+    });
+
+    let footerHTML = '';
+    if (t.footer) {
+        footerHTML = `<div class="table-footer">${t.footer}</div>`;
+    }
+
+    card.innerHTML = `
+        <div class="table-header ${t.type}">
+            <span class="table-name ${t.type}">${t.name}</span>
+            <span class="table-label ${t.type}">${t.label}</span>
+        </div>
+        <div class="table-body">${colHTML}</div>
+        ${footerHTML}`;
+
+    card.addEventListener('mousedown', (e) => {
+        if (e.button !== 0) return;
+        dragTarget = t;
+        startX = e.clientX;
+        startY = e.clientY;
+        startTableX = t.x;
+        startTableY = t.y;
+        e.stopPropagation();
+    });
+
+    card.addEventListener('mouseenter', () => highlightRelated(t.id));
+    card.addEventListener('mouseleave', () => clearHighlights());
+
+    canvas.appendChild(card);
+    tableElements[t.id] = card;
+}
+
+function getTableCenter(id) {
+    const el = tableElements[id];
+    if (!el) return { x: 0, y: 0 };
+    const t = tables.find(t => t.id === id);
+    return {
+        x: t.x + el.offsetWidth / 2,
+        y: t.y + el.offsetHeight / 2
+    };
+}
+
+function getConnectionPoint(fromId, toId) {
+    const fromEl = tableElements[fromId];
+    const toEl = tableElements[toId];
+    const fromT = tables.find(t => t.id === fromId);
+    const toT = tables.find(t => t.id === toId);
+
+    const fromCx = fromT.x + fromEl.offsetWidth / 2;
+    const fromCy = fromT.y + fromEl.offsetHeight / 2;
+    const toCx = toT.x + toEl.offsetWidth / 2;
+    const toCy = toT.y + toEl.offsetHeight / 2;
+
+    const fromW = fromEl.offsetWidth / 2;
+    const fromH = fromEl.offsetHeight / 2;
+    const toW = toEl.offsetWidth / 2;
+    const toH = toEl.offsetHeight / 2;
+
+    const dx = toCx - fromCx;
+    const dy = toCy - fromCy;
+
+    function edgePoint(cx, cy, hw, hh, angle) {
+        const absCos = Math.abs(Math.cos(angle));
+        const absSin = Math.abs(Math.sin(angle));
+        let px, py;
+        if (absCos * hh > absSin * hw) {
+            const sign = Math.cos(angle) > 0 ? 1 : -1;
+            px = cx + sign * hw;
+            py = cy + Math.tan(angle) * sign * hw;
+        } else {
+            const sign = Math.sin(angle) > 0 ? 1 : -1;
+            py = cy + sign * hh;
+            px = cx + (1 / Math.tan(angle)) * sign * hh;
+        }
+        return { x: px, y: py };
+    }
+
+    const angle = Math.atan2(dy, dx);
+    const fromPt = edgePoint(fromCx, fromCy, fromW, fromH, angle);
+    const toPt = edgePoint(toCx, toCy, toW, toH, angle + Math.PI);
+
+    return { from: fromPt, to: toPt };
+}
+
+function drawLines() {
+    svgEl.innerHTML = '';
+    relationships.forEach((rel, i) => {
+        const pts = getConnectionPoint(rel.from, rel.to);
+        const mx = (pts.from.x + pts.to.x) / 2;
+        const my = (pts.from.y + pts.to.y) / 2;
+
+        const dx = pts.to.x - pts.from.x;
+        const dy = pts.to.y - pts.from.y;
+        const isMoreHorizontal = Math.abs(dx) > Math.abs(dy);
+
+        let d;
+        if (isMoreHorizontal) {
+            d = `M ${pts.from.x} ${pts.from.y} C ${mx} ${pts.from.y}, ${mx} ${pts.to.y}, ${pts.to.x} ${pts.to.y}`;
+        } else {
+            d = `M ${pts.from.x} ${pts.from.y} C ${pts.from.x} ${my}, ${pts.to.x} ${my}, ${pts.to.x} ${pts.to.y}`;
+        }
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        path.setAttribute('d', d);
+        path.setAttribute('class', 'relation-line');
+        path.setAttribute('data-from', rel.from);
+        path.setAttribute('data-to', rel.to);
+        path.id = `line-${i}`;
+
+        // Arrowhead
+        const arrowLen = 8;
+        const adx = pts.to.x - mx;
+        const ady = pts.to.y - my;
+        const aAngle = Math.atan2(ady, adx);
+        const arrowD = `M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle - 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle - 0.4)} M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle + 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle + 0.4)}`;
+        const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        arrow.setAttribute('d', arrowD);
+        arrow.setAttribute('class', 'relation-line');
+        arrow.setAttribute('data-from', rel.from);
+        arrow.setAttribute('data-to', rel.to);
+        arrow.setAttribute('stroke-linecap', 'round');
+
+        svgEl.appendChild(path);
+        svgEl.appendChild(arrow);
+    });
+}
+
+function highlightRelated(tableId) {
+    // Highlight table card
+    Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
+    tableElements[tableId]?.classList.add('highlight');
+
+    // Highlight connected tables and lines
+    const lines = svgEl.querySelectorAll('.relation-line');
+    lines.forEach(line => {
+        const from = line.getAttribute('data-from');
+        const to = line.getAttribute('data-to');
+        if (from === tableId || to === tableId) {
+            line.classList.add('highlight');
+            const otherId = from === tableId ? to : from;
+            tableElements[otherId]?.classList.add('highlight');
+        } else {
+            line.classList.remove('highlight');
+        }
+    });
+}
+
+function clearHighlights() {
+    Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
+    svgEl.querySelectorAll('.relation-line').forEach(l => l.classList.remove('highlight'));
+}
+
+// ─── Pan & Zoom ───
+function updateTransform() {
+    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+    document.getElementById('zoomIndicator').textContent = Math.round(scale * 100) + '%';
+    updateMinimap();
+}
+
+function zoomIn() { scale = Math.min(2, scale + 0.1); updateTransform(); }
+function zoomOut() { scale = Math.max(0.2, scale - 0.1); updateTransform(); }
+function resetView() { scale = 0.75; panX = 50; panY = 0; updateTransform(); }
+
+container.addEventListener('mousedown', (e) => {
+    if (dragTarget) return;
+    isDragging = true;
+    container.classList.add('dragging');
+    startX = e.clientX;
+    startY = e.clientY;
+    startPanX = panX;
+    startPanY = panY;
+});
+
+window.addEventListener('mousemove', (e) => {
+    if (dragTarget) {
+        const dx = (e.clientX - startX) / scale;
+        const dy = (e.clientY - startY) / scale;
+        dragTarget.x = startTableX + dx;
+        dragTarget.y = startTableY + dy;
+        const el = tableElements[dragTarget.id];
+        el.style.left = dragTarget.x + 'px';
+        el.style.top = dragTarget.y + 'px';
+        drawLines();
+        updateMinimap();
+    } else if (isDragging) {
+        panX = startPanX + (e.clientX - startX);
+        panY = startPanY + (e.clientY - startY);
+        updateTransform();
+    }
+});
+
+window.addEventListener('mouseup', () => {
+    isDragging = false;
+    dragTarget = null;
+    container.classList.remove('dragging');
+});
+
+container.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const delta = e.deltaY > 0 ? -0.05 : 0.05;
+    const newScale = Math.min(2, Math.max(0.2, scale + delta));
+
+    const rect = container.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    panX = mx - (mx - panX) * (newScale / scale);
+    panY = my - (my - panY) * (newScale / scale);
+    scale = newScale;
+    updateTransform();
+}, { passive: false });
+
+// ─── Minimap ───
+function updateMinimap() {
+    const minimap = document.getElementById('minimap');
+    const mmW = 200, mmH = 150;
+    const cW = 3200, cH = 2400;
+    const scaleM = Math.min(mmW / cW, mmH / cH);
+
+    let html = '';
+    tables.forEach(t => {
+        const el = tableElements[t.id];
+        if (!el) return;
+        const color = t.type === 'core' ? '#6366f1' : t.type === 'relation' ? '#10b981' : '#f59e0b';
+        html += `<div class="minimap-table" style="left:${t.x * scaleM}px;top:${t.y * scaleM}px;width:${el.offsetWidth * scaleM}px;height:${el.offsetHeight * scaleM}px;background:${color};opacity:0.5;"></div>`;
+    });
+
+    const viewW = container.clientWidth / scale * scaleM;
+    const viewH = container.clientHeight / scale * scaleM;
+    const viewX = -panX / scale * scaleM;
+    const viewY = (-panY + 56) / scale * scaleM;
+
+    html += `<div class="minimap-viewport" style="left:${viewX}px;top:${viewY}px;width:${viewW}px;height:${viewH}px;"></div>`;
+    minimap.innerHTML = html;
+}
+
+// ─── Init ───
+tables.forEach(renderTable);
+requestAnimationFrame(() => {
+    drawLines();
+    updateTransform();
+});
+</script>
+</body>
+</html>
