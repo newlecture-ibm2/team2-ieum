@@ -170,7 +170,7 @@
     .checkpoint h4 {
       font-size: 13px;
       font-weight: 700;
-      color: #1a56db;
+      color: #a55eea;
       margin-bottom: 6px;
     }
 
@@ -194,14 +194,64 @@
     }
 
     /* Sidebar */
-    .sidebar { width: 180px; background: #1e293b; color: #fff; padding: 16px 0; flex-shrink: 0; }
-    .sidebar-brand { font-size: 15px; font-weight: 700; padding: 0 16px 16px; border-bottom: 1px solid #334155; color: #60a5fa; }
-    .sidebar-menu { list-style: none; padding: 12px 0; }
-    .sidebar-menu li { font-size: 12px; padding: 9px 16px; cursor: pointer; color: #94a3b8; display: flex; align-items: center; gap: 8px; }
-    .sidebar-menu li:hover { background: #334155; color: #fff; }
-    .sidebar-menu li.active { background: #2563eb; color: #fff; font-weight: 600; }
-    .sidebar-divider { font-size: 10px; color: #475569; padding: 12px 16px 4px; text-transform: uppercase; letter-spacing: 1px; }
-    .content-area { flex: 1; padding: 24px; background: #f1f5f9; }
+    .sidebar {
+      width: 180px;
+      background: #1e293b;
+      color: #fff;
+      padding: 16px 0;
+      flex-shrink: 0;
+    }
+
+    .sidebar-brand {
+      font-size: 15px;
+      font-weight: 700;
+      padding: 0 16px 16px;
+      border-bottom: 1px solid #334155;
+      color: #60a5fa;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 12px 0;
+    }
+
+    .sidebar-menu li {
+      font-size: 12px;
+      padding: 9px 16px;
+      cursor: pointer;
+      color: #94a3b8;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sidebar-menu li:hover {
+      background: #334155;
+      color: #fff;
+    }
+
+    .sidebar-menu li.active {
+      background: linear-gradient(90deg, #a55eea, #6c5ce7);
+      border-radius: 6px;
+      padding-left: 12px;
+      margin: 0 4px;
+      color: #fff;
+      font-weight: 600;
+    }
+
+    .sidebar-divider {
+      font-size: 10px;
+      color: #475569;
+      padding: 12px 16px 4px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .content-area {
+      flex: 1;
+      padding: 24px;
+      background: #f1f5f9;
+    }
 
     /* 번호 마커 */
     .marker {
@@ -291,6 +341,30 @@
       background: #fce7f3;
       color: #9d174d;
     }
+
+    /* ===== 기존 이음 브랜드 스타일 공통 추가 ===== */
+    .ch-pin-admin {
+      width: 18px;
+      height: 18px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-45deg);
+      vertical-align: middle;
+      margin-right: 6px;
+      position: relative;
+      top: -2px;
+    }
+
+    .ch-pin-inner-admin {
+      width: 8px;
+      height: 8px;
+      background: #1e293b;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
   </style>
 </head>
 
@@ -322,7 +396,11 @@
         <div class="mockup-ui">
           <!-- 사이드바 -->
           <div class="sidebar">
-            <div class="sidebar-brand">🎪 IEUM 관리자</div>
+            <div class="sidebar-brand">
+              <div class="ch-pin-admin">
+                <div class="ch-pin-inner-admin"></div>
+              </div>IEUM 관리자
+            </div>
             <div class="sidebar-divider">관리</div>
             <ul class="sidebar-menu">
               <li class="active">🏠 대시보드</li>
@@ -336,226 +414,226 @@
 
           <!-- 메인 콘텐츠 -->
           <div class="content-area">
-          <!-- 페이지 타이틀 -->
-          <div style="margin-bottom: 20px;">
-            <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">🏠 관리자 대시보드</h1>
-            <p style="font-size: 13px; color: #94a3b8;">축제 플랫폼 전반을 관리하고 통계를 확인하세요</p>
-          </div>
+            <!-- 페이지 타이틀 -->
+            <div style="margin-bottom: 20px;">
+              <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">🏠 관리자 대시보드</h1>
+              <p style="font-size: 13px; color: #94a3b8;">축제 플랫폼 전반을 관리하고 통계를 확인하세요</p>
+            </div>
 
-          <!-- ① 요약 카드 4개 -->
-          <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-            <!-- 총 사용자 -->
-            <div
-              style="background: linear-gradient(135deg, #3b82f6, #2563eb); color: #fff; padding: 16px; border-radius: 12px; position: relative;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="font-size: 20px;">👥</div>
-                <div style="font-size: 16px; opacity: 0.7;">📈</div>
+            <!-- ① 요약 카드 4개 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
+              <!-- 총 사용자 -->
+              <div
+                style="background: linear-gradient(135deg, #3b82f6, #6c5ce7); color: #fff; padding: 16px; border-radius: 12px; position: relative;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div style="font-size: 20px;">👥</div>
+                  <div style="font-size: 16px; opacity: 0.7;">📈</div>
+                </div>
+                <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">총 사용자</div>
+                <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">24,500</div>
+                <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+15.3% 전월 대비</div>
               </div>
-              <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">총 사용자</div>
-              <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">24,500</div>
-              <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+15.3% 전월 대비</div>
-            </div>
-            <!-- 총 리뷰 -->
-            <div
-              style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; padding: 16px; border-radius: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="font-size: 20px;">💬</div>
-                <div style="font-size: 16px; opacity: 0.7;">📈</div>
+              <!-- 총 리뷰 -->
+              <div
+                style="background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; padding: 16px; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div style="font-size: 20px;">💬</div>
+                  <div style="font-size: 16px; opacity: 0.7;">📈</div>
+                </div>
+                <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">총 리뷰</div>
+                <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">7,200</div>
+                <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+23.7% 전월 대비</div>
               </div>
-              <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">총 리뷰</div>
-              <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">7,200</div>
-              <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+23.7% 전월 대비</div>
-            </div>
-            <!-- 진행 축제 -->
-            <div
-              style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; padding: 16px; border-radius: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="font-size: 20px;">📅</div>
-                <div style="font-size: 16px; opacity: 0.7;">📈</div>
+              <!-- 진행 축제 -->
+              <div
+                style="background: linear-gradient(135deg, #a855f7, #7c3aed); color: #fff; padding: 16px; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div style="font-size: 20px;">📅</div>
+                  <div style="font-size: 16px; opacity: 0.7;">📈</div>
+                </div>
+                <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">진행 축제</div>
+                <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">45</div>
+                <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+8개 전월 대비</div>
               </div>
-              <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">진행 축제</div>
-              <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">45</div>
-              <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+8개 전월 대비</div>
-            </div>
-            <!-- 채팅 활동 -->
-            <div
-              style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; padding: 16px; border-radius: 12px;">
-              <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-                <div style="font-size: 20px;">📊</div>
-                <div style="font-size: 16px; opacity: 0.7;">📈</div>
+              <!-- 채팅 활동 -->
+              <div
+                style="background: linear-gradient(135deg, #f97316, #ea580c); color: #fff; padding: 16px; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                  <div style="font-size: 20px;">📊</div>
+                  <div style="font-size: 16px; opacity: 0.7;">📈</div>
+                </div>
+                <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">채팅 활동</div>
+                <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">18,900</div>
+                <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+31.2% 전월 대비</div>
               </div>
-              <div style="font-size: 11px; margin-top: 6px; opacity: 0.85;">채팅 활동</div>
-              <div style="font-size: 26px; font-weight: 800; margin-top: 2px;">18,900</div>
-              <div style="font-size: 10px; opacity: 0.75; margin-top: 4px;">+31.2% 전월 대비</div>
             </div>
-          </div>
 
-          <!-- ② 지역별 축제 분포 (막대 그래프) -->
-          <div
-            style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-            <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">지역별 축제 분포</div>
+            <!-- ② 지역별 축제 분포 (막대 그래프) -->
             <div
-              style="display: flex; align-items: flex-end; gap: 14px; height: 130px; padding-left: 30px; position: relative;">
-              <!-- Y축 라벨 -->
-              <div style="position: absolute; left: 0; top: 0; font-size: 10px; color: #94a3b8;">60</div>
-              <div style="position: absolute; left: 0; top: 33%; font-size: 10px; color: #94a3b8;">40</div>
-              <div style="position: absolute; left: 0; top: 66%; font-size: 10px; color: #94a3b8;">20</div>
-              <div style="position: absolute; left: 4px; bottom: 0; font-size: 10px; color: #94a3b8;">0</div>
-              <!-- 막대들 -->
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 110px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+              style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">지역별 축제 분포</div>
+              <div
+                style="display: flex; align-items: flex-end; gap: 14px; height: 130px; padding-left: 30px; position: relative;">
+                <!-- Y축 라벨 -->
+                <div style="position: absolute; left: 0; top: 0; font-size: 10px; color: #94a3b8;">60</div>
+                <div style="position: absolute; left: 0; top: 33%; font-size: 10px; color: #94a3b8;">40</div>
+                <div style="position: absolute; left: 0; top: 66%; font-size: 10px; color: #94a3b8;">20</div>
+                <div style="position: absolute; left: 4px; bottom: 0; font-size: 10px; color: #94a3b8;">0</div>
+                <!-- 막대들 -->
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 110px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">서울</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">서울</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 82px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 82px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">부산</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">부산</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 65px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 65px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">강릉</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">강릉</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 55px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 55px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">전주</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">전주</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 44px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 44px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">평창</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">평창</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 38px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 38px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">진해</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">진해</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 30px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 30px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">광주</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">광주</span>
-              </div>
-              <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                <div
-                  style="width: 100%; height: 50px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
+                  <div
+                    style="width: 100%; height: 50px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
+                  </div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">기타</span>
                 </div>
-                <span style="font-size: 10px; color: #64748b; margin-top: 4px;">기타</span>
               </div>
             </div>
-          </div>
 
-          <!-- ③ 사용자 유입 및 활동 추이 (라인 차트) -->
-          <div
-            style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-            <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">사용자 유입 및 활동 추이</div>
+            <!-- ③ 사용자 유입 및 활동 추이 (라인 차트) -->
             <div
-              style="position: relative; height: 120px; border-left: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-left: 36px;">
-              <!-- Y축 라벨 -->
-              <div style="position: absolute; left: -36px; top: -4px; font-size: 9px; color: #94a3b8;">26000</div>
-              <div style="position: absolute; left: -36px; top: 22%; font-size: 9px; color: #94a3b8;">19500</div>
-              <div style="position: absolute; left: -36px; top: 50%; font-size: 9px; color: #94a3b8;">13000</div>
-              <div style="position: absolute; left: -36px; top: 75%; font-size: 9px; color: #94a3b8;">6500</div>
-              <div style="position: absolute; left: -20px; bottom: -16px; font-size: 9px; color: #94a3b8;">0</div>
-              <!-- X축 라벨 -->
-              <div style="position: absolute; bottom: -16px; left: 2%; font-size: 9px; color: #94a3b8;">1월</div>
-              <div style="position: absolute; bottom: -16px; left: 33%; font-size: 9px; color: #94a3b8;">2월</div>
-              <div style="position: absolute; bottom: -16px; left: 63%; font-size: 9px; color: #94a3b8;">3월</div>
-              <div style="position: absolute; bottom: -16px; right: 2%; font-size: 9px; color: #94a3b8;">4월</div>
-              <!-- 라인 (SVG) -->
-              <svg viewBox="0 0 400 120" style="width: 100%; height: 100%;" preserveAspectRatio="none">
-                <!-- 사용자 (파란) -->
-                <polyline points="10,100 130,90 260,70 390,10" fill="none" stroke="#3b82f6" stroke-width="2.5" />
-                <circle cx="10" cy="100" r="3" fill="#3b82f6" />
-                <circle cx="130" cy="90" r="3" fill="#3b82f6" />
-                <circle cx="260" cy="70" r="3" fill="#3b82f6" />
-                <circle cx="390" cy="10" r="3" fill="#3b82f6" />
-                <!-- 리뷰 (녹색) -->
-                <polyline points="10,105 130,80 260,75 390,30" fill="none" stroke="#22c55e" stroke-width="2"
-                  stroke-dasharray="4,3" />
-                <!-- 채팅 (오렌지) -->
-                <polyline points="10,95 130,58 260,50 390,5" fill="none" stroke="#f97316" stroke-width="2" />
-                <circle cx="10" cy="95" r="3" fill="#f97316" />
-                <circle cx="130" cy="58" r="3" fill="#f97316" />
-                <circle cx="260" cy="50" r="3" fill="#f97316" />
-                <circle cx="390" cy="5" r="3" fill="#f97316" />
-              </svg>
-            </div>
-            <!-- 범례 -->
-            <div
-              style="display: flex; gap: 16px; justify-content: center; margin-top: 22px; font-size: 11px; color: #64748b;">
-              <span>● <span style="color: #3b82f6;">사용자</span></span>
-              <span>● <span style="color: #22c55e;">리뷰</span></span>
-              <span>● <span style="color: #f97316;">채팅</span></span>
-            </div>
-          </div>
-
-          <!-- ④ 축제 카테고리별 분포 (파이 차트) -->
-          <div style="background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e2e8f0;">
-            <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">축제 카테고리별 분포</div>
-            <div style="display: flex; align-items: center; justify-content: center; gap: 24px;">
-              <!-- 파이 차트 (SVG) -->
-              <svg width="130" height="130" viewBox="0 0 42 42">
-                <circle cx="21" cy="21" r="15.9" fill="#3b82f6" />
-                <!-- 자연/꽃 35% -->
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#22c55e" stroke-width="10"
-                  stroke-dasharray="35 65" stroke-dashoffset="25" />
-                <!-- 문화/예술 28% -->
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#3b82f6" stroke-width="10"
-                  stroke-dasharray="28 72" stroke-dashoffset="90" />
-                <!-- 음식/먹거리 15% -->
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f59e0b" stroke-width="10"
-                  stroke-dasharray="15 85" stroke-dashoffset="62" />
-                <!-- 나머지 -->
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" stroke-width="10"
-                  stroke-dasharray="12 88" stroke-dashoffset="47" />
-                <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#8b5cf6" stroke-width="10"
-                  stroke-dasharray="10 90" stroke-dashoffset="35" />
-              </svg>
+              style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">사용자 유입 및 활동 추이</div>
+              <div
+                style="position: relative; height: 120px; border-left: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-left: 36px;">
+                <!-- Y축 라벨 -->
+                <div style="position: absolute; left: -36px; top: -4px; font-size: 9px; color: #94a3b8;">26000</div>
+                <div style="position: absolute; left: -36px; top: 22%; font-size: 9px; color: #94a3b8;">19500</div>
+                <div style="position: absolute; left: -36px; top: 50%; font-size: 9px; color: #94a3b8;">13000</div>
+                <div style="position: absolute; left: -36px; top: 75%; font-size: 9px; color: #94a3b8;">6500</div>
+                <div style="position: absolute; left: -20px; bottom: -16px; font-size: 9px; color: #94a3b8;">0</div>
+                <!-- X축 라벨 -->
+                <div style="position: absolute; bottom: -16px; left: 2%; font-size: 9px; color: #94a3b8;">1월</div>
+                <div style="position: absolute; bottom: -16px; left: 33%; font-size: 9px; color: #94a3b8;">2월</div>
+                <div style="position: absolute; bottom: -16px; left: 63%; font-size: 9px; color: #94a3b8;">3월</div>
+                <div style="position: absolute; bottom: -16px; right: 2%; font-size: 9px; color: #94a3b8;">4월</div>
+                <!-- 라인 (SVG) -->
+                <svg viewBox="0 0 400 120" style="width: 100%; height: 100%;" preserveAspectRatio="none">
+                  <!-- 사용자 (파란) -->
+                  <polyline points="10,100 130,90 260,70 390,10" fill="none" stroke="#3b82f6" stroke-width="2.5" />
+                  <circle cx="10" cy="100" r="3" fill="#3b82f6" />
+                  <circle cx="130" cy="90" r="3" fill="#3b82f6" />
+                  <circle cx="260" cy="70" r="3" fill="#3b82f6" />
+                  <circle cx="390" cy="10" r="3" fill="#3b82f6" />
+                  <!-- 리뷰 (녹색) -->
+                  <polyline points="10,105 130,80 260,75 390,30" fill="none" stroke="#22c55e" stroke-width="2"
+                    stroke-dasharray="4,3" />
+                  <!-- 채팅 (오렌지) -->
+                  <polyline points="10,95 130,58 260,50 390,5" fill="none" stroke="#f97316" stroke-width="2" />
+                  <circle cx="10" cy="95" r="3" fill="#f97316" />
+                  <circle cx="130" cy="58" r="3" fill="#f97316" />
+                  <circle cx="260" cy="50" r="3" fill="#f97316" />
+                  <circle cx="390" cy="5" r="3" fill="#f97316" />
+                </svg>
+              </div>
               <!-- 범례 -->
-              <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></div>
-                  <span>자연/꽃 <strong>35%</strong></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
-                  <span>문화/예술 <strong>28%</strong></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></div>
-                  <span>음식/먹거리 <strong>15%</strong></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 10px; height: 10px; background: #ef4444; border-radius: 2px;"></div>
-                  <span>전통/역사 <strong>12%</strong></span>
-                </div>
-                <div style="display: flex; align-items: center; gap: 6px;">
-                  <div style="width: 10px; height: 10px; background: #8b5cf6; border-radius: 2px;"></div>
-                  <span>기타 <strong>10%</strong></span>
+              <div
+                style="display: flex; gap: 16px; justify-content: center; margin-top: 22px; font-size: 11px; color: #64748b;">
+                <span>● <span style="color: #3b82f6;">사용자</span></span>
+                <span>● <span style="color: #22c55e;">리뷰</span></span>
+                <span>● <span style="color: #f97316;">채팅</span></span>
+              </div>
+            </div>
+
+            <!-- ④ 축제 카테고리별 분포 (파이 차트) -->
+            <div style="background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e2e8f0;">
+              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">축제 카테고리별 분포</div>
+              <div style="display: flex; align-items: center; justify-content: center; gap: 24px;">
+                <!-- 파이 차트 (SVG) -->
+                <svg width="130" height="130" viewBox="0 0 42 42">
+                  <circle cx="21" cy="21" r="15.9" fill="#3b82f6" />
+                  <!-- 자연/꽃 35% -->
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#22c55e" stroke-width="10"
+                    stroke-dasharray="35 65" stroke-dashoffset="25" />
+                  <!-- 문화/예술 28% -->
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#3b82f6" stroke-width="10"
+                    stroke-dasharray="28 72" stroke-dashoffset="90" />
+                  <!-- 음식/먹거리 15% -->
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f59e0b" stroke-width="10"
+                    stroke-dasharray="15 85" stroke-dashoffset="62" />
+                  <!-- 나머지 -->
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" stroke-width="10"
+                    stroke-dasharray="12 88" stroke-dashoffset="47" />
+                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#8b5cf6" stroke-width="10"
+                    stroke-dasharray="10 90" stroke-dashoffset="35" />
+                </svg>
+                <!-- 범례 -->
+                <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></div>
+                    <span>자연/꽃 <strong>35%</strong></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
+                    <span>문화/예술 <strong>28%</strong></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></div>
+                    <span>음식/먹거리 <strong>15%</strong></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 10px; height: 10px; background: #ef4444; border-radius: 2px;"></div>
+                    <span>전통/역사 <strong>12%</strong></span>
+                  </div>
+                  <div style="display: flex; align-items: center; gap: 6px;">
+                    <div style="width: 10px; height: 10px; background: #8b5cf6; border-radius: 2px;"></div>
+                    <span>기타 <strong>10%</strong></span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-        </div>
+          </div>
         </div>
 
         <!-- 번호 마커 -->
-        <div class="marker" style="top: 3%; left: 3%;">1</div>
-        <div class="marker" style="top: 7%; left: 22%;">2</div>
+        <div class="marker" style="top: 3%; left: 1%;">1</div>
+        <div class="marker" style="top: 5%; left: 25%;">2</div>
         <div class="marker" style="top: 15%; left: 25%;">3</div>
         <div class="marker" style="top: 36%; left: 25%;">4</div>
-        <div class="marker" style="top: 58%; left: 25%;">5</div>
-        <div class="marker" style="top: 75%; left: 20%;">6</div>
+        <div class="marker" style="top: 55%; left: 25%;">5</div>
+        <div class="marker" style="top: 73%; left: 25%;">6</div>
       </div>
 
       <!-- Description -->
@@ -580,7 +658,7 @@
               <strong>관리자 사이드바 네비게이션</strong><br>
               · 좌측 고정 사이드바, 다크(#1e293b) 배경<br>
               · 관리 메뉴: 대시보드, 공공축제 리스트, 자체기획 축제, 신고, 공지/팝업, 문의<br>
-              · 현재 메뉴(대시보드)는 파란색(#2563eb) 활성 표시
+              · 현재 메뉴(대시보드)는 파란색(#6c5ce7) 활성 표시
             </td>
           </tr>
           <tr>
