@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>화면 설계서 - 커뮤니티 상세</title>
+  <title>화면 설계서 - 커뮤니티 상세 및 수정</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
 
     * {
       margin: 0;
@@ -15,7 +16,7 @@
 
     body {
       font-family: 'Noto Sans KR', sans-serif;
-      background: #fff;
+      background: #f0f2f5;
       color: #222;
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
@@ -26,24 +27,24 @@
       margin: 20px auto;
       border: 1.5px solid #333;
       background: #fff;
+      page-break-after: always;
     }
 
-    /* ===== 상단 메타 정보 헤더 ===== */
+    /* ===== 메타 헤더 ===== */
     .meta-header {
       display: grid;
       grid-template-columns: 1fr 1fr;
       border-bottom: 1.5px solid #333;
     }
 
-    .meta-left {
-      display: grid;
-      grid-template-columns: auto 1fr auto 1fr;
-      border-right: 1.5px solid #333;
-    }
-
+    .meta-left,
     .meta-right {
       display: grid;
       grid-template-columns: auto 1fr auto 1fr;
+    }
+
+    .meta-left {
+      border-right: 1.5px solid #333;
     }
 
     .meta-label {
@@ -69,69 +70,580 @@
       border-right: none;
     }
 
-    /* ===== 두번째 줄: Screen Path ===== */
     .meta-row2 {
       display: grid;
       grid-template-columns: auto 1fr;
       border-bottom: 1.5px solid #333;
     }
 
-    /* ===== 메인 콘텐츠 영역 ===== */
+    /* ===== 메인 콘텐츠 ===== */
     .main-content {
       display: grid;
-      grid-template-columns: 55% 45%;
+      grid-template-columns: 65% 35%;
       min-height: 800px;
     }
 
-    /* 왼쪽: 스크린 캡처 영역 */
     .screen-area {
       border-right: 1.5px solid #333;
-      padding: 30px;
+      padding: 20px 40px;
       position: relative;
       background: #fafafa;
-      display: flex; /* 화면 비율 조정을 위한 레이아웃 */
-      justify-content: center;
-      align-items: flex-start;
     }
 
-    .screen-image-container {
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-width: 420px; /* 모바일 세로형 해상도 비율 맞춤 */
+    .wire {
       border: 1px solid #ddd;
-      border-radius: 16px;
+      border-radius: 4px;
+      background: #fff;
+      position: relative;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      background-color: #f3f5f9;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
     }
 
-    .screen-image-container img {
-      width: 100%;
-      height: auto;
-      display: block;
-    }
-
-    /* 번호 마커 */
     .marker {
       position: absolute;
-      width: 28px;
-      height: 28px;
+      width: 26px;
+      height: 26px;
       border-radius: 50%;
       background: #FF4D6A;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
-      z-index: 10;
-      cursor: default;
-      transform: translate(-50%, -50%); /* 중심점 정렬 */
+      z-index: 200;
     }
 
-    /* 오른쪽: 설명 영역 */
+    /* ===== 공통 헤더 ===== */
+    .common-header {
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 1px solid #eee;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .ch-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ch-pin {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-45deg);
+    }
+
+    .ch-pin-inner {
+      width: 11px;
+      height: 11px;
+      background: white;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+
+    .ch-logo span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2d3436;
+    }
+
+    .ch-nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    .ch-nav a {
+      text-decoration: none;
+      color: #636e72;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .ch-nav a.active {
+      color: #6c5ce7;
+      font-weight: 700;
+      position: relative;
+    }
+
+    .ch-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a55eea, #6c5ce7);
+      border-radius: 2px;
+    }
+
+    .ch-user {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+
+    /* ===== 공통 푸터 ===== */
+    .common-footer {
+      background: #2d3436;
+      color: #969faa;
+      padding: 24px;
+      font-size: 9px;
+    }
+
+    .cf-top {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 16px;
+    }
+
+    .cf-brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .cf-pin {
+      width: 14px;
+      height: 14px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 3px;
+      transform: rotate(-45deg);
+    }
+
+    /* ===================== [상세] 게시글 영역 ===================== */
+    .post-container {
+      padding: 0;
+    }
+
+    .post-header-bg {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: 24px 24px 20px;
+    }
+
+    .post-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 12px;
+      line-height: 1.4;
+    }
+
+    /* 작성자 & 날짜 정보 (게시글 제목 밑) */
+    .post-meta-writer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 16px;
+    }
+
+    .writer-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .writer-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      overflow: hidden;
+    }
+
+    .writer-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .writer-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .writer-date {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    .writer-right {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-action-sm {
+      font-size: 11px;
+      color: #64748b;
+      background: transparent;
+      border: 1px solid #cbd5e1;
+      border-radius: 4px;
+      padding: 4px 10px;
+      cursor: pointer;
+    }
+
+    .btn-action-sm:hover {
+      background: #f1f5f9;
+      color: #334155;
+    }
+
+    /* 메타 정보 묶음 (관련 축제, 지역, 말머리, 카테고리) - 작성자 밑에 노출 */
+    .post-meta-tags {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .pm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .pm-label {
+      font-weight: 700;
+      color: #64748b;
+      width: 60px;
+      flex-shrink: 0;
+    }
+
+    .pm-value {
+      font-weight: 600;
+      color: #3b82f6;
+    }
+
+    .pm-value.badge-pill {
+      background: #e0e7ff;
+      color: #4f46e5;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+    }
+
+    /* 게시글 본문 */
+    .post-body {
+      padding: 30px 24px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.7;
+      min-height: 150px;
+    }
+
+    .post-image-placeholder {
+      width: 100%;
+      height: 200px;
+      background: #e2e8f0;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #94a3b8;
+      font-size: 12px;
+    }
+
+    /* 본문 하단 좋아요/조회수 컨트롤 */
+    .post-footer-actions {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px 24px;
+      border-bottom: 8px solid #f1f5f9;
+    }
+
+    .action-like-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: #ffe4e6;
+      color: #e11d48;
+      border: 1px solid #fecdd3;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .stats-info {
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: #94a3b8;
+    }
+
+    /* 댓글 영역 */
+    .comments-section {
+      padding: 24px;
+    }
+
+    .comments-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .comment-item {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .comment-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      flex-shrink: 0;
+    }
+
+    .comment-content {
+      flex: 1;
+    }
+
+    .comment-top {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .comment-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .comment-time {
+      font-size: 10px;
+      color: #94a3b8;
+    }
+
+    .comment-text {
+      font-size: 12px;
+      color: #475569;
+      line-height: 1.5;
+      margin-bottom: 6px;
+    }
+
+    .comment-actions {
+      display: flex;
+      gap: 12px;
+      font-size: 10px;
+      color: #94a3b8;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* 대댓글 (Reply) */
+    .reply-item {
+      display: flex;
+      gap: 12px;
+      margin-top: 14px;
+      padding-left: 44px;
+      /* 들여쓰기 */
+      position: relative;
+    }
+
+    .reply-icon {
+      position: absolute;
+      left: 20px;
+      top: 6px;
+      color: #cbd5e1;
+    }
+
+    /* 댓글 입력 창 */
+    .comment-input-wrap {
+      display: flex;
+      gap: 10px;
+      background: #f8fafc;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      margin-top: 10px;
+    }
+
+    .comment-input-wrap input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 12px;
+      font-family: 'Noto Sans KR', sans-serif;
+    }
+
+    .comment-submit-btn {
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ===================== [수정/작성] 폼 영역 ===================== */
+    .form-container {
+      padding: 30px 24px;
+      background: #fff;
+    }
+
+    .form-header {
+      font-size: 18px;
+      font-weight: 800;
+      color: #1e293b;
+      margin-bottom: 24px;
+      padding-bottom: 14px;
+      border-bottom: 2px solid #1e293b;
+    }
+
+    .form-row {
+      margin-bottom: 16px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 8px;
+    }
+
+    .form-label span.req {
+      color: #ef4444;
+      margin-left: 2px;
+    }
+
+    .form-input,
+    .form-select {
+      width: 100%;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #334155;
+      outline: none;
+      background: #fff;
+    }
+
+    .form-select {
+      cursor: pointer;
+      appearance: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E") no-repeat right 12px center;
+      background-size: 14px;
+    }
+
+    .form-input:focus,
+    .form-select:focus {
+      border-color: #6c5ce7;
+      box-shadow: 0 0 0 2px rgba(108, 92, 231, 0.1);
+    }
+
+    .form-multi-cols {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .form-textarea {
+      width: 100%;
+      height: 200px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 14px;
+      font-size: 12px;
+      font-family: 'Noto Sans KR', sans-serif;
+      color: #334155;
+      outline: none;
+      resize: none;
+    }
+
+    .image-upload-box {
+      border: 1px dashed #cbd5e1;
+      border-radius: 6px;
+      padding: 20px;
+      text-align: center;
+      background: #f8fafc;
+      cursor: pointer;
+    }
+
+    .image-upload-box svg {
+      width: 24px;
+      height: 24px;
+      color: #94a3b8;
+      margin-bottom: 8px;
+    }
+
+    .image-upload-text {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      margin-top: 30px;
+      padding-top: 20px;
+      border-top: 1px solid #f1f5f9;
+    }
+
+    .btn-cancel {
+      padding: 10px 24px;
+      border-radius: 6px;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-save {
+      padding: 10px 32px;
+      border-radius: 6px;
+      border: none;
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    /* ===== Description 영역 테이블 ===== */
     .description-area {
       display: flex;
       flex-direction: column;
@@ -144,10 +656,8 @@
       padding: 10px 16px;
       border-bottom: 1.5px solid #333;
       text-align: center;
-      letter-spacing: 1px;
     }
 
-    /* Summary */
     .summary-section {
       padding: 14px 16px;
       border-bottom: 1px solid #ddd;
@@ -172,7 +682,6 @@
       color: #555;
     }
 
-    /* 번호별 설명 테이블 */
     .desc-table {
       width: 100%;
       border-collapse: collapse;
@@ -183,15 +692,12 @@
       border-bottom: 1px solid #ddd;
     }
 
-    .desc-table tr:last-child {
-      border-bottom: none;
-    }
-
     .desc-table td {
-      padding: 14px 12px;
+      padding: 12px 12px;
       vertical-align: top;
       font-size: 12px;
-      line-height: 1.7;
+      line-height: 1.6;
+      color: #333;
     }
 
     .desc-table .num {
@@ -200,185 +706,496 @@
       font-weight: 700;
       color: #FF4D6A;
       font-size: 13px;
-      vertical-align: middle;
       border-right: 1px solid #eee;
     }
 
-    .desc-table .desc-text {
-      color: #333;
-    }
-
-    /* Check Point 섹션 */
-    .checkpoint {
+    .api-section {
       border-top: 1.5px solid #333;
-      padding: 12px 16px;
     }
 
-    .checkpoint h4 {
-      font-size: 13px;
+    .api-title {
+      background: #eef2ff;
       font-weight: 700;
-      color: #1a56db;
-      margin-bottom: 6px;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #c7d2fe;
+      color: #3730a3;
     }
 
-    .checkpoint p {
-      font-size: 12px;
-      line-height: 1.7;
-      color: #555;
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
     }
 
-    @media print {
-      .page {
-        width: 100%;
-        margin: 0;
-        border: none;
-        page-break-after: always;
-      }
+    .api-table th {
+      padding: 8px 10px;
+      font-weight: 600;
+      color: #475569;
+      background: #f8fafc;
+      border-bottom: 1.5px solid #cbd5e1;
+      text-align: left;
+    }
+
+    .api-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+    }
+
+    .api-table .method.get {
+      color: #059669;
+      font-weight: bold;
+    }
+
+    .api-table .method.post {
+      color: #d97706;
+      font-weight: bold;
+    }
+
+    .api-table .method.put {
+      color: #2563eb;
+      font-weight: bold;
+    }
+
+    .api-table .method.delete {
+      color: #dc2626;
+      font-weight: bold;
+    }
+
+    .auth-badge {
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 10px;
+      font-weight: bold;
+    }
+
+    .auth-user {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .auth-public {
+      background: #dcfce7;
+      color: #166534;
     }
   </style>
 </head>
+
 <body>
 
-<div class="page">
-  <!-- 메타 정보 헤더 Row 1 -->
-  <div class="meta-header">
-    <div class="meta-left">
-      <div class="meta-label">Page Title.</div>
-      <div class="meta-value">커뮤니티 상세</div>
-      <div class="meta-label">Screen ID</div>
-      <div class="meta-value">UI-CM-002</div>
+  <!-- ===================== PAGE 1 : 커뮤니티 상세 보기 ===================== -->
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">커뮤니티 상세 (View)</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-CM-002</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">Team 2</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.30</div>
+      </div>
     </div>
-    <div class="meta-right">
-      <div class="meta-label">Author</div>
-      <div class="meta-value">Team 2</div>
-      <div class="meta-label">Date</div>
-      <div class="meta-value">2026.03.29</div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">커뮤니티 &gt; 게시글 상세</div>
+    </div>
+
+    <div class="main-content">
+      <div class="screen-area">
+        <div class="wire">
+          <!-- 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
+              </div><span>이음</span>
+            </div>
+            <nav class="ch-nav"><a href="#">전국축제</a><a href="#">지난축제</a><a href="#">달력</a><a href="#"
+                class="active">커뮤니티</a></nav>
+            <div class="ch-user">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- 상세 본문 영역 -->
+          <div class="post-container">
+            <div class="post-header-bg">
+              <h2 class="post-title">이번 주 인천 아송페 티켓 양도 구합니다 제발요 ㅠㅠ!!!</h2>
+
+              <!-- 1. 작성자 및 작성일 -->
+              <div class="post-meta-writer">
+                <div class="writer-left">
+                  <div class="writer-avatar"></div>
+                  <div class="writer-info">
+                    <span class="writer-name">엔셔티</span>
+                    <span class="writer-date">2026.03.30 14:30 · 조회 42</span>
+                  </div>
+                </div>
+                <!-- 본인 게시글일 경우만 노출되는 수정/삭제 버튼 -->
+                <div class="writer-right">
+                  <button class="btn-action-sm">수정</button>
+                  <button class="btn-action-sm">삭제</button>
+                </div>
+              </div>
+
+              <!-- 2. 게시글 상세 메타 태그 (말머리, 관련축제, 지역 등) -->
+              <div class="post-meta-tags">
+                <div class="pm-item">
+                  <span class="pm-label">말머리</span>
+                  <span class="pm-value badge-pill">Q&A</span>
+                </div>
+                <div class="pm-item">
+                  <span class="pm-label">지역</span>
+                  <span class="pm-value">인천광역시</span>
+                </div>
+                <div class="pm-item">
+                  <span class="pm-label">관련 축제</span>
+                  <span class="pm-value">인천 아시아송 페스티벌</span>
+                </div>
+                <div class="pm-item">
+                  <span class="pm-label">카테고리</span>
+                  <span class="pm-value">공연/음악</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3. 글 내용 (텍스트 & 이미지) -->
+            <div class="post-body">
+              <div class="post-image-placeholder">본문 첨부 이미지 노출 영역 (옵션)</div>
+              제가 엄청 똥손이라 광클 실패했어요...<br>
+              혹시 양도나 동행 가능하신 분 계시면 대댓 좀 꼭 남겨주세요.<br>
+              사례는 두둑히 드립니다! 제발요 ㅜㅜ
+            </div>
+
+            <!-- 좋아요 / 조회수 / 공유 -->
+            <div class="post-footer-actions">
+              <button class="action-like-btn">
+                <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                  <path fill-rule="evenodd"
+                    d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z"
+                    clip-rule="evenodd"></path>
+                </svg>
+                공감 12
+              </button>
+              <div class="stats-info">
+                <span>공유하기</span>
+                <span>신고</span>
+              </div>
+            </div>
+
+            <!-- 4. 댓글 및 대댓글 영역 -->
+            <div class="comments-section">
+              <div class="comments-title">댓글 5개</div>
+
+              <!-- 일반 댓글 -->
+              <div class="comment-item">
+                <div class="comment-avatar" style="background: #bae6fd;"></div>
+                <div class="comment-content">
+                  <div class="comment-top">
+                    <span class="comment-name">페스티벌러버</span>
+                    <span class="comment-time">2시간 전</span>
+                  </div>
+                  <div class="comment-text">혹시 스탠딩석 원하시는 거면 연락주세요!</div>
+                  <div class="comment-actions">
+                    <span>답글 달기</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 대댓글 (답글) -->
+              <div class="reply-item">
+                <div class="reply-icon">
+                  <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6">
+                    </path>
+                  </svg>
+                </div>
+                <div class="comment-avatar"></div>
+                <div class="comment-content">
+                  <div class="comment-top">
+                    <span class="comment-name">엔셔티 (작성자)</span>
+                    <span class="comment-time">1시간 전</span>
+                  </div>
+                  <div class="comment-text">헉 네네 스탠딩 상관없습니다!! 쪽지 드렸어요!!</div>
+                  <div class="comment-actions">
+                    <span>수정</span> · <span>삭제</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 5. 댓글 입력 폼 부분 -->
+              <div class="comment-input-wrap">
+                <input type="text" placeholder="댓글을 남겨보세요. (로그인 후 이용 가능)">
+                <button class="comment-submit-btn">등록</button>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 마커 -->
+        <div class="marker" style="top: 150px; left: 230px; z-index: 200;">1</div>
+        <div class="marker" style="top: 200px; left: 50px; z-index: 200;">2</div>
+        <div class="marker" style="top: 360px; left: 100px; z-index: 200;">3</div>
+        <div class="marker" style="bottom: 260px; left: 30px; z-index: 200;">4</div>
+        <div class="marker" style="bottom: 50px; right: 60px; z-index: 200;">5</div>
+
+      </div>
+
+      <!-- 우측 Description -->
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>커뮤니티 게시글 내용 조회 및 댓글 소통을 위한 상세 페이지</li>
+            <li>글의 속성(축제, 지역, 말머리)을 한 번에 파악할 수 있는 상단 메타 박스 지원</li>
+            <li>게시글 작성자 본인에 한해 수정/삭제 컨트롤을 지원</li>
+          </ul>
+        </div>
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text"><strong>작성자 정보 및 수정/삭제</strong><br>· 게시글 작성일과 시간이 상단 배치<br>· 세션 정보와 작성자 ID 일치 시 우측에
+              [수정], [삭제] 액션 버튼 노출</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text"><strong>게시물 메타 정보 태그</strong><br>· <strong>말머리, 축제명, 지역, 카테고리</strong> 4종의 조건 태그를
+              박스형태로 강조<br>· 클릭 시 해당 조건이 적용된 커뮤니티 리스트로 이동하거나 축제 상세로 이동</td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text"><strong>본문 내용 및 디자인</strong><br>· 제목, 삽입된 이미지들, 줄바꿈이 반영된 긴 텍스트 렌더링<br>· 하단에는 하트 아이콘의
+              <strong>[공감]</strong> 토글 버튼 배치
+            </td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text"><strong>댓글 / 대댓글 (계층형)</strong><br>· 기본적으로 시간순으로 정렬된 댓글 노출<br>· 특정 댓글에 [답글 달기] 클릭 시
+              하위에 꺾쇠 아이콘과 함께 대댓글 렌더링</td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text"><strong>댓글 작성 폼</strong><br>· 댓글 및 대댓글을 입력하는 인풋 필드 배치<br>· 로그인 유저만 활성화되며, 비로그인 시 진입 불가
+              또는 안내 문구 제공</td>
+          </tr>
+        </table>
+      </div>
     </div>
   </div>
 
-  <!-- 메타 정보 Row 2 -->
-  <div class="meta-row2">
-    <div class="meta-label">Screen Path</div>
-    <div class="meta-value">커뮤니티 게시판 &gt; 글 상세페이지</div>
-  </div>
 
-  <!-- 메인 콘텐츠 -->
-  <div class="main-content">
-    <!-- 왼쪽: 스크린 캡처 + 마커 -->
-    <div class="screen-area">
-      <!-- 컨테이너에 max-width를 줘서 모바일 세로비 이미지가 적절히 출력되도록 유도 -->
-      <div class="screen-image-container">
-        <!-- 제공된 와이어프레임 경로 -->
-        <img src="../wireframes/images/커뮤니티%20상세페이지.png" alt="커뮤니티 상세 화면">
-
-        <!-- ① 상단 네비게이션바 (뒤로가기, 타이틀) -->
-        <div class="marker" style="top: 8%; left: 50%;">1</div>
-
-        <!-- ② 작성자 정보 (프로필 이미지, 닉네임, 시간) -->
-        <div class="marker" style="top: 18%; left: 20%;">2</div>
-
-        <!-- ③ 글 내용 (텍스트) -->
-        <div class="marker" style="top: 35%; left: 50%;">3</div>
-
-        <!-- ④ 글 내용 (첨부 이미지) -->
-        <div class="marker" style="top: 50%; left: 50%;">4</div>
-
-        <!-- ⑤ 공감/조회수/댓글 수 표시 -->
-        <div class="marker" style="top: 65%; left: 20%;">5</div>
-
-        <!-- ⑥ 댓글 목록 -->
-        <div class="marker" style="top: 75%; left: 50%;">6</div>
-
-        <!-- ⑦ 댓글 작성 영역 -->
-        <div class="marker" style="top: 92%; left: 50%;">7</div>
+  <!-- ===================== PAGE 2 : 커뮤니티 작성 / 수정 화면 ===================== -->
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">커뮤니티 작성/수정 (Form)</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-CM-003</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">Team 2</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.30</div>
       </div>
     </div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">커뮤니티 &gt; 글 작성 / 수정</div>
+    </div>
 
-    <!-- 오른쪽: 설명 -->
-    <div class="description-area">
-      <div class="desc-title">Description</div>
+    <div class="main-content">
+      <div class="screen-area">
+        <div class="wire">
+          <!-- 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
+              </div><span>이음</span>
+            </div>
+          </div>
 
-      <div class="summary-section">
-        <h4>Summary.</h4>
-        <ul>
-          <li>사용자들이 작성한 커뮤니티 게시글을 읽고 소통하는 상세페이지</li>
-          <li>글의 전체 내용 및 첨부 이미지 확인과 댓글/좋아요 기능 제공</li>
-        </ul>
+          <!-- 수정/작성 본문 폼 -->
+          <div class="form-container">
+            <h2 class="form-header">게시글 작성 / 수정</h2>
+
+            <!-- 다중 컬럼 드롭다운 구역 -->
+            <div class="form-multi-cols">
+              <div class="form-row">
+                <label class="form-label">말머리<span class="req">*</span></label>
+                <select class="form-select">
+                  <option disabled>말머리 선택</option>
+                  <option selected>Q&A</option>
+                  <option>축제꿀팁</option>
+                  <option>먹거리 리뷰</option>
+                </select>
+              </div>
+              <div class="form-row">
+                <label class="form-label">지역 분류</label>
+                <select class="form-select">
+                  <option disabled>지역 선택</option>
+                  <option selected>인천광역시</option>
+                  <option>서울특별시</option>
+                  <option>경기도</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- 축제 연동 -->
+            <div class="form-row">
+              <label class="form-label">관련 축제 추가</label>
+              <select class="form-select">
+                <option disabled>축제 검색 및 선택</option>
+                <option selected>인천 아시아송 페스티벌</option>
+                <option>부평 풍물 대축제</option>
+              </select>
+            </div>
+
+            <!-- 제목 -->
+            <div class="form-row">
+              <label class="form-label">제목<span class="req">*</span></label>
+              <input type="text" class="form-input" value="이번 주 인천 아송페 티켓 양도 구합니다 제발요 ㅠㅠ!!!">
+            </div>
+
+            <!-- 본문 에디터 영역 -->
+            <div class="form-row">
+              <label class="form-label">내용<span class="req">*</span></label>
+              <textarea class="form-textarea">제가 엄청 똥손이라 광클 실패했어요...
+혹시 양도나 동행 가능하신 분 계시면 대댓 좀 꼭 남겨주세요.
+사례는 두둑히 드립니다! 제발요 ㅜㅜ</textarea>
+            </div>
+
+            <!-- 이미지 파일 업로드 -->
+            <div class="form-row">
+              <label class="form-label">사진 첨부</label>
+              <div class="image-upload-box">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                  </path>
+                </svg>
+                <div class="image-upload-text">클릭하여 이미지 업로드 (최대 5장)</div>
+              </div>
+            </div>
+
+            <!-- 컨트롤 버튼 -->
+            <div class="form-actions">
+              <button class="btn-cancel">취소</button>
+              <button class="btn-save">등록/저장</button>
+            </div>
+
+          </div>
+
+          <!-- 푸터 -->
+          <div class="common-footer">
+            <div class="cf-top">
+              <div class="cf-brand-logo">
+                <div class="cf-pin"></div>이음
+              </div>
+            </div>
+            © 2026 이음(IEUM). All rights reserved.
+          </div>
+        </div>
+
+        <!-- 마커 -->
+        <div class="marker" style="top: 160px; left: 40px; z-index: 200;">6</div>
+        <div class="marker" style="top: 360px; left: 40px; z-index: 200;">7</div>
+        <div class="marker" style="bottom: 220px; right: 80px; z-index: 200;">8</div>
+
       </div>
 
-      <table class="desc-table">
-        <tr>
-          <td class="num">1</td>
-          <td class="desc-text">
-            <strong>상단 네비게이션</strong><br>
-            · 좌측: 뒤로가기 버튼 (이전 커뮤니티 목록으로 이동)<br>
-            · 중앙: "커뮤니티" 또는 해당 게시글 제목<br>
-            · 우측: 메뉴(더보기) 점 3개 아이콘 (본인 글일 경우 수정/삭제 메뉴)
-          </td>
-        </tr>
-        <tr>
-          <td class="num">2</td>
-          <td class="desc-text">
-            <strong>작성자 프로필 영역</strong><br>
-            · 작성자 프로필 이미지 (원형 마스크 적용)<br>
-            · 닉네임 기재<br>
-            · 작성 시간 (예: 방금 전, 2시간 전, 2026.03.29)
-          </td>
-        </tr>
-        <tr>
-          <td class="num">3</td>
-          <td class="desc-text">
-            <strong>게시글 본문 (텍스트)</strong><br>
-            · 작성자가 입력한 제목과 텍스트 내용 표출<br>
-            · 줄바꿈 및 스크롤 영역 적용
-          </td>
-        </tr>
-        <tr>
-          <td class="num">4</td>
-          <td class="desc-text">
-            <strong>게시글 첨부 이미지 영역</strong><br>
-            · 본문에 첨부된 이미지가 있는 경우 리스트업<br>
-            · 클릭 시 이미지 확대 보기(팝업) 기능 제공
-          </td>
-        </tr>
-        <tr>
-          <td class="num">5</td>
-          <td class="desc-text">
-            <strong>인터랙션 액션 버튼</strong><br>
-            · 좋아요(공감) 버튼과 카운트 표시, 클릭 시 아이콘 색상 변경<br>
-            · 댓글 수 및 조회수 요약 표시
-          </td>
-        </tr>
-        <tr>
-          <td class="num">6</td>
-          <td class="desc-text">
-            <strong>댓글 목록 출력 영역</strong><br>
-            · 다른 사용자들이 남긴 댓글 리스트업<br>
-            · 각 댓글의 작성자 프로필, 닉네임, 내용, 작성 시간 포함<br>
-          </td>
-        </tr>
-        <tr>
-          <td class="num">7</td>
-          <td class="desc-text">
-            <strong>댓글 입력창 (Sticky 요소)</strong><br>
-            · 화면 하단에 고정되어 있어 언제든 접근 가능<br>
-            · 텍스트 입력 필드와 [등록] 버튼으로 구성<br>
-            · 미입력 상태일 때는 [등록] 버튼 비활성화 (회색 차이)
-          </td>
-        </tr>
-      </table>
+      <!-- 우측 Description -->
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>신규 커뮤니티 게시글을 작성하거나 기존 게시글을 수정하기 위한 공통 폼 화면</li>
+            <li>글쓰기 시 필수 메타 정보(말머리, 축제 연동 등)를 구조적으로 입력받음</li>
+          </ul>
+        </div>
+        <table class="desc-table">
+          <tr>
+            <td class="num">6</td>
+            <td class="desc-text"><strong>분류 및 관련 정보 매핑</strong><br>· 말머리(Q&A, 리뷰 등)와 카테고리, 지역 등을 셀렉트 박스 형태로 지정<br>· "관련
+              축제" 선택 시 향후 축제 상세 페이지 내부 커뮤니티 탭에도 본 게시물이 연동되어 표출됨</td>
+          </tr>
+          <tr>
+            <td class="num">7</td>
+            <td class="desc-text"><strong>제목 및 본문 입력</strong><br>· 기본적인 텍스트 제목과 내용을 입력하는 에디터 폼 제공<br>· 수정 모드일 시, 기존에
+              작성했던 내용과 속성값들이 Value에 바인딩되어 나타남</td>
+          </tr>
+          <tr>
+            <td class="num">8</td>
+            <td class="desc-text"><strong>이미지 업로드 & 하단 액션</strong><br>· 박스 영역을 클릭하여 디바이스 내 이미지 파일을 멀티 업로드 지원<br>·
+              [등록/저장] 버튼 서버 API 요청 시 Validation 통과 여부 검사</td>
+          </tr>
+        </table>
 
-      <div class="checkpoint">
-        <h4>Check Point</h4>
-        <p>
-          · 본인의 게시물일 경우 상단 메뉴(점 3개)를 통해 '수정', '삭제' 권한 부여<br>
-          · 댓글 작성 즉시 목록 최하단(혹은 지정된 정렬순)에 동적으로 추가되어야 함<br>
-          · 긴 텍스트의 경우 가독성을 해치지 않게 줄간격(Line-height) 유지 규칙 적용
-        </p>
+        <!-- API 명세 추가 -->
+        <div class="api-section" style="margin-top: 20px;">
+          <div class="api-title">📡 Related API (상세/작성/댓글 공통)</div>
+          <table class="api-table">
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>Endpoint</th>
+                <th>설명</th>
+                <th>권한</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="method get">GET</td>
+                <td>/api/communities/{id}</td>
+                <td>커뮤니티 상세 및 메타 조회</td>
+                <td><span class="auth-badge auth-public">비회원</span></td>
+              </tr>
+              <tr>
+                <td class="method post">POST</td>
+                <td>/api/communities</td>
+                <td>게시글 신규 작성 저장</td>
+                <td><span class="auth-badge auth-user">회원</span></td>
+              </tr>
+              <tr>
+                <td class="method put">PUT</td>
+                <td>/api/communities/{id}</td>
+                <td>게시글 내용 및 속성 부분 수정</td>
+                <td><span class="auth-badge auth-user">본인</span></td>
+              </tr>
+              <tr>
+                <td class="method post">POST</td>
+                <td>/api/communities/{id}/comments</td>
+                <td>댓글 및 대댓글 등록</td>
+                <td><span class="auth-badge auth-user">회원</span></td>
+              </tr>
+              <tr>
+                <td class="method delete">DEL</td>
+                <td>/api/communities/{id}</td>
+                <td>게시물 및 등록된 댓글 일괄 삭제 처리</td>
+                <td><span class="auth-badge auth-user">본인</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
       </div>
     </div>
   </div>
-</div>
 
 </body>
+
 </html>

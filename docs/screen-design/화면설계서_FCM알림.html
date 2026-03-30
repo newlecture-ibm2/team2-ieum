@@ -1,372 +1,1127 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>화면설계서 - FCM 알림</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
-*{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Noto Sans KR',sans-serif;background:#fff;color:#222;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-.page{width:1200px;margin:20px auto;border:1.5px solid #333;background:#fff;page-break-after:always}
-.meta-header{display:grid;grid-template-columns:1fr 1fr;border-bottom:1.5px solid #333}
-.meta-left,.meta-right{display:grid;grid-template-columns:auto 1fr auto 1fr}
-.meta-left{border-right:1.5px solid #333}
-.meta-label{background:#f5f5f5;font-weight:700;font-size:12px;padding:10px 14px;border-right:1px solid #ccc;display:flex;align-items:center;white-space:nowrap}
-.meta-value{font-size:12px;padding:10px 14px;display:flex;align-items:center;border-right:1px solid #ccc}
-.meta-value:last-child{border-right:none}
-.meta-row2{display:grid;grid-template-columns:auto 1fr;border-bottom:1.5px solid #333}
-.main-content{display:grid;grid-template-columns:65% 35%;min-height:750px}
-.screen-area{border-right:1.5px solid #333;padding:20px;position:relative;background:#fafafa}
-.marker{position:absolute;width:28px;height:28px;border-radius:50%;background:#FF4D6A;color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(255,77,106,0.4);z-index:200}
-.description-area{display:flex;flex-direction:column}
-.desc-title{background:#f5f5f5;font-weight:700;font-size:14px;padding:10px 16px;border-bottom:1.5px solid #333;text-align:center;letter-spacing:1px}
-.summary-section{padding:14px 16px;border-bottom:1px solid #ddd}
-.summary-section h4{font-size:13px;font-weight:700;margin-bottom:8px;color:#444;font-style:italic}
-.summary-section ul{list-style:disc;padding-left:18px}
-.summary-section li{font-size:12px;line-height:1.7;color:#555}
-.desc-table{width:100%;border-collapse:collapse;flex:1}
-.desc-table tr{border-bottom:1px solid #ddd}
-.desc-table tr:last-child{border-bottom:none}
-.desc-table td{padding:10px 12px;vertical-align:top;font-size:12px;line-height:1.7}
-.desc-table .num{width:36px;text-align:center;font-weight:700;color:#FF4D6A;font-size:13px;vertical-align:middle;border-right:1px solid #eee}
-.desc-table .desc-text{color:#333}
-.checkpoint{border-top:1.5px solid #333;padding:12px 16px}
-.checkpoint h4{font-size:13px;font-weight:700;color:#1a56db;margin-bottom:6px}
-.checkpoint p{font-size:12px;line-height:1.7;color:#555}
-.wire{border:1px solid #ddd;border-radius:4px;background:#fff;position:relative;overflow:visible}
-.wire-header{height:48px;background:#fff;border-bottom:1px solid #e5e7eb;display:flex;align-items:center;padding:0 20px;justify-content:space-between;position:relative}
-.wire-logo{font-weight:700;font-size:14px;color:#6B46C1}
-.wire-nav{display:flex;gap:16px;font-size:11px;color:#666}
-.wire-icons{display:flex;gap:12px;font-size:15px;color:#888;position:relative}
-.bell-icon{position:relative;cursor:pointer}
-.bell-badge{position:absolute;top:-4px;right:-4px;background:#e53e3e;color:#fff;font-size:8px;width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700}
-/* Notification Dropdown */
-.noti-dropdown{position:absolute;top:46px;right:10px;width:340px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,0.15);z-index:100;overflow:hidden}
-.noti-dropdown-header{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid #eee}
-.noti-dropdown-header h3{font-size:14px;font-weight:700}
-.noti-dropdown-header span{font-size:10px;color:#6B46C1;cursor:pointer}
-.noti-list{max-height:360px;overflow-y:auto}
-.noti-item{display:flex;gap:10px;padding:12px 16px;border-bottom:1px solid #f3f4f6;cursor:pointer;transition:background 0.2s}
-.noti-item:hover{background:#f9fafb}
-.noti-item.unread{background:#EDE9FE}
-.noti-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
-.noti-icon.festival{background:#e8f5e9}
-.noti-icon.notice{background:#e3f2fd}
-.noti-icon.community{background:#fff3e0}
-.noti-content{flex:1}
-.noti-content .noti-msg{font-size:11px;color:#333;line-height:1.5}
-.noti-content .noti-time{font-size:9px;color:#aaa;margin-top:3px}
-.noti-unread-dot{width:8px;height:8px;border-radius:50%;background:#6B46C1;flex-shrink:0;margin-top:4px}
-.noti-dropdown-footer{padding:10px;text-align:center;border-top:1px solid #eee}
-.noti-dropdown-footer a{font-size:11px;color:#6B46C1;text-decoration:none}
-/* Mypage Setting */
-.mypage-container{padding:24px 30px}
-.mypage-title{font-size:16px;font-weight:700;margin-bottom:20px;padding-bottom:10px;border-bottom:2px solid #333}
-.setting-section{margin-bottom:24px}
-.setting-section h3{font-size:13px;font-weight:700;color:#333;margin-bottom:12px;display:flex;align-items:center;gap:6px}
-.setting-item{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#f9fafb;border-radius:8px;margin-bottom:8px}
-.setting-item .setting-label{font-size:12px;color:#333}
-.setting-item .setting-desc{font-size:10px;color:#888;margin-top:2px}
-.toggle{width:44px;height:24px;border-radius:12px;position:relative;cursor:pointer}
-.toggle.on{background:#6B46C1}
-.toggle.off{background:#d1d5db}
-.toggle::after{content:'';position:absolute;width:20px;height:20px;border-radius:50%;background:#fff;top:2px;transition:0.2s}
-.toggle.on::after{right:2px}
-.toggle.off::after{left:2px}
-/* Browser permission */
-.browser-perm{margin:40px auto;width:420px}
-.browser-bar{background:#f3f4f6;border-radius:8px 8px 0 0;padding:8px 12px;display:flex;align-items:center;gap:8px}
-.browser-bar .dot{width:10px;height:10px;border-radius:50%}
-.browser-bar .url{background:#fff;flex:1;padding:4px 8px;border-radius:4px;font-size:10px;color:#888}
-.browser-dialog{background:#fff;border:1px solid #ddd;border-radius:0 0 8px 8px;padding:0}
-.browser-dialog-top{background:#f8f9fa;padding:12px 16px;border-bottom:1px solid #eee;display:flex;align-items:center;gap:10px}
-.browser-dialog-top .lock{font-size:14px}
-.browser-dialog-top .dialog-text{font-size:11px;color:#333}
-.browser-dialog-btns{display:flex;justify-content:flex-end;gap:8px;padding:12px 16px}
-.browser-dialog-btns button{padding:6px 16px;border-radius:4px;font-size:11px;cursor:pointer;border:1px solid #ddd;background:#fff}
-.browser-dialog-btns button.allow{background:#1a73e8;color:#fff;border:none}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>화면설계서 - FCM 알림</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box
+    }
+
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #fff;
+      color: #222;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact
+    }
+
+    .page {
+      width: 1200px;
+      margin: 20px auto;
+      border: 1.5px solid #333;
+      background: #fff;
+      page-break-after: always
+    }
+
+    /* ===== 메타 헤더 ===== */
+    .meta-header {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      border-bottom: 1.5px solid #333
+    }
+
+    .meta-left,
+    .meta-right {
+      display: grid;
+      grid-template-columns: auto 1fr auto 1fr
+    }
+
+    .meta-left {
+      border-right: 1.5px solid #333
+    }
+
+    .meta-label {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 12px;
+      padding: 10px 14px;
+      border-right: 1px solid #ccc;
+      display: flex;
+      align-items: center;
+      white-space: nowrap
+    }
+
+    .meta-value {
+      font-size: 12px;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      border-right: 1px solid #ccc
+    }
+
+    .meta-value:last-child {
+      border-right: none
+    }
+
+    .meta-row2 {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      border-bottom: 1.5px solid #333
+    }
+
+    /* ===== 메인 콘텐츠 ===== */
+    .main-content {
+      display: grid;
+      grid-template-columns: 65% 35%;
+      min-height: 750px
+    }
+
+    .screen-area {
+      border-right: 1.5px solid #333;
+      padding: 20px;
+      position: relative;
+      background: #fafafa
+    }
+
+    .wire {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      position: relative;
+      overflow: visible
+        /* Dropdown visibility */
+    }
+
+    /* ===== 공통 헤더 ===== */
+    .common-header {
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+      position: relative;
+    }
+
+    .ch-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ch-pin {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-45deg);
+    }
+
+    .ch-pin-inner {
+      width: 11px;
+      height: 11px;
+      background: white;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+
+    .ch-logo span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2d3436;
+      letter-spacing: -0.5px;
+    }
+
+    .ch-nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    .ch-nav a {
+      text-decoration: none;
+      color: #636e72;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 0;
+      position: relative;
+    }
+
+    .ch-nav a.active {
+      color: #6c5ce7;
+      font-weight: 700;
+    }
+
+    .ch-nav a.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a55eea, #6c5ce7);
+      border-radius: 2px;
+    }
+
+    .ch-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ch-bell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .ch-bell svg {
+      width: 16px;
+      height: 16px;
+      color: #636e72;
+    }
+
+    .ch-dot-badge {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: #ff6b6b;
+      color: #fff;
+      font-size: 8px;
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      border: 1.5px solid white;
+    }
+
+    .ch-user {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ch-user svg {
+      width: 14px;
+      height: 14px;
+      color: white;
+    }
+
+    /* Notification Dropdown */
+    .noti-dropdown {
+      position: absolute;
+      top: 52px;
+      right: 24px;
+      width: 340px;
+      background: #fff;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+      z-index: 100;
+      overflow: hidden;
+    }
+
+    .noti-dropdown-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid #eee;
+    }
+
+    .noti-dropdown-header h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #2d3436;
+    }
+
+    .noti-dropdown-header span {
+      font-size: 10px;
+      color: #6c5ce7;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    .noti-list {
+      max-height: 360px;
+      overflow-y: auto;
+    }
+
+    .noti-item {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .noti-item:hover {
+      background: #f9fafb;
+    }
+
+    .noti-item.unread {
+      background: #f4f0ff;
+    }
+
+    .noti-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      flex-shrink: 0;
+    }
+
+    .noti-icon.festival {
+      background: #e8f5e9;
+    }
+
+    .noti-icon.notice {
+      background: #e3f2fd;
+    }
+
+    .noti-icon.community {
+      background: #fff3e0;
+    }
+
+    .noti-content {
+      flex: 1;
+    }
+
+    .noti-content .noti-msg {
+      font-size: 11px;
+      color: #333;
+      line-height: 1.5;
+    }
+
+    .noti-content .noti-time {
+      font-size: 9px;
+      color: #a0aec0;
+      margin-top: 3px;
+    }
+
+    .noti-unread-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #a55eea;
+      flex-shrink: 0;
+      margin-top: 4px;
+    }
+
+    .noti-dropdown-footer {
+      padding: 10px;
+      text-align: center;
+      border-top: 1px solid #eee;
+      background: #fafafa;
+    }
+
+    .noti-dropdown-footer a {
+      font-size: 11px;
+      color: #6c5ce7;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* Mypage Setting */
+    .mypage-container {
+      padding: 30px 40px;
+      background: #fafafa;
+      min-height: 350px;
+    }
+
+    .mypage-title {
+      font-size: 18px;
+      font-weight: 800;
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e2e8f0;
+      color: #2d3436;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .setting-section {
+      margin-bottom: 24px;
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    .setting-section h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #2d3436;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .setting-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 14px 16px;
+      background: #f8fafc;
+      border-radius: 8px;
+      margin-bottom: 8px;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+
+    .setting-item:hover {
+      border-color: #e2e8f0;
+    }
+
+    .setting-item .setting-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .setting-item .setting-desc {
+      font-size: 10px;
+      color: #64748b;
+      margin-top: 3px;
+    }
+
+    .toggle {
+      width: 44px;
+      height: 24px;
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .toggle.on {
+      background: #6c5ce7;
+    }
+
+    .toggle.off {
+      background: #cbd5e1;
+    }
+
+    .toggle::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #fff;
+      top: 2px;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .toggle.on::after {
+      right: 2px;
+    }
+
+    .toggle.off::after {
+      left: 2px;
+    }
+
+    /* Browser permission */
+    .browser-perm {
+      margin: 60px auto;
+      width: 420px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .browser-bar {
+      background: #e2e8f0;
+      padding: 10px 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .browser-bar .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .browser-bar .url {
+      background: #fff;
+      flex: 1;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 10px;
+      color: #64748b;
+      font-family: monospace;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .browser-dialog {
+      background: #fff;
+      padding: 0;
+    }
+
+    .browser-dialog-top {
+      background: #f8fafc;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .browser-dialog-top .lock {
+      font-size: 16px;
+      margin-top: -2px;
+    }
+
+    .browser-dialog-top .dialog-text {
+      font-size: 12px;
+      color: #1e293b;
+      line-height: 1.5;
+    }
+
+    .browser-dialog-btns {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      padding: 14px 20px;
+    }
+
+    .browser-dialog-btns button {
+      padding: 8px 20px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid #cbd5e1;
+      background: #fff;
+      transition: all 0.2s;
+    }
+
+    .browser-dialog-btns button:hover {
+      background: #f1f5f9;
+    }
+
+    .browser-dialog-btns button.allow {
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+    }
+
+    .browser-dialog-btns button.allow:hover {
+      background: #2563eb;
+    }
+
+    /* ===== Description 영역 ===== */
+    .description-area {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .desc-title {
+      background: #f5f5f5;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 10px 16px;
+      border-bottom: 1.5px solid #333;
+      text-align: center;
+      letter-spacing: 1px;
+    }
+
+    .summary-section {
+      padding: 14px 16px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .summary-section h4 {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #444;
+      font-style: italic;
+    }
+
+    .summary-section ul {
+      list-style: disc;
+      padding-left: 18px;
+    }
+
+    .summary-section li {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    .desc-table {
+      width: 100%;
+      border-collapse: collapse;
+      flex: 1;
+    }
+
+    .desc-table tr {
+      border-bottom: 1px solid #ddd;
+    }
+
+    .desc-table tr:last-child {
+      border-bottom: none;
+    }
+
+    .desc-table td {
+      padding: 10px 12px;
+      vertical-align: top;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .desc-table .num {
+      width: 36px;
+      text-align: center;
+      font-weight: 700;
+      color: #FF4D6A;
+      font-size: 13px;
+      vertical-align: middle;
+      border-right: 1px solid #eee;
+    }
+
+    .desc-table .desc-text {
+      color: #333;
+    }
+
+    .checkpoint {
+      border-top: 1.5px solid #333;
+      padding: 12px 16px;
+    }
+
+    .checkpoint h4 {
+      font-size: 13px;
+      font-weight: 700;
+      color: #1a56db;
+      margin-bottom: 6px;
+    }
+
+    .checkpoint p {
+      font-size: 12px;
+      line-height: 1.7;
+      color: #555;
+    }
+
+    /* ===== API 명세 영역 ===== */
+    .api-section {
+      border-top: 1.5px solid #333;
+    }
+
+    .api-title {
+      background: #eef2ff;
+      font-weight: 700;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-bottom: 1px solid #c7d2fe;
+      color: #3730a3;
+      letter-spacing: 0.5px;
+    }
+
+    .api-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .api-table thead {
+      background: #f8fafc;
+    }
+
+    .api-table th {
+      padding: 8px 10px;
+      font-weight: 600;
+      color: #475569;
+      border-bottom: 1.5px solid #cbd5e1;
+      text-align: left;
+      white-space: nowrap;
+    }
+
+    .api-table td {
+      padding: 7px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      color: #334155;
+      vertical-align: middle;
+    }
+
+    .api-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* ===== 마커 ===== */
+    .marker {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: #FF4D6A;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
+      z-index: 200;
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- ====== PAGE 1: 전체 알림 드롭다운 ====== -->
-<div class="page">
-  <div class="meta-header">
-    <div class="meta-left">
-      <div class="meta-label">Page Title.</div>
-      <div class="meta-value">전체 알림 (벨 아이콘 드롭다운)</div>
-      <div class="meta-label">Screen ID</div>
-      <div class="meta-value">UI-FCM-001</div>
+  <!-- ====== PAGE 1: 전체 알림 드롭다운 ====== -->
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">전체 알림 (벨 아이콘 드롭다운)</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-FCM-001</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">정혜연</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.30</div>
+      </div>
     </div>
-    <div class="meta-right">
-      <div class="meta-label">Author</div>
-      <div class="meta-value">정혜연</div>
-      <div class="meta-label">Date</div>
-      <div class="meta-value">2026.03.27</div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">GNB 헤더 &gt; 🔔 알림 드롭다운</div>
     </div>
-  </div>
-  <div class="meta-row2">
-    <div class="meta-label">Screen Path</div>
-    <div class="meta-value">GNB 헤더 &gt; 🔔 알림 드롭다운</div>
-  </div>
-  <div class="main-content">
-    <div class="screen-area">
-      <div class="wire">
-        <div class="wire-header">
-          <div class="wire-logo">Festa-Connect</div>
-          <div class="wire-nav"><span>Home</span><span>National Festivals</span><span>Calendar</span></div>
-          <div class="wire-icons">
-            <span class="bell-icon">🔔<span class="bell-badge">3</span></span>
-            <span>👤</span>
-          </div>
-        </div>
-        <div style="height:400px;background:#f9fafb"></div>
-        <!-- Dropdown -->
-        <div class="noti-dropdown">
-          <div class="noti-dropdown-header">
-            <h3>🔔 알림</h3>
-            <span>모두 읽음 처리</span>
-          </div>
-          <div class="noti-list">
-            <div class="noti-item unread">
-              <div class="noti-icon festival">🎪</div>
-              <div class="noti-content">
-                <div class="noti-msg">즐겨찾기한 <strong>'여의도 봄꽃 축제'</strong>가 내일 시작됩니다!</div>
-                <div class="noti-time">1시간 전</div>
+    <div class="main-content">
+      <div class="screen-area">
+        <div class="wire">
+          <!-- 공통 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
               </div>
-              <div class="noti-unread-dot"></div>
+              <span>이음</span>
             </div>
-            <div class="noti-item unread">
-              <div class="noti-icon notice">📢</div>
-              <div class="noti-content">
-                <div class="noti-msg">새 공지사항: <strong>서비스 점검 안내</strong></div>
-                <div class="noti-time">3시간 전</div>
+            <nav class="ch-nav">
+              <a href="#">전국축제</a>
+              <a href="#">지난축제</a>
+              <a href="#">달력</a>
+              <a href="#">커뮤니티</a>
+            </nav>
+            <div class="ch-actions">
+              <!-- 알림 벨 -->
+              <div class="ch-bell">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="ch-dot-badge">3</span>
               </div>
-              <div class="noti-unread-dot"></div>
-            </div>
-            <div class="noti-item unread">
-              <div class="noti-icon community">💬</div>
-              <div class="noti-content">
-                <div class="noti-msg">내 게시글에 새 댓글이 달렸습니다.</div>
-                <div class="noti-time">5시간 전</div>
-              </div>
-              <div class="noti-unread-dot"></div>
-            </div>
-            <div class="noti-item">
-              <div class="noti-icon festival">🎪</div>
-              <div class="noti-content">
-                <div class="noti-msg">즐겨찾기한 <strong>'진해 군항제'</strong>가 종료되었습니다. 후기를 남겨보세요!</div>
-                <div class="noti-time">1일 전</div>
+              <!-- 유저 아이콘 -->
+              <div class="ch-user">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </div>
             </div>
           </div>
-          <div class="noti-dropdown-footer"><a href="#">전체 알림 보기 →</a></div>
-        </div>
-      </div>
-      <div class="marker" style="top:30px;right:100px">1</div>
-      <div class="marker" style="top:80px;left:370px">2</div>
-      <div class="marker" style="top:80px;right:38px">3</div>
-      <div class="marker" style="top:140px;left:370px">4</div>
-      <div class="marker" style="top:200px;right:38px">5</div>
-      <div class="marker" style="top:330px;left:580px">6</div>
-    </div>
-    <div class="description-area">
-      <div class="desc-title">Description</div>
-      <div class="summary-section">
-        <h4>Summary.</h4>
-        <ul>
-          <li>GNB 헤더의 🔔 아이콘 클릭 시 알림 목록 드롭다운 표시</li>
-          <li>로그인 사용자 전용 (비로그인 시 아이콘 비노출 또는 로그인 유도)</li>
-          <li>FCM 수신 + 서버 알림 목록 통합</li>
-        </ul>
-      </div>
-      <table class="desc-table">
-        <tr><td class="num">1</td><td class="desc-text"><strong>🔔 벨 아이콘 + 배지</strong><br>읽지 않은 알림 수를 빨간 배지로 표시<br>클릭 시 드롭다운 토글 (외부 클릭 시 닫기)</td></tr>
-        <tr><td class="num">2</td><td class="desc-text"><strong>드롭다운 헤더</strong><br>"🔔 알림" 타이틀</td></tr>
-        <tr><td class="num">3</td><td class="desc-text"><strong>모두 읽음 처리</strong><br>클릭 시 모든 알림을 읽음 상태로 변경<br>배지 숫자 0으로 초기화</td></tr>
-        <tr><td class="num">4</td><td class="desc-text"><strong>알림 아이템</strong><br>· 아이콘: 유형별 (🎪축제 / 📢공지 / 💬커뮤니티)<br>· 메시지 텍스트 + 시간 표시<br>· 읽지 않은 알림: 보라색 배경 + 보라색 dot<br>· 클릭 시 해당 페이지로 이동</td></tr>
-        <tr><td class="num">5</td><td class="desc-text"><strong>읽지 않은 표시 (dot)</strong><br>보라색 원형 dot으로 미읽음 상태 표시<br>클릭 시 읽음 처리</td></tr>
-        <tr><td class="num">6</td><td class="desc-text"><strong>전체 알림 보기</strong><br>클릭 시 알림 전체 페이지로 이동 (마이페이지 내)</td></tr>
-      </table>
-      <div class="checkpoint">
-        <h4>Check Point</h4>
-        <p>· API: GET /api/users/me/notifications<br>· 🔒 로그인 필수<br>· 알림 유형: FESTIVAL_START, FESTIVAL_END, NOTICE, COMMENT<br>· FCM으로 실시간 수신 시 배지 즉시 갱신</p>
-      </div>
-    </div>
-  </div>
-</div>
 
-<!-- ====== PAGE 2: 마이페이지 알림 설정 ====== -->
-<div class="page">
-  <div class="meta-header">
-    <div class="meta-left">
-      <div class="meta-label">Page Title.</div>
-      <div class="meta-value">마이페이지 알림 설정</div>
-      <div class="meta-label">Screen ID</div>
-      <div class="meta-value">UI-FCM-002</div>
-    </div>
-    <div class="meta-right">
-      <div class="meta-label">Author</div>
-      <div class="meta-value">정혜연</div>
-      <div class="meta-label">Date</div>
-      <div class="meta-value">2026.03.27</div>
-    </div>
-  </div>
-  <div class="meta-row2">
-    <div class="meta-label">Screen Path</div>
-    <div class="meta-value">마이페이지 &gt; 설정 &gt; 알림 설정</div>
-  </div>
-  <div class="main-content">
-    <div class="screen-area">
-      <div class="wire">
-        <div class="wire-header">
-          <div class="wire-logo">Festa-Connect</div>
-          <div class="wire-nav"><span>Home</span><span>마이페이지</span></div>
-          <div class="wire-icons"><span>🔔</span><span>👤</span></div>
-        </div>
-        <div class="mypage-container">
-          <div class="mypage-title">⚙️ 설정</div>
-          <div class="setting-section">
-            <h3>🔔 알림 설정</h3>
-            <div class="setting-item">
-              <div><div class="setting-label">전체 푸시 알림</div><div class="setting-desc">브라우저 푸시 알림을 받습니다</div></div>
-              <div class="toggle on"></div>
-            </div>
-            <div class="setting-item">
-              <div><div class="setting-label">축제 시작 알림</div><div class="setting-desc">즐겨찾기한 축제 시작 D-1에 알림</div></div>
-              <div class="toggle on"></div>
-            </div>
-            <div class="setting-item">
-              <div><div class="setting-label">축제 종료 알림</div><div class="setting-desc">즐겨찾기한 축제 종료 시 후기 작성 유도</div></div>
-              <div class="toggle on"></div>
-            </div>
-            <div class="setting-item">
-              <div><div class="setting-label">공지사항 알림</div><div class="setting-desc">새 공지사항 등록 시 알림</div></div>
-              <div class="toggle off"></div>
-            </div>
-            <div class="setting-item">
-              <div><div class="setting-label">댓글 알림</div><div class="setting-desc">내 게시글에 댓글이 달리면 알림</div></div>
-              <div class="toggle on"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="marker" style="top:155px;left:160px">1</div>
-      <div class="marker" style="top:200px;left:250px">2</div>
-      <div class="marker" style="top:200px;right:50px">3</div>
-      <div class="marker" style="top:270px;left:150px">4</div>
-      <div class="marker" style="top:335px;right:50px">5</div>
-    </div>
-    <div class="description-area">
-      <div class="desc-title">Description</div>
-      <div class="summary-section">
-        <h4>Summary.</h4>
-        <ul>
-          <li>마이페이지 내 알림 수신 설정 섹션</li>
-          <li>알림 유형별 ON/OFF 토글로 세부 제어</li>
-          <li>전체 알림 OFF 시 FCM 토큰 삭제</li>
-        </ul>
-      </div>
-      <table class="desc-table">
-        <tr><td class="num">1</td><td class="desc-text"><strong>설정 섹션 타이틀</strong><br>"🔔 알림 설정" — 알림 관련 설정 영역</td></tr>
-        <tr><td class="num">2</td><td class="desc-text"><strong>전체 푸시 알림 토글</strong><br>· ON → FCM 토큰 등록 (POST /api/users/me/fcm-token)<br>· OFF → 토큰 삭제, 모든 하위 알림도 비활성<br>· 첫 ON 시 브라우저 알림 권한 요청 (UI-FCM-003) 트리거</td></tr>
-        <tr><td class="num">3</td><td class="desc-text"><strong>토글 스위치</strong><br>ON: 보라색 / OFF: 회색<br>토글 변경 즉시 서버에 설정 저장</td></tr>
-        <tr><td class="num">4</td><td class="desc-text"><strong>세부 알림 항목</strong><br>· 축제 시작 알림: 즐겨찾기 축제 D-1 알림<br>· 축제 종료 알림: 후기 작성 유도<br>· 공지사항 알림: 새 공지 등록 시<br>· 댓글 알림: 내 글에 댓글 시<br>각 항목별 설명 텍스트 표시</td></tr>
-        <tr><td class="num">5</td><td class="desc-text"><strong>개별 알림 OFF 상태</strong><br>회색 토글로 비활성 상태 표시<br>전체 알림 OFF 시 모든 항목 비활성+비활성화</td></tr>
-      </table>
-      <div class="checkpoint">
-        <h4>Check Point</h4>
-        <p>· API: POST /api/users/me/fcm-token (토큰 등록, API_USR_0050)<br>· PATCH /api/users/me/settings/notifications (설정 변경, API_USR_0060)<br>· 전체 OFF → 서버에서 FCM 토큰 삭제<br>· 브라우저 권한 미허용 시 "브라우저 설정에서 알림을 허용해주세요" 안내</p>
-      </div>
-    </div>
-  </div>
-</div>
+          <div style="height:450px;background:#f8fafc"></div>
 
-<!-- ====== PAGE 3: 브라우저 알림 권한 요청 ====== -->
-<div class="page">
-  <div class="meta-header">
-    <div class="meta-left">
-      <div class="meta-label">Page Title.</div>
-      <div class="meta-value">브라우저 알림 권한 요청</div>
-      <div class="meta-label">Screen ID</div>
-      <div class="meta-value">UI-FCM-003</div>
-    </div>
-    <div class="meta-right">
-      <div class="meta-label">Author</div>
-      <div class="meta-value">정혜연</div>
-      <div class="meta-label">Date</div>
-      <div class="meta-value">2026.03.27</div>
-    </div>
-  </div>
-  <div class="meta-row2">
-    <div class="meta-label">Screen Path</div>
-    <div class="meta-value">(시스템) 브라우저 네이티브 다이얼로그</div>
-  </div>
-  <div class="main-content">
-    <div class="screen-area">
-      <div class="browser-perm">
-        <div class="browser-bar">
-          <div class="dot" style="background:#ff5f57"></div>
-          <div class="dot" style="background:#febc2e"></div>
-          <div class="dot" style="background:#28c840"></div>
-          <div class="url">🔒 festa-connect.com</div>
-        </div>
-        <div class="browser-dialog">
-          <div class="browser-dialog-top">
-            <span class="lock">🔔</span>
-            <span class="dialog-text"><strong>festa-connect.com</strong>에서 알림을 보내려고 합니다.</span>
-          </div>
-          <div class="browser-dialog-btns">
-            <button>차단</button>
-            <button class="allow">허용</button>
-          </div>
-        </div>
-      </div>
-      <div style="padding:30px;margin-top:20px">
-        <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:8px;padding:20px">
-          <div style="font-size:13px;font-weight:700;margin-bottom:12px">📋 트리거 흐름</div>
-          <div style="font-size:11px;line-height:2;color:#555">
-            ① 사용자가 마이페이지 > 알림 설정 > "전체 푸시 알림" ON<br>
-            ② Notification.permission 상태 확인<br>
-            ③ "default" → 브라우저 권한 요청 다이얼로그 표시<br>
-            ④-A "허용" → FCM 토큰 발급 → 서버에 토큰 등록<br>
-            ④-B "차단" → 안내 메시지 표시, 토글 OFF로 복원<br>
-            ⑤ "granted" → 바로 FCM 토큰 발급 진행<br>
-            ⑥ "denied" → "브라우저 설정에서 알림을 허용해주세요" 안내
+          <!-- Dropdown -->
+          <div class="noti-dropdown">
+            <div class="noti-dropdown-header">
+              <h3>🔔 알림</h3>
+              <span>모두 읽음 처리</span>
+            </div>
+            <div class="noti-list">
+              <div class="noti-item unread">
+                <div class="noti-icon festival">🎪</div>
+                <div class="noti-content">
+                  <div class="noti-msg">즐겨찾기한 <strong>'여의도 봄꽃 축제'</strong>가 내일 시작됩니다!</div>
+                  <div class="noti-time">1시간 전</div>
+                </div>
+                <div class="noti-unread-dot"></div>
+              </div>
+              <div class="noti-item unread">
+                <div class="noti-icon notice">📢</div>
+                <div class="noti-content">
+                  <div class="noti-msg">새 공지사항: <strong>서비스 점검 안내</strong></div>
+                  <div class="noti-time">3시간 전</div>
+                </div>
+                <div class="noti-unread-dot"></div>
+              </div>
+              <div class="noti-item unread">
+                <div class="noti-icon community">💬</div>
+                <div class="noti-content">
+                  <div class="noti-msg">내 게시글에 새 댓글이 달렸습니다.</div>
+                  <div class="noti-time">5시간 전</div>
+                </div>
+                <div class="noti-unread-dot"></div>
+              </div>
+              <div class="noti-item">
+                <div class="noti-icon festival">🎪</div>
+                <div class="noti-content">
+                  <div class="noti-msg">즐겨찾기한 <strong>'진해 군항제'</strong>가 종료되었습니다. 후기를 남겨보세요!</div>
+                  <div class="noti-time">1일 전</div>
+                </div>
+              </div>
+            </div>
+            <div class="noti-dropdown-footer"><a href="#">전체 알림 보기 →</a></div>
           </div>
         </div>
+
+        <div class="marker" style="top: 25px; right: 100px;">1</div>
+        <div class="marker" style="top: 80px; left: 380px;">2</div>
+        <div class="marker" style="top: 80px; right: 38px;">3</div>
+        <div class="marker" style="top: 150px; left: 380px;">4</div>
+        <div class="marker" style="top: 200px; right: 38px;">5</div>
+        <div class="marker" style="bottom: 350px; left: 550px;">6</div>
       </div>
-      <div class="marker" style="top:55px;left:220px">1</div>
-      <div class="marker" style="top:100px;left:280px">2</div>
-      <div class="marker" style="top:170px;left:460px">3</div>
-      <div class="marker" style="top:170px;left:540px">4</div>
-      <div class="marker" style="top:280px;left:200px">5</div>
-    </div>
-    <div class="description-area">
-      <div class="desc-title">Description</div>
-      <div class="summary-section">
-        <h4>Summary.</h4>
-        <ul>
-          <li>FCM 푸시 알림을 위한 브라우저 네이티브 권한 요청</li>
-          <li>개발자가 직접 만드는 UI가 아닌 시스템 다이얼로그</li>
-          <li>트리거 조건과 분기 흐름을 정의</li>
-        </ul>
-      </div>
-      <table class="desc-table">
-        <tr><td class="num">1</td><td class="desc-text"><strong>브라우저 주소 표시줄</strong><br>HTTPS 필수 (FCM은 보안 컨텍스트 요구)<br>🔒 아이콘으로 SSL 인증 표시</td></tr>
-        <tr><td class="num">2</td><td class="desc-text"><strong>권한 요청 메시지</strong><br>"festa-connect.com에서 알림을 보내려고 합니다"<br>브라우저별 UI 상이 (Chrome/Firefox/Safari)</td></tr>
-        <tr><td class="num">3</td><td class="desc-text"><strong>차단 버튼</strong><br>클릭 시 Notification.permission = "denied"<br>알림 토글 OFF로 복원 + 안내 메시지 표시<br>"denied" 상태는 브라우저 설정에서만 해제 가능</td></tr>
-        <tr><td class="num">4</td><td class="desc-text"><strong>허용 버튼</strong><br>클릭 시 permission = "granted"<br>→ Firebase SDK로 FCM 토큰 발급<br>→ POST /api/users/me/fcm-token으로 서버 등록<br>→ Service Worker 등록 완료</td></tr>
-        <tr><td class="num">5</td><td class="desc-text"><strong>트리거 흐름도</strong><br>전체 분기 로직 정리:<br>· default → 권한 요청<br>· granted → 토큰 발급 진행<br>· denied → 안내 메시지 + 브라우저 설정 유도</td></tr>
-      </table>
-      <div class="checkpoint">
-        <h4>Check Point</h4>
-        <p>· Firebase SDK 초기화 필요 (firebase-messaging)<br>· Service Worker: firebase-messaging-sw.js 등록<br>· HTTPS 환경 필수 (localhost는 예외)<br>· FCM 토큰은 디바이스+브라우저별 고유</p>
+
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>GNB 헤더의 알림 아이콘 클릭 시 알림 목록 드롭다운 표시</li>
+            <li>로그인 사용자 전용 (비로그인 시 알림 아이콘 내역 비노출 또는 로그인 유도)</li>
+            <li>FCM 푸시 수신 + DB 조회 기반 앱 내 드롭다운 알림 통합</li>
+          </ul>
+        </div>
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text"><strong>🔔 벨 아이콘 + 배지</strong><br>읽지 않은 알림 수를 배지로 표시<br>클릭 시 드롭다운 토글 (외부 클릭 시 닫기)</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text"><strong>드롭다운 헤더</strong><br>"🔔 알림" 타이틀</td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text"><strong>모두 읽음 처리</strong><br>클릭 시 모든 알림을 읽음 상태로 변경<br>배지 숫자 0으로 초기화</td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text"><strong>알림 아이템</strong><br>· 아이콘: 유형별 뱃지 (🎪축제 / 📢공지 / 💬커뮤니티)<br>· 메시지 텍스트 + 지난 시간
+              표시<br>· 클릭 시 해당 페이지(상세페이지, 공지사항 등)로 이동</td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text"><strong>읽지 않은 표시 (dot)</strong><br>보라색 배경 + 우측 포인트 dot으로 미읽음 상태 표시<br>마우스 호버 시 배경색 전환
+            </td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td class="desc-text"><strong>전체 알림 보기</strong><br>하단 푸터 영역 클릭 시 마이페이지 알림 전체 내역으로 이동</td>
+          </tr>
+        </table>
+        <div class="checkpoint">
+          <h4>Check Point</h4>
+          <p>· API: GET /api/users/me/notifications<br>· 🔒 로그인 필수<br>· 알림 유형: FESTIVAL_START, FESTIVAL_END, NOTICE,
+            COMMENT<br>· FCM으로 실시간 수신 시 배지 갱신 (리얼타임 반영)</p>
+        </div>
       </div>
     </div>
   </div>
-</div>
+
+  <!-- ====== PAGE 2: 마이페이지 알림 설정 ====== -->
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">마이페이지 - 알림 설정</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-FCM-002</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">정혜연</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.30</div>
+      </div>
+    </div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">마이페이지 &gt; 설정 &gt; 알림 설정</div>
+    </div>
+    <div class="main-content">
+      <div class="screen-area">
+        <div class="wire">
+          <!-- 공통 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
+              </div>
+              <span>이음</span>
+            </div>
+            <nav class="ch-nav">
+              <a href="#">전국축제</a>
+              <a href="#">지난축제</a>
+            </nav>
+            <div class="ch-actions">
+              <div class="ch-bell">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+              </div>
+              <div class="ch-user">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <div class="mypage-container">
+            <div class="mypage-title">⚙️ 설정</div>
+            <div class="setting-section">
+              <h3>🔔 알림 설정</h3>
+              <div class="setting-item">
+                <div>
+                  <div class="setting-label">전체 푸시 알림</div>
+                  <div class="setting-desc">브라우저 푸시 알림을 받습니다</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="setting-item">
+                <div>
+                  <div class="setting-label">축제 시작 알림</div>
+                  <div class="setting-desc">즐겨찾기한 축제 시작 D-1에 알림</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="setting-item">
+                <div>
+                  <div class="setting-label">축제 종료 알림</div>
+                  <div class="setting-desc">즐겨찾기한 축제 종료 시 후기 작성 유도</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+              <div class="setting-item">
+                <div>
+                  <div class="setting-label">공지사항 알림</div>
+                  <div class="setting-desc">새 공지사항 등록 시 알림</div>
+                </div>
+                <div class="toggle off"></div>
+              </div>
+              <div class="setting-item">
+                <div>
+                  <div class="setting-label">댓글 알림</div>
+                  <div class="setting-desc">내 게시글에 댓글이 달리면 알림</div>
+                </div>
+                <div class="toggle on"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="marker" style="top: 190px; left: 50px;">1</div>
+        <div class="marker" style="top: 195px; left: 280px;">2</div>
+        <div class="marker" style="top: 240px; right: 70px;">3</div>
+        <div class="marker" style="top: 290px; left: 50px;">4</div>
+        <div class="marker" style="top: 455px; right: 70px;">5</div>
+      </div>
+
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>마이페이지 내 알림 수신 설정 섹션</li>
+            <li>알림 유형별 ON/OFF 토글로 세부 제어 지원</li>
+            <li>전체 설정 및 세부 설정 토글 시 DB 동기화</li>
+          </ul>
+        </div>
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text"><strong>설정 섹션 타이틀</strong><br>"🔔 알림 설정" 영역</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text"><strong>전체 알림 토글 (마스터 토글)</strong><br>· ON → 전체 항목 활성화 + 브라우저 권한 요청 (UI-FCM-003)<br>·
+              OFF → 모든 하위 항목 OFF 처리 및 서버 FCM 토큰 삭제</td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text"><strong>토글 컴포넌트 UX</strong><br>ON: 퍼플 `#6c5ce7` / OFF: 회색 바탕<br>애니메이션 적용으로 부드러운 전환 효과
+            </td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text"><strong>세부 알림 항목</strong><br>· 축제 시작 알림: 즐겨찾기 기준<br>· 축제 종료 알림: 후기 유도 목적<br>· 기타:
+              공지사항, 댓글 반응 등</td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text"><strong>개별 항목 OFF 상태</strong><br>마스터 토글이 ON이더라도 개별적으로 끄기 가능</td>
+          </tr>
+        </table>
+        <div class="checkpoint">
+          <h4>Check Point</h4>
+          <p>· API: POST /api/users/me/fcm-token<br>· API: PATCH /api/users/me/settings/notifications<br>· 프론트엔드
+            상태관리(Zustand 등)를 통한 즉각적인 UI 반영<br>· 비허용 상태일 경우 "브라우저 설정 변경 필요" 토스트 띄우기</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ====== PAGE 3: 브라우저 알림 권한 요청 ====== -->
+  <div class="page">
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">브라우저 알림 권한 요청</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-FCM-003</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">정혜연</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.30</div>
+      </div>
+    </div>
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">(시스템) 브라우저 네이티브 다이얼로그</div>
+    </div>
+    <div class="main-content">
+      <div class="screen-area">
+        <div class="browser-perm">
+          <div class="browser-bar">
+            <div class="dot" style="background:#ff5f57"></div>
+            <div class="dot" style="background:#febc2e"></div>
+            <div class="dot" style="background:#28c840"></div>
+            <div class="url">
+              <svg fill="currentColor" viewBox="0 0 20 20" style="width:12px;height:12px;color:#94a3b8">
+                <path fill-rule="evenodd"
+                  d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z"
+                  clip-rule="evenodd"></path>
+              </svg>
+              ieum.com
+            </div>
+          </div>
+          <div class="browser-dialog">
+            <div class="browser-dialog-top">
+              <span class="lock">🔔</span>
+              <span class="dialog-text"><strong>ieum.com</strong>에서 사용자에게 다음 권한을 요청합니다:<br><span
+                  style="color:#64748b;margin-top:4px;display:block;">• 알림 표시</span></span>
+            </div>
+            <div class="browser-dialog-btns">
+              <button>차단</button>
+              <button class="allow">허용</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="padding: 20px 40px; margin-top: 30px;">
+          <div
+            style="background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.02);">
+            <div
+              style="font-size: 13px; font-weight: 800; margin-bottom: 12px; color: #6c5ce7; display: flex; align-items: center; gap: 6px;">
+              <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              트리거 흐름 정책
+            </div>
+            <div style="font-size: 11px; line-height: 2; color: #475569;">
+              ① 사용자가 마이페이지 > 알림 설정 > <strong>"전체 푸시 알림" 토글 ON</strong> 수행<br>
+              ② <strong>Notification.permission</strong> 브라우저 상태를 우선 확인<br>
+              ③ 상태가 <strong>"default"</strong> 일 시 브라우저 권한 요청 다이얼로그 표시 (위 목업 화면)<br>
+              ④-A <strong>"허용(granted)"</strong> → Firebase Messaging 토큰 발급 후 서버 전달<br>
+              ④-B <strong>"차단(denied)"</strong> → 안내 메시지(Toast) 표시 및 토글 OFF 상태로 원복<br>
+              ⑤ 추후 권한 상태가 "denied"인 상태에서 사용자가 다시 토글을 켤 경우<br>&nbsp;&nbsp;&nbsp;&nbsp;→ 브라우저 설정에서 직접 변경하도록 유도 토스트 팝업 렌더링
+            </div>
+          </div>
+        </div>
+
+        <div class="marker" style="top: 70px; left: 240px;">1</div>
+        <div class="marker" style="top: 130px; left: 290px;">2</div>
+        <div class="marker" style="top: 200px; left: 470px;">3</div>
+        <div class="marker" style="top: 200px; left: 540px;">4</div>
+        <div class="marker" style="top: 350px; left: 210px;">5</div>
+      </div>
+
+      <div class="description-area">
+        <div class="desc-title">Description</div>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>FCM 푸시 알림 수신을 위한 브라우저 기본 권한 요청 다이얼로그</li>
+            <li>개발자가 수동으로 렌더링 불가능하며, 환경에 따라 UI가 다름</li>
+            <li>허용 여부에 따른 프론트엔드 상태 변경/토큰 관리에 대한 분기 규칙 포함</li>
+          </ul>
+        </div>
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text"><strong>브라우저 주소 표시줄</strong><br>HTTPS 적용 상태에서만 Service Worker 및 FCM 가능<br>자물쇠 아이콘으로 보안
+              연결 명시</td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text"><strong>권한 요청 메시지</strong><br>"ieum.com에서 알림을 표시하려고 합니다."</td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text"><strong>차단 버튼</strong><br>거부 시 Notification.permission = "denied"로 저장되며 영구적으로 토글 OFF
+              처리</td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text"><strong>허용 버튼</strong><br>승인 시 firebase-messaging-sw.js가 활성화됨<br>서버 API에 디바이스 토큰 적재 후
+              알림 환경 구성 완료</td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text"><strong>정책 및 플로우 안내</strong><br>다양한 예외 상황(이미 권한 거부 상태 등)에 맞는 UX 처리 플로우</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
 
 </body>
+
 </html>
