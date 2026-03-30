@@ -1160,32 +1160,32 @@
             <tbody>
               <tr>
                 <td class="method get">GET</td>
-                <td>/api/communities/{id}</td>
-                <td>커뮤니티 상세 및 메타 조회</td>
+                <td>/api/community/posts/{postId}</td>
+                <td>커뮤니티 상세 및 메타 조회 (API_BRD_0011)</td>
                 <td><span class="auth-badge auth-public">비회원</span></td>
               </tr>
               <tr>
                 <td class="method post">POST</td>
-                <td>/api/communities</td>
-                <td>게시글 신규 작성 저장</td>
+                <td>/api/community/posts</td>
+                <td>게시글 신규 작성 저장 (API_BRD_0012)</td>
                 <td><span class="auth-badge auth-user">회원</span></td>
               </tr>
               <tr>
                 <td class="method put">PUT</td>
-                <td>/api/communities/{id}</td>
-                <td>게시글 내용 및 속성 부분 수정</td>
+                <td>/api/community/posts/{postId}</td>
+                <td>게시글 내용 및 속성 부분 수정 (API_BRD_0013)</td>
                 <td><span class="auth-badge auth-user">본인</span></td>
               </tr>
               <tr>
                 <td class="method post">POST</td>
-                <td>/api/communities/{id}/comments</td>
-                <td>댓글 및 대댓글 등록</td>
+                <td>/api/community/posts/{postId}/comments</td>
+                <td>댓글 및 대댓글 등록 (API_BRD_0051)</td>
                 <td><span class="auth-badge auth-user">회원</span></td>
               </tr>
               <tr>
                 <td class="method delete">DEL</td>
-                <td>/api/communities/{id}</td>
-                <td>게시물 및 등록된 댓글 일괄 삭제 처리</td>
+                <td>/api/community/posts/{postId}</td>
+                <td>게시물 및 등록된 댓글 일괄 삭제 처리 (API_BRD_0014)</td>
                 <td><span class="auth-badge auth-user">본인</span></td>
               </tr>
             </tbody>
