@@ -36,12 +36,50 @@
     .mockup-profile .avatar { width: 64px; height: 64px; background: #cbd5e1; border-radius: 50%; margin: 0 auto 10px; border:2px solid #fff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
     .mockup-menu { display: flex; flex-direction: column; gap: 4px; padding: 0 15px;}
     .mockup-menu-item { padding: 12px 16px; font-size: 14px; color: #475569; border-radius: 8px; cursor: pointer; transition: all 0.2s; font-weight: 500; display: flex; align-items: center; gap: 10px;}
-    .mockup-menu-item.active { background: #eff6ff; color: #2563eb; font-weight: 700; }
+    .mockup-menu-item.active { background: #f3e8ff; color: #6c5ce7; font-weight: 700; }
     .mockup-content { flex: 1; padding: 30px; overflow-y: auto; background: #f8fafc; }
     .mockup-title { font-size: 20px; font-weight: 700; margin-bottom: 20px; color: #1e293b; display: flex; justify-content: space-between; align-items: center; }
 
     /* 번호 마커 */
     .marker { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: #FF4D6A; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4); z-index: 10; cursor: default; }
+  
+    /* ===== 기존 이음 브랜드 스타일 공통 추가 ===== */
+    .wire {
+      border: 1px solid #ddd; border-radius: 4px; background: #fff;
+      position: relative; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      display: flex; flex-direction: column; height: 750px;
+    }
+    .common-header {
+      height: 60px; background: #fff; border-bottom: 1px solid #e2e8f0;
+      display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
+    }
+    .ch-logo { display: flex; align-items: center; gap: 7px; }
+    .ch-pin {
+      width: 26px; height: 26px; background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px; display: flex; align-items: center; justify-content: center;
+      transform: rotate(-45deg);
+    }
+    .ch-pin-inner {
+      width: 11px; height: 11px; background: white; border-radius: 50%;
+      transform: rotate(45deg);
+    }
+    .ch-logo span { font-size: 18px; font-weight: 800; color: #2d3436; }
+    .ch-nav { display: flex; gap: 22px; }
+    .ch-nav a { text-decoration: none; color: #636e72; font-size: 12px; font-weight: 500; }
+    .ch-nav a.active { color: #6c5ce7; font-weight: 700; position: relative; }
+    .ch-nav a.active::after {
+      content: ''; position: absolute; bottom: -6px; left: 0; right: 0;
+      height: 2px; background: linear-gradient(90deg, #a55eea, #6c5ce7); border-radius: 2px;
+    }
+    .ch-user {
+      width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      display: flex; align-items: center; justify-content: center; color: #fff;
+    }
+    .common-footer { background: #2d3436; color: #969faa; padding: 24px; font-size: 9px; }
+    .cf-top { display: flex; justify-content: space-between; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 16px; }
+    .cf-brand-logo { display: flex; align-items: center; gap: 6px; margin-bottom: 8px; color: #fff; font-size: 13px; font-weight: 800; }
+    .cf-pin { width: 14px; height: 14px; background: linear-gradient(135deg, #ff6b6b, #a55eea); border-radius: 50% 50% 50% 3px; transform: rotate(-45deg); }
+
   </style>
 </head>
 <body>
@@ -62,23 +100,32 @@
   <div class="main-content">
     <div class="screen-area">
       <!-- 순수 HTML/CSS 목업 UI -->
-      <div class="mockup-ui">
-        <div class="mockup-header">
-          <div style="display: flex; align-items: center; gap: 40px;">
-            <div style="font-weight: 900; color: #2563eb; font-size: 22px; tracking: -1px;">IEUM</div>
-            <div class="mockup-header-links">
-              <span>전국축제</span><span>지난축제</span><span>달력</span><span>커뮤니티</span><span>공지</span>
+      <div class="wire">
+        
+          <!-- 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin"><div class="ch-pin-inner"></div></div><span>이음</span>
+            </div>
+            <nav class="ch-nav">
+              <a href="#">전국축제</a>
+              <a href="#">지난축제</a>
+              <a href="#">달력</a>
+              <a href="#">커뮤니티</a>
+            </nav>
+            <div class="ch-user">
+              <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" width="16" height="16">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
             </div>
           </div>
-          <div style="font-size: 13px; color:#64748b; font-weight: 500;">🔍 검색 &nbsp;&nbsp;|&nbsp;&nbsp; 🔔 알림 &nbsp;&nbsp;|&nbsp;&nbsp; 👤 축제매니아 님</div>
-        </div>
-        <div class="mockup-body">
+<div class="mockup-body">
           <div class="mockup-sidebar">
             <div class="mockup-profile">
               <div class="avatar"></div>
               <div style="font-weight: 700; font-size: 15px; color: #1e293b;">축제매니아</div>
               <div style="font-size: 12px; color:#64748b; margin-top:4px;">user@example.com</div>
-              <div style="font-size: 11px; margin-top: 10px; color: #3b82f6; border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 20px; display:inline-block; cursor:pointer;">프로필 · 알림 설정</div>
+              <div style="font-size: 11px; margin-top: 10px; color: #3b82f6; border: 1px solid #d8b4fe; padding: 4px 10px; border-radius: 20px; display:inline-block; cursor:pointer;">프로필 · 알림 설정</div>
             </div>
             <div class="mockup-menu">
               <div class="mockup-menu-item">❤️ 즐겨찾기 목록</div>
@@ -91,11 +138,11 @@
           </div>
           <div class="mockup-content">
             <div style="display:flex; gap:16px; margin-bottom:20px; border-bottom:1px solid #e2e8f0; padding-bottom:0;">
-              <div style="font-size:16px; font-weight:700; color:#2563eb; border-bottom:3px solid #2563eb; padding-bottom:12px; cursor:pointer;">내 게시글 (12)</div>
-              <div style="font-size:16px; font-weight:600; color:#94a3b8; padding-bottom:12px; cursor:pointer;">내 리뷰 (4)</div>
+              <div id="tab-post" style="font-size:16px; font-weight:700; color:#6c5ce7; border-bottom:3px solid #6c5ce7; padding-bottom:12px; cursor:pointer;" onclick="switchTab('post')">내 게시글 (12)</div>
+              <div id="tab-review" style="font-size:16px; font-weight:600; color:#94a3b8; border-bottom:3px solid transparent; padding-bottom:12px; cursor:pointer;" onclick="switchTab('review')">내 리뷰 (4)</div>
             </div>
             
-            <div style="display: flex; flex-direction: column; gap: 12px;">
+            <div id="list-post" style="display: flex; flex-direction: column; gap: 12px;">
               <!-- 글 1 -->
               <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                  <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:center;">
@@ -121,15 +168,69 @@
                  </div>
               </div>
             </div>
+
+            <!-- 내 리뷰 목록 -->
+            <div id="list-review" style="display: none; flex-direction: column; gap: 12px;">
+               <!-- 리뷰 1 -->
+              <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-start;">
+                    <div>
+                      <div style="font-weight:700; font-size:15px; color:#1e293b; margin-bottom:6px;">장터에서 파는 음식 진짜 너무 맛있어요!</div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:12px; font-weight:600; color:#a55eea; background:#f3e8ff; padding:2px 8px; border-radius:4px;">📍 강릉 단오제</span>
+                        <span style="font-size:13px; color:#eab308; letter-spacing:2px;">★★★★★</span><span style="font-size:12px; font-weight:700; color:#475569;">5.0</span>
+                      </div>
+                    </div>
+                    <div style="font-size:12px; color:#64748b; padding-top:2px;">2024.03.11</div>
+                 </div>
+                 <div style="font-size:13px; color:#475569; margin-bottom:16px; line-height:1.6;">
+                   아이들과 함께 방문했는데 먹거리 장터에서 파는 감자전이 진짜 예술이었습니다. 가격도 바가지 없이 합리적이고 위생 상태도 너무 좋았어요. 내년에도 꼭 오겠습니다!
+                 </div>
+                 <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                    <button style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                 </div>
+              </div>
+
+              <!-- 리뷰 2 -->
+              <div style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
+                 <div style="display:flex; justify-content:space-between; margin-bottom:10px; align-items:flex-start;">
+                    <div>
+                      <div style="font-weight:700; font-size:15px; color:#1e293b; margin-bottom:6px;">야경은 예뻤지만 화장실이 부족해요</div>
+                      <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:12px; font-weight:600; color:#a55eea; background:#f3e8ff; padding:2px 8px; border-radius:4px;">📍 진주 남강 유등축제</span>
+                        <span style="font-size:13px; color:#eab308; letter-spacing:2px;">★★★☆☆</span><span style="font-size:12px; font-weight:700; color:#475569;">3.0</span>
+                      </div>
+                    </div>
+                    <div style="font-size:12px; color:#64748b; padding-top:2px;">2023.10.15</div>
+                 </div>
+                 <div style="font-size:13px; color:#475569; margin-bottom:16px; line-height:1.6;">
+                   유등은 화려하고 사진 찍기 정말 좋았으나, 엄청난 인파에 비해 간이 화장실 개수가 너무 적어 불편했어요. 이 부분만 개선된다면 최고의 축제가 될 것 같습니다.
+                 </div>
+                 <div style="display:flex; justify-content:flex-end; gap:8px;">
+                    <button style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                    <button style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:6px 12px; font-size:12px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
+                 </div>
+              </div>
+            </div>
+
           </div>
         </div>
+      
+          <!-- 푸터 -->
+          <div class="common-footer" style="margin-top: auto;">
+            <div class="cf-top">
+              <div class="cf-brand-logo"><div class="cf-pin"></div>이음</div>
+            </div>
+            © 2026 이음(IEUM). All rights reserved.
+          </div>
       </div>
 
       <!-- 번호 마커 -->
       <div class="marker" style="top: 15%; left: 38%;">1</div>
-      <div class="marker" style="top: 28%; left: 38%;">2</div>
-      <div class="marker" style="top: 54%; right: 14%;">3</div>
-      <div class="marker" style="top: 54%; right: 8%;">4</div>
+      <div class="marker" style="top: 25%; left: 38%;">2</div>
+      <div class="marker" style="top: 51%; right: 14%;">3</div>
+      <div class="marker" style="top: 51%; right: 8%;">4</div>
       <div class="marker" style="top: 15%; left: 52%;">5</div>
     </div>
     <div class="description-area">
@@ -194,7 +295,7 @@
       </table>
 
       <div class="checkpoint">
-        <h4 style="font-size:13px; font-weight:700; color:#1a56db; margin-bottom:6px;">Check Point</h4>
+        <h4 style="font-size:13px; font-weight:700; color:#a55eea; margin-bottom:6px;">Check Point</h4>
         <p style="font-size:12px; line-height:1.7; color:#555;">
           · 글 삭제 시 연결된 답글 및 하위 댓글들이 모두 화면에서 블라인드(숨김) 처리<br>
           · 답글 작성자의 마이페이지에서도 해당 답글이 노출되지 않도록 데이터 블라인드<br>
@@ -205,5 +306,38 @@
     </div>
   </div>
 </div>
+
+<script>
+  function switchTab(tabName) {
+      const tabPost = document.getElementById('tab-post');
+      const tabReview = document.getElementById('tab-review');
+      const listPost = document.getElementById('list-post');
+      const listReview = document.getElementById('list-review');
+
+      if (tabName === 'post') {
+          tabPost.style.color = '#6c5ce7';
+          tabPost.style.fontWeight = '700';
+          tabPost.style.borderBottom = '3px solid #6c5ce7';
+          
+          tabReview.style.color = '#94a3b8';
+          tabReview.style.fontWeight = '600';
+          tabReview.style.borderBottom = '3px solid transparent';
+          
+          listPost.style.display = 'flex';
+          listReview.style.display = 'none';
+      } else {
+          tabReview.style.color = '#6c5ce7';
+          tabReview.style.fontWeight = '700';
+          tabReview.style.borderBottom = '3px solid #6c5ce7';
+          
+          tabPost.style.color = '#94a3b8';
+          tabPost.style.fontWeight = '600';
+          tabPost.style.borderBottom = '3px solid transparent';
+          
+          listPost.style.display = 'none';
+          listReview.style.display = 'flex';
+      }
+  }
+</script>
 </body>
 </html>
