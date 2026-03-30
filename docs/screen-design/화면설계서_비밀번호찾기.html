@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -89,7 +90,8 @@
       padding: 30px;
       position: relative;
       background: #fafafa;
-      display: flex; /* 화면 비율 조정을 위한 레이아웃 */
+      display: flex;
+      /* 화면 비율 조정을 위한 레이아웃 */
       justify-content: center;
       align-items: flex-start;
     }
@@ -98,11 +100,12 @@
       position: relative;
       display: inline-block;
       width: 100%;
-      max-width: 420px; /* 모바일 세로형 해상도 비율 맞춤 */
+      max-width: 420px;
+      /* 모바일 세로형 해상도 비율 맞춤 */
       border: 1px solid #ddd;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
       background-color: #f3f5f9;
     }
 
@@ -128,7 +131,8 @@
       box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
       z-index: 10;
       cursor: default;
-      transform: translate(-50%, -50%); /* 중심점 정렬 */
+      transform: translate(-50%, -50%);
+      /* 중심점 정렬 */
     }
 
     /* 오른쪽: 설명 영역 */
@@ -237,145 +241,147 @@
     }
   </style>
 </head>
+
 <body>
 
-<div class="page">
-  <!-- 메타 정보 헤더 Row 1 -->
-  <div class="meta-header">
-    <div class="meta-left">
-      <div class="meta-label">Page Title.</div>
-      <div class="meta-value">비밀번호 찾기</div>
-      <div class="meta-label">Screen ID</div>
-      <div class="meta-value">UI-LR-003</div>
-    </div>
-    <div class="meta-right">
-      <div class="meta-label">Author</div>
-      <div class="meta-value">Team 2</div>
-      <div class="meta-label">Date</div>
-      <div class="meta-value">2026.03.29</div>
-    </div>
-  </div>
-
-  <!-- 메타 정보 Row 2 -->
-  <div class="meta-row2">
-    <div class="meta-label">Screen Path</div>
-    <div class="meta-value">로그인 &gt; 비밀번호 찾기 (이메일 입력 단계)</div>
-  </div>
-
-  <!-- 메인 콘텐츠 -->
-  <div class="main-content">
-    <!-- 왼쪽: 스크린 캡처 + 마커 -->
-    <div class="screen-area">
-      <!-- 컨테이너에 max-width를 줘서 모바일 세로비 이미지가 적절히 출력되도록 유도 -->
-      <div class="screen-image-container">
-        <!-- 업로드된 이미지 혹은 제공된 와이어프레임 경로 -->
-        <img src="images/password_recovery.png" alt="비밀번호 찾기 화면">
-
-        <!-- ① 타이틀 영역 -->
-        <div class="marker" style="top: 15%; left: 50%;">1</div>
-
-        <!-- ② 진행 단계 헤더바 -->
-        <div class="marker" style="top: 36%; left: 50%;">2</div>
-
-        <!-- ③ 가이드 문구 -->
-        <div class="marker" style="top: 48%; left: 15%;">3</div>
-
-        <!-- ④ 이메일 입력창 -->
-        <div class="marker" style="top: 61%; left: 15%;">4</div>
-
-        <!-- ⑤ 인증 코드 받기 버튼 -->
-        <div class="marker" style="top: 73%; left: 50%;">5</div>
-
-        <!-- ⑥ 로그인으로 돌아가기 -->
-        <div class="marker" style="top: 81%; left: 50%;">6</div>
-
-        <!-- ⑦ 홈으로 돌아가기 -->
-        <div class="marker" style="top: 93%; left: 50%;">7</div>
+  <div class="page">
+    <!-- 메타 정보 헤더 Row 1 -->
+    <div class="meta-header">
+      <div class="meta-left">
+        <div class="meta-label">Page Title.</div>
+        <div class="meta-value">비밀번호 찾기</div>
+        <div class="meta-label">Screen ID</div>
+        <div class="meta-value">UI-LR-003</div>
+      </div>
+      <div class="meta-right">
+        <div class="meta-label">Author</div>
+        <div class="meta-value">Team 2</div>
+        <div class="meta-label">Date</div>
+        <div class="meta-value">2026.03.29</div>
       </div>
     </div>
 
-    <!-- 오른쪽: 설명 -->
-    <div class="description-area">
-      <div class="desc-title">Description</div>
+    <!-- 메타 정보 Row 2 -->
+    <div class="meta-row2">
+      <div class="meta-label">Screen Path</div>
+      <div class="meta-value">로그인 &gt; 비밀번호 찾기 (이메일 입력 단계)</div>
+    </div>
 
-      <div class="summary-section">
-        <h4>Summary.</h4>
-        <ul>
-          <li>사용자가 계정 비밀번호를 분실했을 때, 가입한 이메일을 인증하여 재설정을 도와주는 프로세스 첫 화면</li>
-          <li>기존 `화면설계서_예시 샘플.html`의 레이아웃 형식을 그대로 차용하여 일관성을 유지</li>
-        </ul>
+    <!-- 메인 콘텐츠 -->
+    <div class="main-content">
+      <!-- 왼쪽: 스크린 캡처 + 마커 -->
+      <div class="screen-area">
+        <!-- 컨테이너에 max-width를 줘서 모바일 세로비 이미지가 적절히 출력되도록 유도 -->
+        <div class="screen-image-container">
+          <!-- 업로드된 이미지 혹은 제공된 와이어프레임 경로 -->
+          <img src="images/password_recovery.png" alt="비밀번호 찾기 화면">
+
+          <!-- ① 타이틀 영역 -->
+          <div class="marker" style="top: 15%; left: 40%;">1</div>
+
+          <!-- ② 진행 단계 헤더바 -->
+          <div class="marker" style="top: 36%; left: 26%">2</div>
+
+          <!-- ③ 가이드 문구 -->
+          <div class="marker" style="top: 48%; left: 20%">3</div>
+
+          <!-- ④ 이메일 입력창 -->
+          <div class="marker" style="top: 61%; left: 20%">4</div>
+
+          <!-- ⑤ 인증 코드 받기 버튼 -->
+          <div class="marker" style="top: 73%; left: 20%">5</div>
+
+          <!-- ⑥ 로그인으로 돌아가기 -->
+          <div class="marker" style="top: 81%; left: 20%">6</div>
+
+          <!-- ⑦ 홈으로 돌아가기 -->
+          <div class="marker" style="top: 93%; left: 20%">7</div>
+        </div>
       </div>
 
-      <table class="desc-table">
-        <tr>
-          <td class="num">1</td>
-          <td class="desc-text">
-            <strong>헤더 및 타이틀</strong><br>
-            · 서비스 로고<br>
-            · "비밀번호 찾기" 타이틀<br>
-            · 서브 카피 문구 ("이메일을 통해 비밀번호를 재설정하세요") 표시
-          </td>
-        </tr>
-        <tr>
-          <td class="num">2</td>
-          <td class="desc-text">
-            <strong>프로세스 인디케이터 (Step Bar)</strong><br>
-            · '이메일 입력' > '인증 확인' > '비밀번호 재설정' 3단계 표시<br>
-            · 현재 진행 중인 '이메일 입력' 구간에 활성화 색상(파란색) 하이라이팅
-          </td>
-        </tr>
-        <tr>
-          <td class="num">3</td>
-          <td class="desc-text">
-            <strong>사용자 안내 문구</strong><br>
-            · 가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크(혹은 인증 번호)를 보내드린다는 안내 표출
-          </td>
-        </tr>
-        <tr>
-          <td class="num">4</td>
-          <td class="desc-text">
-            <strong>이메일 입력 필드</strong><br>
-            · 가입 시 사용했던 이메일을 입력하는 단일 필드<br>
-            · Placeholder: (편지봉투 아이콘) example@email.com<br>
-            · 실시간 정규식 유효성 검사 진행
-          </td>
-        </tr>
-        <tr>
-          <td class="num">5</td>
-          <td class="desc-text">
-            <strong>[인증 코드 받기] 버튼</strong><br>
-            · 이메일 입력 필드에 올바른 형식이 입력되면 활성화<br>
-            · 클릭 시 API를 호출하여 이메일 발송 요청 후 '인증 확인(Step 2)' 화면으로 이동 처리
-          </td>
-        </tr>
-        <tr>
-          <td class="num">6</td>
-          <td class="desc-text">
-            <strong>로그인으로 돌아가기 링크</strong><br>
-            · 우연히 진입했거나 다른 계정을 기억해낸 사용자를 위한 이탈 방지 동선<br>
-            · 클릭 시 로그인 메인 화면으로 리다이렉트
-          </td>
-        </tr>
-        <tr>
-          <td class="num">7</td>
-          <td class="desc-text">
-            <strong>홈으로 돌아가기 링크</strong><br>
-            · 전체 워크플로우를 포기하고 서비스 초기 진입점(메인 랜딩페이지)으로 복귀하는 기능 제공
-          </td>
-        </tr>
-      </table>
+      <!-- 오른쪽: 설명 -->
+      <div class="description-area">
+        <div class="desc-title">Description</div>
 
-      <div class="checkpoint">
-        <h4>Check Point</h4>
-        <p>
-          · 존재하지 않는 이메일 주소 입력 시 전송 이전에 실패 메시지 표출 (보안 정책에 따라 "이메일이 전송되었습니다"로 통일할지 여부 결정 필요)<br>
-          · 인증 코드 전송 버튼을 누른 후 재요청 어뷰징 방지를 위해 최소 "3분 카운트다운" 등 버튼 비활성화 쿨타임 제어 필요<br>
-          · 버튼에 시각적인 로딩 스피너 작동으로 진행 상태 피드백 제공
-        </p>
+        <div class="summary-section">
+          <h4>Summary.</h4>
+          <ul>
+            <li>사용자가 계정 비밀번호를 분실했을 때, 가입한 이메일을 인증하여 재설정을 도와주는 프로세스 첫 화면</li>
+            <li>기존 `화면설계서_예시 샘플.html`의 레이아웃 형식을 그대로 차용하여 일관성을 유지</li>
+          </ul>
+        </div>
+
+        <table class="desc-table">
+          <tr>
+            <td class="num">1</td>
+            <td class="desc-text">
+              <strong>헤더 및 타이틀</strong><br>
+              · 서비스 로고<br>
+              · "비밀번호 찾기" 타이틀<br>
+              · 서브 카피 문구 ("이메일을 통해 비밀번호를 재설정하세요") 표시
+            </td>
+          </tr>
+          <tr>
+            <td class="num">2</td>
+            <td class="desc-text">
+              <strong>프로세스 인디케이터 (Step Bar)</strong><br>
+              · '이메일 입력' > '인증 확인' > '비밀번호 재설정' 3단계 표시<br>
+              · 현재 진행 중인 '이메일 입력' 구간에 활성화 색상(파란색) 하이라이팅
+            </td>
+          </tr>
+          <tr>
+            <td class="num">3</td>
+            <td class="desc-text">
+              <strong>사용자 안내 문구</strong><br>
+              · 가입하신 이메일 주소를 입력하시면 비밀번호 재설정 링크(혹은 인증 번호)를 보내드린다는 안내 표출
+            </td>
+          </tr>
+          <tr>
+            <td class="num">4</td>
+            <td class="desc-text">
+              <strong>이메일 입력 필드</strong><br>
+              · 가입 시 사용했던 이메일을 입력하는 단일 필드<br>
+              · Placeholder: (편지봉투 아이콘) example@email.com<br>
+              · 실시간 정규식 유효성 검사 진행
+            </td>
+          </tr>
+          <tr>
+            <td class="num">5</td>
+            <td class="desc-text">
+              <strong>[인증 코드 받기] 버튼</strong><br>
+              · 이메일 입력 필드에 올바른 형식이 입력되면 활성화<br>
+              · 클릭 시 API를 호출하여 이메일 발송 요청 후 '인증 확인(Step 2)' 화면으로 이동 처리
+            </td>
+          </tr>
+          <tr>
+            <td class="num">6</td>
+            <td class="desc-text">
+              <strong>로그인으로 돌아가기 링크</strong><br>
+              · 우연히 진입했거나 다른 계정을 기억해낸 사용자를 위한 이탈 방지 동선<br>
+              · 클릭 시 로그인 메인 화면으로 리다이렉트
+            </td>
+          </tr>
+          <tr>
+            <td class="num">7</td>
+            <td class="desc-text">
+              <strong>홈으로 돌아가기 링크</strong><br>
+              · 전체 워크플로우를 포기하고 서비스 초기 진입점(메인 랜딩페이지)으로 복귀하는 기능 제공
+            </td>
+          </tr>
+        </table>
+
+        <div class="checkpoint">
+          <h4>Check Point</h4>
+          <p>
+            · 존재하지 않는 이메일 주소 입력 시 전송 이전에 실패 메시지 표출 (보안 정책에 따라 "이메일이 전송되었습니다"로 통일할지 여부 결정 필요)<br>
+            · 인증 코드 전송 버튼을 누른 후 재요청 어뷰징 방지를 위해 최소 "3분 카운트다운" 등 버튼 비활성화 쿨타임 제어 필요<br>
+            · 버튼에 시각적인 로딩 스피너 작동으로 진행 상태 피드백 제공
+          </p>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
 </body>
+
 </html>

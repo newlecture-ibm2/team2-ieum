@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>화면설계서 - 축제 달력</title>
+  <title>화면 설계서 - 축제 달력</title>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
 
     * {
       margin: 0;
@@ -30,6 +30,7 @@
       page-break-after: always
     }
 
+    /* ===== 메타 헤더 ===== */
     .meta-header {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -75,6 +76,7 @@
       border-bottom: 1.5px solid #333
     }
 
+    /* ===== 메인 콘텐츠 ===== */
     .main-content {
       display: grid;
       grid-template-columns: 65% 35%;
@@ -88,25 +90,512 @@
       background: #fafafa
     }
 
-    .marker {
+    .wire {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: #fff;
+      position: relative;
+      overflow: hidden
+    }
+
+    /* ===== 공통 헤더 ===== */
+    .common-header {
+      height: 56px;
+      background: #ffffff;
+      border-bottom: 1px solid #eee;
+      box-shadow: 0 1px 8px rgba(0, 0, 0, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 24px;
+    }
+
+    .ch-logo {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
+    .ch-pin {
+      width: 26px;
+      height: 26px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform: rotate(-45deg);
+    }
+
+    .ch-pin-inner {
+      width: 11px;
+      height: 11px;
+      background: white;
+      border-radius: 50%;
+      transform: rotate(45deg);
+    }
+
+    .ch-logo span {
+      font-size: 18px;
+      font-weight: 800;
+      color: #2d3436;
+      letter-spacing: -0.5px;
+    }
+
+    .ch-nav {
+      display: flex;
+      gap: 22px;
+    }
+
+    .ch-nav a {
+      text-decoration: none;
+      color: #636e72;
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 0;
+      position: relative;
+    }
+
+    .ch-nav a.active {
+      color: #6c5ce7;
+      font-weight: 700;
+    }
+
+    .ch-nav a.active::after {
+      content: '';
       position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, #a55eea, #6c5ce7);
+      border-radius: 2px;
+    }
+
+    .ch-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ch-bell {
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .ch-bell svg {
+      width: 16px;
+      height: 16px;
+      color: #636e72;
+    }
+
+    .ch-dot {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 6px;
+      height: 6px;
+      background: #ff6b6b;
+      border-radius: 50%;
+      border: 1.5px solid white;
+    }
+
+    .ch-user {
       width: 28px;
       height: 28px;
       border-radius: 50%;
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .ch-user svg {
+      width: 14px;
+      height: 14px;
+      color: white;
+    }
+
+    /* ===== 공통 푸터 ===== */
+    .common-footer {
+      background: #2d3436;
+      padding: 0;
+    }
+
+    .cf-top {
+      display: flex;
+      justify-content: space-between;
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .cf-brand {
+      max-width: 200px;
+    }
+
+    .cf-brand-logo {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+
+    .cf-pin {
+      width: 16px;
+      height: 16px;
+      background: linear-gradient(135deg, #ff6b6b, #a55eea);
+      border-radius: 50% 50% 50% 3px;
+      transform: rotate(-45deg);
+    }
+
+    .cf-brand-logo span {
+      font-size: 13px;
+      font-weight: 800;
+      color: white;
+    }
+
+    .cf-brand p {
+      font-size: 9px;
+      color: #969faa;
+      line-height: 1.6;
+    }
+
+    .cf-links {
+      display: flex;
+      gap: 36px;
+    }
+
+    .cf-col h4 {
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    .cf-col ul {
+      list-style: none;
+    }
+
+    .cf-col li {
+      font-size: 9px;
+      color: #969faa;
+      margin-bottom: 4px;
+    }
+
+    .cf-bottom {
+      padding: 10px 24px;
+      font-size: 8px;
+      color: #636e72;
+    }
+
+    /* ===== 달력 스타일 ===== */
+    .cal-container {
+      padding: 16px 20px 0;
+    }
+
+    .cal-title-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .cal-title-bar h2 {
+      font-size: 16px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .cal-title-bar h2 span {
+      margin-right: 4px;
+    }
+
+    .cal-ym {
+      font-size: 20px;
+      font-weight: 700;
+      color: #6c5ce7;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      padding: 0 0 0 2px;
+    }
+
+    .cal-arrows {
+      display: flex;
+      gap: 6px;
+    }
+
+    .cal-arrows button {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid #e5e7eb;
+      background: #fff;
+      cursor: pointer;
+      font-size: 11px;
+      color: #666;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cal-grid {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .cal-weekdays {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      background: linear-gradient(135deg, #a55eea, #6c5ce7);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      text-align: center;
+      padding: 8px 0;
+    }
+
+    .cal-weekdays span:first-child {
+      color: #ffcdd2;
+    }
+
+    .cal-weekdays span:last-child {
+      color: #bbdefb;
+    }
+
+    .cal-days {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e5e7eb;
+    }
+
+    .cal-day {
+      background: #fff;
+      padding: 6px 4px;
+      text-align: center;
+      font-size: 11px;
+      min-height: 48px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .cal-day:hover {
+      background: #f8f7ff;
+    }
+
+    .cal-day .day-num {
+      font-weight: 600;
+    }
+
+    .cal-day .day-num.sun {
+      color: #e53e3e;
+    }
+
+    .cal-day .day-num.sat {
+      color: #3182ce;
+    }
+
+    .cal-day .day-count {
+      font-size: 8px;
+      color: #6c5ce7;
+      margin-top: 2px;
+      font-weight: 500;
+    }
+
+    .cal-day.today {
+      background: #f0efff;
+    }
+
+    .cal-day.today .day-num {
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 50%;
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cal-day.selected {
+      background: #ede9fe;
+      box-shadow: inset 0 0 0 2px #6c5ce7;
+    }
+
+    /* ===== 행 밀림 축제 리스트 (인라인) ===== */
+    .cal-row-expand {
+      grid-column: 1 / -1;
+      background: #faf9ff;
+      border-top: 2px solid #6c5ce7;
+      padding: 12px 16px;
+    }
+
+    .expand-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .expand-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #333;
+    }
+
+    .expand-close {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #999;
+    }
+
+    .expand-cards {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding-bottom: 6px;
+      scroll-snap-type: x mandatory;
+    }
+
+    .expand-cards::-webkit-scrollbar {
+      height: 4px;
+    }
+
+    .expand-cards::-webkit-scrollbar-track {
+      background: #eee;
+      border-radius: 2px;
+    }
+
+    .expand-cards::-webkit-scrollbar-thumb {
+      background: #c4b5fd;
+      border-radius: 2px;
+    }
+
+    .fest-card {
+      min-width: 140px;
+      max-width: 140px;
+      background: #fff;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      overflow: hidden;
+      font-size: 9px;
+      flex-shrink: 0;
+      scroll-snap-align: start;
+    }
+
+    .fest-card-img {
+      height: 50px;
+      background: linear-gradient(135deg, #f0abfc, #c084fc);
+      position: relative;
+    }
+
+    .fest-card-img .card-num {
+      position: absolute;
+      top: 4px;
+      left: 4px;
+      background: #6c5ce7;
+      color: #fff;
+      border-radius: 50%;
+      width: 16px;
+      height: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 8px;
+      font-weight: 700;
+    }
+
+    .fest-card-body {
+      padding: 6px;
+    }
+
+    .fest-card-body .card-title {
+      font-weight: 600;
+      font-size: 10px;
+      margin-bottom: 2px;
+    }
+
+    .fest-card-body .card-loc {
+      color: #888;
+      font-size: 8px;
+    }
+
+    .fest-card-body .card-date {
+      color: #888;
+      font-size: 8px;
+    }
+
+    .fest-card-body .card-tags {
+      margin-top: 3px;
+      display: flex;
+      gap: 3px;
+      flex-wrap: wrap;
+    }
+
+    .fest-card-body .tag {
+      background: #ede9fe;
+      color: #6c5ce7;
+      padding: 1px 5px;
+      border-radius: 3px;
+      font-size: 7px;
+    }
+
+    .fest-card-body .btn-detail {
+      border: 1px solid #6c5ce7;
+      color: #6c5ce7;
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 7px;
+      background: none;
+      cursor: pointer;
+    }
+
+    /* 가로 스크롤 안내 */
+    .scroll-hint {
+      font-size: 9px;
+      color: #a29bfe;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    /* ===== 번호 마커 ===== */
+    .marker {
+      position: absolute;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
       background: #FF4D6A;
       color: #fff;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 700;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4);
-      z-index: 10
+      z-index: 10;
     }
 
+    /* ===== Description 영역 ===== */
     .description-area {
       display: flex;
-      flex-direction: column
+      flex-direction: column;
     }
 
     .desc-title {
@@ -116,12 +605,12 @@
       padding: 10px 16px;
       border-bottom: 1.5px solid #333;
       text-align: center;
-      letter-spacing: 1px
+      letter-spacing: 1px;
     }
 
     .summary-section {
       padding: 14px 16px;
-      border-bottom: 1px solid #ddd
+      border-bottom: 1px solid #ddd;
     }
 
     .summary-section h4 {
@@ -129,39 +618,39 @@
       font-weight: 700;
       margin-bottom: 8px;
       color: #444;
-      font-style: italic
+      font-style: italic;
     }
 
     .summary-section ul {
       list-style: disc;
-      padding-left: 18px
+      padding-left: 18px;
     }
 
     .summary-section li {
       font-size: 12px;
       line-height: 1.7;
-      color: #555
+      color: #555;
     }
 
     .desc-table {
       width: 100%;
       border-collapse: collapse;
-      flex: 1
+      flex: 1;
     }
 
     .desc-table tr {
-      border-bottom: 1px solid #ddd
+      border-bottom: 1px solid #ddd;
     }
 
     .desc-table tr:last-child {
-      border-bottom: none
+      border-bottom: none;
     }
 
     .desc-table td {
       padding: 10px 12px;
       vertical-align: top;
       font-size: 12px;
-      line-height: 1.7
+      line-height: 1.7;
     }
 
     .desc-table .num {
@@ -171,273 +660,45 @@
       color: #FF4D6A;
       font-size: 13px;
       vertical-align: middle;
-      border-right: 1px solid #eee
+      border-right: 1px solid #eee;
     }
 
     .desc-table .desc-text {
-      color: #333
+      color: #333;
     }
 
     .checkpoint {
       border-top: 1.5px solid #333;
-      padding: 12px 16px
+      padding: 12px 16px;
     }
 
     .checkpoint h4 {
       font-size: 13px;
       font-weight: 700;
       color: #1a56db;
-      margin-bottom: 6px
+      margin-bottom: 6px;
     }
 
     .checkpoint p {
       font-size: 12px;
       line-height: 1.7;
-      color: #555
+      color: #555;
     }
 
-    /* 와이어프레임 */
-    .wire {
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      background: #fff;
-      position: relative;
-      overflow: hidden
-    }
-
-    .wire-header {
-      height: 48px;
-      background: #fff;
-      border-bottom: 1px solid #e5e7eb;
-      display: flex;
-      align-items: center;
-      padding: 0 20px;
-      justify-content: space-between
-    }
-
-    .wire-logo {
-      font-weight: 700;
-      font-size: 14px;
-      color: #6B46C1
-    }
-
-    .wire-nav {
-      display: flex;
-      gap: 16px;
-      font-size: 11px;
-      color: #666
-    }
-
-    .wire-nav span.active {
-      color: #6B46C1;
-      border-bottom: 2px solid #6B46C1;
-      padding-bottom: 2px
-    }
-
-    .wire-icons {
-      display: flex;
-      gap: 10px;
-      font-size: 13px;
-      color: #888
-    }
-
-    .cal-title {
-      padding: 16px 20px 8px;
-      font-size: 13px;
-      font-weight: 600;
-      color: #333
-    }
-
-    .cal-ym {
-      font-size: 22px;
-      font-weight: 700;
-      color: #6B46C1;
-      padding: 0 20px 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px
-    }
-
-    .cal-ym .arrows {
-      font-size: 12px;
-      color: #888;
-      cursor: pointer
-    }
-
-    .cal-grid {
-      margin: 0 20px;
-      border: 1px solid #e5e7eb;
-      border-radius: 6px;
-      overflow: hidden
-    }
-
-    .cal-weekdays {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      background: #6B46C1;
-      color: #fff;
-      font-size: 10px;
-      font-weight: 600;
-      text-align: center;
-      padding: 6px 0
-    }
-
-    .cal-weekdays span:first-child {
-      color: #ffcdd2
-    }
-
-    .cal-weekdays span:last-child {
-      color: #bbdefb
-    }
-
-    .cal-days {
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 1px;
-      background: #e5e7eb
-    }
-
-    .cal-day {
-      background: #fff;
-      padding: 6px 4px;
-      text-align: center;
-      font-size: 11px;
-      min-height: 48px
-    }
-
-    .cal-day .day-num {
-      font-weight: 600
-    }
-
-    .cal-day .day-num.sun {
-      color: #e53e3e
-    }
-
-    .cal-day .day-num.sat {
-      color: #3182ce
-    }
-
-    .cal-day .day-count {
-      font-size: 9px;
-      color: #888;
-      margin-top: 2px
-    }
-
-    .cal-day.today {
-      background: #EDE9FE
-    }
-
-    .cal-day.today .day-num {
-      background: #6B46C1;
-      color: #fff;
-      border-radius: 50%;
-      width: 22px;
-      height: 22px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center
-    }
-
-    .fest-list {
-      margin: 16px 20px;
-      padding: 12px;
-      border: 1px solid #e5e7eb;
-      border-radius: 8px;
-      background: #f9fafb
-    }
-
-    .fest-list-title {
-      font-size: 12px;
-      font-weight: 700;
-      margin-bottom: 10px;
-      color: #333
-    }
-
-    .fest-cards {
-      display: flex;
-      gap: 10px
-    }
-
-    .fest-card {
-      flex: 1;
-      background: #fff;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      overflow: hidden;
-      font-size: 9px
-    }
-
-    .fest-card-img {
-      height: 50px;
-      background: linear-gradient(135deg, #f0abfc, #c084fc);
-      position: relative
-    }
-
-    .fest-card-img .card-num {
-      position: absolute;
-      top: 4px;
-      left: 4px;
-      background: #6B46C1;
-      color: #fff;
-      border-radius: 50%;
-      width: 16px;
-      height: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 8px;
-      font-weight: 700
-    }
-
-    .fest-card-body {
-      padding: 6px
-    }
-
-    .fest-card-body .card-title {
-      font-weight: 600;
-      font-size: 10px;
-      margin-bottom: 2px
-    }
-
-    .fest-card-body .card-loc {
-      color: #888;
-      font-size: 8px
-    }
-
-    .fest-card-body .card-date {
-      color: #888;
-      font-size: 8px
-    }
-
-    .fest-card-body .card-tags {
-      margin-top: 3px;
-      display: flex;
-      gap: 3px
-    }
-
-    .fest-card-body .tag {
-      background: #EDE9FE;
-      color: #6B46C1;
-      padding: 1px 4px;
-      border-radius: 3px;
-      font-size: 7px
-    }
-
-    .fest-card-body .btn-detail {
-      border: 1px solid #6B46C1;
-      color: #6B46C1;
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-size: 7px;
-      background: none;
-      margin-top: 3px
+    @media print {
+      .page {
+        width: 100%;
+        margin: 0;
+        border: none;
+        page-break-after: always;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <!-- ====== PAGE 1: 축제 달력 (월별 뷰 + 축제 리스트) ====== -->
+  <!-- ====== PAGE 1: 축제 달력 (월별 뷰) ====== -->
   <div class="page">
     <div class="meta-header">
       <div class="meta-left">
@@ -461,115 +722,244 @@
     <div class="main-content">
       <div class="screen-area">
         <div class="wire">
-          <!-- GNB Header -->
-          <div class="wire-header">
-            <div class="wire-logo">Festa-Connect</div>
-            <div class="wire-nav">
-              <span>Home</span>
-              <span>National Festivals</span>
-              <span class="active">Festival Calendar</span>
-              <span>Map</span>
+          <!-- 공통 헤더 -->
+          <div class="common-header">
+            <div class="ch-logo">
+              <div class="ch-pin">
+                <div class="ch-pin-inner"></div>
+              </div>
+              <span>이음</span>
             </div>
-            <div class="wire-icons">👤 🔍</div>
-          </div>
-          <!-- Calendar Title -->
-          <div class="cal-title">Monthly Festival Calendar</div>
-          <div class="cal-ym">2026.3 <span class="arrows">◀ ▶</span></div>
-          <!-- Calendar Grid -->
-          <div class="cal-grid">
-            <div class="cal-weekdays">
-              <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
-            </div>
-            <div class="cal-days">
-              <div class="cal-day"><span class="day-num sun">1</span>
-                <div class="day-count">17개</div>
+            <nav class="ch-nav">
+              <a href="#">전국축제</a>
+              <a href="#">지난축제</a>
+              <a href="#" class="active">달력</a>
+              <a href="#">커뮤니티</a>
+              <a href="#">공지</a>
+            </nav>
+            <div class="ch-actions">
+              <div class="ch-bell">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                </svg>
+                <span class="ch-dot"></span>
               </div>
-              <div class="cal-day"><span class="day-num">2</span>
-                <div class="day-count">17개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">3</span>
-                <div class="day-count">1개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">4</span>
-                <div class="day-count">17개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">5</span>
-                <div class="day-count">17개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">6</span>
-                <div class="day-count">1개</div>
-              </div>
-              <div class="cal-day"><span class="day-num sat">7</span>
-                <div class="day-count">17개</div>
-              </div>
-              <div class="cal-day"><span class="day-num sun">8</span></div>
-              <div class="cal-day"><span class="day-num">9</span></div>
-              <div class="cal-day"><span class="day-num">10</span></div>
-              <div class="cal-day today"><span class="day-num">18</span>
-                <div class="day-count">1개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">19</span>
-                <div class="day-count">1개</div>
-              </div>
-              <div class="cal-day"><span class="day-num">20</span>
-                <div class="day-count">1개</div>
-              </div>
-              <div class="cal-day"><span class="day-num sat">14</span>
-                <div class="day-count">2개</div>
+              <div class="ch-user">
+                <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
               </div>
             </div>
           </div>
-          <!-- Festival List -->
-          <div class="fest-list">
-            <div class="fest-list-title">3월 18일(수) 축제 리스트</div>
-            <div class="fest-cards">
-              <div class="fest-card">
-                <div class="fest-card-img">
-                  <div class="card-num">1</div>
-                </div>
-                <div class="fest-card-body">
-                  <div class="card-title">여의도 봄꽃 축제</div>
-                  <div class="card-loc">📍 서울 영등포구</div>
-                  <div class="card-date">2026.3.3~12.3</div>
-                  <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button
-                      class="btn-detail">상세보기</button></div>
-                </div>
+
+          <!-- 달력 본문 -->
+          <div class="cal-container">
+            <div class="cal-title-bar">
+              <h2><span>📅</span>축제 달력</h2>
+            </div>
+
+            <div class="cal-ym">
+              2026년 3월
+              <div class="cal-arrows">
+                <button>◀</button>
+                <button>▶</button>
               </div>
-              <div class="fest-card">
-                <div class="fest-card-img" style="background:linear-gradient(135deg,#86efac,#34d399)">
-                  <div class="card-num">2</div>
-                </div>
-                <div class="fest-card-body">
-                  <div class="card-title">부산 낙동강 유채꽃 축제</div>
-                  <div class="card-loc">📍 부산 강서구</div>
-                  <div class="card-date">2026.3.3~12.5</div>
-                  <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button
-                      class="btn-detail">상세보기</button></div>
-                </div>
+            </div>
+
+            <div class="cal-grid">
+              <div class="cal-weekdays">
+                <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
               </div>
-              <div class="fest-card">
-                <div class="fest-card-img" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">
-                  <div class="card-num">3</div>
+              <div class="cal-days">
+                <div class="cal-day"><span class="day-num sun">1</span>
+                  <div class="day-count">17개</div>
                 </div>
-                <div class="fest-card-body">
-                  <div class="card-title">고란창 축제</div>
-                  <div class="card-loc">📍 서울 강서구</div>
-                  <div class="card-date">2026.3.3~12.3</div>
-                  <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#축제</span><button
-                      class="btn-detail">상세보기</button></div>
+                <div class="cal-day"><span class="day-num">2</span>
+                  <div class="day-count">17개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">3</span>
+                  <div class="day-count">1개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">4</span>
+                  <div class="day-count">17개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">5</span>
+                  <div class="day-count">17개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">6</span>
+                  <div class="day-count">1개</div>
+                </div>
+                <div class="cal-day"><span class="day-num sat">7</span>
+                  <div class="day-count">17개</div>
+                </div>
+
+                <div class="cal-day"><span class="day-num sun">8</span></div>
+                <div class="cal-day"><span class="day-num">9</span></div>
+                <div class="cal-day"><span class="day-num">10</span></div>
+                <div class="cal-day"><span class="day-num">11</span></div>
+                <div class="cal-day"><span class="day-num">12</span></div>
+                <div class="cal-day"><span class="day-num">13</span></div>
+                <div class="cal-day"><span class="day-num sat">14</span>
+                  <div class="day-count">2개</div>
+                </div>
+
+                <div class="cal-day"><span class="day-num sun">15</span></div>
+                <div class="cal-day"><span class="day-num">16</span></div>
+                <div class="cal-day"><span class="day-num">17</span></div>
+                <div class="cal-day today selected"><span class="day-num">18</span>
+                  <div class="day-count">5개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">19</span>
+                  <div class="day-count">1개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">20</span>
+                  <div class="day-count">1개</div>
+                </div>
+                <div class="cal-day"><span class="day-num sat">21</span></div>
+
+                <!-- 선택된 날짜의 행 밀림 축제 리스트 -->
+                <div class="cal-row-expand">
+                  <div class="expand-header">
+                    <div class="expand-title">📌 3월 18일(수) 축제 리스트 (5개)</div>
+                    <button class="expand-close">✕</button>
+                  </div>
+                  <div class="expand-cards">
+                    <div class="fest-card">
+                      <div class="fest-card-img">
+                        <div class="card-num">1</div>
+                      </div>
+                      <div class="fest-card-body">
+                        <div class="card-title">여의도 봄꽃 축제</div>
+                        <div class="card-loc">📍 서울 영등포구</div>
+                        <div class="card-date">3.3 ~ 4.12</div>
+                        <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#벚꽃</span></div>
+                        <button class="btn-detail">상세보기</button>
+                      </div>
+                    </div>
+                    <div class="fest-card">
+                      <div class="fest-card-img" style="background:linear-gradient(135deg,#86efac,#34d399)">
+                        <div class="card-num">2</div>
+                      </div>
+                      <div class="fest-card-body">
+                        <div class="card-title">부산 유채꽃 축제</div>
+                        <div class="card-loc">📍 부산 강서구</div>
+                        <div class="card-date">3.3 ~ 4.5</div>
+                        <div class="card-tags"><span class="tag">#봄꽃</span><span class="tag">#가족</span></div>
+                        <button class="btn-detail">상세보기</button>
+                      </div>
+                    </div>
+                    <div class="fest-card">
+                      <div class="fest-card-img" style="background:linear-gradient(135deg,#fbbf24,#f59e0b)">
+                        <div class="card-num">3</div>
+                      </div>
+                      <div class="fest-card-body">
+                        <div class="card-title">진해 군항제</div>
+                        <div class="card-loc">📍 경남 창원시</div>
+                        <div class="card-date">3.25 ~ 4.3</div>
+                        <div class="card-tags"><span class="tag">#벚꽃</span><span class="tag">#군항</span></div>
+                        <button class="btn-detail">상세보기</button>
+                      </div>
+                    </div>
+                    <div class="fest-card">
+                      <div class="fest-card-img" style="background:linear-gradient(135deg,#93c5fd,#3b82f6)">
+                        <div class="card-num">4</div>
+                      </div>
+                      <div class="fest-card-body">
+                        <div class="card-title">강릉 커피 축제</div>
+                        <div class="card-loc">📍 강원 강릉시</div>
+                        <div class="card-date">3.15 ~ 3.20</div>
+                        <div class="card-tags"><span class="tag">#커피</span><span class="tag">#체험</span></div>
+                        <button class="btn-detail">상세보기</button>
+                      </div>
+                    </div>
+                    <div class="fest-card">
+                      <div class="fest-card-img" style="background:linear-gradient(135deg,#f9a8d4,#ec4899)">
+                        <div class="card-num">5</div>
+                      </div>
+                      <div class="fest-card-body">
+                        <div class="card-title">전주 한옥마을 축제</div>
+                        <div class="card-loc">📍 전북 전주시</div>
+                        <div class="card-date">3.10 ~ 3.25</div>
+                        <div class="card-tags"><span class="tag">#전통</span><span class="tag">#한옥</span></div>
+                        <button class="btn-detail">상세보기</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="scroll-hint">← 가로 스크롤 →</div>
+                </div>
+
+                <div class="cal-day"><span class="day-num sun">22</span></div>
+                <div class="cal-day"><span class="day-num">23</span></div>
+                <div class="cal-day"><span class="day-num">24</span></div>
+                <div class="cal-day"><span class="day-num">25</span>
+                  <div class="day-count">3개</div>
+                </div>
+                <div class="cal-day"><span class="day-num">26</span></div>
+                <div class="cal-day"><span class="day-num">27</span></div>
+                <div class="cal-day"><span class="day-num sat">28</span></div>
+
+                <div class="cal-day"><span class="day-num sun">29</span></div>
+                <div class="cal-day"><span class="day-num">30</span></div>
+                <div class="cal-day"><span class="day-num">31</span></div>
+                <div class="cal-day" style="color:#ccc;"></div>
+                <div class="cal-day" style="color:#ccc;"></div>
+                <div class="cal-day" style="color:#ccc;"></div>
+                <div class="cal-day" style="color:#ccc;"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 공통 푸터 -->
+          <div class="common-footer" style="margin-top:16px;">
+            <div class="cf-top">
+              <div class="cf-brand">
+                <div class="cf-brand-logo">
+                  <div class="cf-pin"></div><span>이음</span>
+                </div>
+                <p>전국의 다양한 축제 정보를 하나로 연결합니다.</p>
+              </div>
+              <div class="cf-links">
+                <div class="cf-col">
+                  <h4>서비스</h4>
+                  <ul>
+                    <li>전국축제</li>
+                    <li>지난축제</li>
+                    <li>축제 달력</li>
+                  </ul>
+                </div>
+                <div class="cf-col">
+                  <h4>고객지원</h4>
+                  <ul>
+                    <li>공지사항</li>
+                    <li>1:1 문의</li>
+                    <li>이용약관</li>
+                  </ul>
+                </div>
+                <div class="cf-col">
+                  <h4>문의하기</h4>
+                  <ul>
+                    <li>ieum@festival.kr</li>
+                    <li>02-1234-5678</li>
+                  </ul>
                 </div>
               </div>
             </div>
+            <div class="cf-bottom">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</div>
           </div>
         </div>
-        <!-- Markers -->
-        <div class="marker" style="top:58px;left:450px">1</div>
-        <div class="marker" style="top:80px;left:210px">2</div>
-        <div class="marker" style="top:118px;left:150px">3</div>
-        <div class="marker" style="top:148px;left:200px">4</div>
-        <div class="marker" style="top:250px;left:350px">5</div>
-        <div class="marker" style="top:210px;left:100px">6</div>
-        <div class="marker" style="top:350px;left:250px">7</div>
+
+        <!-- 마커 -->
+        <div class="marker" style="top:48px;left:410px">1</div>
+        <div class="marker" style="top:78px;left:120px">2</div>
+        <div class="marker" style="top:120px;left:210px">3</div>
+        <div class="marker" style="top:160px;left:30px">4</div>
+        <div class="marker" style="top:200px;left:350px">5</div>
+        <div class="marker" style="top:235px;left:60px">6</div>
+        <div class="marker" style="top:310px;left:400px">7</div>
+        <div class="marker" style="top:355px;left:200px">8</div>
+        <div class="marker" style="top:355px;right:30px">9</div>
       </div>
 
       <div class="description-area">
@@ -578,56 +968,65 @@
           <h4>Summary.</h4>
           <ul>
             <li>월별 캘린더로 축제 일정을 한눈에 조회하는 페이지</li>
-            <li>날짜별 축제 개수 표시, 날짜 클릭 시 해당일 축제 카드 리스트 노출</li>
-            <li>비회원도 조회 가능 (API_CAL_0010, API_CAL_0020)</li>
+            <li>날짜별 축제 개수 표시, 날짜 클릭 시 해당 행이 밀리면서 축제 카드 리스트 노출</li>
+            <li>축제 카드가 많으면 가로 스크롤로 탐색 가능</li>
+            <li>비회원도 조회 가능</li>
           </ul>
         </div>
         <table class="desc-table">
           <tr>
             <td class="num">1</td>
-            <td class="desc-text"><strong>GNB 네비게이션</strong><br>Home | National Festivals | Festival Calendar |
-              Map<br>현재 선택 탭 "Festival Calendar"에 활성 표시</td>
+            <td class="desc-text"><strong>GNB 네비게이션 (공통 헤더)</strong><br>현재 "달력" 탭 활성 표시<br>🔔 알림 아이콘 (로그인 시 알림 드롭다운 연동)
+            </td>
           </tr>
           <tr>
             <td class="num">2</td>
-            <td class="desc-text"><strong>페이지 타이틀</strong><br>"Monthly Festival Calendar" 고정 타이틀<br>페이지 진입 시 현재 월 자동 표시
-            </td>
+            <td class="desc-text"><strong>페이지 타이틀</strong><br>"📅 축제 달력" — 페이지 제목 표시</td>
           </tr>
           <tr>
             <td class="num">3</td>
-            <td class="desc-text"><strong>월 이동 네비게이션</strong><br>"2026.3" 연월 표시 + ◀ ▶ 화살표<br>클릭 시 이전/다음 월로 이동, API 재호출
-              (year, month 파라미터)</td>
+            <td class="desc-text"><strong>월 이동 네비게이션</strong><br>"2026년 3월" 연월 표시 + ◀ ▶ 버튼<br>클릭 시 이전/다음 월로 이동, API 재호출
+            </td>
           </tr>
           <tr>
             <td class="num">4</td>
-            <td class="desc-text"><strong>캘린더 요일 헤더</strong><br>일~토 요일 표시 (보라색 배경)<br>일요일: 빨간색, 토요일: 파란색 텍스트</td>
+            <td class="desc-text"><strong>캘린더 요일 헤더</strong><br>일~토 요일 표시 (퍼플 그라데이션 배경)<br>일요일: 빨간색, 토요일: 파란색</td>
           </tr>
           <tr>
             <td class="num">5</td>
-            <td class="desc-text"><strong>날짜 셀 (축제 개수 표시)</strong><br>각 날짜에 해당 일에 진행중인 축제 개수 표시<br>오늘 날짜: 보라색 원형 배경으로
-              하이라이트<br>날짜 클릭 시 하단 ⑦ 축제 리스트 갱신</td>
+            <td class="desc-text"><strong>날짜 셀 (축제 개수)</strong><br>각 날짜에 진행 중인 축제 개수 표시<br>오늘 날짜: 퍼플 원형 배경으로 하이라이트<br>클릭
+              시 해당 행 아래에 축제 리스트 확장</td>
           </tr>
           <tr>
             <td class="num">6</td>
-            <td class="desc-text"><strong>축제 개수 카운트</strong><br>start_date~end_date 범위에 해당 날짜가 포함되면 카운트<br>0개인 날짜는 카운트
-              미표시</td>
+            <td class="desc-text"><strong>축제 개수 카운트</strong><br>start_date ~ end_date 범위에 포함되면 카운트<br>0개인 날짜는 카운트 미표시
+            </td>
           </tr>
           <tr>
             <td class="num">7</td>
-            <td class="desc-text"><strong>선택 날짜 축제 카드 리스트</strong><br>선택한 날짜의 축제를 가로 스크롤 카드로 표시<br>카드 구성: 대표이미지, 축제명,
-              위치, 기간, 진행상태 태그, 해시태그, [상세보기] 버튼<br>[상세보기] 클릭 → /festivals/{id} 상세 페이지 이동<br>3개 초과 시 가로 스크롤 또는 "더보기" 처리
-            </td>
+            <td class="desc-text"><strong>선택 날짜 표시 (행 밀림)</strong><br>날짜 클릭 시 해당 셀에 퍼플 보더로 선택 표시<br>해당 행 아래에 축제 리스트 영역이
+              삽입되며 행이 밀림<br>✕ 닫기 버튼으로 접기 가능</td>
+          </tr>
+          <tr>
+            <td class="num">8</td>
+            <td class="desc-text"><strong>축제 카드 리스트 (가로 스크롤)</strong><br>선택 날짜의 축제를 가로 카드로 표시<br>카드 구성: 대표이미지, 축제명, 위치,
+              기간, 해시태그, [상세보기]<br>3개 초과 시 가로 스크롤로 탐색<br>scroll-snap으로 자연스러운 스크롤</td>
+          </tr>
+          <tr>
+            <td class="num">9</td>
+            <td class="desc-text"><strong>가로 스크롤 안내</strong><br>"← 가로 스크롤 →" 텍스트로 사용자 안내<br>커스텀 스크롤바 (퍼플 계열)</td>
           </tr>
         </table>
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
-            · FullCalendar 라이브러리 활용 (monthView)<br>
             · API: GET /api/calendar?year=2026&month=3 (월별 축제 카운트)<br>
             · API: GET /api/calendar/festivals?date=2026-03-18 (일자별 축제 목록)<br>
-            · 축제 기간(start~end)이 복수 날짜에 걸치면 각 날짜에 모두 카운트<br>
+            · 날짜 클릭 시 해당 행(주) 아래에 확장 영역 삽입, 기존 행은 아래로 밀림<br>
+            · 축제 카드 3개 초과 시 overflow-x: auto로 가로 스크롤<br>
+            · scroll-snap-type: x mandatory 적용<br>
             · 날짜 미선택 시 오늘 날짜 축제를 기본 표시<br>
-            · 카드 클릭 시 /festivals/{festivalId}로 이동
+            · [상세보기] 클릭 → /festivals/{festivalId}로 이동
           </p>
         </div>
       </div>
