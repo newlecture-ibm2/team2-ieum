@@ -5,19 +5,19 @@ services:
       - "3333:3000"
     environment:
       - BACKEND_URL=http://backend:8080
-      - SESSION_SECRET=complex_password_at_least_32_characters_long
+      - SESSION_SECRET=${SESSION_SECRET:-complex_password_at_least_32_characters_long}
     depends_on:
       - backend
 
   backend:
     build: ./backend
-    ports:
-      - "8080:8080"
+    expose:
+      - "8080"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ieum-db
       - SPRING_DATASOURCE_USERNAME=ieum
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-YOUR_SECRET_PASSWORD}
-      - JWT_SECRET=your-secret-key-at-least-256-bits-long-for-hs256
+      - JWT_SECRET=${JWT_SECRET:-your-secret-key-at-least-256-bits-long-for-hs256}
     depends_on:
       - postgres
 
@@ -32,12 +32,6 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  nginx:
-    build: ./nginx
-    ports:
-      - "80:80"
-    depends_on:
-      - frontend
-
 volumes:
   pgdata:
+
