@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=1920">
     <title>이음 - ERD (Entity Relationship Diagram)</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
     <style>
         :root {
             --bg: #0f1117;
@@ -25,7 +28,11 @@
             --line-color: #4a4f6a;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         body {
             font-family: 'Inter', sans-serif;
@@ -122,7 +129,9 @@
             padding-top: 56px;
         }
 
-        .canvas-container.dragging { cursor: grabbing; }
+        .canvas-container.dragging {
+            cursor: grabbing;
+        }
 
         .canvas {
             position: relative;
@@ -163,7 +172,7 @@
             border: 1px solid var(--border);
             border-radius: 10px;
             min-width: 260px;
-            box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
             z-index: 10;
             transition: box-shadow 0.3s, border-color 0.3s;
             cursor: move;
@@ -189,9 +198,17 @@
             border-bottom: 1px solid var(--border);
         }
 
-        .table-header.core { background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(99,102,241,0.05)); }
-        .table-header.relation { background: linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.05)); }
-        .table-header.support { background: linear-gradient(135deg, rgba(245,158,11,0.15), rgba(245,158,11,0.05)); }
+        .table-header.core {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+        }
+
+        .table-header.relation {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(16, 185, 129, 0.05));
+        }
+
+        .table-header.support {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(245, 158, 11, 0.05));
+        }
 
         .table-name {
             font-size: 14px;
@@ -199,9 +216,17 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .table-name.core { color: #818cf8; }
-        .table-name.relation { color: #34d399; }
-        .table-name.support { color: #fbbf24; }
+        .table-name.core {
+            color: #818cf8;
+        }
+
+        .table-name.relation {
+            color: #34d399;
+        }
+
+        .table-name.support {
+            color: #fbbf24;
+        }
 
         .table-label {
             font-size: 11px;
@@ -210,11 +235,24 @@
             font-weight: 500;
         }
 
-        .table-label.core { background: rgba(99,102,241,0.15); color: #818cf8; }
-        .table-label.relation { background: rgba(16,185,129,0.15); color: #34d399; }
-        .table-label.support { background: rgba(245,158,11,0.15); color: #fbbf24; }
+        .table-label.core {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
 
-        .table-body { padding: 4px 0; }
+        .table-label.relation {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .table-label.support {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .table-body {
+            padding: 4px 0;
+        }
 
         .column-row {
             display: flex;
@@ -225,7 +263,9 @@
             transition: background 0.15s;
         }
 
-        .column-row:hover { background: rgba(255,255,255,0.03); }
+        .column-row:hover {
+            background: rgba(255, 255, 255, 0.03);
+        }
 
         .col-badges {
             display: flex;
@@ -241,9 +281,20 @@
             font-family: 'JetBrains Mono', monospace;
         }
 
-        .badge.pk { background: rgba(245,158,11,0.2); color: #fbbf24; }
-        .badge.fk { background: rgba(99,102,241,0.2); color: #818cf8; }
-        .badge.uk { background: rgba(16,185,129,0.2); color: #34d399; }
+        .badge.pk {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+        }
+
+        .badge.fk {
+            background: rgba(99, 102, 241, 0.2);
+            color: #818cf8;
+        }
+
+        .badge.uk {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+        }
 
         .col-name {
             font-family: 'JetBrains Mono', monospace;
@@ -332,339 +383,386 @@
             opacity: 0;
             transition: opacity 0.2s;
             max-width: 300px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
         }
 
-        .tooltip.visible { opacity: 1; }
+        .tooltip.visible {
+            opacity: 1;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="header">
-    <div class="header-left">
-        <h1>🎪 이음 ERD</h1>
-        <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (15 Tables)</span>
+    <div class="header">
+        <div class="header-left">
+            <h1>🎪 이음 ERD</h1>
+            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (16 Tables)</span>
+        </div>
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#6366f1"></div>핵심 (Core)
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#10b981"></div>연관 (Relation)
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#f59e0b"></div>부가 (Support)
+            </div>
+            <div class="legend-item"><span class="badge pk">PK</span> Primary</div>
+            <div class="legend-item"><span class="badge fk">FK</span> Foreign</div>
+            <div class="legend-item"><span class="badge uk">UK</span> Unique</div>
+        </div>
+        <div class="controls">
+            <button onclick="resetView()">⟲ 초기화</button>
+            <button onclick="zoomIn()">＋</button>
+            <button onclick="zoomOut()">－</button>
+        </div>
     </div>
-    <div class="legend">
-        <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>핵심 (Core)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#10b981"></div>연관 (Relation)</div>
-        <div class="legend-item"><div class="legend-dot" style="background:#f59e0b"></div>부가 (Support)</div>
-        <div class="legend-item"><span class="badge pk">PK</span> Primary</div>
-        <div class="legend-item"><span class="badge fk">FK</span> Foreign</div>
-        <div class="legend-item"><span class="badge uk">UK</span> Unique</div>
+
+    <div class="canvas-container" id="canvasContainer">
+        <div class="canvas" id="canvas">
+            <svg class="lines-svg" id="linesSvg"></svg>
+        </div>
     </div>
-    <div class="controls">
-        <button onclick="resetView()">⟲ 초기화</button>
-        <button onclick="zoomIn()">＋</button>
-        <button onclick="zoomOut()">－</button>
-    </div>
-</div>
 
-<div class="canvas-container" id="canvasContainer">
-    <div class="canvas" id="canvas">
-        <svg class="lines-svg" id="linesSvg"></svg>
-    </div>
-</div>
+    <div class="minimap" id="minimap"></div>
+    <div class="zoom-indicator" id="zoomIndicator">100%</div>
+    <div class="tooltip" id="tooltip"></div>
 
-<div class="minimap" id="minimap"></div>
-<div class="zoom-indicator" id="zoomIndicator">100%</div>
-<div class="tooltip" id="tooltip"></div>
+    <script>
+        // ─── Table Definitions ───
+        const tables = [
+            {
+                id: 'users', name: 'users', label: '회원', type: 'core',
+                x: 1518.89, y: 1110.28,
+                columns: [
+                    { name: 'user_id', type: 'bigint', pk: true, note: '회원 고유 ID' },
+                    { name: 'email', type: 'varchar(100)', uk: true, note: '이메일' },
+                    { name: 'password', type: 'varchar(255)', note: '비밀번호 (BCrypt)' },
+                    { name: 'name', type: 'varchar(50)', note: '이름 (실명)' },
+                    { name: 'nickname', type: 'varchar(20)', uk: true, note: '닉네임' },
+                    { name: 'phone', type: 'varchar(20)', note: '전화번호' },
+                    { name: 'profile_image', type: 'varchar(500)', note: '프로필 이미지 URL' },
+                    { name: 'role', type: 'varchar(10)', note: 'USER / ADMIN' },
+                    { name: 'terms_agreed', type: 'boolean', note: '필수 약관 동의' },
+                    { name: 'marketing_agreed', type: 'boolean', note: '마케팅 동의' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / DELETED' },
+                    { name: 'created_at', type: 'timestamp', note: '가입일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                    { name: 'deleted_at', type: 'timestamp', note: '탈퇴일 (소프트 삭제)' },
+                ]
+            },
+            {
+                id: 'festivals', name: 'festivals', label: '축제', type: 'core',
+                x: 578.611, y: 286.111,
+                columns: [
+                    { name: 'festival_id', type: 'bigint', pk: true, note: '축제 고유 ID' },
+                    { name: 'source_id', type: 'varchar(20)', uk: true, note: '공공API contentId (Upsert 키)' },
+                    { name: 'source', type: 'varchar(10)', note: 'API / MANUAL (데이터 출처)' },
+                    { name: 'title', type: 'varchar(200)', note: '축제명' },
+                    { name: 'description', type: 'text', note: '상세 설명' },
+                    { name: 'overview', type: 'text', note: '축제 개요 (API detailCommon1)' },
+                    { name: 'address', type: 'varchar(300)', note: '주소' },
+                    { name: 'start_date', type: 'date', note: '시작일' },
+                    { name: 'end_date', type: 'date', note: '종료일' },
+                    { name: 'status', type: 'varchar(10)', note: 'ONGOING/UPCOMING/ENDED/HIDDEN' },
+                    { name: 'image_url', type: 'varchar(500)', note: '대표 이미지 URL' },
+                    { name: 'latitude', type: 'decimal(10,7)', note: '위도' },
+                    { name: 'longitude', type: 'decimal(10,7)', note: '경도' },
+                    { name: 'tel', type: 'varchar(50)', note: '연락처' },
+                    { name: 'homepage', type: 'varchar(500)', note: '홈페이지 URL' },
+                    { name: 'category', type: 'varchar(10)', note: '대분류 코드' },
+                    { name: 'category_mid', type: 'varchar(10)', note: '중분류 코드' },
+                    { name: 'category_sub', type: 'varchar(10)', note: '소분류 코드' },
+                    { name: 'area_code', type: 'varchar(10)', note: '지역 코드 (시/도)' },
+                    { name: 'sigungu_code', type: 'varchar(5)', note: '시군구 코드' },
+                    { name: 'ldong_code', type: 'varchar(20)', note: '법정동 코드' },
+                    { name: 'event_place', type: 'varchar(200)', note: '행사 장소명 (API)' },
+                    { name: 'play_time', type: 'varchar(200)', note: '공연/행사 시간 (API)' },
+                    { name: 'program', type: 'text', note: '행사 프로그램 (API)' },
+                    { name: 'use_fee', type: 'varchar(200)', note: '이용 요금 (API)' },
+                    { name: 'sponsor', type: 'varchar(100)', note: '주최 기관 (API)' },
+                    { name: 'is_custom', type: 'boolean', note: '자체 기획 여부' },
+                    { name: 'is_visible', type: 'boolean', note: '노출 여부' },
+                    { name: 'view_count', type: 'int', note: '조회수' },
+                    { name: 'api_modified_at', type: 'timestamp', note: 'API 수정일 (변경 감지용)' },
+                    { name: 'created_at', type: 'timestamp', note: '등록일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ],
+                footer: 'UK: (source_id)'
+            },
+            {
+                id: 'reviews', name: 'reviews', label: '리뷰', type: 'core',
+                x: 1091.67, y: 749.167,
+                columns: [
+                    { name: 'review_id', type: 'bigint', pk: true, note: '리뷰 고유 ID' },
+                    { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'rating', type: 'int', note: '별점 (1~5)' },
+                    { name: 'content', type: 'varchar(500)', note: '리뷰 내용' },
+                    { name: 'image_url', type: 'varchar(500)', note: '리뷰 이미지' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+                    { name: 'created_at', type: 'timestamp', note: '작성일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                    { name: 'deleted_at', type: 'timestamp', note: '삭제일' },
+                ],
+                footer: 'UK: (festival_id, user_id)'
+            },
+            {
+                id: 'scraps', name: 'scraps', label: '찜하기', type: 'relation',
+                x: 848.611, y: 1131.67,
+                columns: [
+                    { name: 'scrap_id', type: 'bigint', pk: true, note: '찜 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
+                    { name: 'created_at', type: 'timestamp', note: '찜한 날짜' },
+                ],
+                footer: 'UK: (user_id, festival_id)'
+            },
+            {
+                id: 'posts', name: 'posts', label: '게시글', type: 'core',
+                x: 1757.5, y: 265,
+                columns: [
+                    { name: 'post_id', type: 'bigint', pk: true, note: '게시글 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'category_id', type: 'bigint', fk: true, note: 'FK → categories' },
+                    { name: 'title', type: 'varchar(200)', note: '제목' },
+                    { name: 'content', type: 'text', note: '내용' },
+                    { name: 'view_count', type: 'int', note: '조회수' },
+                    { name: 'like_count', type: 'int', note: '좋아요 수' },
+                    { name: 'comment_count', type: 'int', note: '댓글 수' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+                    { name: 'created_at', type: 'timestamp', note: '작성일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ]
+            },
+            {
+                id: 'comments', name: 'comments', label: '댓글', type: 'core',
+                x: 2393.06, y: 803.333,
+                columns: [
+                    { name: 'comment_id', type: 'bigint', pk: true, note: '댓글 고유 ID' },
+                    { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'parent_id', type: 'bigint', fk: true, note: 'FK → comments (자기참조, NULL 허용)' },
+                    { name: 'content', type: 'text', note: '댓글 내용' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
+                    { name: 'created_at', type: 'timestamp', note: '작성일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ]
+            },
+            {
+                id: 'post_likes', name: 'post_likes', label: '게시글 좋아요', type: 'relation',
+                x: 1308.33, y: 455,
+                columns: [
+                    { name: 'like_id', type: 'bigint', pk: true, note: '좋아요 고유 ID' },
+                    { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'created_at', type: 'timestamp', note: '좋아요 날짜' },
+                ],
+                footer: 'UK: (post_id, user_id)'
+            },
+            {
+                id: 'attachments', name: 'attachments', label: '첨부파일 (공통)', type: 'support',
+                x: 22.5, y: 21.1111,
+                columns: [
+                    { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
+                    { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE / INQUIRY' },
+                    { name: 'target_id', type: 'bigint', note: '대상 ID (게시글/공지/문의)' },
+                    { name: 'file_name', type: 'varchar(200)', note: '원본 파일명' },
+                    { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
+                    { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
+                    { name: 'content_type', type: 'varchar(100)', note: 'MIME 타입' },
+                    { name: 'created_at', type: 'timestamp', note: '업로드일' },
+                ],
+                footer: 'IDX: (target_type, target_id)'
+            },
+            {
+                id: 'notices', name: 'notices', label: '공지사항', type: 'support',
+                x: 59.7222, y: 906.111,
+                columns: [
+                    { name: 'notice_id', type: 'bigint', pk: true, note: '공지 고유 ID' },
+                    { name: 'title', type: 'varchar(200)', note: '공지 제목' },
+                    { name: 'content', type: 'text', note: '공지 내용' },
+                    { name: 'summary', type: 'varchar(300)', note: '팝업용 요약' },
+                    { name: 'view_count', type: 'int', note: '조회수' },
+                    { name: 'is_pinned', type: 'boolean', note: '고정 여부' },
+                    { name: 'is_popup', type: 'boolean', note: '팝업 표시 여부' },
+                    { name: 'created_at', type: 'timestamp', note: '등록일' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ]
+            },
 
-<script>
-// ─── Table Definitions ───
-const tables = [
-    {
-        id: 'users', name: 'users', label: '회원', type: 'core',
-        x: 100, y: 100,
-        columns: [
-            { name: 'user_id', type: 'bigint', pk: true, note: '회원 고유 ID' },
-            { name: 'email', type: 'varchar(100)', uk: true, note: '이메일' },
-            { name: 'password', type: 'varchar(255)', note: '비밀번호 (BCrypt)' },
-            { name: 'name', type: 'varchar(50)', note: '이름 (실명)' },
-            { name: 'nickname', type: 'varchar(20)', uk: true, note: '닉네임' },
-            { name: 'phone', type: 'varchar(20)', note: '전화번호' },
-            { name: 'profile_image', type: 'varchar(500)', note: '프로필 이미지 URL' },
-            { name: 'role', type: 'varchar(10)', note: 'USER / ADMIN' },
-            { name: 'terms_agreed', type: 'boolean', note: '필수 약관 동의' },
-            { name: 'marketing_agreed', type: 'boolean', note: '마케팅 동의' },
-            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / DELETED' },
-            { name: 'created_at', type: 'timestamp', note: '가입일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-            { name: 'deleted_at', type: 'timestamp', note: '탈퇴일 (소프트 삭제)' },
-        ]
-    },
-    {
-        id: 'festivals', name: 'festivals', label: '축제', type: 'core',
-        x: 700, y: 80,
-        columns: [
-            { name: 'festival_id', type: 'bigint', pk: true, note: '축제 고유 ID' },
-            { name: 'title', type: 'varchar(200)', note: '축제명' },
-            { name: 'description', type: 'text', note: '상세 설명' },
-            { name: 'address', type: 'varchar(300)', note: '주소' },
-            { name: 'start_date', type: 'date', note: '시작일' },
-            { name: 'end_date', type: 'date', note: '종료일' },
-            { name: 'status', type: 'varchar(10)', note: 'ONGOING/UPCOMING/ENDED' },
-            { name: 'image_url', type: 'varchar(500)', note: '대표 이미지 URL' },
-            { name: 'latitude', type: 'double', note: '위도' },
-            { name: 'longitude', type: 'double', note: '경도' },
-            { name: 'tel', type: 'varchar(20)', note: '연락처' },
-            { name: 'homepage', type: 'varchar(500)', note: '홈페이지 URL' },
-            { name: 'category', type: 'varchar(10)', note: '카테고리 코드' },
-            { name: 'area_code', type: 'varchar(10)', note: '지역 코드' },
-            { name: 'ldong_code', type: 'varchar(20)', note: '법정동 코드' },
-            { name: 'is_custom', type: 'boolean', note: '자체 기획 여부' },
-            { name: 'is_visible', type: 'boolean', note: '노출 여부' },
-            { name: 'view_count', type: 'int', note: '조회수' },
-            { name: 'created_at', type: 'timestamp', note: '등록일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-        ]
-    },
-    {
-        id: 'reviews', name: 'reviews', label: '리뷰', type: 'core',
-        x: 420, y: 500,
-        columns: [
-            { name: 'review_id', type: 'bigint', pk: true, note: '리뷰 고유 ID' },
-            { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'rating', type: 'int', note: '별점 (1~5)' },
-            { name: 'content', type: 'varchar(500)', note: '리뷰 내용' },
-            { name: 'image_url', type: 'varchar(500)', note: '리뷰 이미지' },
-            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
-            { name: 'created_at', type: 'timestamp', note: '작성일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-            { name: 'deleted_at', type: 'timestamp', note: '삭제일' },
-        ],
-        footer: 'UK: (festival_id, user_id)'
-    },
-    {
-        id: 'scraps', name: 'scraps', label: '찜하기', type: 'relation',
-        x: 420, y: 850,
-        columns: [
-            { name: 'scrap_id', type: 'bigint', pk: true, note: '찜 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
-            { name: 'created_at', type: 'timestamp', note: '찜한 날짜' },
-        ],
-        footer: 'UK: (user_id, festival_id)'
-    },
-    {
-        id: 'posts', name: 'posts', label: '게시글', type: 'core',
-        x: 1300, y: 100,
-        columns: [
-            { name: 'post_id', type: 'bigint', pk: true, note: '게시글 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'category_id', type: 'bigint', fk: true, note: 'FK → categories' },
-            { name: 'title', type: 'varchar(200)', note: '제목' },
-            { name: 'content', type: 'text', note: '내용' },
-            { name: 'view_count', type: 'int', note: '조회수' },
-            { name: 'like_count', type: 'int', note: '좋아요 수' },
-            { name: 'comment_count', type: 'int', note: '댓글 수' },
-            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
-            { name: 'created_at', type: 'timestamp', note: '작성일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-        ]
-    },
-    {
-        id: 'comments', name: 'comments', label: '댓글', type: 'core',
-        x: 1600, y: 100,
-        columns: [
-            { name: 'comment_id', type: 'bigint', pk: true, note: '댓글 고유 ID' },
-            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'parent_id', type: 'bigint', fk: true, note: 'FK → comments (자기참조, NULL 허용)' },
-            { name: 'content', type: 'text', note: '댓글 내용' },
-            { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
-            { name: 'created_at', type: 'timestamp', note: '작성일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-        ]
-    },
-    {
-        id: 'post_likes', name: 'post_likes', label: '게시글 좋아요', type: 'relation',
-        x: 1300, y: 450,
-        columns: [
-            { name: 'like_id', type: 'bigint', pk: true, note: '좋아요 고유 ID' },
-            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'created_at', type: 'timestamp', note: '좋아요 날짜' },
-        ],
-        footer: 'UK: (post_id, user_id)'
-    },
-    {
-        id: 'attachments', name: 'attachments', label: '첨부파일 (공통)', type: 'support',
-        x: 1600, y: 450,
-        columns: [
-            { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
-            { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE / INQUIRY' },
-            { name: 'target_id', type: 'bigint', note: '대상 ID (게시글/공지/문의)' },
-            { name: 'file_name', type: 'varchar(200)', note: '원본 파일명' },
-            { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
-            { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
-            { name: 'content_type', type: 'varchar(100)', note: 'MIME 타입' },
-            { name: 'created_at', type: 'timestamp', note: '업로드일' },
-        ],
-        footer: 'IDX: (target_type, target_id)'
-    },
-    {
-        id: 'notices', name: 'notices', label: '공지사항', type: 'support',
-        x: 100, y: 720,
-        columns: [
-            { name: 'notice_id', type: 'bigint', pk: true, note: '공지 고유 ID' },
-            { name: 'title', type: 'varchar(200)', note: '공지 제목' },
-            { name: 'content', type: 'text', note: '공지 내용' },
-            { name: 'summary', type: 'varchar(300)', note: '팝업용 요약' },
-            { name: 'view_count', type: 'int', note: '조회수' },
-            { name: 'is_pinned', type: 'boolean', note: '고정 여부' },
-            { name: 'is_popup', type: 'boolean', note: '팝업 표시 여부' },
-            { name: 'created_at', type: 'timestamp', note: '등록일' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-        ]
-    },
+            {
+                id: 'inquiries', name: 'inquiries', label: '1:1 문의', type: 'support',
+                x: 396.944, y: 1247.5,
+                columns: [
+                    { name: 'inquiry_id', type: 'bigint', pk: true, note: '문의 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'title', type: 'varchar(200)', note: '문의 제목' },
+                    { name: 'content', type: 'text', note: '문의 내용' },
+                    { name: 'status', type: 'varchar(10)', note: 'PENDING / ANSWERED' },
+                    { name: 'answer', type: 'text', note: '관리자 답변' },
+                    { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
+                    { name: 'created_at', type: 'timestamp', note: '작성일' },
+                ]
+            },
+            {
+                id: 'reports', name: 'reports', label: '신고', type: 'support',
+                x: 2325.28, y: 1128.89,
+                columns: [
+                    { name: 'report_id', type: 'bigint', pk: true, note: '신고 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
+                    { name: 'target_type', type: 'varchar(10)', note: 'POST/REVIEW/COMMENT' },
+                    { name: 'target_id', type: 'bigint', note: '신고 대상 ID' },
+                    { name: 'reason', type: 'text', note: '신고 사유' },
+                    { name: 'status', type: 'varchar(10)', note: 'PENDING/PROCESSED/DISMISSED' },
+                    { name: 'action', type: 'varchar(10)', note: 'DELETE / DISMISS' },
+                    { name: 'created_at', type: 'timestamp', note: '신고일' },
+                    { name: 'processed_at', type: 'timestamp', note: '처리일' },
+                ],
+                footer: 'UK: (user_id, target_type, target_id)'
+            },
+            {
+                id: 'notifications', name: 'notifications', label: '알림', type: 'support',
+                x: 2196.39, y: 1551.94,
+                columns: [
+                    { name: 'notification_id', type: 'bigint', pk: true, note: '알림 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (수신자)' },
+                    { name: 'type', type: 'varchar(20)', note: 'FESTIVAL_START/END/NOTICE/COMMENT' },
+                    { name: 'message', type: 'varchar(500)', note: '알림 메시지' },
+                    { name: 'is_read', type: 'boolean', note: '읽음 여부' },
+                    { name: 'target_type', type: 'varchar(10)', note: 'FESTIVAL/NOTICE/POST' },
+                    { name: 'target_id', type: 'bigint', note: '대상 ID' },
+                    { name: 'created_at', type: 'timestamp', note: '생성일' },
+                ]
+            },
+            {
+                id: 'fcm_tokens', name: 'fcm_tokens', label: 'FCM 토큰', type: 'support',
+                x: 874.722, y: 1603.33,
+                columns: [
+                    { name: 'token_id', type: 'bigint', pk: true, note: '토큰 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'token', type: 'varchar(500)', note: 'FCM 디바이스 토큰' },
+                    { name: 'created_at', type: 'timestamp', note: '등록일' },
+                    { name: 'updated_at', type: 'timestamp', note: '갱신일' },
+                ],
+                footer: 'UK: (user_id, token)'
+            },
+            {
+                id: 'notification_settings', name: 'notification_settings', label: '알림 설정', type: 'support',
+                x: 1550.83, y: 1540.56,
+                columns: [
+                    { name: 'setting_id', type: 'bigint', pk: true, note: '설정 고유 ID' },
+                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (UK)' },
+                    { name: 'push_enabled', type: 'boolean', note: '전체 마스터 토글' },
+                    { name: 'festival_start', type: 'boolean', note: '축제 시작 알림' },
+                    { name: 'festival_end', type: 'boolean', note: '축제 종료 알림' },
+                    { name: 'notice', type: 'boolean', note: '공지사항 알림' },
+                    { name: 'comment', type: 'boolean', note: '댓글 알림' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ],
+                footer: 'UK: (user_id)'
+            },
+            {
+                id: 'categories', name: 'categories', label: '카테고리', type: 'support',
+                x: 1856.94, y: 897.5,
+                columns: [
+                    { name: 'category_id', type: 'bigint', pk: true, note: '카테고리 ID' },
+                    { name: 'name', type: 'varchar(50)', note: '카테고리명' },
+                    { name: 'color', type: 'varchar(10)', note: '태그 색상코드' },
+                    { name: 'sort_order', type: 'int', note: '정렬 순서' },
+                ]
+            },
+            {
+                id: 'batch_log', name: 'batch_log', label: '배치 로그', type: 'support',
+                x: 48.6111, y: 1514.44,
+                columns: [
+                    { name: 'id', type: 'bigserial', pk: true, note: '로그 고유 ID' },
+                    { name: 'batch_id', type: 'varchar(10)', note: 'BAT-001 / BAT-002 / BAT-003' },
+                    { name: 'batch_name', type: 'varchar(100)', note: '배치명' },
+                    { name: 'trigger_type', type: 'varchar(10)', note: 'AUTO / MANUAL' },
+                    { name: 'triggered_by', type: 'bigint', fk: true, note: 'FK → users (관리자, NULL 허용)' },
+                    { name: 'status', type: 'varchar(10)', note: 'RUNNING / SUCCESS / FAILED' },
+                    { name: 'started_at', type: 'timestamp', note: '시작 시각' },
+                    { name: 'finished_at', type: 'timestamp', note: '종료 시각' },
+                    { name: 'execution_time', type: 'varchar(20)', note: '소요 시간 (HH:mm:ss)' },
+                    { name: 'total_count', type: 'int', note: '총 처리 건수' },
+                    { name: 'insert_count', type: 'int', note: '신규 등록 건수' },
+                    { name: 'update_count', type: 'int', note: '갱신 건수' },
+                    { name: 'skip_count', type: 'int', note: '스킵 건수' },
+                    { name: 'fail_count', type: 'int', note: '실패 건수' },
+                    { name: 'error_message', type: 'text', note: '에러 메시지' },
+                    { name: 'error_detail', type: 'text', note: '스택 트레이스' },
+                    { name: 'created_at', type: 'timestamp', note: '생성일' },
+                ],
+                footer: 'IDX: (batch_id), (status), (started_at)'
+            },
+        ];
 
-    {
-        id: 'inquiries', name: 'inquiries', label: '1:1 문의', type: 'support',
-        x: 820, y: 850,
-        columns: [
-            { name: 'inquiry_id', type: 'bigint', pk: true, note: '문의 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'title', type: 'varchar(200)', note: '문의 제목' },
-            { name: 'content', type: 'text', note: '문의 내용' },
-            { name: 'status', type: 'varchar(10)', note: 'PENDING / ANSWERED' },
-            { name: 'answer', type: 'text', note: '관리자 답변' },
-            { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
-            { name: 'created_at', type: 'timestamp', note: '작성일' },
-        ]
-    },
-    {
-        id: 'reports', name: 'reports', label: '신고', type: 'support',
-        x: 1200, y: 720,
-        columns: [
-            { name: 'report_id', type: 'bigint', pk: true, note: '신고 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
-            { name: 'target_type', type: 'varchar(10)', note: 'POST/REVIEW/COMMENT' },
-            { name: 'target_id', type: 'bigint', note: '신고 대상 ID' },
-            { name: 'reason', type: 'text', note: '신고 사유' },
-            { name: 'status', type: 'varchar(10)', note: 'PENDING/PROCESSED/DISMISSED' },
-            { name: 'action', type: 'varchar(10)', note: 'DELETE / DISMISS' },
-            { name: 'created_at', type: 'timestamp', note: '신고일' },
-            { name: 'processed_at', type: 'timestamp', note: '처리일' },
-        ],
-        footer: 'UK: (user_id, target_type, target_id)'
-    },
-    {
-        id: 'notifications', name: 'notifications', label: '알림', type: 'support',
-        x: 1550, y: 720,
-        columns: [
-            { name: 'notification_id', type: 'bigint', pk: true, note: '알림 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (수신자)' },
-            { name: 'type', type: 'varchar(20)', note: 'FESTIVAL_START/END/NOTICE/COMMENT' },
-            { name: 'message', type: 'varchar(500)', note: '알림 메시지' },
-            { name: 'is_read', type: 'boolean', note: '읽음 여부' },
-            { name: 'target_type', type: 'varchar(10)', note: 'FESTIVAL/NOTICE/POST' },
-            { name: 'target_id', type: 'bigint', note: '대상 ID' },
-            { name: 'created_at', type: 'timestamp', note: '생성일' },
-        ]
-    },
-    {
-        id: 'fcm_tokens', name: 'fcm_tokens', label: 'FCM 토큰', type: 'support',
-        x: 100, y: 1260,
-        columns: [
-            { name: 'token_id', type: 'bigint', pk: true, note: '토큰 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
-            { name: 'token', type: 'varchar(500)', note: 'FCM 디바이스 토큰' },
-            { name: 'created_at', type: 'timestamp', note: '등록일' },
-            { name: 'updated_at', type: 'timestamp', note: '갱신일' },
-        ],
-        footer: 'UK: (user_id, token)'
-    },
-    {
-        id: 'notification_settings', name: 'notification_settings', label: '알림 설정', type: 'support',
-        x: 500, y: 1260,
-        columns: [
-            { name: 'setting_id', type: 'bigint', pk: true, note: '설정 고유 ID' },
-            { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (UK)' },
-            { name: 'push_enabled', type: 'boolean', note: '전체 마스터 토글' },
-            { name: 'festival_start', type: 'boolean', note: '축제 시작 알림' },
-            { name: 'festival_end', type: 'boolean', note: '축제 종료 알림' },
-            { name: 'notice', type: 'boolean', note: '공지사항 알림' },
-            { name: 'comment', type: 'boolean', note: '댓글 알림' },
-            { name: 'updated_at', type: 'timestamp', note: '수정일' },
-        ],
-        footer: 'UK: (user_id)'
-    },
-    {
-        id: 'categories', name: 'categories', label: '카테고리', type: 'support',
-        x: 1000, y: 1260,
-        columns: [
-            { name: 'category_id', type: 'bigint', pk: true, note: '카테고리 ID' },
-            { name: 'name', type: 'varchar(50)', note: '카테고리명' },
-            { name: 'color', type: 'varchar(10)', note: '태그 색상코드' },
-            { name: 'sort_order', type: 'int', note: '정렬 순서' },
-        ]
-    },
-];
+        // ─── Relationships ───
+        const relationships = [
+            { from: 'users', to: 'reviews', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'festivals', to: 'reviews', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
+            { from: 'users', to: 'scraps', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'festivals', to: 'scraps', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
+            { from: 'users', to: 'posts', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'comments', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'posts', to: 'comments', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+            { from: 'comments', to: 'comments', label: '1:N (자기참조)', fromCol: 'comment_id', toCol: 'parent_id' },
+            { from: 'users', to: 'post_likes', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+            { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'post_id', toCol: 'target_id' },
+            { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
+            { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'inquiry_id', toCol: 'target_id' },
+            { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'fcm_tokens', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'notification_settings', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'categories', to: 'posts', label: '1:N', fromCol: 'category_id', toCol: 'category_id' },
+            { from: 'users', to: 'batch_log', label: '1:N', fromCol: 'user_id', toCol: 'triggered_by' },
+        ];
 
-// ─── Relationships ───
-const relationships = [
-    { from: 'users', to: 'reviews', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'festivals', to: 'reviews', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
-    { from: 'users', to: 'scraps', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'festivals', to: 'scraps', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
-    { from: 'users', to: 'posts', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'users', to: 'comments', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'posts', to: 'comments', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
-    { from: 'comments', to: 'comments', label: '1:N (자기참조)', fromCol: 'comment_id', toCol: 'parent_id' },
-    { from: 'users', to: 'post_likes', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
-    { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'post_id', toCol: 'target_id' },
-    { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
-    { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'inquiry_id', toCol: 'target_id' },
-    { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'users', to: 'fcm_tokens', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'users', to: 'notification_settings', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },
-    { from: 'categories', to: 'posts', label: '1:N', fromCol: 'category_id', toCol: 'category_id' },
-];
+        // ─── Render ───
+        const canvas = document.getElementById('canvas');
+        const svgEl = document.getElementById('linesSvg');
+        const container = document.getElementById('canvasContainer');
+        const tableElements = {};
 
-// ─── Render ───
-const canvas = document.getElementById('canvas');
-const svgEl = document.getElementById('linesSvg');
-const container = document.getElementById('canvasContainer');
-const tableElements = {};
+        let scale = 0.75;
+        let panX = 50, panY = 0;
+        let isDragging = false, dragTarget = null;
+        let startX, startY, startPanX, startPanY, startTableX, startTableY;
 
-let scale = 0.75;
-let panX = 50, panY = 0;
-let isDragging = false, dragTarget = null;
-let startX, startY, startPanX, startPanY, startTableX, startTableY;
+        function renderTable(t) {
+            const card = document.createElement('div');
+            card.className = 'table-card';
+            card.id = `table-${t.id}`;
+            card.style.left = t.x + 'px';
+            card.style.top = t.y + 'px';
 
-function renderTable(t) {
-    const card = document.createElement('div');
-    card.className = 'table-card';
-    card.id = `table-${t.id}`;
-    card.style.left = t.x + 'px';
-    card.style.top = t.y + 'px';
-
-    let colHTML = '';
-    t.columns.forEach(c => {
-        let badges = '';
-        if (c.pk) badges += '<span class="badge pk">PK</span>';
-        if (c.fk) badges += '<span class="badge fk">FK</span>';
-        if (c.uk) badges += '<span class="badge uk">UK</span>';
-        colHTML += `
+            let colHTML = '';
+            t.columns.forEach(c => {
+                let badges = '';
+                if (c.pk) badges += '<span class="badge pk">PK</span>';
+                if (c.fk) badges += '<span class="badge fk">FK</span>';
+                if (c.uk) badges += '<span class="badge uk">UK</span>';
+                colHTML += `
             <div class="column-row" data-table="${t.id}" data-col="${c.name}">
                 <div class="col-badges">${badges}</div>
                 <span class="col-name">${c.name}</span>
                 <span class="col-type">${c.type}</span>
                 <span class="col-note">${c.note || ''}</span>
             </div>`;
-    });
+            });
 
-    let footerHTML = '';
-    if (t.footer) {
-        footerHTML = `<div class="table-footer">${t.footer}</div>`;
-    }
+            let footerHTML = '';
+            if (t.footer) {
+                footerHTML = `<div class="table-footer">${t.footer}</div>`;
+            }
 
-    card.innerHTML = `
+            card.innerHTML = `
         <div class="table-header ${t.type}">
             <span class="table-name ${t.type}">${t.name}</span>
             <span class="table-label ${t.type}">${t.label}</span>
@@ -672,233 +770,234 @@ function renderTable(t) {
         <div class="table-body">${colHTML}</div>
         ${footerHTML}`;
 
-    card.addEventListener('mousedown', (e) => {
-        if (e.button !== 0) return;
-        dragTarget = t;
-        startX = e.clientX;
-        startY = e.clientY;
-        startTableX = t.x;
-        startTableY = t.y;
-        e.stopPropagation();
-    });
+            card.addEventListener('mousedown', (e) => {
+                if (e.button !== 0) return;
+                dragTarget = t;
+                startX = e.clientX;
+                startY = e.clientY;
+                startTableX = t.x;
+                startTableY = t.y;
+                e.stopPropagation();
+            });
 
-    card.addEventListener('mouseenter', () => highlightRelated(t.id));
-    card.addEventListener('mouseleave', () => clearHighlights());
+            card.addEventListener('mouseenter', () => highlightRelated(t.id));
+            card.addEventListener('mouseleave', () => clearHighlights());
 
-    canvas.appendChild(card);
-    tableElements[t.id] = card;
-}
-
-function getTableCenter(id) {
-    const el = tableElements[id];
-    if (!el) return { x: 0, y: 0 };
-    const t = tables.find(t => t.id === id);
-    return {
-        x: t.x + el.offsetWidth / 2,
-        y: t.y + el.offsetHeight / 2
-    };
-}
-
-function getConnectionPoint(fromId, toId) {
-    const fromEl = tableElements[fromId];
-    const toEl = tableElements[toId];
-    const fromT = tables.find(t => t.id === fromId);
-    const toT = tables.find(t => t.id === toId);
-
-    const fromCx = fromT.x + fromEl.offsetWidth / 2;
-    const fromCy = fromT.y + fromEl.offsetHeight / 2;
-    const toCx = toT.x + toEl.offsetWidth / 2;
-    const toCy = toT.y + toEl.offsetHeight / 2;
-
-    const fromW = fromEl.offsetWidth / 2;
-    const fromH = fromEl.offsetHeight / 2;
-    const toW = toEl.offsetWidth / 2;
-    const toH = toEl.offsetHeight / 2;
-
-    const dx = toCx - fromCx;
-    const dy = toCy - fromCy;
-
-    function edgePoint(cx, cy, hw, hh, angle) {
-        const absCos = Math.abs(Math.cos(angle));
-        const absSin = Math.abs(Math.sin(angle));
-        let px, py;
-        if (absCos * hh > absSin * hw) {
-            const sign = Math.cos(angle) > 0 ? 1 : -1;
-            px = cx + sign * hw;
-            py = cy + Math.tan(angle) * sign * hw;
-        } else {
-            const sign = Math.sin(angle) > 0 ? 1 : -1;
-            py = cy + sign * hh;
-            px = cx + (1 / Math.tan(angle)) * sign * hh;
-        }
-        return { x: px, y: py };
-    }
-
-    const angle = Math.atan2(dy, dx);
-    const fromPt = edgePoint(fromCx, fromCy, fromW, fromH, angle);
-    const toPt = edgePoint(toCx, toCy, toW, toH, angle + Math.PI);
-
-    return { from: fromPt, to: toPt };
-}
-
-function drawLines() {
-    svgEl.innerHTML = '';
-    relationships.forEach((rel, i) => {
-        const pts = getConnectionPoint(rel.from, rel.to);
-        const mx = (pts.from.x + pts.to.x) / 2;
-        const my = (pts.from.y + pts.to.y) / 2;
-
-        const dx = pts.to.x - pts.from.x;
-        const dy = pts.to.y - pts.from.y;
-        const isMoreHorizontal = Math.abs(dx) > Math.abs(dy);
-
-        let d;
-        if (isMoreHorizontal) {
-            d = `M ${pts.from.x} ${pts.from.y} C ${mx} ${pts.from.y}, ${mx} ${pts.to.y}, ${pts.to.x} ${pts.to.y}`;
-        } else {
-            d = `M ${pts.from.x} ${pts.from.y} C ${pts.from.x} ${my}, ${pts.to.x} ${my}, ${pts.to.x} ${pts.to.y}`;
+            canvas.appendChild(card);
+            tableElements[t.id] = card;
         }
 
-        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        path.setAttribute('d', d);
-        path.setAttribute('class', 'relation-line');
-        path.setAttribute('data-from', rel.from);
-        path.setAttribute('data-to', rel.to);
-        path.id = `line-${i}`;
-
-        // Arrowhead
-        const arrowLen = 8;
-        const adx = pts.to.x - mx;
-        const ady = pts.to.y - my;
-        const aAngle = Math.atan2(ady, adx);
-        const arrowD = `M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle - 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle - 0.4)} M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle + 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle + 0.4)}`;
-        const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-        arrow.setAttribute('d', arrowD);
-        arrow.setAttribute('class', 'relation-line');
-        arrow.setAttribute('data-from', rel.from);
-        arrow.setAttribute('data-to', rel.to);
-        arrow.setAttribute('stroke-linecap', 'round');
-
-        svgEl.appendChild(path);
-        svgEl.appendChild(arrow);
-    });
-}
-
-function highlightRelated(tableId) {
-    // Highlight table card
-    Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
-    tableElements[tableId]?.classList.add('highlight');
-
-    // Highlight connected tables and lines
-    const lines = svgEl.querySelectorAll('.relation-line');
-    lines.forEach(line => {
-        const from = line.getAttribute('data-from');
-        const to = line.getAttribute('data-to');
-        if (from === tableId || to === tableId) {
-            line.classList.add('highlight');
-            const otherId = from === tableId ? to : from;
-            tableElements[otherId]?.classList.add('highlight');
-        } else {
-            line.classList.remove('highlight');
+        function getTableCenter(id) {
+            const el = tableElements[id];
+            if (!el) return { x: 0, y: 0 };
+            const t = tables.find(t => t.id === id);
+            return {
+                x: t.x + el.offsetWidth / 2,
+                y: t.y + el.offsetHeight / 2
+            };
         }
-    });
-}
 
-function clearHighlights() {
-    Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
-    svgEl.querySelectorAll('.relation-line').forEach(l => l.classList.remove('highlight'));
-}
+        function getConnectionPoint(fromId, toId) {
+            const fromEl = tableElements[fromId];
+            const toEl = tableElements[toId];
+            const fromT = tables.find(t => t.id === fromId);
+            const toT = tables.find(t => t.id === toId);
 
-// ─── Pan & Zoom ───
-function updateTransform() {
-    canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
-    document.getElementById('zoomIndicator').textContent = Math.round(scale * 100) + '%';
-    updateMinimap();
-}
+            const fromCx = fromT.x + fromEl.offsetWidth / 2;
+            const fromCy = fromT.y + fromEl.offsetHeight / 2;
+            const toCx = toT.x + toEl.offsetWidth / 2;
+            const toCy = toT.y + toEl.offsetHeight / 2;
 
-function zoomIn() { scale = Math.min(2, scale + 0.1); updateTransform(); }
-function zoomOut() { scale = Math.max(0.2, scale - 0.1); updateTransform(); }
-function resetView() { scale = 0.75; panX = 50; panY = 0; updateTransform(); }
+            const fromW = fromEl.offsetWidth / 2;
+            const fromH = fromEl.offsetHeight / 2;
+            const toW = toEl.offsetWidth / 2;
+            const toH = toEl.offsetHeight / 2;
 
-container.addEventListener('mousedown', (e) => {
-    if (dragTarget) return;
-    isDragging = true;
-    container.classList.add('dragging');
-    startX = e.clientX;
-    startY = e.clientY;
-    startPanX = panX;
-    startPanY = panY;
-});
+            const dx = toCx - fromCx;
+            const dy = toCy - fromCy;
 
-window.addEventListener('mousemove', (e) => {
-    if (dragTarget) {
-        const dx = (e.clientX - startX) / scale;
-        const dy = (e.clientY - startY) / scale;
-        dragTarget.x = startTableX + dx;
-        dragTarget.y = startTableY + dy;
-        const el = tableElements[dragTarget.id];
-        el.style.left = dragTarget.x + 'px';
-        el.style.top = dragTarget.y + 'px';
-        drawLines();
-        updateMinimap();
-    } else if (isDragging) {
-        panX = startPanX + (e.clientX - startX);
-        panY = startPanY + (e.clientY - startY);
-        updateTransform();
-    }
-});
+            function edgePoint(cx, cy, hw, hh, angle) {
+                const absCos = Math.abs(Math.cos(angle));
+                const absSin = Math.abs(Math.sin(angle));
+                let px, py;
+                if (absCos * hh > absSin * hw) {
+                    const sign = Math.cos(angle) > 0 ? 1 : -1;
+                    px = cx + sign * hw;
+                    py = cy + Math.tan(angle) * sign * hw;
+                } else {
+                    const sign = Math.sin(angle) > 0 ? 1 : -1;
+                    py = cy + sign * hh;
+                    px = cx + (1 / Math.tan(angle)) * sign * hh;
+                }
+                return { x: px, y: py };
+            }
 
-window.addEventListener('mouseup', () => {
-    isDragging = false;
-    dragTarget = null;
-    container.classList.remove('dragging');
-});
+            const angle = Math.atan2(dy, dx);
+            const fromPt = edgePoint(fromCx, fromCy, fromW, fromH, angle);
+            const toPt = edgePoint(toCx, toCy, toW, toH, angle + Math.PI);
 
-container.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    const delta = e.deltaY > 0 ? -0.05 : 0.05;
-    const newScale = Math.min(2, Math.max(0.2, scale + delta));
+            return { from: fromPt, to: toPt };
+        }
 
-    const rect = container.getBoundingClientRect();
-    const mx = e.clientX - rect.left;
-    const my = e.clientY - rect.top;
+        function drawLines() {
+            svgEl.innerHTML = '';
+            relationships.forEach((rel, i) => {
+                const pts = getConnectionPoint(rel.from, rel.to);
+                const mx = (pts.from.x + pts.to.x) / 2;
+                const my = (pts.from.y + pts.to.y) / 2;
 
-    panX = mx - (mx - panX) * (newScale / scale);
-    panY = my - (my - panY) * (newScale / scale);
-    scale = newScale;
-    updateTransform();
-}, { passive: false });
+                const dx = pts.to.x - pts.from.x;
+                const dy = pts.to.y - pts.from.y;
+                const isMoreHorizontal = Math.abs(dx) > Math.abs(dy);
 
-// ─── Minimap ───
-function updateMinimap() {
-    const minimap = document.getElementById('minimap');
-    const mmW = 200, mmH = 150;
-    const cW = 3200, cH = 2400;
-    const scaleM = Math.min(mmW / cW, mmH / cH);
+                let d;
+                if (isMoreHorizontal) {
+                    d = `M ${pts.from.x} ${pts.from.y} C ${mx} ${pts.from.y}, ${mx} ${pts.to.y}, ${pts.to.x} ${pts.to.y}`;
+                } else {
+                    d = `M ${pts.from.x} ${pts.from.y} C ${pts.from.x} ${my}, ${pts.to.x} ${my}, ${pts.to.x} ${pts.to.y}`;
+                }
 
-    let html = '';
-    tables.forEach(t => {
-        const el = tableElements[t.id];
-        if (!el) return;
-        const color = t.type === 'core' ? '#6366f1' : t.type === 'relation' ? '#10b981' : '#f59e0b';
-        html += `<div class="minimap-table" style="left:${t.x * scaleM}px;top:${t.y * scaleM}px;width:${el.offsetWidth * scaleM}px;height:${el.offsetHeight * scaleM}px;background:${color};opacity:0.5;"></div>`;
-    });
+                const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                path.setAttribute('d', d);
+                path.setAttribute('class', 'relation-line');
+                path.setAttribute('data-from', rel.from);
+                path.setAttribute('data-to', rel.to);
+                path.id = `line-${i}`;
 
-    const viewW = container.clientWidth / scale * scaleM;
-    const viewH = container.clientHeight / scale * scaleM;
-    const viewX = -panX / scale * scaleM;
-    const viewY = (-panY + 56) / scale * scaleM;
+                // Arrowhead
+                const arrowLen = 8;
+                const adx = pts.to.x - mx;
+                const ady = pts.to.y - my;
+                const aAngle = Math.atan2(ady, adx);
+                const arrowD = `M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle - 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle - 0.4)} M ${pts.to.x} ${pts.to.y} L ${pts.to.x - arrowLen * Math.cos(aAngle + 0.4)} ${pts.to.y - arrowLen * Math.sin(aAngle + 0.4)}`;
+                const arrow = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+                arrow.setAttribute('d', arrowD);
+                arrow.setAttribute('class', 'relation-line');
+                arrow.setAttribute('data-from', rel.from);
+                arrow.setAttribute('data-to', rel.to);
+                arrow.setAttribute('stroke-linecap', 'round');
 
-    html += `<div class="minimap-viewport" style="left:${viewX}px;top:${viewY}px;width:${viewW}px;height:${viewH}px;"></div>`;
-    minimap.innerHTML = html;
-}
+                svgEl.appendChild(path);
+                svgEl.appendChild(arrow);
+            });
+        }
 
-// ─── Init ───
-tables.forEach(renderTable);
-requestAnimationFrame(() => {
-    drawLines();
-    updateTransform();
-});
-</script>
+        function highlightRelated(tableId) {
+            // Highlight table card
+            Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
+            tableElements[tableId]?.classList.add('highlight');
+
+            // Highlight connected tables and lines
+            const lines = svgEl.querySelectorAll('.relation-line');
+            lines.forEach(line => {
+                const from = line.getAttribute('data-from');
+                const to = line.getAttribute('data-to');
+                if (from === tableId || to === tableId) {
+                    line.classList.add('highlight');
+                    const otherId = from === tableId ? to : from;
+                    tableElements[otherId]?.classList.add('highlight');
+                } else {
+                    line.classList.remove('highlight');
+                }
+            });
+        }
+
+        function clearHighlights() {
+            Object.values(tableElements).forEach(el => el.classList.remove('highlight'));
+            svgEl.querySelectorAll('.relation-line').forEach(l => l.classList.remove('highlight'));
+        }
+
+        // ─── Pan & Zoom ───
+        function updateTransform() {
+            canvas.style.transform = `translate(${panX}px, ${panY}px) scale(${scale})`;
+            document.getElementById('zoomIndicator').textContent = Math.round(scale * 100) + '%';
+            updateMinimap();
+        }
+
+        function zoomIn() { scale = Math.min(2, scale + 0.1); updateTransform(); }
+        function zoomOut() { scale = Math.max(0.2, scale - 0.1); updateTransform(); }
+        function resetView() { scale = 0.75; panX = 50; panY = 0; updateTransform(); }
+
+        container.addEventListener('mousedown', (e) => {
+            if (dragTarget) return;
+            isDragging = true;
+            container.classList.add('dragging');
+            startX = e.clientX;
+            startY = e.clientY;
+            startPanX = panX;
+            startPanY = panY;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (dragTarget) {
+                const dx = (e.clientX - startX) / scale;
+                const dy = (e.clientY - startY) / scale;
+                dragTarget.x = startTableX + dx;
+                dragTarget.y = startTableY + dy;
+                const el = tableElements[dragTarget.id];
+                el.style.left = dragTarget.x + 'px';
+                el.style.top = dragTarget.y + 'px';
+                drawLines();
+                updateMinimap();
+            } else if (isDragging) {
+                panX = startPanX + (e.clientX - startX);
+                panY = startPanY + (e.clientY - startY);
+                updateTransform();
+            }
+        });
+
+        window.addEventListener('mouseup', () => {
+            isDragging = false;
+            dragTarget = null;
+            container.classList.remove('dragging');
+        });
+
+        container.addEventListener('wheel', (e) => {
+            e.preventDefault();
+            const delta = e.deltaY > 0 ? -0.05 : 0.05;
+            const newScale = Math.min(2, Math.max(0.2, scale + delta));
+
+            const rect = container.getBoundingClientRect();
+            const mx = e.clientX - rect.left;
+            const my = e.clientY - rect.top;
+
+            panX = mx - (mx - panX) * (newScale / scale);
+            panY = my - (my - panY) * (newScale / scale);
+            scale = newScale;
+            updateTransform();
+        }, { passive: false });
+
+        // ─── Minimap ───
+        function updateMinimap() {
+            const minimap = document.getElementById('minimap');
+            const mmW = 200, mmH = 150;
+            const cW = 3200, cH = 2400;
+            const scaleM = Math.min(mmW / cW, mmH / cH);
+
+            let html = '';
+            tables.forEach(t => {
+                const el = tableElements[t.id];
+                if (!el) return;
+                const color = t.type === 'core' ? '#6366f1' : t.type === 'relation' ? '#10b981' : '#f59e0b';
+                html += `<div class="minimap-table" style="left:${t.x * scaleM}px;top:${t.y * scaleM}px;width:${el.offsetWidth * scaleM}px;height:${el.offsetHeight * scaleM}px;background:${color};opacity:0.5;"></div>`;
+            });
+
+            const viewW = container.clientWidth / scale * scaleM;
+            const viewH = container.clientHeight / scale * scaleM;
+            const viewX = -panX / scale * scaleM;
+            const viewY = (-panY + 56) / scale * scaleM;
+
+            html += `<div class="minimap-viewport" style="left:${viewX}px;top:${viewY}px;width:${viewW}px;height:${viewH}px;"></div>`;
+            minimap.innerHTML = html;
+        }
+
+        // ─── Init ───
+        tables.forEach(renderTable);
+        requestAnimationFrame(() => {
+            drawLines();
+            updateTransform();
+        });
+    </script>
 </body>
+
 </html>

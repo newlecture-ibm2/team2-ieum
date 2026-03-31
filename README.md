@@ -192,7 +192,7 @@ fix: 메뉴 이미지 경로 오류 수정
 - ⭐ **리뷰/별점** — 축제 후기 작성 (회원)
 - ❤️ **즐겨찾기** — 관심 축제 저장 (회원)
 - 💬 **커뮤니티** — Q&A / 축제 꿀팁 / 먹거리 게시판
-- ⚙️ **관리자** — 축제 데이터 관리, 통계 대시보드, 신고 처리, 설문 조사
+- ⚙️ **관리자** — 축제 데이터 관리, 통계 대시보드, 신고 처리
 
 ---
 
@@ -469,7 +469,6 @@ public record LoginRequest(
 | `NoticeAdminController` | `admin/noticemgmt/adapter/in/web/` | 공지사항 작성, 수정, 삭제 |
 | `ReportAdminController` | `admin/reportmgmt/adapter/in/web/` | 신고 목록, 처리 |
 | `StatisticsController` | `admin/statistics/adapter/in/web/` | 축제/사용자 통계 |
-| `SurveyController` | `admin/survey/adapter/in/web/` | 설문 생성, 응답 제출, 결과 조회 |
 
 > 💡 모든 경로의 루트: `backend/src/main/java/com/ieum/festival/`
 
