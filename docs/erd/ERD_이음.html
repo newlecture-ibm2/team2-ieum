@@ -343,7 +343,7 @@
 <div class="header">
     <div class="header-left">
         <h1>🎪 이음 ERD</h1>
-        <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (16 Tables)</span>
+        <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (15 Tables)</span>
     </div>
     <div class="legend">
         <div class="legend-item"><div class="legend-dot" style="background:#6366f1"></div>핵심 (Core)</div>
@@ -490,16 +490,19 @@ const tables = [
         footer: 'UK: (post_id, user_id)'
     },
     {
-        id: 'post_files', name: 'post_files', label: '게시글 첨부파일', type: 'relation',
+        id: 'attachments', name: 'attachments', label: '첨부파일 (공통)', type: 'support',
         x: 1600, y: 450,
         columns: [
             { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
-            { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
-            { name: 'file_name', type: 'varchar(200)', note: '파일명' },
+            { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE' },
+            { name: 'target_id', type: 'bigint', note: '대상 ID (게시글/공지)' },
+            { name: 'file_name', type: 'varchar(200)', note: '원본 파일명' },
             { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
             { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
+            { name: 'content_type', type: 'varchar(100)', note: 'MIME 타입' },
             { name: 'created_at', type: 'timestamp', note: '업로드일' },
-        ]
+        ],
+        footer: 'IDX: (target_type, target_id)'
     },
     {
         id: 'notices', name: 'notices', label: '공지사항', type: 'support',
@@ -516,18 +519,7 @@ const tables = [
             { name: 'updated_at', type: 'timestamp', note: '수정일' },
         ]
     },
-    {
-        id: 'notice_files', name: 'notice_files', label: '공지 첨부파일', type: 'support',
-        x: 100, y: 1020,
-        columns: [
-            { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
-            { name: 'notice_id', type: 'bigint', fk: true, note: 'FK → notices' },
-            { name: 'file_name', type: 'varchar(200)', note: '파일명' },
-            { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
-            { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
-            { name: 'created_at', type: 'timestamp', note: '업로드일' },
-        ]
-    },
+
     {
         id: 'inquiries', name: 'inquiries', label: '1:1 문의', type: 'support',
         x: 820, y: 850,
@@ -623,8 +615,8 @@ const relationships = [
     { from: 'comments', to: 'comments', label: '1:N (자기참조)', fromCol: 'comment_id', toCol: 'parent_id' },
     { from: 'users', to: 'post_likes', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
     { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
-    { from: 'posts', to: 'post_files', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
-    { from: 'notices', to: 'notice_files', label: '1:N', fromCol: 'notice_id', toCol: 'notice_id' },
+    { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'post_id', toCol: 'target_id' },
+    { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
     { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
     { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
     { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
