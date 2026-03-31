@@ -1,37 +1,57 @@
 services:
-  frontend:
-    build: ./frontend
-    ports:
-      - "3333:3000"
+  backend:
+    image: ${BACKEND_IMAGE:-${USER_ID}-backend:latest}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID}-backend
+    # ports 제거: 외부 노출 차단 (BFF 패턴)
+    volumes:
+      - /home/hyjeong/dist/ieum/backend/upload:/app/upload
     environment:
-      - BACKEND_URL=http://backend:8080
-      - SESSION_SECRET=${SESSION_SECRET:-complex_password_at_least_32_characters_long}
+      - SPRING_PROFILES_ACTIVE=prod
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL 환경변수가 설정되지 않았습니다.}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ieum}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD 환경변수가 설정되지 않았습니다.}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET 환경변수가 설정되지 않았습니다.}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - UPLOAD_LOCATION=file:/app/upload/
+      - TOUR_API_SERVICE_KEY=${TOUR_API_SERVICE_KEY}
+      - TOUR_API_BASE_URL=${TOUR_API_BASE_URL:-https://apis.data.go.kr/B551011/KorService2}
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-${USER_ID}-frontend:latest}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID}-frontend
+    ports:
+      - "${FRONTEND_PORT:-3333}:3000" # 외부 포트:내부 포트(3000)
+    environment:
+      - PORT=3000
+      - API_BASE_URL=http://backend:8080
+      - SESSION_SECRET=${SESSION_SECRET}
     depends_on:
       - backend
+    restart: unless-stopped
 
-  backend:
-    build: ./backend
-    expose:
-      - "8080"
-    environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/ieum-db
-      - SPRING_DATASOURCE_USERNAME=ieum
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:-YOUR_SECRET_PASSWORD}
-      - JWT_SECRET=${JWT_SECRET:-your-secret-key-at-least-256-bits-long-for-hs256}
-    depends_on:
-      - postgres
-
-  postgres:
+  # DB 서비스
+  db:
     image: postgres:17
-    ports:
-      - "5454:5432"
+    container_name: ${USER_ID}-db
     environment:
-      - POSTGRES_DB=ieum-db
-      - POSTGRES_USER=ieum
-      - POSTGRES_PASSWORD=${DB_PASSWORD:-YOUR_SECRET_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:-ieum-db}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-ieum}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "${DB_PORT:-5454}:5432" # 외부 포트:내부 포트(5432) - 팀원 로컬 접속용
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
 volumes:
-  pgdata:
-
+  db-data:
+    name: ${USER_ID:-ieum}-db-data
