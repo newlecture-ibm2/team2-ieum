@@ -321,6 +321,8 @@ CREATE TABLE IF NOT EXISTS notices (
     content         TEXT            NOT NULL,
     is_pinned       BOOLEAN         NOT NULL DEFAULT FALSE,
     view_count      INTEGER         NOT NULL DEFAULT 0,
+    start_date      TIMESTAMP,
+    end_date        TIMESTAMP,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP
 );
@@ -328,6 +330,8 @@ CREATE TABLE IF NOT EXISTS notices (
 COMMENT ON TABLE  notices              IS '공지사항 테이블';
 COMMENT ON COLUMN notices.is_pinned    IS '상단 고정 여부';
 COMMENT ON COLUMN notices.view_count   IS '조회수';
+COMMENT ON COLUMN notices.start_date   IS '게시 시작일 (NULL이면 즉시 게시)';
+COMMENT ON COLUMN notices.end_date     IS '게시 종료일 (NULL이면 무기한)';
 
 -- ------------------------------------------------------------
 -- 2-10. 1:1 문의 (inquiries)

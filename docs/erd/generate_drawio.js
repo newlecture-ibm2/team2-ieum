@@ -71,7 +71,8 @@ const tables = [
   { id: 900, name: 'notices', label: '공지사항', type: 'support', x: 40, y: 310, w: W, cols: [
     { n: 'notice_id', t: 'bigint', k: 'pk' }, { n: 'title', t: 'varchar(200)' },
     { n: 'content', t: 'text' }, { n: 'is_pinned', t: 'boolean' },
-    { n: 'view_count', t: 'int' }, { n: 'created_at', t: 'timestamp' },
+    { n: 'view_count', t: 'int' }, { n: 'start_date', t: 'timestamp' },
+    { n: 'end_date', t: 'timestamp' }, { n: 'created_at', t: 'timestamp' },
     { n: 'updated_at', t: 'timestamp' },
   ]},
   { id: 1000, name: 'inquiries', label: '1:1 문의', type: 'support', x: 40, y: 560, w: W, cols: [
