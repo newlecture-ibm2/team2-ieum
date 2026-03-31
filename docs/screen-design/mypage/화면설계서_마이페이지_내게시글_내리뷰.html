@@ -42,7 +42,21 @@
 
     /* 번호 마커 */
     .marker { position: absolute; width: 28px; height: 28px; border-radius: 50%; background: #FF4D6A; color: #fff; font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(255, 77, 106, 0.4); z-index: 10; cursor: default; }
-  
+    .api-section { border-top: 1.5px solid #333; }
+    .api-title { background: #eef2ff; font-weight: 700; font-size: 13px; padding: 10px 16px; border-bottom: 1px solid #c7d2fe; color: #3730a3; letter-spacing: 0.5px; }
+    .api-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .api-table thead { background: #f8fafc; }
+    .api-table th { padding: 8px 10px; font-weight: 600; color: #475569; border-bottom: 1.5px solid #cbd5e1; text-align: left; white-space: nowrap; }
+    .api-table td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table .method { font-weight: 700; font-family: 'Courier New', monospace; font-size: 11px; }
+    .api-table .method.get { color: #059669; }
+    .api-table .method.put { color: #d97706; }
+    .api-table .method.patch { color: #d97706; }
+    .api-table .method.delete { color: #dc2626; }
+    .api-table .endpoint { font-family: 'Courier New', monospace; font-size: 11px; color: #1e40af; }
+    .auth-user { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; background: #e0f2fe; color: #0369a1; }
+
     /* ===== 기존 이음 브랜드 스타일 공통 추가 ===== */
     .wire {
       border: 1px solid #ddd; border-radius: 4px; background: #fff;
@@ -304,6 +318,73 @@
         </p>
       </div>
     </div>
+  </div>
+
+  <!-- API 명세 -->
+  <div class="api-section">
+    <div class="api-title">📡 Related API</div>
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>API ID</th>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>설명</th>
+          <th>파라미터</th>
+          <th>인증</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>API_USR_0030</td>
+          <td><span class="method get">GET</span></td>
+          <td class="endpoint">/api/users/me/posts</td>
+          <td>내가 쓴 게시글 목록 조회</td>
+          <td>page, size</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_USR_0032</td>
+          <td><span class="method get">GET</span></td>
+          <td class="endpoint">/api/users/me/reviews</td>
+          <td>내가 작성한 리뷰 목록 조회</td>
+          <td>page, size</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_BRD_0013</td>
+          <td><span class="method put">PUT</span></td>
+          <td class="endpoint">/api/community/posts/{postId}</td>
+          <td>게시글 수정</td>
+          <td>title, content (body)</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_BRD_0014</td>
+          <td><span class="method delete">DELETE</span></td>
+          <td class="endpoint">/api/community/posts/{postId}</td>
+          <td>게시글 삭제</td>
+          <td>—</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_REV_0012</td>
+          <td><span class="method patch">PATCH</span></td>
+          <td class="endpoint">/api/reviews/{reviewId}</td>
+          <td>리뷰 내용 수정</td>
+          <td>content, rating (body)</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_REV_0013</td>
+          <td><span class="method delete">DELETE</span></td>
+          <td class="endpoint">/api/reviews/{reviewId}</td>
+          <td>리뷰 삭제</td>
+          <td>—</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+      </tbody>
+    </table>
   </div>
 </div>
 

@@ -135,6 +135,19 @@
       padding: 12px 16px;
     }
 
+    .api-section { border-top: 1.5px solid #333; }
+    .api-title { background: #eef2ff; font-weight: 700; font-size: 13px; padding: 10px 16px; border-bottom: 1px solid #c7d2fe; color: #3730a3; letter-spacing: 0.5px; }
+    .api-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .api-table thead { background: #f8fafc; }
+    .api-table th { padding: 8px 10px; font-weight: 600; color: #475569; border-bottom: 1.5px solid #cbd5e1; text-align: left; white-space: nowrap; }
+    .api-table td { padding: 7px 10px; border-bottom: 1px solid #e2e8f0; color: #334155; vertical-align: middle; }
+    .api-table tr:last-child td { border-bottom: none; }
+    .api-table .method { font-weight: 700; font-family: 'Courier New', monospace; font-size: 11px; }
+    .api-table .method.get { color: #059669; }
+    .api-table .method.post { color: #6c5ce7; }
+    .api-table .endpoint { font-family: 'Courier New', monospace; font-size: 11px; color: #1e40af; }
+    .auth-user { display: inline-block; font-size: 10px; padding: 2px 6px; border-radius: 3px; font-weight: 600; background: #e0f2fe; color: #0369a1; }
+
     /* Mockup UI CSS */
     .mockup-ui {
       width: 100%;
@@ -510,6 +523,50 @@
       </div>
     </div>
   </div>
+
+  <!-- API 명세 -->
+  <div class="api-section">
+    <div class="api-title">📡 Related API</div>
+    <table class="api-table">
+      <thead>
+        <tr>
+          <th>API ID</th>
+          <th>Method</th>
+          <th>Endpoint</th>
+          <th>설명</th>
+          <th>파라미터</th>
+          <th>인증</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>API_USR_0033</td>
+          <td><span class="method get">GET</span></td>
+          <td class="endpoint">/api/users/me/inquiries</td>
+          <td>내가 작성한 문의 목록 조회</td>
+          <td>page, size</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_USR_0034</td>
+          <td><span class="method get">GET</span></td>
+          <td class="endpoint">/api/users/me/inquiries/{id}</td>
+          <td>문의 상세, 답변 조회</td>
+          <td>—</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+        <tr>
+          <td>API_INQ_0020</td>
+          <td><span class="method post">POST</span></td>
+          <td class="endpoint">/api/inquiries</td>
+          <td>1:1 문의 등록</td>
+          <td>title, content (body)</td>
+          <td><span class="auth-user">🔒 회원</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
 </body>
 
 </html>
