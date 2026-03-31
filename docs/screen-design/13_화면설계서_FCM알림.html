@@ -743,7 +743,7 @@
             </nav>
             <div class="ch-actions">
               <!-- 알림 벨 -->
-              <div class="ch-bell">
+              <div class="ch-bell" data-marker="1">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
@@ -764,18 +764,18 @@
 
           <!-- Dropdown -->
           <div class="noti-dropdown">
-            <div class="noti-dropdown-header">
+            <div class="noti-dropdown-header" data-marker="2">
               <h3>🔔 알림</h3>
-              <span>모두 읽음 처리</span>
+              <span data-marker="3">모두 읽음 처리</span>
             </div>
             <div class="noti-list">
-              <div class="noti-item unread">
+              <div class="noti-item unread" data-marker="4">
                 <div class="noti-icon festival">🎪</div>
                 <div class="noti-content">
                   <div class="noti-msg">즐겨찾기한 <strong>'여의도 봄꽃 축제'</strong>가 내일 시작됩니다!</div>
                   <div class="noti-time">1시간 전</div>
                 </div>
-                <div class="noti-unread-dot"></div>
+                <div class="noti-unread-dot" data-marker="5"></div>
               </div>
               <div class="noti-item unread">
                 <div class="noti-icon notice">📢</div>
@@ -801,16 +801,11 @@
                 </div>
               </div>
             </div>
-            <div class="noti-dropdown-footer"><a href="#">전체 알림 보기 →</a></div>
+            <div class="noti-dropdown-footer" data-marker="6"><a href="#">전체 알림 보기 →</a></div>
           </div>
         </div>
 
-        <div class="marker" style="top: 25px; right: 100px;">1</div>
-        <div class="marker" style="top: 80px; left: 380px;">2</div>
-        <div class="marker" style="top: 80px; right: 38px;">3</div>
-        <div class="marker" style="top: 150px; left: 380px;">4</div>
-        <div class="marker" style="top: 200px; right: 38px;">5</div>
-        <div class="marker" style="bottom: 350px; left: 550px;">6</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <div class="description-area">
@@ -851,6 +846,17 @@
             <td class="desc-text"><strong>전체 알림 보기</strong><br>하단 푸터 영역 클릭 시 마이페이지 알림 전체 내역으로 이동</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>벨 아이콘 클릭 (Toggle Dropdown)</strong><br>· 트리거: 🔔 벨 아이콘 클릭<br>· 동작: 알림 드롭다운 토글 (외부 클릭 시 닫기)<br>· API: <code>GET /api/users/me/notifications</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>모두 읽음 처리 (Read All)</strong><br>· 트리거: [모두 읽음] 텍스트 클릭<br>· 동작: 모든 알림 읽음 상태 변경 + 배지 0<br>· API: <code>PATCH /api/users/me/notifications/read-all</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>알림 항목 클릭 (Navigate)</strong><br>· 트리거: 개별 알림 아이템 클릭<br>· 동작: 해당 페이지(축제 상세/공지/커뮤니티)로 이동 + 읽음 처리</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>전체 알림 보기 (View All)</strong><br>· 트리거: [전체 알림 보기 →] 클릭<br>· 동작: 마이페이지 알림 전체 내역 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>FCM 푸시 수신 (Real-time)</strong><br>· 트리거: 서버에서 FCM 푸시 발송<br>· 동작: 배지 카운트 +1 + 드롭다운 목록 갱신</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>· API: GET /api/users/me/notifications<br>· 🔒 로그인 필수<br>· 알림 유형: FESTIVAL_START, FESTIVAL_END, NOTICE,
@@ -913,16 +919,16 @@
 
           <div class="mypage-container">
             <div class="mypage-title">⚙️ 설정</div>
-            <div class="setting-section">
+            <div class="setting-section" data-marker="1">
               <h3>🔔 알림 설정</h3>
               <div class="setting-item">
                 <div>
-                  <div class="setting-label">전체 푸시 알림</div>
+                  <div class="setting-label" data-marker="2">전체 푸시 알림</div>
                   <div class="setting-desc">브라우저 푸시 알림을 받습니다</div>
                 </div>
-                <div class="toggle on"></div>
+                <div class="toggle on" data-marker="3"></div>
               </div>
-              <div class="setting-item">
+              <div class="setting-item" data-marker="4">
                 <div>
                   <div class="setting-label">축제 시작 알림</div>
                   <div class="setting-desc">즐겨찾기한 축제 시작 D-1에 알림</div>
@@ -941,7 +947,7 @@
                   <div class="setting-label">공지사항 알림</div>
                   <div class="setting-desc">새 공지사항 등록 시 알림</div>
                 </div>
-                <div class="toggle off"></div>
+                <div class="toggle off" data-marker="5"></div>
               </div>
               <div class="setting-item">
                 <div>
@@ -954,11 +960,7 @@
           </div>
         </div>
 
-        <div class="marker" style="top: 190px; left: 50px;">1</div>
-        <div class="marker" style="top: 195px; left: 280px;">2</div>
-        <div class="marker" style="top: 240px; right: 70px;">3</div>
-        <div class="marker" style="top: 290px; left: 50px;">4</div>
-        <div class="marker" style="top: 455px; right: 70px;">5</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <div class="description-area">
@@ -996,6 +998,15 @@
             <td class="desc-text"><strong>개별 항목 OFF 상태</strong><br>마스터 토글이 ON이더라도 개별적으로 끄기 가능</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>마스터 토글 ON (Enable All)</strong><br>· 트리거: 전체 푸시 알림 토글 ON<br>· 동작: 브라우저 권한 요청 → FCM 토큰 발급 → 서버 전달<br>· API: <code>POST /api/users/me/fcm-token</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>마스터 토글 OFF (Disable All)</strong><br>· 트리거: 전체 푸시 알림 토글 OFF<br>· 동작: 모든 하위 항목 OFF + FCM 토큰 삭제</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>개별 항목 토글 (Toggle Item)</strong><br>· 트리거: 세부 알림 항목 토글 클릭<br>· 동작: 해당 유형 ON/OFF 변경 + DB 동기화<br>· API: <code>PATCH /api/users/me/settings/notifications</code></td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>· API: POST /api/users/me/fcm-token<br>· API: PATCH /api/users/me/settings/notifications<br>· 프론트엔드
@@ -1028,7 +1039,7 @@
     <div class="main-content">
       <div class="screen-area">
         <div class="browser-perm">
-          <div class="browser-bar">
+          <div class="browser-bar" data-marker="1">
             <div class="dot" style="background:#ff5f57"></div>
             <div class="dot" style="background:#febc2e"></div>
             <div class="dot" style="background:#28c840"></div>
@@ -1044,12 +1055,12 @@
           <div class="browser-dialog">
             <div class="browser-dialog-top">
               <span class="lock">🔔</span>
-              <span class="dialog-text"><strong>ieum.com</strong>에서 사용자에게 다음 권한을 요청합니다:<br><span
+              <span class="dialog-text" data-marker="2"><strong>ieum.com</strong>에서 사용자에게 다음 권한을 요청합니다:<br><span
                   style="color:#64748b;margin-top:4px;display:block;">• 알림 표시</span></span>
             </div>
             <div class="browser-dialog-btns">
-              <button>차단</button>
-              <button class="allow">허용</button>
+              <button data-marker="3">차단</button>
+              <button class="allow" data-marker="4">허용</button>
             </div>
           </div>
         </div>
@@ -1076,11 +1087,7 @@
           </div>
         </div>
 
-        <div class="marker" style="top: 70px; left: 240px;">1</div>
-        <div class="marker" style="top: 130px; left: 290px;">2</div>
-        <div class="marker" style="top: 200px; left: 470px;">3</div>
-        <div class="marker" style="top: 200px; left: 540px;">4</div>
-        <div class="marker" style="top: 350px; left: 210px;">5</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <div class="description-area">
@@ -1122,6 +1129,34 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

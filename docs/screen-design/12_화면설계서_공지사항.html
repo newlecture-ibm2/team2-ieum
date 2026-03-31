@@ -868,7 +868,7 @@
     <div class="main-content">
       <div class="screen-area">
         <div class="wire">
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -899,10 +899,10 @@
             </div>
           </div>
           <div class="notice-container">
-            <div class="notice-title-bar">
+            <div class="notice-title-bar" data-marker="2">
               <h2><span>📢</span>공지사항</h2>
             </div>
-            <div class="common-search-bar">
+            <div class="common-search-bar" data-marker="3">
               <div class="search-left">
                 <select>
                   <option>전체</option>
@@ -923,7 +923,7 @@
                 <option>조회순</option>
               </select>
             </div>
-            <table class="notice-table">
+            <table class="notice-table" data-marker="4">
               <thead>
                 <tr>
                   <th style="width:50px">No</th>
@@ -936,10 +936,10 @@
               <tbody>
                 <tr>
                   <td>5</td>
-                  <td class="title-cell">📌 봄 축제 시즌 안내 - 전국 축제 일정 총정리</td>
+                  <td class="title-cell" data-marker="5">📌 봄 축제 시즌 안내 - 전국 축제 일정 총정리</td>
                   <td>2026.03.20</td>
                   <td>1,234</td>
-                  <td><span class="badge badge-popup">팝업</span></td>
+                  <td><span class="badge badge-popup" data-marker="6">팝업</span></td>
                 </tr>
                 <tr>
                   <td>4</td>
@@ -971,7 +971,7 @@
                 </tr>
               </tbody>
             </table>
-            <div class="notice-pagination">
+            <div class="notice-pagination" data-marker="7">
               <span>◀</span><span class="active">1</span><span>2</span><span>3</span><span>▶</span>
             </div>
           </div>
@@ -1012,13 +1012,7 @@
             <div class="cf-bottom">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</div>
           </div>
         </div>
-        <div class="marker" style="top:58px;left:500px">1</div>
-        <div class="marker" style="top:95px;left:150px">2</div>
-        <div class="marker" style="top:95px;right:50px">3</div>
-        <div class="marker" style="top:200px;left:20px">4</div>
-        <div class="marker" style="top:225px;left:325px">5</div>
-        <div class="marker" style="top:230px;right:50px">6</div>
-        <div class="marker" style="top:480px;left:280px">7</div>
+        <!-- 동적 마커 (JS) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -1065,6 +1059,16 @@
             <td class="desc-text"><strong>페이지네이션</strong><br>◀ ▶ 이전/다음 + 페이지 번호<br>GET /api/notices?page=N&size=10</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>검색 실행 (Search)</strong><br>· 트리거: 검색 버튼 클릭 / Enter<br>· 동작: 제목/내용 기반 공지사항 검색<br>· API: <code>GET /api/notices?keyword={keyword}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>정렬 변경 (Sort)</strong><br>· 트리거: 정렬 드롭다운 변경<br>· 동작: 최신순/조회순 재정렬</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>공지 제목 클릭 (Navigate Detail)</strong><br>· 트리거: 공지 제목 클릭<br>· 동작: /notices/{noticeId} 상세 페이지(UI-NTC-002) 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>페이지네이션 (Pagination)</strong><br>· 트리거: ◀▶ / 페이지 번호 클릭<br>· 동작: 서버사이드 페이징<br>· API: <code>GET /api/notices?page={N}&size=10</code></td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>· API: GET /api/notices?page=1&size=10<br>· 제목 클릭 → /notices/{noticeId} 이동<br>· 팝업 공지는 메인 진입 시 UI-NTC-003
@@ -1130,12 +1134,12 @@
           <div class="detail-container">
             <div style="font-size:11px;color:#888;margin-bottom:12px">공지사항 &gt; 상세</div>
             <div class="detail-header">
-              <div class="detail-title">📌 봄 축제 시즌 안내 - 전국 축제 일정 총정리</div>
-              <div class="detail-meta">
+              <div class="detail-title" data-marker="1">📌 봄 축제 시즌 안내 - 전국 축제 일정 총정리</div>
+              <div class="detail-meta" data-marker="2">
                 <span>📅 2026.03.20</span><span>👁 조회수 1,234</span><span>✍️ 관리자</span>
               </div>
             </div>
-            <div class="detail-body">
+            <div class="detail-body" data-marker="3">
               안녕하세요, Festa-Connect입니다.<br><br>
               2026년 봄 축제 시즌이 시작되었습니다! 🌸<br><br>
               전국 각지에서 다양한 축제가 열리고 있으니, 달력 페이지에서 일정을 확인해보세요.<br><br>
@@ -1146,11 +1150,11 @@
               축제 상세 정보는 전국축제 메뉴에서 확인하실 수 있습니다.<br>
               감사합니다. 🎉
             </div>
-            <div class="detail-nav">
+            <div class="detail-nav" data-marker="4">
               <span>◀ 이전글: 서비스 점검 안내</span>
               <span>다음글: 이벤트 당첨자 발표 ▶</span>
             </div>
-            <div class="detail-back"><button>목록으로</button></div>
+            <div class="detail-back" data-marker="5"><button>목록으로</button></div>
           </div>
           <div class="common-footer">
             <div class="cf-top">
@@ -1189,11 +1193,7 @@
             <div class="cf-bottom">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</div>
           </div>
         </div>
-        <div class="marker" style="top:140px;left:30px">1</div>
-        <div class="marker" style="top:169px;left:290px">2</div>
-        <div class="marker" style="top:280px;left:280px">3</div>
-        <div class="marker" style="top:540px;left:180px">4</div>
-        <div class="marker" style="top:590px;left:315px">5</div>
+        <!-- 동적 마커 (JS) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -1226,6 +1226,14 @@
             <td class="desc-text"><strong>목록으로 버튼</strong><br>클릭 시 공지사항 목록(UI-NTC-001)으로 이동<br>이전 검색/페이지 상태 유지</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>이전글/다음글 이동 (Navigate Prev/Next)</strong><br>· 트리거: ◀/▶ 텍스트 클릭<br>· 동작: 해당 공지 상세 페이지 이동<br>· 첫/마지막 글 비활성 처리</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>목록으로 이동 (Back to List)</strong><br>· 트리거: [목록으로] 버튼 클릭<br>· 동작: 공지사항 목록(UI-NTC-001) 이동<br>· 이전 검색/페이지 상태 유지</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>· API: GET /api/notices/{noticeId}<br>· 존재하지 않는 noticeId → 404 에러 페이지<br>· 브레드크럼: 공지사항 > 상세</p>
@@ -1258,13 +1266,13 @@
       <div class="screen-area">
         <div class="popup-overlay">
           <div class="popup-modal">
-            <div class="popup-modal-header">
+            <div class="popup-modal-header" data-marker="1">
               <span>📢 공지사항</span>
-              <span class="popup-modal-close">✕</span>
+              <span class="popup-modal-close" data-marker="2">✕</span>
             </div>
             <div class="popup-modal-body">
-              <div class="popup-dday">D-7</div>
-              <div class="popup-text">
+              <div class="popup-dday" data-marker="3">D-7</div>
+              <div class="popup-text" data-marker="4">
                 <strong>🌸 봄 축제 시즌 안내</strong><br><br>
                 2026년 봄 축제가 곧 시작됩니다!<br>
                 전국 축제 일정을 달력에서 확인해보세요.<br><br>
@@ -1273,16 +1281,11 @@
             </div>
             <div class="popup-modal-footer">
               <label><input type="checkbox"> 오늘 하루 안보기</label>
-              <button>자세히 보기</button>
+              <button data-marker="6">자세히 보기</button>
             </div>
           </div>
         </div>
-        <div class="marker" style="top:60px;left:300px">1</div>
-        <div class="marker" style="top:60px;right:200px">2</div>
-        <div class="marker" style="top:130px;left:320px">3</div>
-        <div class="marker" style="top:200px;left:200px">4</div>
-        <div class="marker" style="top:340px;left:200px">5</div>
-        <div class="marker" style="top:330px;right:210px">6</div>
+        <!-- 동적 마커 (JS) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -1319,6 +1322,15 @@
             <td class="desc-text"><strong>자세히 보기 버튼</strong><br>클릭 시 해당 공지 상세(UI-NTC-002)로 이동</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>팝업 닫기 (Close Popup)</strong><br>· 트리거: ✕ 버튼 클릭 / 딤 영역 클릭<br>· 동작: 팝업 모달 닫기</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>오늘 하루 안보기 (Dismiss Today)</strong><br>· 트리거: 체크박스 체크 + 닫기<br>· 동작: localStorage에 날짜 저장 → 당일 재표시 안 함</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>자세히 보기 (View Detail)</strong><br>· 트리거: [자세히 보기] 버튼 클릭<br>· 동작: 해당 공지 상세(UI-NTC-002) 페이지 이동</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>· 트리거: 메인 페이지 마운트 시 isPopup=true 공지 조회<br>· 복수 팝업 공지 시 최신 1개만 표시<br>· localStorage 키:
@@ -1330,6 +1342,34 @@
 
 
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

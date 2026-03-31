@@ -400,7 +400,7 @@
     <div class="main-content">
       <div class="screen-area">
         <div class="mockup-ui">
-          <div class="sidebar">
+          <div class="sidebar" data-marker="1">
             <div class="sidebar-brand">
               <div class="ch-pin-admin">
                 <div class="ch-pin-inner-admin"></div>
@@ -420,10 +420,10 @@
           <div class="content-area">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;">📢 공지사항 관리</h1>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">📢 공지사항 관리</h1>
                 <p style="font-size: 12px; color: #94a3b8;">공지사항을 등록·수정·삭제하고 팝업을 설정합니다</p>
               </div>
-              <div style="display: flex; gap: 8px;">
+              <div style="display: flex; gap: 8px;" data-marker="3">
                 <button
                   style="background: #6c5ce7; color: #fff; border: none; padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer;">+
                   공지 작성</button>
@@ -436,7 +436,7 @@
             <!-- 공지사항 목록 테이블 -->
             <div
               style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 11px;" data-marker="4">
                 <thead>
                   <tr style="border-bottom: 2px solid #e2e8f0;">
                     <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">제목</th>
@@ -489,7 +489,7 @@
 
             <!-- 공지 작성/수정 폼 -->
             <div style="background: #fff; border-radius: 12px; padding: 20px; border: 2px dashed #d8b4fe;">
-              <div style="font-weight: 700; font-size: 14px; color: #6c5ce7; margin-bottom: 14px;">📝 공지 작성 / 수정</div>
+              <div style="font-weight: 700; font-size: 14px; color: #6c5ce7; margin-bottom: 14px;" data-marker="5">📝 공지 작성 / 수정</div>
               <div style="margin-bottom: 10px;">
                 <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">제목</label>
                 <div
@@ -518,7 +518,7 @@
                         style="width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; right: 2px; top: 2px;">
                       </div>
                     </div>
-                    <span style="font-size: 11px; color: #6c5ce7; font-weight: 600;">팝업 ON</span>
+                    <span style="font-size: 11px; color: #6c5ce7; font-weight: 600;" data-marker="6">팝업 ON</span>
                   </div>
                 </div>
               </div>
@@ -532,13 +532,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <div class="marker" style="top: 3%; left: 1%;">1</div>
-        <div class="marker" style="top: 5%; left: 25%;">2</div>
-        <div class="marker" style="top: 7%; right: 5%;">3</div>
-        <div class="marker" style="top: 12%; left: 26%;">4</div>
-        <div class="marker" style="top: 45%; left: 26%;">5</div>
-        <div class="marker" style="top: 60%; right: 15%;">6</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <!-- Description -->
@@ -612,6 +606,18 @@
           </tr>
         </table>
 
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>공지 작성 (Create)</strong><br>· 트리거: [+ 공지 작성] 버튼 클릭 → 폼 작성 → [등록]<br>· 동작: 제목/내용/첨부파일 전송<br>· API: <code>POST /api/admin/notices</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>공지 수정 (Update)</strong><br>· 트리거: ✏️ 버튼 클릭 → 폼에 기존 데이터 pre-fill → [등록]<br>· 동작: 공지 정보 수정<br>· API: <code>PUT /api/admin/notices/{id}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>공지 삭제 (Delete)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → 공지 + 첨부파일 삭제<br>· API: <code>DELETE /api/admin/notices/{id}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>팝업 설정 토글 (Toggle Popup)</strong><br>· 트리거: 팝업 ON/OFF 토글 클릭<br>· 동작: isPopup 필드 변경 → 메인 페이지 팝업 노출 여부 제어<br>· 복수 팝업 시 최신 1개만 노출</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>팝업 설정 모달 (Popup Config)</strong><br>· 트리거: [⚙ 팝업 설정] 버튼 클릭<br>· 동작: 팝업 표시 공지 선택 모달 표시</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
@@ -677,6 +683,34 @@
       </table>
     </div>
   </div>
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

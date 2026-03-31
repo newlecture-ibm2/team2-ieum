@@ -825,7 +825,7 @@
       <div class="screen-area">
         <div class="wire">
           <!-- 공통 헤더 -->
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -857,13 +857,13 @@
           </div>
 
           <!-- 히어로 배너 (탭 없음) -->
-          <div class="hero-banner">
+          <div class="hero-banner" data-marker="2">
             <div class="hero-title">지난축제</div>
             <div class="hero-sub">아쉽게 놓친 축제들의 후기를 확인해보세요 ⏳</div>
           </div>
 
           <!-- 검색/필터 바 -->
-          <div class="common-search-bar">
+          <div class="common-search-bar" data-marker="3">
             <div class="search-left">
               <div class="search-input-wrap">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -897,7 +897,7 @@
           </div>
 
           <!-- 카드 그리드 (종료 배지) -->
-          <div class="card-grid">
+          <div class="card-grid" data-marker="4">
             <!-- 1 -->
             <div class="fest-card">
               <div class="fest-card-img" style="background:#e2e8f0;">
@@ -997,7 +997,7 @@
           </div>
 
           <!-- 페이지네이션 -->
-          <div class="pagination">
+          <div class="pagination" data-marker="5">
             <span>◀</span>
             <span class="active">1</span>
             <span>2</span>
@@ -1046,20 +1046,7 @@
           </div>
         </div>
 
-        <!-- ① GNB 상단 네비게이션 -->
-        <div class="marker" style="top: 35px; left: 210px;">1</div>
-
-        <!-- ② 검색바 -->
-        <div class="marker" style="top: 175px; left: 160px;">2</div>
-
-        <!-- ③ 필터 + 정렬 드롭다운 -->
-        <div class="marker" style="top: 175px; right: 50px;">3</div>
-
-        <!-- ④ 종료 배지 카드 그리드 -->
-        <div class="marker" style="top: 290px; left: 50px;">4</div>
-
-        <!-- ⑤ 페이지네이션 + 리스트 토글 -->
-        <div class="marker" style="bottom: 300px; left: 270px;">5</div>
+                <!-- 동적 마커 (JS) -->
       </div>
 
       <!-- 오른쪽: 설명 -->
@@ -1091,8 +1078,7 @@
             <td class="desc-text">
               <strong>검색바</strong><br>
               "검색" 플레이스홀더 텍스트<br>
-              축제명, 지역, 키워드로 종료된 축제 검색<br>
-              Enter 또는 버튼 클릭으로 검색 실행
+              축제명, 지역, 키워드로 종료된 축제 검색
             </td>
           </tr>
           <tr>
@@ -1101,8 +1087,7 @@
               <strong>필터 + 정렬 드롭다운</strong><br>
               "지역/테마" 버튼 — 지역별/카테고리별 상세 필터<br>
               정렬 드롭다운 (최신순, 인기순 등)<br>
-              필터 변경 시 API 재호출하여 카드 목록 갱신
-            </td>
+                          </td>
           </tr>
           <tr>
             <td class="num">4</td>
@@ -1114,8 +1099,7 @@
               · <strong>"종료"</strong> 배지 오버레이 (우상단, 회색 배지)<br>
               · 축제 이름 (우측 아이콘 오버레이)<br>
               · 기간 및 별점/리뷰 수<br>
-              카드 클릭 → 축제 상세 페이지 이동
-            </td>
+                          </td>
           </tr>
           <tr>
             <td class="num">5</td>
@@ -1125,6 +1109,18 @@
               서버사이드 페이징 (page, size 파라미터)
             </td>
           </tr>
+        </table>
+
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>검색 실행 (Search)</strong><br>· 트리거: 검색 버튼 클릭 / Enter<br>· 동작: 종료 축제 키워드 검색 + 카드 목록 갱신<br>· API: <code>GET /api/festivals?status=ended&keyword={keyword}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>필터 모달 열기/적용 (Filter)</strong><br>· 트리거: [지역/테마] 버튼 클릭<br>· 동작: 필터 모달 표시 → 적용 시 필터 태그 표시 + 목록 갱신</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>필터 태그 제거 (Remove Tag)</strong><br>· 트리거: 태그 ✕ 클릭<br>· 동작: 해당 필터 해제 + 목록 갱신</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>카드 클릭 (Navigate to Detail)</strong><br>· 트리거: 축제 카드 클릭<br>· 동작: /festivals/{festivalId} 상세 페이지 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>정렬 변경 (Sort)</strong><br>· 트리거: 정렬 드롭다운 변경<br>· 동작: 최신순/인기순/조회순 재정렬</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>페이지네이션 (Pagination)</strong><br>· 트리거: ◀▶ / 페이지 번호 클릭<br>· 동작: 서버사이드 페이징 (page, size)</td></tr>
         </table>
 
         <div class="checkpoint">
@@ -1177,6 +1173,34 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

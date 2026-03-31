@@ -401,7 +401,7 @@
       <div class="screen-area">
         <div class="mockup-ui">
           <!-- 사이드바 -->
-          <div class="sidebar">
+          <div class="sidebar" data-marker="1">
             <div class="sidebar-brand">
               <div class="ch-pin-admin">
                 <div class="ch-pin-inner-admin"></div>
@@ -563,13 +563,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <div class="marker" style="top: 3%; left: 1%;">1</div>
-        <div class="marker" style="top: 7%; left: 22%;">2</div>
-        <div class="marker" style="top: 10%; left: 19%;">3</div>
-        <div class="marker" style="top: 25%; left: 18%;">4</div>
-        <div class="marker" style="top: 24%; left: 28%;">5</div>
-        <div class="marker" style="top: 45%; right: 5%;">6</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <!-- Description -->
@@ -650,6 +644,17 @@
           </tr>
         </table>
 
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>수동 갱신 (Sync Data)</strong><br>· 트리거: [수동 갱신] 버튼 클릭<br>· 동작: data.go.kr API 호출 → 축제 데이터 동기화<br>· API: <code>POST /api/admin/festivals/sync</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 축제 상세 페이지 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>노출/숨김 토글 (Toggle Visibility)</strong><br>· 트리거: ✏️ 버튼 클릭<br>· 동작: isVisible 토글 → 사용자 화면 노출 여부 변경<br>· API: <code>PATCH /api/admin/festivals/{id}/visibility</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>축제 삭제 (Delete Festival)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → isVisible=false 처리 (소프트 삭제)</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
@@ -707,6 +712,34 @@
       </table>
     </div>
   </div>
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

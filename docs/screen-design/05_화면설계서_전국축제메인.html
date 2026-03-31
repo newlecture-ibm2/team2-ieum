@@ -757,7 +757,7 @@
       <div class="screen-area">
         <div class="wire">
           <!-- 공통 헤더 -->
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -789,7 +789,7 @@
           </div>
 
           <!-- 히어로 배너 + 탭 -->
-          <div class="hero-banner">
+          <div class="hero-banner" data-marker="2">
             <div class="hero-title">전국축제</div>
             <div class="hero-sub">전국의 다양한 축제 정보를 만나보세요 🎉</div>
             <div class="tab-pills">
@@ -801,7 +801,7 @@
           </div>
 
           <!-- 검색/필터 (공통 Type A) -->
-          <div class="common-search-bar">
+          <div class="common-search-bar" data-marker="3">
             <div class="search-left">
               <div class="search-input-wrap">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -810,7 +810,7 @@
                 </svg>
                 <input type="text" placeholder="축제명, 지역 검색">
               </div>
-              <button class="filter-btn">
+              <button class="filter-btn" data-marker="4">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
@@ -829,13 +829,13 @@
           </div>
 
           <!-- 필터 태그 -->
-          <div class="filter-tags">
+          <div class="filter-tags" data-marker="5">
             <div class="filter-tag">서울 <span class="tag-close">✕</span></div>
             <div class="filter-tag">축제 <span class="tag-close">✕</span></div>
           </div>
 
           <!-- 축제 카드 그리드 -->
-          <div class="card-grid">
+          <div class="card-grid" data-marker="6">
             <div class="fest-card">
               <div class="fest-card-img" style="background:linear-gradient(135deg,#f0abfc,#c084fc)">
                 <span class="card-badge badge-ongoing">진행중</span>
@@ -929,7 +929,7 @@
           </div>
 
           <!-- 페이지네이션 -->
-          <div class="pagination">
+          <div class="pagination" data-marker="8">
             <span>◀</span>
             <span class="active">1</span>
             <span>2</span>
@@ -978,15 +978,7 @@
           </div>
         </div>
 
-        <!-- 마커: 1=헤더, 2=히어로+탭, 3=검색바, 4=필터버튼, 5=필터태그, 6=카드그리드, 7=찜, 8=페이지네이션 -->
-        <div class="marker" style="top:36px;right:28px">1</div>
-        <div class="marker" style="top:150px;left:28px">2</div>
-        <div class="marker" style="top:220px;left:28px">3</div>
-        <div class="marker" style="top:220px;left:320px">4</div>
-        <div class="marker" style="top:270px;left:28px">5</div>
-        <div class="marker" style="top:320px;left:28px">6</div>
-        <div class="marker" style="top:320px;right:28px">7</div>
-        <div class="marker" style="top:630px;left:270px">8</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
 
       <div class="description-area">
@@ -1003,45 +995,113 @@
         <table class="desc-table">
           <tr>
             <td class="num">1</td>
-            <td class="desc-text"><strong>GNB 네비게이션 (공통 헤더)</strong><br>현재 "전국축제" 탭 활성 표시<br>🔔 알림 아이콘 (로그인 시 알림 드롭다운
-              연동)</td>
+            <td class="desc-text"><strong>GNB 네비게이션 (공통 헤더)</strong><br>현재 "전국축제" 탭 활성 표시<br>🔔 알림 아이콘 + 👤 마이페이지 아이콘</td>
           </tr>
           <tr>
             <td class="num">2</td>
-            <td class="desc-text"><strong>탭 필터 (상태 전환)</strong><br>· <strong>전체</strong> — 모든 축제 표시 (기본
-              활성)<br>· <strong>진행중</strong> — status=ongoing<br>· <strong>진행전</strong> —
-              status=upcoming<br>· <strong>지도</strong> — 지도 뷰 화면 전환</td>
+            <td class="desc-text"><strong>히어로 배너 + 탭 필터</strong><br>· 퍼플 그라데이션 히어로 영역<br>· Pill 스타일 탭: 전체 / 진행중 / 진행전 / 🗺️ 지도</td>
           </tr>
           <tr>
             <td class="num">3</td>
-            <td class="desc-text"><strong>검색/필터 영역 (공통 Type A)</strong><br>검색바 + 필터 버튼(모달) + 퍼플 검색 버튼<br>우측
-              정렬 드롭다운 (최신순/인기순/별점순)<br>공통 스타일: 라운드 10px 카드, #f8f9fa 입력 배경</td>
+            <td class="desc-text"><strong>검색/필터 영역 (공통 Type A)</strong><br>검색바 + 필터 버튼 + 퍼플 검색 버튼<br>우측 정렬 드롭다운 (최신순/인기순/별점순)<br>공통 스타일: 라운드 10px 카드, #f8f9fa 입력 배경</td>
           </tr>
           <tr>
             <td class="num">4</td>
-            <td class="desc-text"><strong>필터 버튼</strong><br>클릭 시 지역별/카테고리별 필터 모달 표시<br>선택된 필터는 하단에 태그로 표시</td>
+            <td class="desc-text"><strong>필터 버튼</strong><br>지역별/카테고리별 필터 모달 트리거 버튼</td>
           </tr>
           <tr>
             <td class="num">5</td>
-            <td class="desc-text"><strong>필터 태그</strong><br>적용된 필터를 퍼플 태그로 표시<br>✕ 클릭 시 해당 필터 해제<br>필터 변경 시 카드
-              목록 자동 갱신</td>
+            <td class="desc-text"><strong>필터 태그</strong><br>적용된 필터를 퍼플 태그로 표시<br>✕ 버튼으로 개별 해제 가능</td>
           </tr>
           <tr>
             <td class="num">6</td>
-            <td class="desc-text"><strong>축제 카드 그리드</strong><br>3열 카드 레이아웃<br>카드 구성: 대표이미지, 진행상태 배지, 찜하기(♡),
-              축제명, 기간, ★ 별점(리뷰 수)<br>카드 클릭 → /festivals/{id} 상세 이동</td>
+            <td class="desc-text"><strong>축제 카드 그리드</strong><br>3열 카드 레이아웃<br>카드 구성: 대표이미지 + 진행상태 배지 + 찜♡ + 축제명 + 기간 + ★ 별점(리뷰 수)</td>
           </tr>
           <tr>
             <td class="num">7</td>
-            <td class="desc-text"><strong>찜하기 (♡/❤️)</strong><br>비로그인 시 로그인 유도 팝업<br>로그인 시 토글 방식으로
-              찜/찜해제<br>POST /api/festivals/{id}/scrap</td>
+            <td class="desc-text"><strong>찜하기 아이콘 (♡/❤️)</strong><br>카드 우상단 하트 아이콘</td>
           </tr>
           <tr>
             <td class="num">8</td>
-            <td class="desc-text"><strong>페이지네이션</strong><br>◀ 1 2 3 4 5 ▶ 형태<br>서버사이드 페이징 (page, size
-              파라미터)</td>
+            <td class="desc-text"><strong>페이지네이션</strong><br>◀ 1 2 3 4 5 ▶ 형태</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>탭 필터 전환 (Switch Tab)</strong><br>
+              · 트리거: 전체/진행중/진행전/지도 탭 클릭<br>
+              · 동작: URL의 status 쿼리 파라미터 변경 + API 재호출<br>
+              · 지도 탭 클릭 시: 지도 뷰 화면(UI-F-002)으로 전환<br>
+              · API: <code>GET /api/festivals?status={status}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>검색 실행 (Execute Search)</strong><br>
+              · 트리거: 검색 버튼 클릭 또는 Enter 입력<br>
+              · 동작: 키워드 기반 축제 검색 + 결과 카드 갱신<br>
+              · API: <code>GET /api/festivals?keyword={keyword}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>필터 모달 열기/적용 (Open/Apply Filter)</strong><br>
+              · 트리거: [필터] 버튼 클릭<br>
+              · 동작: 지역별/카테고리별 필터 모달 표시<br>
+              · 적용 시: 하단에 필터 태그 표시 + 카드 목록 갱신
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>필터 태그 제거 (Remove Filter Tag)</strong><br>
+              · 트리거: 태그 ✕ 클릭<br>
+              · 동작: 해당 필터 해제 + URL 파라미터 업데이트 + 목록 즉시 갱신
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>카드 클릭 (Navigate to Detail)</strong><br>
+              · 트리거: 축제 카드 클릭<br>
+              · 동작: /festivals/{festivalId} 상세 페이지로 라우팅 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>찜하기 토글 (Toggle Scrap)</strong><br>
+              · 트리거: ♡ 아이콘 클릭<br>
+              · 비로그인: 로그인 유도 팝업 표시<br>
+              · 로그인 시: 찜/찜해제 토글<br>
+              · API: <code>POST /api/festivals/{id}/scrap</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E7</td>
+            <td class="desc-text">
+              <strong>정렬 변경 (Change Sort)</strong><br>
+              · 트리거: 정렬 드롭다운 선택 변경<br>
+              · 동작: 최신순/인기순/별점순으로 카드 재정렬
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E8</td>
+            <td class="desc-text">
+              <strong>페이지 전환 (Pagination)</strong><br>
+              · 트리거: 페이지 번호 또는 ◀▶ 클릭<br>
+              · 동작: 서버사이드 페이징 (page, size 파라미터) + 카드 목록 갱신
+            </td>
+          </tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
@@ -1057,6 +1117,45 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(screenArea) {
+      var areaRect = screenArea.getBoundingClientRect();
+      screenArea.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      var targets = screenArea.querySelectorAll('[data-marker]');
+      targets.forEach(function(target) {
+        var num = target.getAttribute('data-marker');
+        var tRect = target.getBoundingClientRect();
+        var isButton = (target.tagName === 'BUTTON');
+        var marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.textContent = num;
+        var top, left;
+        if (isButton) {
+          top = tRect.top - areaRect.top - 32;
+          left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+        } else {
+          top = tRect.top - areaRect.top;
+          left = tRect.right - areaRect.left + 6;
+        }
+        if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+        if (left < 0) left = 4;
+        if (top < 0) top = 4;
+        marker.style.top = top + 'px';
+        marker.style.left = left + 'px';
+        screenArea.appendChild(marker);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

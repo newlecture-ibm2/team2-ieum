@@ -797,7 +797,7 @@
       <div class="screen-area">
         <div class="wire">
           <!-- 공통 헤더 -->
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -829,7 +829,7 @@
           </div>
 
           <!-- 히어로 배너 + 탭 -->
-          <div class="hero-banner">
+          <div class="hero-banner" data-marker="2">
             <div class="hero-title">전국축제</div>
             <div class="hero-sub">지도로 전국의 축제를 한눈에 탐색하세요 🗺️</div>
             <div class="tab-pills">
@@ -843,7 +843,7 @@
           <!-- 지도 영역 -->
           <div class="map-body" style="min-height: 420px;">
             <!-- 필터 사이드바 -->
-            <div class="filter-sidebar">
+            <div class="filter-sidebar" data-marker="3">
               <div class="filter-section-title">지역 필터</div>
               <select class="filter-select">
                 <option>▼ 시/도 선택</option>
@@ -891,7 +891,7 @@
             </div>
 
             <!-- 카카오맵 영역 -->
-            <div class="map-area">
+            <div class="map-area" data-marker="4">
               <!-- 세계→한국 진입 효과 안내 텍스트 (초기 로딩 시) -->
               <div
                 style="position:absolute; top:6px; left:50%; transform:translateX(-50%); background:linear-gradient(135deg, rgba(108,92,231,0.8), rgba(72,52,212,0.8)); color:#fff; padding:5px 16px; border-radius:20px; font-size:11px; font-weight:600; white-space:nowrap; backdrop-filter:blur(4px);">
@@ -916,7 +916,7 @@
               <div class="pin" style="top:25%; left:65%;">📍</div>
 
               <!-- 인포윈도우 (마커 클릭 시) -->
-              <div class="infowindow" style="top:20%; left:56%;">
+              <div class="infowindow" data-marker="5" style="top:20%; left:56%;">
                 <div style="font-weight:800; font-size:14px; margin-bottom:6px; color:#1e293b;">🎪 보령 머드축제</div>
                 <div style="font-size:11px; color:#64748b; margin-bottom:4px;">📍 충남 보령시 &nbsp;&nbsp; 📅 7/14 ~ 7/23
                 </div>
@@ -928,7 +928,7 @@
               </div>
 
               <!-- GPS / 줌 컨트롤 -->
-              <div class="map-controls">
+              <div class="map-controls" data-marker="6">
                 <div class="map-ctrl-btn" style="font-size:12px;">📍</div>
                 <div class="map-ctrl-btn">+</div>
                 <div class="map-ctrl-btn">−</div>
@@ -937,7 +937,7 @@
           </div>
 
           <!-- 하단 검색 결과 목록 -->
-          <div class="bottom-list">
+          <div class="bottom-list" data-marker="7">
             <div
               style="font-weight:700; font-size:13px; color:#1e293b; margin-bottom:8px; display:flex; justify-content:space-between; align-items:center;">
               <span>📋 검색 결과 목록 (총 41개)</span>
@@ -1012,14 +1012,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <div class="marker" style="top: 36px; right: 28px;">1</div>
-        <div class="marker" style="top: 112px; left: 28px;">2</div>
-        <div class="marker" style="top: 190px; left: 28px;">3</div>
-        <div class="marker" style="top: 200px; left: 355px;">4</div>
-        <div class="marker" style="top: 360px; right: 240px;">5</div>
-        <div class="marker" style="top: 900; right: 28px;">6</div>
-        <div class="marker" style="bottom: 300; right: 40px;">7</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
 
       <!-- Description -->
@@ -1111,6 +1104,86 @@
           </tr>
         </table>
 
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>탭 전환 (Switch View)</strong><br>
+              · 트리거: 전체/진행중/진행전 탭 클릭<br>
+              · 동작: 카드 리스트 뷰(UI-F-001)로 전환 + URL view 파라미터 변경
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>필터 적용/초기화 (Apply/Reset Filter)</strong><br>
+              · 트리거: 사이드바 필터 체크/라디오 변경 또는 [필터 초기화] 클릭<br>
+              · 동작: 지도 마커 + 하단 목록 실시간 갱신<br>
+              · API: <code>GET /api/festivals?region=&status=&category=</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>클러스터 마커 클릭 (Zoom Into Cluster)</strong><br>
+              · 트리거: 퍼플 원형 클러스터 마커 클릭<br>
+              · 동작: 해당 지역으로 줌인 + 하위 개별 마커 분리 표시<br>
+              · 줌아웃 시 자동 클러스터 병합
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>개별 마커 클릭 (Show InfoWindow)</strong><br>
+              · 트리거: 📍 개별 마커 클릭<br>
+              · 동작: 인포윈도우 팝업 표시 (축제명, 위치, 기간, 별점, 조회수)
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>[상세보기 →] 클릭 (Navigate to Detail)</strong><br>
+              · 트리거: 인포윈도우 내 "상세보기 →" 링크 클릭<br>
+              · 동작: /festivals/{festivalId} 상세 페이지로 라우팅 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>GPS 현위치 이동 (Geolocation)</strong><br>
+              · 트리거: 📍 현위치 버튼 클릭<br>
+              · 동작: 브라우저 Geolocation API 호출 → 지도 현재 위치 이동<br>
+              · 권한 미허용 시 안내 팝업 표시
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E7</td>
+            <td class="desc-text">
+              <strong>줌 컨트롤 (+/−)</strong><br>
+              · 트리거: [+] 또는 [−] 버튼 클릭<br>
+              · 동작: 지도 확대/축소 + 줌 레벨에 따라 클러스터 ↔ 개별 마커 전환
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E8</td>
+            <td class="desc-text">
+              <strong>하단 목록 항목 클릭 (Highlight Marker)</strong><br>
+              · 트리거: 목록 행 호버/클릭<br>
+              · 동작: 해당 마커 하이라이트 + 지도 자동 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E9</td>
+            <td class="desc-text">
+              <strong>목록 접기/펼치기 (Toggle List)</strong><br>
+              · 트리거: "▲ 목록 접기" / "▼ 목록 펼치기" 텍스트 클릭<br>
+              · 동작: 하단 목록 열기/접기 토글
+            </td>
+          </tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
@@ -1177,6 +1250,45 @@
       </table>
     </div>
   </div>
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(screenArea) {
+      var areaRect = screenArea.getBoundingClientRect();
+      screenArea.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      var targets = screenArea.querySelectorAll('[data-marker]');
+      targets.forEach(function(target) {
+        var num = target.getAttribute('data-marker');
+        var tRect = target.getBoundingClientRect();
+        var isButton = (target.tagName === 'BUTTON');
+        var marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.textContent = num;
+        var top, left;
+        if (isButton) {
+          top = tRect.top - areaRect.top - 32;
+          left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+        } else {
+          top = tRect.top - areaRect.top;
+          left = tRect.right - areaRect.left + 6;
+        }
+        if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+        if (left < 0) left = 4;
+        if (top < 0) top = 4;
+        marker.style.top = top + 'px';
+        marker.style.left = left + 'px';
+        screenArea.appendChild(marker);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

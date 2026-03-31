@@ -504,14 +504,14 @@
             <div class="screen-area">
                 <div class="marker-wrapper">
                     <div class="preview-header">
-                        <div class="preview-logo">
+                        <div class="preview-logo" data-marker="1">
                             <div class="pin">
                                 <div class="pin-inner"></div>
                             </div>
                             <span class="logo-text">이음</span>
                         </div>
 
-                        <nav class="preview-nav">
+                        <nav class="preview-nav" data-marker="2">
                             <a href="#" class="active">전국축제</a>
                             <a href="#">지난축제</a>
                             <a href="#">달력</a>
@@ -520,14 +520,14 @@
                         </nav>
 
                         <div class="preview-actions">
-                            <div class="preview-bell">
+                            <div class="preview-bell" data-marker="3">
                                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
                                 </svg>
                                 <span class="dot"></span>
                             </div>
-                            <div class="preview-user">
+                            <div class="preview-user" data-marker="4">
                                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                     <path stroke-linecap="round" stroke-linejoin="round"
                                         d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
@@ -536,11 +536,7 @@
                         </div>
                     </div>
 
-                    <!-- 마커들 -->
-                    <div class="marker" style="top: 18px; left: 8px;">1</div>
-                    <div class="marker" style="top: 18px; left: 175px;">2</div>
-                    <div class="marker" style="top: 18px; right: 105px;">3</div>
-                    <div class="marker" style="top: 18px; right: 8px;">4</div>
+                    <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
                 </div>
 
                 <!-- 헤더 상태별 예시 -->
@@ -673,6 +669,55 @@
                     </tr>
                 </table>
 
+                <!-- ===== Event Description ===== -->
+                <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+                <table class="desc-table">
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E1</td>
+                        <td class="desc-text">
+                            <strong>로고 클릭 (Navigate to Home)</strong><br>
+                            · 트리거: 이음 로고 영역 클릭<br>
+                            · 동작: 메인 홈페이지(전국축제)로 라우팅 이동
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E2</td>
+                        <td class="desc-text">
+                            <strong>네비게이션 메뉴 클릭 (Menu Navigation)</strong><br>
+                            · 트리거: 전국축제/지난축제/달력/커뮤니티/공지 클릭<br>
+                            · 동작: 해당 페이지로 라우팅 이동 + 클릭된 메뉴에 active 스타일 적용<br>
+                            · 시각적 피드백: 퍼플 밑줄 + 볼드 표시
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E3</td>
+                        <td class="desc-text">
+                            <strong>알림 아이콘 클릭 (View Notifications)</strong><br>
+                            · 트리거: 벨 아이콘 클릭<br>
+                            · 동작: 알림 목록 드롭다운 표시 또는 알림 페이지 이동<br>
+                            · 비회원: 로그인 페이지로 리다이렉트<br>
+                            · 읽지 않은 알림 존재 시 빨간 dot 뱃지 표시 (FCM 연동)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E4</td>
+                        <td class="desc-text">
+                            <strong>마이페이지 아이콘 클릭 (Navigate to Mypage / Login)</strong><br>
+                            · 트리거: 사용자 아이콘 클릭<br>
+                            · 로그인 상태: 마이페이지(즐겨찾기)로 이동<br>
+                            · 비로그인 상태: 로그인/회원가입 페이지로 이동
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E5</td>
+                        <td class="desc-text">
+                            <strong>스크롤 시 헤더 고정 (Sticky Header)</strong><br>
+                            · 트리거: 페이지 하단 스크롤<br>
+                            · 동작: position: sticky로 상단 고정 + 미세 그림자 추가
+                        </td>
+                    </tr>
+                </table>
+
                 <div class="checkpoint">
                     <h4>Check Point</h4>
                     <p>
@@ -718,7 +763,7 @@
                 <div class="marker-wrapper">
                     <div class="preview-footer">
                         <div class="preview-footer-top">
-                            <div class="pf-brand">
+                            <div class="pf-brand" data-marker="1">
                                 <div class="pf-brand-logo">
                                     <div class="pf-pin">
                                         <div class="pf-pin-inner"></div>
@@ -727,9 +772,9 @@
                                 </div>
                                 <p>전국의 다양한 축제 정보를 하나로 연결합니다.<br>지역 축제의 매력을 발견하고, 특별한 경험을 만들어 보세요.</p>
                             </div>
-                            <div class="pf-links">
+                            <div class="pf-links" data-marker="2">
                                 <div class="pf-col">
-                                    <h4>서비스</h4>
+                                    <h4 data-marker="2">서비스</h4>
                                     <ul>
                                         <li>전국축제</li>
                                         <li>지난축제</li>
@@ -738,7 +783,7 @@
                                     </ul>
                                 </div>
                                 <div class="pf-col">
-                                    <h4>고객지원</h4>
+                                    <h4 data-marker="3">고객지원</h4>
                                     <ul>
                                         <li>공지사항</li>
                                         <li>1:1 문의</li>
@@ -747,7 +792,7 @@
                                     </ul>
                                 </div>
                                 <div class="pf-col">
-                                    <h4>문의하기</h4>
+                                    <h4 data-marker="4">문의하기</h4>
                                     <ul>
                                         <li>이메일: ieum@festival.kr</li>
                                         <li>전화: 02-1234-5678</li>
@@ -758,8 +803,8 @@
                             </div>
                         </div>
                         <div class="preview-footer-bottom">
-                            <p class="copy">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</p>
-                            <div class="pf-social">
+                            <p class="copy" data-marker="5">© 2026 이음(IEUM). All rights reserved. | 개인정보처리방침 | 이용약관</p>
+                            <div class="pf-social" data-marker="6">
                                 <div class="pf-social-icon">
                                     <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                                         <rect x="2" y="2" width="20" height="20" rx="5" />
@@ -781,13 +826,7 @@
                         </div>
                     </div>
 
-                    <!-- 마커들 -->
-                    <div class="marker" style="top: 24px; left: 8px;">1</div>
-                    <div class="marker" style="top: 24px; left: 340px;">2</div>
-                    <div class="marker" style="top: 24px; right: 104px;">3</div>
-                    <div class="marker" style="top: 24px; right: 80px;">4</div>
-                    <div class="marker" style="bottom: 20px; left: 8px;">5</div>
-                    <div class="marker" style="bottom: 20px; right: 8px;">6</div>
+                    <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
                 </div>
             </div>
 
@@ -856,6 +895,46 @@
                             · 인스타그램, 유튜브, 블로그 아이콘<br>
                             · 클릭 시 해당 SNS 계정 새 탭으로 이동<br>
                             · 호버 시 퍼플 배경 효과
+                        </td>
+                    </tr>
+                </table>
+
+                <!-- ===== Event Description ===== -->
+                <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+                <table class="desc-table">
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E1</td>
+                        <td class="desc-text">
+                            <strong>서비스 링크 클릭 (Navigate to Service Page)</strong><br>
+                            · 트리거: 서비스 컬럼 내 항목(전국축제/지난축제/축제달력/커뮤니티) 클릭<br>
+                            · 동작: 해당 페이지로 라우팅 이동<br>
+                            · Hover: 텍스트 퍼플(#a55eea)로 변환
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E2</td>
+                        <td class="desc-text">
+                            <strong>고객지원 링크 클릭 (Navigate to Support)</strong><br>
+                            · 트리거: 고객지원 컬럼 내 항목 클릭<br>
+                            · 공지사항/자주 묻는 질문: 해당 페이지로 이동<br>
+                            · 1:1 문의: 회원 전용 (비회원 시 로그인 유도)
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E3</td>
+                        <td class="desc-text">
+                            <strong>법적 고지 링크 클릭 (Legal Pages)</strong><br>
+                            · 트리거: 개인정보처리방침 / 이용약관 텍스트 클릭<br>
+                            · 동작: 별도 정적 페이지로 새 탭 이동
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E4</td>
+                        <td class="desc-text">
+                            <strong>SNS 아이콘 클릭 (Navigate to SNS)</strong><br>
+                            · 트리거: 인스타그램/유튜브/블로그 아이콘 클릭<br>
+                            · 동작: 해당 SNS 계정 새 탭(_blank)으로 열기<br>
+                            · Hover: 퍼플 배경 효과
                         </td>
                     </tr>
                 </table>
@@ -1081,6 +1160,45 @@
                         </td>
                     </tr>
                 </table>
+                <!-- ===== Event Description ===== -->
+                <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+                <table class="desc-table">
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E1</td>
+                        <td class="desc-text">
+                            <strong>검색 실행 (Execute Search)</strong><br>
+                            · 트리거: 검색 버튼 클릭 또는 Enter 키 입력<br>
+                            · 동작: 입력된 키워드로 API 호출 + 결과 목록 즉시 갱신<br>
+                            · 제한: 최소 2자 이상, 특수문자 sanitize
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E2</td>
+                        <td class="desc-text">
+                            <strong>필터 모달 열기/닫기 (Toggle Filter)</strong><br>
+                            · 트리거: [필터] 버튼 클릭<br>
+                            · 동작: 필터 모달/드롭다운 표시 ↔ 숨김 토글<br>
+                            · 필터 적용 시 결과 목록 + 카운트 동적 갱신
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E3</td>
+                        <td class="desc-text">
+                            <strong>필터 태그 제거 / 초기화 (Clear Filter)</strong><br>
+                            · 트리거: 개별 태그 ✕ 또는 [초기화] 클릭<br>
+                            · 동작: 해당 필터 해제 + URL 쿼리 파라미터 업데이트 + 목록 갱신
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="num" style="color:#3730a3;">E4</td>
+                        <td class="desc-text">
+                            <strong>정렬 변경 (Change Sort Order)</strong><br>
+                            · 트리거: 정렬 드롭다운 선택 변경<br>
+                            · 동작: 선택된 정렬 기준으로 목록 재정렬 + URL 파라미터 업데이트
+                        </td>
+                    </tr>
+                </table>
+
                 <div class="checkpoint">
                     <h4>Check Point</h4>
                     <p>
@@ -1094,6 +1212,45 @@
         </div>
     </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(screenArea) {
+      var areaRect = screenArea.getBoundingClientRect();
+      screenArea.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      var targets = screenArea.querySelectorAll('[data-marker]');
+      targets.forEach(function(target) {
+        var num = target.getAttribute('data-marker');
+        var tRect = target.getBoundingClientRect();
+        var isButton = (target.tagName === 'BUTTON');
+        var marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.textContent = num;
+        var top, left;
+        if (isButton) {
+          top = tRect.top - areaRect.top - 32;
+          left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+        } else {
+          top = tRect.top - areaRect.top;
+          left = tRect.right - areaRect.left + 6;
+        }
+        if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+        if (left < 0) left = 4;
+        if (top < 0) top = 4;
+        marker.style.top = top + 'px';
+        marker.style.left = left + 'px';
+        screenArea.appendChild(marker);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

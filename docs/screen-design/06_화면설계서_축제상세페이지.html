@@ -975,7 +975,7 @@
           </div>
 
           <!-- 히어로 영역 -->
-          <div class="dp-hero">
+          <div class="dp-hero" data-marker="5">
             <div class="dp-badge-wrap">
               <span class="dp-badge">진행중</span>
             </div>
@@ -984,7 +984,7 @@
                 <h1>서울 벚꽃 축제 2026</h1>
                 <p><span>📅 2026.04.01 ~ 04.10</span> <span>📍 서울특별시 영등포구</span></p>
               </div>
-              <div class="dp-bookmark">🤍</div>
+              <div class="dp-bookmark" data-marker="6">🤍</div>
             </div>
           </div>
 
@@ -993,7 +993,7 @@
             <div class="dp-left">
               <!-- 상세 설명 -->
               <div class="dp-section">
-                <div class="dp-section-title">축제 상세 정보</div>
+                <div class="dp-section-title" data-marker="1">축제 상세 정보</div>
                 <div class="dp-desc-text">
                   여의도 봄꽃축제는 매년 봄, 벚꽃이 만개할 때 열리는 서울의 대표적인 축제입니다. 탁 트인 한강을 배경으로 펼쳐지는 아름다운 벚꽃길을 걸으며 다채로운 문화 공연과 체험 프로그램을 즐길
                   수 있습니다. 가족, 연인, 친구와 함께 잊지 못할 봄날의 추억을 만들어보세요.
@@ -1003,7 +1003,7 @@
 
               <!-- 후기 섹션 -->
               <div class="dp-section">
-                <div class="dp-section-title">축제 후기 (128)</div>
+                <div class="dp-section-title" data-marker="3">축제 후기 (128)</div>
 
                 <div class="dp-review-form">
                   <div class="dp-review-avatar"></div>
@@ -1016,7 +1016,7 @@
                   </div>
                 </div>
 
-                <div class="dp-review-list">
+                <div class="dp-review-list" data-marker="7">
                   <div class="dp-review-card">
                     <div class="dp-review-card-avatar">김</div>
                     <div class="dp-review-card-content">
@@ -1053,7 +1053,7 @@
 
             <div class="dp-right">
               <!-- 정보 박스 -->
-              <div class="dp-info-box">
+              <div class="dp-info-box" data-marker="4">
                 <div class="dp-info-row">
                   <div class="dp-info-icon">📍</div>
                   <div>
@@ -1085,7 +1085,7 @@
               </div>
 
               <!-- 별점 통계 -->
-              <div class="dp-rating-box">
+              <div class="dp-rating-box" data-marker="2">
                 <div class="dp-rating-title">리뷰 통계</div>
                 <div class="dp-rating-big">4.5</div>
                 <div class="dp-rating-stars">★★★★★</div>
@@ -1171,26 +1171,7 @@
           </div>
         </div>
 
-        <!-- ① 상세 설명 -->
-        <div class="marker" style="top: 360px; left: 50px;">1</div>
-
-        <!-- ② 별점/만족도 -->
-        <div class="marker" style="top: 600px; right: 50px;">2</div>
-
-        <!-- ③ 후기 목록 + 페이징 -->
-        <div class="marker" style="bottom: 200px; left: 170px;">3</div>
-
-        <!-- ④ 정보 박스 -->
-        <div class="marker" style="top: 290px; right: 50px;">4</div>
-
-        <!-- ⑤ 히어로 이미지 + 축제명 -->
-        <div class="marker" style="top: 150px; left: 50px;">5</div>
-
-        <!-- ⑥ 북마크 (찜하기) -->
-        <div class="marker" style="top: 220px; right: 80px;">6</div>
-
-        <!-- ⑦ 후기 카드 -->
-        <div class="marker" style="top: 700px; left: 50px;">7</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
 
       <!-- 오른쪽: 설명 -->
@@ -1267,6 +1248,67 @@
               사용자 아바타 + 닉네임 + ★ 별점<br>
               리뷰 내용 텍스트 표시<br>
               본인 리뷰: 수정/삭제 가능
+            </td>
+          </tr>
+        </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>찜하기 토글 (Toggle Bookmark)</strong><br>
+              · 트리거: 🤍 아이콘 클릭<br>
+              · 비로그인: 로그인 유도 팝업<br>
+              · 로그인 시: 찜 상태 토글 (🤍 ↔ ❤️)<br>
+              · API: <code>POST /api/festivals/{festivalId}/scrap</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>리뷰 작성 (Submit Review)</strong><br>
+              · 트리거: [리뷰 등록] 버튼 클릭<br>
+              · 전제: 로그인 + 별점 선택(1~5) + 내용 입력(10~500자)<br>
+              · 동작: 리뷰 등록 + 리뷰 목록 및 통계 즉시 갱신<br>
+              · 제한: 축제당 1인 1리뷰<br>
+              · API: <code>POST /api/festivals/{festivalId}/reviews</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>별점 선택 (Select Rating)</strong><br>
+              · 트리거: 리뷰 작성 폼의 ★ 아이콘 클릭<br>
+              · 동작: 클릭한 별까지 노란색으로 채움 (1~5점 선택)
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>리뷰 수정/삭제 (Edit/Delete Review)</strong><br>
+              · 트리거: 본인 리뷰의 [수정] / [삭제] 텍스트 클릭<br>
+              · 수정: 인라인 편집 모드 전환 → PATCH 요청<br>
+              · 삭제: 확인 모달 → DELETE 요청<br>
+              · API: <code>PATCH /api/reviews/{commentId}</code>, <code>DELETE /api/reviews/{commentId}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>리뷰 페이지네이션 (Review Pagination)</strong><br>
+              · 트리거: 리뷰 목록 하단 ◀ 1 2 3 ▶ 클릭<br>
+              · 동작: 해당 페이지 리뷰 데이터 재조회<br>
+              · API: <code>GET /api/festivals/{festivalId}/reviews?page={page}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>페이지 진입 시 자동 조회수 증가 (View Count)</strong><br>
+              · 트리거: 상세 페이지 최초 로드<br>
+              · 동작: viewCount +1 증가 (세션 기반 중복 방지)
             </td>
           </tr>
         </table>
@@ -1361,6 +1403,45 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(screenArea) {
+      var areaRect = screenArea.getBoundingClientRect();
+      screenArea.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      var targets = screenArea.querySelectorAll('[data-marker]');
+      targets.forEach(function(target) {
+        var num = target.getAttribute('data-marker');
+        var tRect = target.getBoundingClientRect();
+        var isButton = (target.tagName === 'BUTTON');
+        var marker = document.createElement('div');
+        marker.className = 'marker';
+        marker.textContent = num;
+        var top, left;
+        if (isButton) {
+          top = tRect.top - areaRect.top - 32;
+          left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+        } else {
+          top = tRect.top - areaRect.top;
+          left = tRect.right - areaRect.left + 6;
+        }
+        if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+        if (left < 0) left = 4;
+        if (top < 0) top = 4;
+        marker.style.top = top + 'px';
+        marker.style.left = left + 'px';
+        screenArea.appendChild(marker);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

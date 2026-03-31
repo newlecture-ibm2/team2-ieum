@@ -378,7 +378,7 @@
               <div class="mockup-title">
                 <span>❓ 내 문의내역</span>
                 <button
-                  style="background:#6c5ce7; color:#fff; border:none; padding:10px 16px; font-size:14px; border-radius:8px; font-weight:700; cursor:pointer;">+
+                  data-marker="1" style="background:#6c5ce7; color:#fff; border:none; padding:10px 16px; font-size:14px; border-radius:8px; font-weight:700; cursor:pointer;">+
                   1:1 문의 작성</button>
               </div>
 
@@ -386,13 +386,13 @@
                 style="background:#fff; border:1px solid #e2e8f0; border-radius:12px; overflow:hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                 <!-- item 1 (collapsed) -->
                 <div
-                  style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
+                  data-marker="2" style="padding:16px 20px; border-bottom:1px solid #e2e8f0; display:flex; justify-content:space-between; align-items:center; cursor:pointer;">
                   <div style="display:flex; align-items:center;">
                     <span
-                      style="font-size:12px; font-weight:600; background:#f1f5f9; color:#64748b; padding:4px 8px; border-radius:6px; margin-right:12px;">답변대기</span>
+                      data-marker="3" style="font-size:12px; font-weight:600; background:#f1f5f9; color:#64748b; padding:4px 8px; border-radius:6px; margin-right:12px;">답변대기</span>
                     <span style="font-weight:700; font-size:15px; color:#1e293b;">결제 오류 관련 질문드립니다.</span>
                   </div>
-                  <div style="font-size:13px; color:#94a3b8; font-weight:500;">2024.03.28 &nbsp; ▼</div>
+                  <div data-marker="5" style="font-size:13px; color:#94a3b8; font-weight:500;">2024.03.28 &nbsp; ▼</div>
                 </div>
                 <!-- item 2 (expanded) -->
                 <div style="padding:16px 20px; background:#f3e8ff;">
@@ -407,7 +407,7 @@
 
                   <!-- Accordion Body -->
                   <div
-                    style="margin-top:20px; background:#fff; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
+                    data-marker="4" style="margin-top:20px; background:#fff; padding:20px; border-radius:8px; border:1px solid #e2e8f0;">
                     <div style="display:flex; align-items:center; margin-bottom:12px;">
                       <div
                         style="width:24px; height:24px; background:#1e293b; color:#fff; font-weight:900; font-size:13px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin-right:10px;">
@@ -442,12 +442,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <div class="marker" style="top: 13%; right: 4%;">1</div>
-        <div class="marker" style="top: 20%; left: 34%;">2</div>
-        <div class="marker" style="top: 20%; left: 43%;">3</div>
-        <div class="marker" style="top: 33%; left: 36%;">4</div>
-        <div class="marker" style="top: 22%; right: 5%;">5</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -466,8 +461,7 @@
             <td class="num">1</td>
             <td class="desc-text">
               <strong>[+ 1:1 문의 작성] 버튼</strong><br>
-              우측 상단에 파란색 강조 버튼으로 배치<br>
-              클릭 시 1:1 문의 작성 폼 페이지 또는 모달로 이동
+              우측 상단에 파란색 강조 버튼으로 배치
             </td>
           </tr>
           <tr>
@@ -477,8 +471,7 @@
               각 행 구성:<br>
               · 문의 제목 (굵은 텍스트)<br>
               · 등록 일자 (우측 회색 텍스트)<br>
-              · ▼ / ▲ 아이콘으로 접기/펼치기 상태 표시<br>
-              행 클릭 시 해당 문의의 Q&amp;A 상세 내용이 슬라이드다운으로 전개
+              · ▼ / ▲ 아이콘으로 접기/펼치기 상태 표시
             </td>
           </tr>
           <tr>
@@ -502,11 +495,77 @@
           <tr>
             <td class="num">5</td>
             <td class="desc-text">
-              <strong>답변 대기 상태 문의 액션</strong><br>
-              답변 대기(Pending) 상태의 문의 항목에 한해:<br>
-              · 펼침 시 문의 내용 수정 가능<br>
-              · 문의 삭제 가능 (삭제 확인 팝업 호출)<br>
+              <strong>답변 대기 상태 문의 표시</strong><br>
+              답변 대기(Pending) 상태의 문의 항목에 한해 수정/삭제 가능 표시<br>
               답변 완료 상태의 문의는 수정 불가
+            </td>
+          </tr>
+        </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>[+ 1:1 문의 작성] 버튼 클릭 (Create Inquiry)</strong><br>
+              · 트리거: 우측 상단 [+ 1:1 문의 작성] 버튼 클릭<br>
+              · 동작: 문의 작성 폼 페이지 또는 모달 오픈<br>
+              · 필수 입력: 제목, 내용<br>
+              · API: <code>POST /api/inquiries</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>아코디언 행 클릭 (Toggle Accordion)</strong><br>
+              · 트리거: 문의 목록의 각 행(제목 영역) 클릭<br>
+              · 동작: 해당 문의의 Q&amp;A 상세 내용 슬라이드다운 펼침/접힘 토글<br>
+              · API: <code>GET /api/users/me/inquiries/{id}</code> (최초 펼침 시)
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>답변대기 문의 수정 (Edit Pending Inquiry)</strong><br>
+              · 트리거: 답변대기 상태 문의 펼침 후 [수정] 버튼 클릭<br>
+              · 동작: 문의 내용 편집 모드 전환<br>
+              · 제한: 답변완료 상태의 문의에서는 비활성
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>답변대기 문의 삭제 (Delete Pending Inquiry)</strong><br>
+              · 트리거: 답변대기 상태 문의의 [삭제] 버튼 클릭<br>
+              · 동작: 삭제 확인 모달 표시 → "문의를 삭제하시겠습니까?"<br>
+              · 확인 시: 문의 삭제 처리<br>
+              · 제한: 답변완료 상태에서는 삭제 불가
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>무한 스크롤 / 페이지네이션 (Load More)</strong><br>
+              · 트리거: 문의 목록 하단 도달<br>
+              · 동작: 다음 페이지 데이터 비동기 로드<br>
+              · API: <code>GET /api/users/me/inquiries?page={n}&size=10</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>빈 상태 (Empty State)</strong><br>
+              · 트리거: 문의 조회 결과 0건<br>
+              · 동작: 빈 상태 일러스트 + "아직 문의 내역이 없어요." 안내 + [문의하기] CTA 버튼
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E7</td>
+            <td class="desc-text">
+              <strong>사이드바 메뉴 클릭 (Menu Navigation)</strong><br>
+              · 트리거: 좌측 사이드바 메뉴 항목 클릭<br>
+              · 동작: 클릭된 메뉴에 active 스타일 적용, 해당 서브 페이지로 이동
             </td>
           </tr>
         </table>
@@ -517,7 +576,8 @@
             · 답변완료(Answered) 상태의 문의는 수정/삭제 불가 제한 적용<br>
             · 답변대기(Pending) 상태의 문의만 수정 및 삭제 가능<br>
             · 문의 목록이 많을 경우 페이지네이션 적용<br>
-            · 신규 문의 작성 시 필수 입력 항목 유효성 검사 적용
+            · 신규 문의 작성 시 필수 입력 항목 유효성 검사 적용<br>
+            · 삭제 확인 모달은 반드시 2차 컨펌 후 실행
           </p>
         </div>
       </div>
@@ -567,6 +627,43 @@
     </table>
   </div>
 </div>
+
+<script>
+  function positionMarkers() {
+    const screenArea = document.querySelector('.screen-area');
+    if (!screenArea) return;
+    const areaRect = screenArea.getBoundingClientRect();
+    screenArea.querySelectorAll('.marker').forEach(m => m.remove());
+    const targets = screenArea.querySelectorAll('[data-marker]');
+    targets.forEach(target => {
+      const num = target.getAttribute('data-marker');
+      const tRect = target.getBoundingClientRect();
+      const isButton = target.tagName === 'BUTTON';
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.textContent = num;
+      let top, left;
+      if (isButton) {
+        top = tRect.top - areaRect.top - 32;
+        left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+      } else {
+        top = tRect.top - areaRect.top;
+        left = tRect.right - areaRect.left + 6;
+      }
+      if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+      if (left < 0) left = 4;
+      if (top < 0) top = 4;
+      marker.style.top = top + 'px';
+      marker.style.left = left + 'px';
+      screenArea.appendChild(marker);
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(positionMarkers).observe(document.querySelector('.screen-area') || document.body);
+  }
+</script>
 </body>
 
 </html>

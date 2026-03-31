@@ -343,7 +343,7 @@
             <div class="ch-logo">
               <div class="ch-pin"><div class="ch-pin-inner"></div></div><span>이음</span>
             </div>
-            <nav class="ch-nav">
+            <nav class="ch-nav" data-marker="1">
               <a href="#">전국축제</a>
               <a href="#">지난축제</a>
               <a href="#">달력</a>
@@ -357,7 +357,7 @@
           </div>
 <div class="mockup-body">
             <div class="mockup-sidebar">
-              <div class="mockup-profile">
+              <div class="mockup-profile" data-marker="2">
                 <div class="avatar"></div>
                 <div style="font-weight: 700; font-size: 15px; color: #1e293b;">축제매니아</div>
                 <div style="font-size: 12px; color:#64748b; margin-top:4px;">user@example.com</div>
@@ -365,7 +365,7 @@
                   style="font-size: 11px; margin-top: 10px; color: #3b82f6; border: 1px solid #d8b4fe; padding: 4px 10px; border-radius: 20px; display:inline-block; cursor:pointer;">
                   프로필 · 알림 설정</div>
               </div>
-              <div class="mockup-menu">
+              <div class="mockup-menu" data-marker="3">
                 <div class="mockup-menu-item active">❤️ 즐겨찾기 목록</div>
                 <div class="mockup-menu-item">📝 내 게시글 목록</div>
                 <div class="mockup-menu-item">⭐ 내 리뷰 목록</div>
@@ -376,10 +376,10 @@
             </div>
             <div class="mockup-content">
               <div class="mockup-title">
-                <span>❤️ 즐겨찾기 목록 <span style="font-size:14px; color:#64748b; font-weight:500;">(총 12개)</span></span>
+                <span data-marker="4">❤️ 즐겨찾기 목록 <span style="font-size:14px; color:#64748b; font-weight:500;">(총 12개)</span></span>
               </div>
 
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div data-marker="5" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
                 <!-- Item 1 -->
                 <div
                   style="background: #fff; padding: 12px; border-radius: 12px; border: 1px solid #e2e8f0; position:relative; box-shadow: 0 2px 4px rgba(0,0,0,0.02);">
@@ -387,7 +387,7 @@
                   <div style="font-weight: 700; font-size:15px; margin-bottom:6px; color:#1e293b;">보령 머드 축제</div>
                   <div style="font-size:12px; color:#64748b; margin-bottom: 48px;">📍 충남 보령시 | 📅 2024.07.14~</div>
                   <button
-                    style="position:absolute; bottom:12px; right:12px; background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:12px; font-weight:600; color:#ef4444; cursor:pointer;">❤️
+                    data-marker="6" style="position:absolute; bottom:12px; right:12px; background:#fff; border:1px solid #e2e8f0; border-radius:6px; padding:6px 10px; font-size:12px; font-weight:600; color:#ef4444; cursor:pointer;">❤️
                     해제</button>
                 </div>
                 <!-- Item 2 -->
@@ -413,13 +413,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <div class="marker" style="top: 4%; left: 38%;">1</div>
-        <div class="marker" style="top: 18%; left: 2%;">2</div>
-        <div class="marker" style="top: 40%; left: 2%;">3</div>
-        <div class="marker" style="top: 10%; right: 35%;">4</div>
-        <div class="marker" style="top: 10%; left: 31%;">5</div>
-        <div class="marker" style="top: 32%; right: 5%;">6</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -451,20 +445,19 @@
               · 프로필 이미지 (원형 썸네일)<br>
               · 닉네임 (굵은 텍스트)<br>
               · 이메일 주소 (회색 서브텍스트)<br>
-              · [프로필 · 알림 설정] 버튼 → 클릭 시 설정 탭으로 이동
+              · [프로필 · 알림 설정] 버튼 배치
             </td>
           </tr>
           <tr>
             <td class="num">3</td>
             <td class="desc-text">
               <strong>좌측 탭 메뉴 (사이드바)</strong><br>
-              · ❤️ 즐겨찾기 목록 (현재 활성 - 파란색 하이라이트)<br>
+              · ❤️ 즐겨찾기 목록 (현재 활성 - 퍼플 하이라이트)<br>
               · 📝 내 게시글 목록<br>
               · ⭐ 내 리뷰 목록<br>
               · 💬 내 댓글 목록<br>
               · ❓ 내 문의 보기<br>
-              · ⚙️ 내 알림 설정<br>
-              각 항목 클릭 시 우측 콘텐츠 영역이 해당 탭으로 전환
+              · ⚙️ 내 알림 설정
             </td>
           </tr>
           <tr>
@@ -483,17 +476,80 @@
               각 카드 구성:<br>
               · 축제 대표 이미지 (상단 썸네일)<br>
               · 축제명 (굵은 텍스트)<br>
-              · 위치 (📍 아이콘 + 지역명) + 기간 (📅 아이콘 + 날짜)<br>
-              카드 클릭 시 해당 축제 상세 페이지로 이동
+              · 위치 (📍 아이콘 + 지역명) + 기간 (📅 아이콘 + 날짜)
             </td>
           </tr>
           <tr>
             <td class="num">6</td>
             <td class="desc-text">
               <strong>[❤️ 해제] 버튼</strong><br>
-              각 카드 우측 하단에 위치<br>
-              클릭 시 즐겨찾기 목록에서 즉시 제거<br>
-              제거 후 하단에 "즐겨찾기가 해제되었습니다" 토스트 메시지 노출
+              각 카드 우측 하단에 위치
+            </td>
+          </tr>
+        </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>축제 카드 클릭 (Navigate to Festival Detail)</strong><br>
+              · 트리거: 즐겨찾기 축제 카드 영역 클릭<br>
+              · 동작: 해당 축제의 상세 페이지로 라우팅 이동<br>
+              · 결과: <code>/festivals/{festivalId}</code> 페이지로 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>[❤️ 해제] 버튼 클릭 (Remove Scrap)</strong><br>
+              · 트리거: 카드 우측 하단 [❤️ 해제] 버튼 클릭<br>
+              · 동작: 즐겨찾기 목록에서 즉시 제거 + 카운트 동적 갱신<br>
+              · 결과: "즐겨찾기가 해제되었습니다" 토스트 메시지 노출<br>
+              · API: <code>POST /api/festivals/{festivalId}/scrap</code> (토글)
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>[프로필 · 알림 설정] 클릭 (Navigate to Settings)</strong><br>
+              · 트리거: 프로필 영역 하단 [프로필 · 알림 설정] 버튼 클릭<br>
+              · 동작: 설정 탭(UI-M-005)으로 라우팅 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>사이드바 메뉴 클릭 (Menu Navigation)</strong><br>
+              · 트리거: 좌측 사이드바 메뉴 항목 클릭<br>
+              · 동작: 클릭된 메뉴에 active 스타일 적용, 해당 서브 페이지로 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>카드 Hover 효과</strong><br>
+              · 트리거: 축제 카드 영역에 마우스 진입<br>
+              · 동작: 카드 그림자 강조 + 미세 scale-up 효과<br>
+              · 결과: 클릭 가능한 카드임을 시각적으로 전달
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>무한 스크롤 / 페이지네이션 (Load More)</strong><br>
+              · 트리거: 카드 리스트 하단 도달<br>
+              · 동작: 다음 페이지 데이터 비동기 로드<br>
+              · API: <code>GET /api/festivals/scraps?page={n}&size=10</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E7</td>
+            <td class="desc-text">
+              <strong>빈 상태 (Empty State)</strong><br>
+              · 트리거: 즐겨찾기 0건<br>
+              · 동작: 빈 상태 일러스트 + "아직 즐겨찾기한 축제가 없어요." + [축제 보러가기] CTA 버튼
             </td>
           </tr>
         </table>
@@ -504,7 +560,8 @@
             · 비로그인 상태일 경우 로그인 페이지로 리다이렉트 (회원 전용 페이지)<br>
             · 즐겨찾기 해제 시 카운트도 동적으로 갱신<br>
             · 즐겨찾기 목록이 많을 경우 페이지네이션 또는 무한 스크롤 적용<br>
-            · 좌측 메뉴 구조는 모든 마이페이지 탭에서 100% 동일하게 유지
+            · 좌측 메뉴 구조는 모든 마이페이지 탭에서 100% 동일하게 유지<br>
+            · 해제 후 되돌리기(Undo) 기능 고려
           </p>
         </div>
       </div>
@@ -546,6 +603,43 @@
     </table>
   </div>
 </div>
+
+<script>
+  function positionMarkers() {
+    const screenArea = document.querySelector('.screen-area');
+    if (!screenArea) return;
+    const areaRect = screenArea.getBoundingClientRect();
+    screenArea.querySelectorAll('.marker').forEach(m => m.remove());
+    const targets = screenArea.querySelectorAll('[data-marker]');
+    targets.forEach(target => {
+      const num = target.getAttribute('data-marker');
+      const tRect = target.getBoundingClientRect();
+      const isButton = target.tagName === 'BUTTON';
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.textContent = num;
+      let top, left;
+      if (isButton) {
+        top = tRect.top - areaRect.top - 32;
+        left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+      } else {
+        top = tRect.top - areaRect.top;
+        left = tRect.right - areaRect.left + 6;
+      }
+      if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+      if (left < 0) left = 4;
+      if (top < 0) top = 4;
+      marker.style.top = top + 'px';
+      marker.style.left = left + 'px';
+      screenArea.appendChild(marker);
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(positionMarkers).observe(document.querySelector('.screen-area') || document.body);
+  }
+</script>
 </body>
 
 </html>

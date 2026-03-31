@@ -831,7 +831,7 @@
               <h2 class="post-title">이번 주 인천 아송페 티켓 양도 구합니다 제발요 ㅠㅠ!!!</h2>
 
               <!-- 1. 작성자 및 작성일 -->
-              <div class="post-meta-writer">
+              <div class="post-meta-writer" data-marker="1">
                 <div class="writer-left">
                   <div class="writer-avatar"></div>
                   <div class="writer-info">
@@ -847,7 +847,7 @@
               </div>
 
               <!-- 2. 게시글 상세 메타 태그 (말머리, 관련축제, 지역 등) -->
-              <div class="post-meta-tags">
+              <div class="post-meta-tags" data-marker="2">
                 <div class="pm-item">
                   <span class="pm-label">말머리</span>
                   <span class="pm-value badge-pill">Q&A</span>
@@ -868,7 +868,7 @@
             </div>
 
             <!-- 3. 글 내용 (텍스트 & 이미지) -->
-            <div class="post-body">
+            <div class="post-body" data-marker="3">
               <div class="post-image-placeholder">본문 첨부 이미지 노출 영역 (옵션)</div>
               제가 엄청 똥손이라 광클 실패했어요...<br>
               혹시 양도나 동행 가능하신 분 계시면 대댓 좀 꼭 남겨주세요.<br>
@@ -892,7 +892,7 @@
             </div>
 
             <!-- 4. 댓글 및 대댓글 영역 -->
-            <div class="comments-section">
+            <div class="comments-section" data-marker="4">
               <div class="comments-title">댓글 5개</div>
 
               <!-- 일반 댓글 -->
@@ -932,7 +932,7 @@
               </div>
 
               <!-- 5. 댓글 입력 폼 부분 -->
-              <div class="comment-input-wrap">
+              <div class="comment-input-wrap" data-marker="5">
                 <input type="text" placeholder="댓글을 남겨보세요. (로그인 후 이용 가능)">
                 <button class="comment-submit-btn">등록</button>
               </div>
@@ -942,12 +942,7 @@
 
         </div>
 
-        <!-- 마커 -->
-        <div class="marker" style="top: 150px; left: 230px; z-index: 200;">1</div>
-        <div class="marker" style="top: 200px; left: 50px; z-index: 200;">2</div>
-        <div class="marker" style="top: 360px; left: 100px; z-index: 200;">3</div>
-        <div class="marker" style="bottom: 260px; left: 30px; z-index: 200;">4</div>
-        <div class="marker" style="bottom: 50px; right: 60px; z-index: 200;">5</div>
+        <!-- 동적 마커 (JS) -->
 
       </div>
 
@@ -990,6 +985,19 @@
               또는 안내 문구 제공</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>[수정] 클릭 (Edit Post)</strong><br>· 트리거: 본인 게시글의 [수정] 버튼 클릭<br>· 동작: 작성/수정 폼(UI-CM-003)으로 이동 + 기존 값 바인딩<br>· API: <code>PUT /api/community/posts/{postId}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>[삭제] 클릭 (Delete Post)</strong><br>· 트리거: 본인 게시글의 [삭제] 버튼 클릭<br>· 동작: 확인 모달 → 삭제 → 커뮤니티 목록 이동<br>· API: <code>DELETE /api/community/posts/{postId}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>공감 토글 (Toggle Like)</strong><br>· 트리거: [공감] 버튼 클릭<br>· 비로그인: 로그인 유도 팝업<br>· API: <code>POST /api/community/posts/{postId}/like</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>댓글 등록 (Submit Comment)</strong><br>· 트리거: 댓글 [등록] 버튼 클릭<br>· 전제: 로그인 회원만 가능<br>· API: <code>POST /api/community/posts/{postId}/comments</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>대댓글 작성 (Reply Comment)</strong><br>· 트리거: [답글 달기] 클릭<br>· 동작: 하위 대댓글 입력 폼 표시 + 등록</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>메타 태그 클릭 (Navigate Filter)</strong><br>· 트리거: 말머리/축제명/지역 태그 클릭<br>· 동작: 해당 조건 필터 적용된 커뮤니티 리스트 또는 축제 상세로 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E7</td><td class="desc-text"><strong>신고 (Report Post)</strong><br>· 트리거: [신고] 텍스트 클릭<br>· 동작: 신고 사유 선택 모달 → 신고 접수</td></tr>
+        </table>
+
       </div>
     </div>
   </div>
@@ -1033,7 +1041,7 @@
             <h2 class="form-header">게시글 작성 / 수정</h2>
 
             <!-- 다중 컬럼 드롭다운 구역 -->
-            <div class="form-multi-cols">
+            <div class="form-multi-cols" data-marker="6">
               <div class="form-row">
                 <label class="form-label">말머리<span class="req">*</span></label>
                 <select class="form-select">
@@ -1065,7 +1073,7 @@
             </div>
 
             <!-- 제목 -->
-            <div class="form-row">
+            <div class="form-row" data-marker="7">
               <label class="form-label">제목<span class="req">*</span></label>
               <input type="text" class="form-input" value="이번 주 인천 아송페 티켓 양도 구합니다 제발요 ㅠㅠ!!!">
             </div>
@@ -1081,7 +1089,7 @@
             <!-- 이미지 파일 업로드 -->
             <div class="form-row">
               <label class="form-label">사진 첨부</label>
-              <div class="image-upload-box">
+              <div class="image-upload-box" data-marker="8">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round"
                     d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
@@ -1110,10 +1118,7 @@
           </div>
         </div>
 
-        <!-- 마커 -->
-        <div class="marker" style="top: 160px; left: 40px; z-index: 200;">6</div>
-        <div class="marker" style="top: 360px; left: 40px; z-index: 200;">7</div>
-        <div class="marker" style="bottom: 220px; right: 80px; z-index: 200;">8</div>
+        <!-- 동적 마커 (JS) -->
 
       </div>
 
@@ -1145,57 +1150,98 @@
           </tr>
         </table>
 
-        <!-- API 명세 추가 -->
-        <div class="api-section" style="margin-top: 20px;">
-          <div class="api-title">📡 Related API (상세/작성/댓글 공통)</div>
-          <table class="api-table">
-            <thead>
-              <tr>
-                <th>Method</th>
-                <th>Endpoint</th>
-                <th>설명</th>
-                <th>권한</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="method get">GET</td>
-                <td>/api/community/posts/{postId}</td>
-                <td>커뮤니티 상세 및 메타 조회 (API_BRD_0011)</td>
-                <td><span class="auth-badge auth-public">비회원</span></td>
-              </tr>
-              <tr>
-                <td class="method post">POST</td>
-                <td>/api/community/posts</td>
-                <td>게시글 신규 작성 저장 (API_BRD_0012)</td>
-                <td><span class="auth-badge auth-user">회원</span></td>
-              </tr>
-              <tr>
-                <td class="method put">PUT</td>
-                <td>/api/community/posts/{postId}</td>
-                <td>게시글 내용 및 속성 부분 수정 (API_BRD_0013)</td>
-                <td><span class="auth-badge auth-user">본인</span></td>
-              </tr>
-              <tr>
-                <td class="method post">POST</td>
-                <td>/api/community/posts/{postId}/comments</td>
-                <td>댓글 및 대댓글 등록 (API_BRD_0051)</td>
-                <td><span class="auth-badge auth-user">회원</span></td>
-              </tr>
-              <tr>
-                <td class="method delete">DEL</td>
-                <td>/api/community/posts/{postId}</td>
-                <td>게시물 및 등록된 댓글 일괄 삭제 처리 (API_BRD_0014)</td>
-                <td><span class="auth-badge auth-user">본인</span></td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-
       </div>
+    </div>
+
+    <!-- API 명세 영역 (main-content 밖, page 하단) -->
+    <div class="api-section">
+      <div class="api-title">📡 Related API (상세/작성/댓글 공통)</div>
+      <table class="api-table">
+        <thead>
+          <tr>
+            <th>API ID</th>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>설명</th>
+            <th>권한</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>API_BRD_0011</td>
+            <td><span class="method get">GET</span></td>
+            <td class="endpoint">/api/community/posts/{postId}</td>
+            <td>커뮤니티 상세 및 메타 조회</td>
+            <td><span class="auth-badge auth-public">✅ 비회원</span></td>
+          </tr>
+          <tr>
+            <td>API_BRD_0012</td>
+            <td><span class="method post">POST</span></td>
+            <td class="endpoint">/api/community/posts</td>
+            <td>게시글 신규 작성 저장</td>
+            <td><span class="auth-badge auth-user">🔒 회원</span></td>
+          </tr>
+          <tr>
+            <td>API_BRD_0013</td>
+            <td><span class="method put">PUT</span></td>
+            <td class="endpoint">/api/community/posts/{postId}</td>
+            <td>게시글 내용 및 속성 부분 수정</td>
+            <td><span class="auth-badge auth-user">🔒 본인</span></td>
+          </tr>
+          <tr>
+            <td>API_BRD_0051</td>
+            <td><span class="method post">POST</span></td>
+            <td class="endpoint">/api/community/posts/{postId}/comments</td>
+            <td>댓글 및 대댓글 등록</td>
+            <td><span class="auth-badge auth-user">🔒 회원</span></td>
+          </tr>
+          <tr>
+            <td>API_BRD_0014</td>
+            <td><span class="method delete">DELETE</span></td>
+            <td class="endpoint">/api/community/posts/{postId}</td>
+            <td>게시물 및 등록된 댓글 일괄 삭제 처리</td>
+            <td><span class="auth-badge auth-user">🔒 본인</span></td>
+          </tr>
+          <tr>
+            <td>API_BRD_0030</td>
+            <td><span class="method post">POST</span></td>
+            <td class="endpoint">/api/community/posts/{postId}/like</td>
+            <td>게시글 공감 토글</td>
+            <td><span class="auth-badge auth-user">🔒 회원</span></td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

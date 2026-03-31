@@ -723,7 +723,7 @@
       <div class="screen-area">
         <div class="wire">
           <!-- 공통 헤더 -->
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -756,11 +756,11 @@
 
           <!-- 달력 본문 -->
           <div class="cal-container">
-            <div class="cal-title-bar">
+            <div class="cal-title-bar" data-marker="2">
               <h2><span>📅</span>축제 달력</h2>
             </div>
 
-            <div class="cal-ym">
+            <div class="cal-ym" data-marker="3">
               2026년 3월
               <div class="cal-arrows">
                 <button>◀</button>
@@ -769,7 +769,7 @@
             </div>
 
             <div class="cal-grid">
-              <div class="cal-weekdays">
+              <div class="cal-weekdays" data-marker="4">
                 <span>일</span><span>월</span><span>화</span><span>수</span><span>목</span><span>금</span><span>토</span>
               </div>
               <div class="cal-days">
@@ -808,7 +808,7 @@
                 <div class="cal-day"><span class="day-num sun">15</span></div>
                 <div class="cal-day"><span class="day-num">16</span></div>
                 <div class="cal-day"><span class="day-num">17</span></div>
-                <div class="cal-day today selected"><span class="day-num">18</span>
+                <div class="cal-day today selected" data-marker="5"><span class="day-num">18</span>
                   <div class="day-count">5개</div>
                 </div>
                 <div class="cal-day"><span class="day-num">19</span>
@@ -820,12 +820,12 @@
                 <div class="cal-day"><span class="day-num sat">21</span></div>
 
                 <!-- 선택된 날짜의 행 밀림 축제 리스트 -->
-                <div class="cal-row-expand">
+                <div class="cal-row-expand" data-marker="7">
                   <div class="expand-header">
                     <div class="expand-title">📌 3월 18일(수) 축제 리스트 (5개)</div>
                     <button class="expand-close">✕</button>
                   </div>
-                  <div class="expand-cards">
+                  <div class="expand-cards" data-marker="8">
                     <div class="fest-card">
                       <div class="fest-card-img">
                         <div class="card-num">1</div>
@@ -950,16 +950,7 @@
           </div>
         </div>
 
-        <!-- 마커 -->
-        <div class="marker" style="top:48px;left:410px">1</div>
-        <div class="marker" style="top:78px;left:120px">2</div>
-        <div class="marker" style="top:120px;left:210px">3</div>
-        <div class="marker" style="top:160px;left:30px">4</div>
-        <div class="marker" style="top:200px;left:350px">5</div>
-        <div class="marker" style="top:235px;left:60px">6</div>
-        <div class="marker" style="top:310px;left:400px">7</div>
-        <div class="marker" style="top:355px;left:200px">8</div>
-        <div class="marker" style="top:355px;right:30px">9</div>
+        <!-- 동적 마커 (JS) -->
       </div>
 
       <div class="description-area">
@@ -985,8 +976,7 @@
           </tr>
           <tr>
             <td class="num">3</td>
-            <td class="desc-text"><strong>월 이동 네비게이션</strong><br>"2026년 3월" 연월 표시 + ◀ ▶ 버튼<br>클릭 시 이전/다음 월로 이동, API 재호출
-            </td>
+            <td class="desc-text"><strong>월 이동 네비게이션</strong><br>"2026년 3월" 연월 표시 + ◀ ▶ 버튼<br>            </td>
           </tr>
           <tr>
             <td class="num">4</td>
@@ -994,8 +984,7 @@
           </tr>
           <tr>
             <td class="num">5</td>
-            <td class="desc-text"><strong>날짜 셀 (축제 개수)</strong><br>각 날짜에 진행 중인 축제 개수 표시<br>오늘 날짜: 퍼플 원형 배경으로 하이라이트<br>클릭
-              시 해당 행 아래에 축제 리스트 확장</td>
+            <td class="desc-text"><strong>날짜 셀 (축제 개수)</strong><br>각 날짜에 진행 중인 축제 개수 표시<br>오늘 날짜: 퍼플 원형 배경으로 하이라이트<br></td>
           </tr>
           <tr>
             <td class="num">6</td>
@@ -1017,6 +1006,17 @@
             <td class="desc-text"><strong>가로 스크롤 안내</strong><br>"← 가로 스크롤 →" 텍스트로 사용자 안내<br>커스텀 스크롤바 (퍼플 계열)</td>
           </tr>
         </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>월 이동 (Navigate Month)</strong><br>· 트리거: ◀ / ▶ 버튼 클릭<br>· 동작: 이전/다음 월로 API 재호출 + 달력 갱신<br>· API: <code>GET /api/calendar?year={y}&month={m}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>날짜 클릭 (Select Date)</strong><br>· 트리거: 달력 날짜 셀 클릭<br>· 동작: 선택 셀 퍼플 보더 표시 + 해당 행 아래에 축제 리스트 확장<br>· API: <code>GET /api/calendar/festivals?date={date}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>축제 리스트 닫기 (Close Expand)</strong><br>· 트리거: ✕ 닫기 버튼 클릭<br>· 동작: 확장 영역 접기 + 행 복원</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>[상세보기] 클릭 (Navigate Detail)</strong><br>· 트리거: 축제 카드 [상세보기] 버튼 클릭<br>· 동작: /festivals/{festivalId} 상세 페이지 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>가로 스크롤 (Horizontal Scroll)</strong><br>· 트리거: 축제 카드 3개 초과 시 자동<br>· 동작: scroll-snap-type: x mandatory 적용</td></tr>
+        </table>
+
         <div class="checkpoint">
           <h4>Check Point</h4>
           <p>
@@ -1033,6 +1033,34 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

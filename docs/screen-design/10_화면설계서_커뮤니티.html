@@ -1015,7 +1015,7 @@
       <div class="screen-area">
         <div class="wire">
           <!-- 공통 헤더 -->
-          <div class="common-header">
+          <div class="common-header" data-marker="1">
             <div class="ch-logo">
               <div class="ch-pin">
                 <div class="ch-pin-inner"></div>
@@ -1052,7 +1052,7 @@
           </div>
 
           <!-- 공통 검색/필터 -->
-          <div class="common-search-bar">
+          <div class="common-search-bar" data-marker="3">
             <div class="search-left">
               <div class="search-input-wrap">
                 <svg fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1079,7 +1079,7 @@
             </div>
 
             <!-- 필터 드롭다운 팝업 (클릭 시 노출되는 다중 조건 레이어) -->
-            <div class="filter-panel">
+            <div class="filter-panel" data-marker="2">
               <div class="filter-group">
                 <h4>말머리</h4>
                 <div class="filter-tags">
@@ -1126,7 +1126,7 @@
           <div class="community-content">
 
             <!-- 🔥 인기 게시글 -->
-            <div class="popular-posts">
+            <div class="popular-posts" data-marker="4">
               <div class="popular-header">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2"
                   stroke-linecap="round" stroke-linejoin="round">
@@ -1153,7 +1153,7 @@
             </div>
 
             <!-- 게시글 리스트 -->
-            <div class="post-list">
+            <div class="post-list" data-marker="5">
               <!-- Item 1 -->
               <div class="post-item">
                 <div class="post-info">
@@ -1257,7 +1257,7 @@
           <div
             style="position: absolute; bottom: 310px; right: 18px; font-size: 10px; font-weight: 800; color: #ef4444; background: rgba(255,255,255,0.95); padding: 4px 8px; border-radius: 6px; z-index: 101; border: 1px solid #fca5a5; box-shadow: 0 4px 6px rgba(0,0,0,0.05); text-align: center;">
             🔒<br>회원<br>전용</div>
-          <div class="fab-btn">
+          <div class="fab-btn" data-marker="6">
             <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round"
                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -1303,23 +1303,7 @@
           </div>
         </div>
 
-        <!-- ① GNB 상단 헤더 -->
-        <div class="marker" style="top: 15px; left: 480px; z-index: 200;">1</div>
-
-        <!-- ② 필터 드롭다운 패널 -->
-        <div class="marker" style="top: 300px; left: 630px; z-index: 200;">2</div>
-
-        <!-- ③ 검색바 -->
-        <div class="marker" style="top: 200px; left: 30px; z-index: 200;">3</div>
-
-        <!-- ④ 인기글 / 베스트 -->
-        <div class="marker" style="top: 25px; left: 30px;">4</div>
-
-        <!-- ⑤ 게시글 목록 -->
-        <div class="marker" style="top: 450px; left: 10px;">5</div>
-
-        <!-- ⑥ 글쓰기 버튼 (FAB) -->
-        <div class="marker" style="bottom: 255px; right: 35px; z-index: 200;">6</div>
+        <!-- 동적 마커 (JS) -->
 
       </div>
 
@@ -1387,6 +1371,19 @@
               · 클릭 시 커뮤니티 글 작성 에디터 페이지로 이동
             </td>
           </tr>
+        </table>
+
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>검색 실행 (Search)</strong><br>· 트리거: 검색 버튼 클릭 / Enter<br>· 동작: 제목/본문 기반 통합 검색<br>· API: <code>GET /api/community/search?keyword={keyword}</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>필터 패널 열기/적용 (Filter)</strong><br>· 트리거: [필터] 버튼 클릭<br>· 동작: 말머리/지역/기간 다중 필터 패널 노출<br>· [필터 반영하기] 클릭 시 비동기 리스트 갱신</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>정렬 변경 (Sort)</strong><br>· 트리거: 정렬 드롭다운 변경<br>· 동작: 최신순/조회순/공감순 재정렬</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>게시글 클릭 (Navigate Detail)</strong><br>· 트리거: 게시글 항목 클릭<br>· 동작: /community/posts/{postId} 상세 페이지 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>공감 토글 (Toggle Like)</strong><br>· 트리거: ♥ 아이콘 클릭<br>· 비로그인: 로그인 유도 팝업<br>· API: <code>POST /api/community/posts/{postId}/like</code></td></tr>
+          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>글쓰기 (FAB Click)</strong><br>· 트리거: ✏️ 플로팅 버튼 클릭<br>· 전제: 로그인 회원만 노출<br>· 동작: 커뮤니티 글 작성 에디터 페이지 이동</td></tr>
+          <tr><td class="num" style="color:#3730a3;">E7</td><td class="desc-text"><strong>무한 스크롤 (Infinite Scroll)</strong><br>· 트리거: 스크롤 하단 도달 (Intersection Observer)<br>· 동작: 다음 페이지 게시글 자동 로드</td></tr>
         </table>
 
         <div class="checkpoint">
@@ -1460,6 +1457,34 @@
     </div>
   </div>
 
+
+<script>
+  function positionMarkers() {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      var r = sa.getBoundingClientRect();
+      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
+      sa.querySelectorAll('[data-marker]').forEach(function(t) {
+        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+        var isBtn = (t.tagName === 'BUTTON');
+        var m = document.createElement('div');
+        m.className = 'marker'; m.textContent = n;
+        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
+        if (left + 28 > r.width) left = tr.left - r.left - 34;
+        if (left < 0) left = 4; if (top < 0) top = 4;
+        m.style.top = top + 'px'; m.style.left = left + 'px';
+        sa.appendChild(m);
+      });
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    document.querySelectorAll('.screen-area').forEach(function(sa) {
+      new ResizeObserver(positionMarkers).observe(sa);
+    });
+  }
+</script>
 </body>
 
 </html>

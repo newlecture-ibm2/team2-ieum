@@ -377,7 +377,7 @@
             </div>
             <div class="mockup-content">
               <div class="mockup-title">
-                <span>💬 내 댓글 목록 <span style="font-size:14px; color:#64748b; font-weight:500;">(총 4개)</span></span>
+                <span data-marker="1">💬 내 댓글 목록 <span style="font-size:14px; color:#64748b; font-weight:500;">(총 4개)</span></span>
               </div>
 
               <div style="display: flex; flex-direction: column; gap: 16px;">
@@ -385,13 +385,13 @@
                 <div
                   style="background:#fff; padding:20px; border-radius:12px; border:1px solid #e2e8f0; box-shadow: 0 1px 3px rgba(0,0,0,0.02);">
                   <div
-                    style="font-size:13px; font-weight:700; background:#f3e8ff; color:#6c5ce7; padding:8px 12px; border-radius:6px; margin-bottom:16px;">
+                    style="font-size:13px; font-weight:700; background:#f3e8ff; color:#6c5ce7; padding:8px 12px; border-radius:6px; margin-bottom:16px;" data-marker="2">
                     원문: [공지] 2024 지역축제 참가 가이드 〉</div>
 
                   <!-- My Comment -->
                   <div style="margin-bottom:16px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                      <span style="font-weight:700; font-size:14px; color:#1e293b;">축제매니아 <span
+                      <span data-marker="3" style="font-weight:700; font-size:14px; color:#1e293b;">축제매니아 <span
                           style="background:#6c5ce7; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">작성자</span></span>
                       <span style="font-size:12px; color:#64748b;">2024.03.26 14:30</span>
                     </div>
@@ -399,7 +399,7 @@
                     </div>
                     <div style="display:flex; justify-content:flex-end; gap:8px;">
                       <button
-                        style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#334155; cursor:pointer;">수정</button>
+                        style="border:1px solid #cbd5e1; background:#fff; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#334155; cursor:pointer;" data-marker="6">수정</button>
                       <button
                         style="border:1px solid #fecaca; background:#fef2f2; font-weight:600; padding:4px 10px; font-size:11px; border-radius:6px; color:#ef4444; cursor:pointer;">삭제</button>
                     </div>
@@ -408,7 +408,7 @@
                   <!-- Reply to My Comment -->
                   <div style="border-left: 2px solid #e2e8f0; padding-left:16px; margin-left:8px; margin-top:16px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                      <span style="font-weight:700; font-size:13px; color:#475569;">운영자 <span
+                      <span data-marker="4" style="font-weight:700; font-size:13px; color:#475569;">운영자 <span
                           style="background:#e2e8f0; color:#475569; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">답글</span></span>
                       <span style="font-size:12px; color:#64748b;">2024.03.26 15:00</span>
                     </div>
@@ -418,7 +418,7 @@
                     <!-- My Reply to the Reply -->
                     <div style="border-left: 2px solid #e2e8f0; padding-left:16px; margin-top:16px;">
                       <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
-                        <span style="font-weight:700; font-size:13px; color:#1e293b;">축제매니아 <span
+                        <span data-marker="5" style="font-weight:700; font-size:13px; color:#1e293b;">축제매니아 <span
                             style="background:#6c5ce7; color:#fff; font-size:10px; padding:2px 6px; border-radius:4px; margin-left:4px;">작성자</span></span>
                         <span style="font-size:12px; color:#64748b;">2024.03.26 15:10</span>
                       </div>
@@ -445,19 +445,7 @@
           </div>
         </div>
 
-        <!-- 번호 마커 -->
-        <!-- ① 댓글 카운트 (총 4개) 옆 -->
-        <div class="marker" style="top: 12%; left: 59%;">1</div>
-        <!-- ② 원문 게시글 그룹 블록 -->
-        <div class="marker" style="top: 18%; left: 38%;">2</div>
-        <!-- ③ 내 댓글 (축제매니아 - 작성자) -->
-        <div class="marker" style="top: 24%; left: 34%;">3</div>
-        <!-- ④ 타인의 답글 (운영자 - 답글) → 운영자 텍스트 바로 왼쪽 -->
-        <div class="marker" style="top: 35%; left: 37%;">4</div>
-        <!-- ⑤ 나의 대댓글 (축제매니아 - 2단) → 축제매니아 텍스트 바로 왼쪽 -->
-        <div class="marker" style="top: 42%; left: 39%;">5</div>
-        <!-- ⑥ 수정/삭제 버튼 → 삭제 버튼 오른쪽 -->
-        <div class="marker" style="top: 48%; right: 5%;">6</div>
+        <!-- 동적 마커 컨테이너 (JS로 자동 생성) -->
       </div>
       <div class="description-area">
         <div class="desc-title">Description</div>
@@ -484,8 +472,7 @@
             <td class="num">2</td>
             <td class="desc-text">
               <strong>원문 게시글 그룹 블록</strong><br>
-              댓글이 달린 원본 게시물(또는 축제명)을 파란색 배경의 타이틀 블록으로 표시<br>
-              블록 클릭 시 원본 게시글 페이지로 링크 이동 가능
+              댓글이 달린 원본 게시물(또는 축제명)을 파란색 배경의 타이틀 블록으로 표시
             </td>
           </tr>
           <tr>
@@ -493,8 +480,7 @@
             <td class="desc-text">
               <strong>내 댓글 (본인 작성)</strong><br>
               · 닉네임 옆 파란색 <strong>[작성자]</strong> 배지로 본인 댓글 강조 표시<br>
-              · 댓글 본문 텍스트 + 작성 일시<br>
-              · 우측에 [수정] / [삭제] 버튼 노출
+              · 댓글 본문 텍스트 + 작성 일시
             </td>
           </tr>
           <tr>
@@ -503,7 +489,7 @@
               <strong>타인의 답글 (대댓글)</strong><br>
               · 왼쪽 세로선(인덴트)으로 계층 구분 표시<br>
               · 회색 <strong>[답글]</strong> 배지 + 닉네임 + 작성 일시<br>
-              · 타인 답글에는 수정/삭제 버튼 비활성
+              · 타인 답글에는 수정/삭제 버튼 비노출
             </td>
           </tr>
           <tr>
@@ -511,16 +497,83 @@
             <td class="desc-text">
               <strong>나의 대댓글 (답글에 대한 답글)</strong><br>
               · 추가 인덴트(2단 들여쓰기)로 2차 계층 표현<br>
-              · 파란색 [작성자] 배지 + [수정] / [삭제] 버튼 활성
+              · 파란색 [작성자] 배지 표시
             </td>
           </tr>
           <tr>
             <td class="num">6</td>
             <td class="desc-text">
               <strong>[수정] / [삭제] 액션 버튼</strong><br>
-              · <strong>[수정]</strong>: 인라인 수정 모드 또는 수정 폼 팝업 전환<br>
-              · <strong>[삭제]</strong>: 삭제 확인 팝업 호출 후 처리<br>
-              · 삭제 시 해당 댓글의 하위 답글(대댓글)도 일괄 블라인드 처리
+              · 본인 댓글/대댓글 우측에만 노출되는 액션 버튼
+            </td>
+          </tr>
+        </table>
+
+        <!-- ===== Event Description ===== -->
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <table class="desc-table">
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text">
+              <strong>원문 블록 클릭 (Navigate to Original Post)</strong><br>
+              · 트리거: 원문 게시글 그룹 블록 클릭<br>
+              · 동작: 해당 원문 게시글 상세 페이지로 라우팅 이동<br>
+              · 결과: <code>/community/posts/{postId}</code> 페이지로 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text">
+              <strong>[수정] 버튼 클릭 (Inline Edit)</strong><br>
+              · 트리거: 본인 댓글/대댓글의 [수정] 버튼 클릭<br>
+              · 동작: 해당 댓글이 인라인 편집 모드로 전환 (textarea로 변경)<br>
+              · 완료 시: [저장] 버튼으로 수정 내용 반영<br>
+              · API: <code>PUT /api/community/posts/{postId}/comments/{commentId}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text">
+              <strong>[삭제] 버튼 클릭 (Delete with Cascade)</strong><br>
+              · 트리거: 본인 댓글/대댓글의 [삭제] 버튼 클릭<br>
+              · 동작: 삭제 확인 모달 표시 → "삭제하시겠습니까? 하위 답글도 함께 숨김됩니다."<br>
+              · 확인 시: 해당 댓글 + 하위 답글(대댓글) 일괄 블라인드 처리<br>
+              · 취소 시: 모달 닫힘<br>
+              · API: <code>DELETE /api/community/posts/{postId}/comments/{commentId}</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text">
+              <strong>카드 Hover 효과</strong><br>
+              · 트리거: 댓글 그룹 카드 영역에 마우스 진입<br>
+              · 동작: 카드 배경색 미세 변경 + 그림자 강조<br>
+              · 결과: 클릭 가능한 영역임을 시각적으로 전달
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text">
+              <strong>무한 스크롤 / 페이지네이션 (Load More)</strong><br>
+              · 트리거: 리스트 하단 도달 또는 "더보기" 클릭<br>
+              · 동작: 다음 페이지 데이터 비동기 로드<br>
+              · API: <code>GET /api/users/me/comments?page={n}&size=10</code>
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text">
+              <strong>빈 상태 (Empty State)</strong><br>
+              · 트리거: 댓글 조회 결과 0건<br>
+              · 동작: 빈 상태 일러스트 + "아직 작성한 댓글이 없어요." 안내 표시
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E7</td>
+            <td class="desc-text">
+              <strong>사이드바 메뉴 클릭 (Menu Navigation)</strong><br>
+              · 트리거: 좌측 사이드바 메뉴 항목 클릭<br>
+              · 동작: 클릭된 메뉴에 active 스타일 적용, 해당 서브 페이지로 이동
             </td>
           </tr>
         </table>
@@ -531,7 +584,8 @@
             · <strong>[중요 정책]</strong> 본인의 상위 댓글을 삭제할 경우 하위 답글(대댓글) 모두 함께 블라인드 처리<br>
             · 삭제된 댓글의 답글 작성자의 마이페이지에서도 해당 데이터는 더 이상 노출되지 않음<br>
             · 답글에 대한 답글도 포함하여 모아보기 제공 (계층 무제한은 아님, 최대 2단계까지)<br>
-            · 댓글 목록이 많을 경우 페이지네이션 적용
+            · 댓글 목록이 많을 경우 페이지네이션 적용<br>
+            · 삭제 확인 모달에서 하위 답글 블라인드 안내 문구 필수 포함
           </p>
         </div>
       </div>
@@ -580,6 +634,43 @@
       </tbody>
     </table>
   </div>
-</div></body>
+</div>
+<script>
+  function positionMarkers() {
+    const screenArea = document.querySelector('.screen-area');
+    if (!screenArea) return;
+    const areaRect = screenArea.getBoundingClientRect();
+    screenArea.querySelectorAll('.marker').forEach(m => m.remove());
+    const targets = screenArea.querySelectorAll('[data-marker]');
+    targets.forEach(target => {
+      const num = target.getAttribute('data-marker');
+      const tRect = target.getBoundingClientRect();
+      const isButton = target.tagName === 'BUTTON';
+      const marker = document.createElement('div');
+      marker.className = 'marker';
+      marker.textContent = num;
+      let top, left;
+      if (isButton) {
+        top = tRect.top - areaRect.top - 32;
+        left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+      } else {
+        top = tRect.top - areaRect.top;
+        left = tRect.right - areaRect.left + 6;
+      }
+      if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+      if (left < 0) left = 4;
+      if (top < 0) top = 4;
+      marker.style.top = top + 'px';
+      marker.style.left = left + 'px';
+      screenArea.appendChild(marker);
+    });
+  }
+  window.addEventListener('load', positionMarkers);
+  window.addEventListener('resize', positionMarkers);
+  if (typeof ResizeObserver !== 'undefined') {
+    new ResizeObserver(positionMarkers).observe(document.querySelector('.screen-area') || document.body);
+  }
+</script>
+</body>
 
 </html>
