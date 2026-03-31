@@ -1,6 +1,6 @@
 # ⚙️ 관리자 API (Admin)
 
-> 관리자 전용 API — 축제관리, 공지관리, 신고처리, 통계, 설문, 회원관리
+> 관리자 전용 API — 축제관리, 공지관리, 신고처리, 통계, 회원관리
 
 **Base URL**: `/api/admin`  
 **권한**: ADMIN 전용 (모든 API에 관리자 인증 필요)
@@ -350,74 +350,9 @@ Authorization: Bearer {adminAccessToken}
 
 ---
 
-## 📌 6. 설문 조사 (Survey)
+## 📌 6. 회원 관리 (User Management)
 
-### 6-1. 설문 등록
-
-| 항목 | 내용 |
-|------|------|
-| **URL** | `POST /api/admin/surveys` |
-| **권한** | ADMIN |
-
-#### Request Body
-
-```json
-{
-  "title": "2026 축제 만족도 조사",
-  "description": "이음 서비스 개선을 위한 설문입니다.",
-  "startDate": "2026-04-01",
-  "endDate": "2026-04-15",
-  "questions": [
-    {
-      "type": "SINGLE_CHOICE",
-      "question": "올해 가장 좋았던 축제는?",
-      "options": ["벚꽃 축제", "불꽃 축제", "음식 축제", "기타"]
-    },
-    {
-      "type": "TEXT",
-      "question": "서비스 개선 사항이 있다면 알려주세요."
-    }
-  ]
-}
-```
-
-### 6-2. 설문 결과 조회
-
-| 항목 | 내용 |
-|------|------|
-| **URL** | `GET /api/admin/surveys/{surveyId}/results` |
-| **권한** | ADMIN |
-
-#### Response (200 OK)
-
-```json
-{
-  "code": 200,
-  "data": {
-    "surveyId": 1,
-    "title": "2026 축제 만족도 조사",
-    "totalResponses": 150,
-    "results": [
-      {
-        "questionId": 1,
-        "question": "올해 가장 좋았던 축제는?",
-        "answers": {
-          "벚꽃 축제": 65,
-          "불꽃 축제": 42,
-          "음식 축제": 30,
-          "기타": 13
-        }
-      }
-    ]
-  }
-}
-```
-
----
-
-## 📌 7. 회원 관리 (User Management)
-
-### 7-1. 회원 목록 조회
+### 6-1. 회원 목록 조회
 
 | 항목 | 내용 |
 |------|------|
@@ -456,7 +391,7 @@ Authorization: Bearer {adminAccessToken}
 }
 ```
 
-### 7-2. 회원 상태 변경 (정지/복구)
+### 6-2. 회원 상태 변경 (정지/복구)
 
 | 항목 | 내용 |
 |------|------|

@@ -17,7 +17,7 @@
 | [community.md](./community.md) | 커뮤니티 게시판 (Q&A / 꿀팁 / 먹거리) | 누구나(조회) / USER(작성) |
 | [notice.md](./notice.md) | 공지사항 조회 | 누구나 |
 | [report.md](./report.md) | 신고 접수 | USER |
-| [admin.md](./admin.md) | 관리자 전용 API (축제관리, 공지관리, 신고처리, 통계, 설문, 회원관리) | ADMIN |
+| [admin.md](./admin.md) | 관리자 전용 API (축제관리, 공지관리, 신고처리, 통계, 회원관리) | ADMIN |
 | [tour_api_public_data.md](./tour_api_public_data.md) | 🏛️ 공공데이터 — 한국관광공사 국문 관광정보 서비스 (TourAPI) | 서버 내부 |
 
 ---
