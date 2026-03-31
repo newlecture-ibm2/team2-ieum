@@ -494,8 +494,8 @@ const tables = [
         x: 1600, y: 450,
         columns: [
             { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
-            { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE' },
-            { name: 'target_id', type: 'bigint', note: '대상 ID (게시글/공지)' },
+            { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE / INQUIRY' },
+            { name: 'target_id', type: 'bigint', note: '대상 ID (게시글/공지/문의)' },
             { name: 'file_name', type: 'varchar(200)', note: '원본 파일명' },
             { name: 'file_path', type: 'varchar(500)', note: '저장 경로' },
             { name: 'file_size', type: 'bigint', note: '파일 크기 (bytes)' },
@@ -617,6 +617,7 @@ const relationships = [
     { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
     { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'post_id', toCol: 'target_id' },
     { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
+    { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'inquiry_id', toCol: 'target_id' },
     { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
     { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
     { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
