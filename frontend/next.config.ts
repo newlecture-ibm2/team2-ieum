@@ -6,10 +6,17 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'images.unsplash.com',
+        pathname: '/**',
       },
       {
         protocol: 'https',
-        hostname: 'tong.visitkorea.or.kr', // TourAPI image domain for later use
+        hostname: 'tong.visitkorea.or.kr',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'tong.visitkorea.or.kr',
+        pathname: '/**',
       }
     ],
   },

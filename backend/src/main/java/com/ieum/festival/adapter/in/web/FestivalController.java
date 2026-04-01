@@ -94,7 +94,28 @@ public class FestivalController {
     @GetMapping("/{festivalId}")
     public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
         return repository.findById(festivalId)
-                .map(entity -> ResponseEntity.ok(Map.of("success", true, "data", entity)))
+                .map(entity -> {
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("id", entity.getId());
+                    result.put("sourceId", entity.getSourceId());
+                    result.put("title", entity.getTitle());
+                    result.put("address", entity.getAddress());
+                    result.put("imageUrl", entity.getImageUrl());
+                    result.put("thumbnailUrl", entity.getThumbnailUrl());
+                    result.put("startDate", entity.getStartDate());
+                    result.put("endDate", entity.getEndDate());
+                    result.put("status", entity.getStatus());
+                    
+                    if (entity.getSource() != null && entity.getSource().equals("API")) {
+                        Map<String, Object> extraDetails = syncService.fetchFestivalDetail(entity.getSourceId());
+                        result.put("overview", extraDetails.get("overview"));
+                        result.put("tel", extraDetails.get("tel"));
+                        result.put("fee", extraDetails.get("fee"));
+                        result.put("images", extraDetails.get("images"));
+                    }
+
+                    return ResponseEntity.ok(Map.of("success", true, "data", result));
+                })
                 .orElseGet(() -> ResponseEntity.status(404).body(Map.of("success", false, "error", "Not Found")));
     }
 }
