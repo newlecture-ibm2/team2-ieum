@@ -25,22 +25,33 @@ public class FestivalController {
     private final FestivalJpaRepository repository;
     private final TourApiSyncService syncService;
 
-    @Operation(summary = "축제 목록 조회 (DB)", description = "DB에 저장된 축제 목록을 조회합니다.")
+    @Operation(summary = "축제 목록 조회 (DB)", description = "DB에 저장된 축제 목록을 조회합니다. 1차 정렬(진행중 우선), 2차 정렬(최신순)")
     @GetMapping
     public ResponseEntity<?> getFestivals(
             @RequestParam(required = false) String status,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "12") int size
     ) {
-        // 실제 운영 시 Pageable/QueryDSL로 구현
-        List<FestivalEntity> list = repository.findAll();
+        // Pageable 시작은 0번 인덱스이므로 프론트에서 넘어오는 page가 1부터 시작하면 -1 처리
+        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page > 0 ? page - 1 : 0, size);
+        
+        // 프론트엔드에서 넘어오는 status 매핑 (전체는 null)
+        String queryStatus = null;
+        if (status != null && !status.isEmpty() && !status.equals("전체") && !status.equals("all")) {
+            queryStatus = status.toLowerCase().contains("ongoing") ? "ONGOING" : "UPCOMING";
+        }
+
+        // DB 쿼리 실행 (진행중 우선, 최신순 정렬)
+        org.springframework.data.domain.Page<FestivalEntity> festivalPage = repository.findFestivalsWithCustomOrder(queryStatus, pageable);
         
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
         
         Map<String, Object> data = new HashMap<>();
-        data.put("list", list);
-        data.put("total", list.size());
+        data.put("list", festivalPage.getContent());
+        data.put("total", festivalPage.getTotalElements());
+        data.put("totalPages", festivalPage.getTotalPages());
+        data.put("currentPage", page);
         
         response.put("data", data);
         
