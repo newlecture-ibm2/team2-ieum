@@ -1,0 +1,194 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: var(--header-height);
+  background: #ffffff;
+  box-shadow: var(--shadow-header);
+  transition: box-shadow var(--transition-normal);
+}
+
+.headerInner {
+  max-width: var(--max-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== 브랜드 로고 ===== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+}
+
+.logoPin {
+  width: 30px;
+  height: 30px;
+  background: var(--gradient-brand);
+  border-radius: 50% 50% 50% 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg);
+  transition: transform var(--transition-normal);
+}
+
+.logo:hover .logoPin {
+  transform: rotate(-45deg) scale(1.1);
+}
+
+.logoPinInner {
+  width: 13px;
+  height: 13px;
+  background: white;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.logoImg {
+  width: 150px;
+  /* 여기서 넓이를 자유롭게 늘렸다 줄였다 하세요! */
+  height: auto;
+  object-fit: contain;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-gray-800);
+  letter-spacing: -1px;
+}
+
+/* ===== 네비게이션 ===== */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navLink {
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  padding: 4px 0;
+  transition: color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--color-primary-500);
+}
+
+.navLinkActive {
+  color: var(--color-primary-500);
+  font-weight: 700;
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-active);
+  border-radius: 2px;
+}
+
+/* ===== 우측 액션 버튼 ===== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 알림 벨 */
+.bellBtn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-gray-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.bellBtn:hover {
+  background: var(--color-primary-50);
+}
+
+.bellBtn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-gray-500);
+}
+
+.bellDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-accent-400);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+/* 사용자 아이콘 */
+.userBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.userBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+}
+
+.userBtn svg {
+  width: 16px;
+  height: 16px;
+  color: white;
+}
+
+/* 비회원용 버튼 */
+.loginBtn {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.loginBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
