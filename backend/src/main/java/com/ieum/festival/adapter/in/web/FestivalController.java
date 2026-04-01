@@ -1,102 +1,71 @@
 package com.ieum.festival.adapter.in.web;
 
+import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
+import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
+import com.ieum.festival.application.service.TourApiSyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-@Tag(name = "축제", description = "축제 조회 / 검색 / 지도 / 달력")
+@Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
 @RestController
 @RequestMapping("/api/festivals")
+@RequiredArgsConstructor
 public class FestivalController {
 
-    @Operation(summary = "축제 목록 조회", description = "지역, 상태, 카테고리, 키워드로 필터링하여 축제 목록을 조회합니다. 비회원 이용 가능.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공"),
-            @ApiResponse(responseCode = "400", description = "잘못된 요청 파라미터")
-    })
+    private final FestivalJpaRepository repository;
+    private final TourApiSyncService syncService;
+
+    @Operation(summary = "축제 목록 조회 (DB)", description = "DB에 저장된 축제 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<?> getFestivals(
-            @Parameter(description = "지역 필터 (시/도)", example = "서울특별시")
-            @RequestParam(required = false) String region,
-            @Parameter(description = "축제 상태", example = "ONGOING")
             @RequestParam(required = false) String status,
-            @Parameter(description = "카테고리", example = "음악")
-            @RequestParam(required = false) String category,
-            @Parameter(description = "검색 키워드")
-            @RequestParam(required = false) String keyword,
-            @Parameter(description = "페이지 번호", example = "0")
             @RequestParam(defaultValue = "0") int page,
-            @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size
     ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "축제 목록"));
+        // 실제 운영 시 Pageable/QueryDSL로 구현
+        List<FestivalEntity> list = repository.findAll();
+        
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        
+        Map<String, Object> data = new HashMap<>();
+        data.put("list", list);
+        data.put("total", list.size());
+        
+        response.put("data", data);
+        
+        return ResponseEntity.ok(response);
+    }
+
+    @Operation(summary = "공공데이터 동기화 (수동 배치)", description = "한국관광공사 TourAPI를 호출하여 DB를 업데이트합니다.")
+    @PostMapping("/sync")
+    public ResponseEntity<?> syncTourApi(
+            @Parameter(description = "시작일 (YYYYMMDD)", example = "20260401")
+            @RequestParam(defaultValue = "20260401") String eventStartDate
+    ) {
+        try {
+            syncService.syncFestivals(eventStartDate);
+            return ResponseEntity.ok(Map.of("success", true, "message", "동기화 스케줄이 완료되었습니다. (로그를 확인하세요)"));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(Map.of("success", false, "error", e.getMessage()));
+        }
     }
 
     @Operation(summary = "축제 상세 조회", description = "축제 ID로 상세 정보를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공"),
-            @ApiResponse(responseCode = "404", description = "축제를 찾을 수 없음")
-    })
     @GetMapping("/{festivalId}")
-    public ResponseEntity<?> getFestivalDetail(
-            @Parameter(description = "축제 ID", required = true, example = "1")
-            @PathVariable Long festivalId
-    ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "축제 상세"));
-    }
-
-    @Operation(summary = "축제 검색", description = "키워드, 시작일, 종료일로 축제를 검색합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "검색 성공")
-    })
-    @GetMapping("/search")
-    public ResponseEntity<?> searchFestivals(
-            @Parameter(description = "검색 키워드")
-            @RequestParam(required = false) String keyword,
-            @Parameter(description = "시작일", example = "2026-04-01")
-            @RequestParam(required = false) String startDate,
-            @Parameter(description = "종료일", example = "2026-04-30")
-            @RequestParam(required = false) String endDate
-    ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "축제 검색 결과"));
-    }
-
-    @Operation(summary = "지도용 축제 조회", description = "지도에 표시할 축제 목록을 조회합니다. (위경도 포함)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("/map")
-    public ResponseEntity<?> getFestivalsForMap(
-            @Parameter(description = "지역 필터")
-            @RequestParam(required = false) String region,
-            @Parameter(description = "축제 상태 필터")
-            @RequestParam(required = false) String status
-    ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "지도용 축제 목록"));
-    }
-
-    @Operation(summary = "달력용 축제 조회", description = "연/월 기준으로 달력에 표시할 축제를 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("/calendar")
-    public ResponseEntity<?> getFestivalsForCalendar(
-            @Parameter(description = "연도", example = "2026")
-            @RequestParam int year,
-            @Parameter(description = "월", example = "4")
-            @RequestParam int month
-    ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "달력용 축제 목록"));
+    public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
+        return repository.findById(festivalId)
+                .map(entity -> ResponseEntity.ok(Map.of("success", true, "data", entity)))
+                .orElseGet(() -> ResponseEntity.status(404).body(Map.of("success", false, "error", "Not Found")));
     }
 }

@@ -59,6 +59,7 @@ public class SecurityConfig {
 
                         // ✅ 축제 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/festivals/sync").permitAll() // ✅ 공공데이터 수동 동기화 허용
 
                         // ✅ 리뷰 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
