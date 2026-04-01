@@ -34,10 +34,10 @@ public class TourApiSyncService {
 
     @Scheduled(cron = "0 0 4 * * ?") // 매일 04시에 자동 수행
     public void scheduledSync() {
-        log.info("⏰ 스케줄러 직동: 공공데이터 자동 동기화 시작");
-        // 오늘 날짜 기준으로 진행중/예정 축제 동기화 (원하는 기준에 따라 변경 가능)
-        String today = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
-        syncFestivals(today);
+        log.info("⏰ 스케줄러 작동: 공공데이터 자동 동기화 시작");
+        // 오늘 날짜 기준 2년 전부터의 축제 데이터를 모두 수집
+        String twoYearsAgo = LocalDate.now().minusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        syncFestivals(twoYearsAgo);
     }
 
     @Transactional

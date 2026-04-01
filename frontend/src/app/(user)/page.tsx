@@ -1,21 +1,19 @@
 import axios from 'axios';
-import HeroBanner from './_components/HeroBanner'
-import SearchFilter from './_components/SearchFilter';
-import FestivalList from './_components/FestivalList';
-import Pagination from './_components/Pagination';
-import styles from './page.module.css';
+import HeroBanner from '../_components/HeroBanner'
+import SearchFilter from '../_components/SearchFilter';
+import FestivalList from '../_components/FestivalList';
+import Pagination from '../_components/Pagination';
+import styles from '../page.module.css';
 import { Festival } from '@/types/festival';
 
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
-async function getFestivals(status?: string, page: string = '1'): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
+async function getFestivals(status?: string, page: string = '1', keyword?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
   try {
-    // 실제 환경에서는 환경 변수를 활용 (Docker Compose의 경우 API_BASE_URL 사용)
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'http://localhost:8080';
 
-    // axios를 사용하여 실제 엔드포인트 호출
     const params = new URLSearchParams();
     if (status) params.append('status', status);
-    // 프론트에서 넘어온 페이지 요청, 기본 12개 (3x4 페이징 그리드)
+    if (keyword) params.append('keyword', keyword);
     params.append('page', page);
     params.append('size', '12');
 
@@ -40,11 +38,11 @@ export default async function MainPage({
   const resolvedParams = await searchParams;
   const currentTab = resolvedParams.status || 'all';
   const currentPageParams = resolvedParams.page || '1';
+  const currentKeyword = resolvedParams.keyword || '';
 
-  // URL의 status 파라미터가 그대로 백엔드 API 값과 매칭됨 (ongoing, upcoming, all)
   const statusQuery = currentTab === 'all' ? '' : currentTab;
 
-  const festivalData = await getFestivals(statusQuery, currentPageParams);
+  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined);
 
   return (
     <main className={styles.mainContainer}>

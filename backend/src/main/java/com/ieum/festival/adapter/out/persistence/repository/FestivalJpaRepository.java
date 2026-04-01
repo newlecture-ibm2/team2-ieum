@@ -9,18 +9,17 @@ import java.util.Optional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 @Repository
 public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Long> {
     Optional<FestivalEntity> findBySourceId(String sourceId);
 
     /**
-     * [전체 탭] 모든 축제를 가져오되, 날짜 기반 동적 정렬:
-     *  1순위: 진행 중 (오늘이 startDate~endDate 사이)
-     *  2순위: 진행 전 (startDate가 오늘 이후) → 시작일 가까운 순
-     *  3순위: 종료됨 (endDate가 오늘 이전) → 최근 종료된 순
+     * [전체 탭] 키워드 검색 + 날짜 기반 동적 정렬
      */
     @Query("SELECT f FROM FestivalEntity f " +
+           "WHERE (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
            "ORDER BY " +
            "CASE " +
            "  WHEN CURRENT_DATE BETWEEN f.startDate AND f.endDate THEN 1 " +
@@ -33,23 +32,23 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
            "  ELSE NULL " +
            "END ASC, " +
            "f.endDate DESC NULLS LAST")
-    Page<FestivalEntity> findAllWithDynamicOrder(Pageable pageable);
+    Page<FestivalEntity> findAllWithDynamicOrder(@Param("keyword") String keyword, Pageable pageable);
 
     /**
-     * [진행중 탭] 오늘 날짜가 startDate~endDate 범위 안에 있는 축제만 조회
-     *  정렬: 종료일이 가까운 순 (곧 끝나는 축제 우선)
+     * [진행중 탭] 키워드 검색 + 오늘 날짜가 startDate~endDate 범위 안에 있는 축제만
      */
     @Query("SELECT f FROM FestivalEntity f " +
            "WHERE f.startDate <= CURRENT_DATE AND f.endDate >= CURRENT_DATE " +
+           "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
            "ORDER BY f.endDate ASC")
-    Page<FestivalEntity> findOngoingFestivals(Pageable pageable);
+    Page<FestivalEntity> findOngoingFestivals(@Param("keyword") String keyword, Pageable pageable);
 
     /**
-     * [진행전 탭] 아직 시작되지 않은 축제만 조회
-     *  정렬: 시작일이 가까운 순 (곧 시작할 축제 우선)
+     * [진행전 탭] 키워드 검색 + 아직 시작되지 않은 축제만
      */
     @Query("SELECT f FROM FestivalEntity f " +
            "WHERE f.startDate > CURRENT_DATE " +
+           "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
            "ORDER BY f.startDate ASC")
-    Page<FestivalEntity> findUpcomingFestivals(Pageable pageable);
+    Page<FestivalEntity> findUpcomingFestivals(@Param("keyword") String keyword, Pageable pageable);
 }

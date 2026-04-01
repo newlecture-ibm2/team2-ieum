@@ -163,3 +163,32 @@
 .closeIcon:hover {
   opacity: 1;
 }
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-300);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.clearBtn:hover {
+  background: var(--color-gray-500);
+}
+
+.closeIconBtn {
+  display: inline-flex;
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 2px;
+}

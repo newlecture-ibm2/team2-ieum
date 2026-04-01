@@ -36,23 +36,25 @@ public class FestivalController {
     public ResponseEntity<?> getFestivals(
             @Parameter(description = "필터 상태 (all, ongoing, upcoming)", example = "ongoing")
             @RequestParam(required = false) String status,
+            @Parameter(description = "검색 키워드 (축제명, 지역명)", example = "벚꽃")
+            @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size
     ) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
 
-        // 날짜 기반 동적 필터링: DB 쿼리 레벨에서 CURRENT_DATE 비교
+        // 빈 문자열은 null로 통일 (JPQL에서 :keyword IS NULL 조건 활용)
+        String searchKeyword = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
+
+        // 날짜 기반 동적 필터링 + 키워드 검색
         Page<FestivalEntity> festivalPage;
 
         if ("ongoing".equalsIgnoreCase(status)) {
-            // 진행중: startDate <= 오늘 <= endDate
-            festivalPage = repository.findOngoingFestivals(pageable);
+            festivalPage = repository.findOngoingFestivals(searchKeyword, pageable);
         } else if ("upcoming".equalsIgnoreCase(status)) {
-            // 진행전: startDate > 오늘, 시작일 가까운 순
-            festivalPage = repository.findUpcomingFestivals(pageable);
+            festivalPage = repository.findUpcomingFestivals(searchKeyword, pageable);
         } else {
-            // 전체: 진행중 우선 → 진행전(가까운 순) → 종료(최근 순)
-            festivalPage = repository.findAllWithDynamicOrder(pageable);
+            festivalPage = repository.findAllWithDynamicOrder(searchKeyword, pageable);
         }
 
         Map<String, Object> response = new HashMap<>();
@@ -69,12 +71,17 @@ public class FestivalController {
         return ResponseEntity.ok(response);
     }
 
-    @Operation(summary = "공공데이터 동기화 (수동 배치)", description = "한국관광공사 TourAPI를 호출하여 DB를 업데이트합니다.")
+    @Operation(summary = "공공데이터 동기화 (수동 배치)", description = "한국관광공사 TourAPI를 호출하여 DB를 업데이트합니다. 기본값: 오늘 기준 2년 전")
     @PostMapping("/sync")
     public ResponseEntity<?> syncTourApi(
-            @Parameter(description = "시작일 (YYYYMMDD)", example = "20260401")
-            @RequestParam(defaultValue = "20260401") String eventStartDate
+            @Parameter(description = "시작일 (YYYYMMDD, 미입력 시 2년 전)", example = "20240401")
+            @RequestParam(required = false) String eventStartDate
     ) {
+        // 파라미터 미입력 시 오늘 기준 2년 전 날짜를 자동 계산
+        if (eventStartDate == null || eventStartDate.isBlank()) {
+            eventStartDate = java.time.LocalDate.now().minusYears(2)
+                    .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
+        }
         try {
             syncService.syncFestivals(eventStartDate);
             return ResponseEntity.ok(Map.of("success", true, "message", "동기화 스케줄이 완료되었습니다. (로그를 확인하세요)"));

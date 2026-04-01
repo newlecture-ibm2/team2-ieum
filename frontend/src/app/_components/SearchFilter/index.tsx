@@ -1,20 +1,43 @@
 'use client';
 
-import { Search, Filter, X } from 'lucide-react';
+import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { Search, X } from 'lucide-react';
 import styles from './SearchFilter.module.css';
 
 export default function SearchFilter() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const currentKeyword = searchParams.get('keyword') || '';
+
+  const [keyword, setKeyword] = useState(currentKeyword);
+
+  const handleSearch = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (keyword.trim()) {
+      params.set('keyword', keyword.trim());
+    } else {
+      params.delete('keyword');
+    }
+    // 검색 시 1페이지로 리셋
+    params.delete('page');
+    router.push(`/?${params.toString()}`);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') handleSearch();
+  };
+
+  const clearKeyword = () => {
+    setKeyword('');
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete('keyword');
+    params.delete('page');
+    router.push(`/?${params.toString()}`);
+  };
+
   return (
     <div className={styles.wrapper}>
-      {/* 퀵 카테고리 (Wow 포인트) */}
-      <div className={styles.quickTags}>
-        <button className={styles.quickTag}>🌸 벚꽃/봄꽃</button>
-        <button className={styles.quickTag}>🌊 바다 축제</button>
-        <button className={styles.quickTag}>🍱 먹거리/푸드</button>
-        <button className={styles.quickTag}>👨‍👩‍👧 가족과 함께</button>
-        <button className={styles.quickTag}>🌌 야경 명소</button>
-      </div>
-
       <div className={styles.filterBar}>
         <div className={styles.left}>
           <div className={styles.inputWrap}>
@@ -23,32 +46,31 @@ export default function SearchFilter() {
               type="text" 
               placeholder="축제명, 지역명으로 검색해보세요" 
               className={styles.input}
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              onKeyDown={handleKeyDown}
             />
+            {keyword && (
+              <button className={styles.clearBtn} onClick={clearKeyword} aria-label="검색어 지우기">
+                <X size={14} />
+              </button>
+            )}
           </div>
-          <button className={styles.filterBtn}>
-            <Filter size={16} /> 상세 필터
-          </button>
-          <button className={styles.submitBtn}>검색</button>
-        </div>
-
-        <div className={styles.right}>
-          <select className={styles.sortSelect} defaultValue="latest">
-            <option value="latest">최신순</option>
-            <option value="popular">인기순</option>
-            <option value="rating">별점순</option>
-          </select>
+          <button className={styles.submitBtn} onClick={handleSearch}>검색</button>
         </div>
       </div>
 
-      {/* 액티브 필터 태그들 */}
-      <div className={styles.activeTags}>
-        <span className={styles.activeTag}>
-          서울 <X size={12} className={styles.closeIcon} />
-        </span>
-        <span className={styles.activeTag}>
-          진행중 <X size={12} className={styles.closeIcon} />
-        </span>
-      </div>
+      {/* 현재 검색 중인 키워드 태그 */}
+      {currentKeyword && (
+        <div className={styles.activeTags}>
+          <span className={styles.activeTag}>
+            &quot;{currentKeyword}&quot; 검색 결과
+            <button onClick={clearKeyword} className={styles.closeIconBtn}>
+              <X size={12} className={styles.closeIcon} />
+            </button>
+          </span>
+        </div>
+      )}
     </div>
   );
 }
