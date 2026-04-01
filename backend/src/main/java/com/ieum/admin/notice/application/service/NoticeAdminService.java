@@ -10,7 +10,8 @@ import com.ieum.notice.application.port.out.NoticePort;
 import com.ieum.notice.domain.model.Notice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -93,7 +94,8 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Notice> getAdminNotices(Pageable pageable) {
-        return noticePort.findAll(null, null, pageable);
+    public Page<Notice> getAdminNotices(int page, int size) {
+        Sort sort = Sort.by("createdAt").descending();
+        return noticePort.findAll(null, null, PageRequest.of(page - 1, size, sort));
     }
 }

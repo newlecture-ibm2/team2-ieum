@@ -12,8 +12,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +22,7 @@ import java.util.List;
 
 /**
  * 관리자용 공지사항 컨트롤러 (Input Adapter)
- * - 로직 없이 UseCase만 호출
+ * - 로직 없이 UseCase만 호출, 원시값만 전달
  */
 @Tag(name = "[관리자] 공지사항 관리", description = "공지사항 작성 / 수정 / 삭제")
 @RestController
@@ -46,8 +44,7 @@ public class NoticeAdminController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.success(
-                getAdminNoticeListUseCase.getAdminNotices(
-                        PageRequest.of(page - 1, size, Sort.by("createdAt").descending()))));
+                getAdminNoticeListUseCase.getAdminNotices(page, size)));
     }
 
     /**

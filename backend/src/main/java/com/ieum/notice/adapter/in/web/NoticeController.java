@@ -13,19 +13,15 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 /**
  * 사용자용 공지사항 컨트롤러 (Input Adapter)
- * - 로직 없이 UseCase만 호출
+ * - 로직 없이 UseCase만 호출, 원시값만 전달
  */
 @Tag(name = "공지사항", description = "공지사항 조회 (CRUD는 Admin API)")
 @RestController
@@ -56,9 +52,7 @@ public class NoticeController {
             @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.success(
-                getNoticeListUseCase.getNotices(searchType, keyword,
-                        PageRequest.of(page - 1, size, Sort.by("isPinned").descending()
-                                .and(Sort.by("createdAt").descending())))));
+                getNoticeListUseCase.getNotices(searchType, keyword, page, size)));
     }
 
     /**
@@ -96,9 +90,9 @@ public class NoticeController {
             @PathVariable Long noticeId,
             @PathVariable Long fileId) {
         Resource resource = loadAttachmentUseCase.download(fileId);
-        String encodedName = URLEncoder.encode(resource.getFilename(), StandardCharsets.UTF_8);
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + encodedName + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION,
+                        "attachment; filename=\"" + resource.getFilename() + "\"")
                 .body(resource);
     }
 }
