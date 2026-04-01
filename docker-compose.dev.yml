@@ -1,0 +1,58 @@
+services:
+  backend:
+    image: ${BACKEND_IMAGE:-${USER_ID}-backend:dev}
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID}-backend-dev
+    ports:
+      - "9090:8080" # 개발용 백엔드 외부 노출
+    volumes:
+      - ./backend/upload:/app/upload # 개발용 로컬 디렉토리 마운트
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL 환경변수가 설정되지 않았습니다.}
+      - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ieum}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD 환경변수가 설정되지 않았습니다.}
+      - JWT_SECRET=${JWT_SECRET:?JWT_SECRET 환경변수가 설정되지 않았습니다.}
+      - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - UPLOAD_LOCATION=file:/app/upload/
+      - TOUR_API_SERVICE_KEY=${TOUR_API_SERVICE_KEY}
+      - TOUR_API_BASE_URL=${TOUR_API_BASE_URL:-https://apis.data.go.kr/B551011/KorService2}
+    restart: unless-stopped
+    depends_on:
+      - db
+
+  frontend:
+    image: ${FRONTEND_IMAGE:-${USER_ID}-frontend:dev}
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: ${USER_ID}-frontend-dev
+    ports:
+      - "4333:3000" # 개발용 프론트 포트 매핑
+    environment:
+      - PORT=3000
+      - API_BASE_URL=http://backend:8080
+      - SESSION_SECRET=${SESSION_SECRET}
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  # DB 서비스
+  db:
+    image: postgres:17
+    container_name: ${USER_ID}-db-dev
+    environment:
+      POSTGRES_DB: ${DB_NAME:-ieum-db}
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-ieum}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5455:5432" # 개발용 DB 외부 포트 매핑
+    volumes:
+      - db-data-dev:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  db-data-dev:
+    name: ${USER_ID:-ieum}-db-data-dev
