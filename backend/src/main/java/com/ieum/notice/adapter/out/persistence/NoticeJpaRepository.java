@@ -28,13 +28,13 @@ public interface NoticeJpaRepository extends JpaRepository<Notice, Long> {
     Page<Notice> findByContentContaining(String keyword, Pageable pageable);
 
     /**
-     * 제목+내용 검색
+     * 제목+내용 검색 (JPA 네이밍)
      */
-    @Query("SELECT n FROM Notice n WHERE n.title LIKE %:keyword% OR n.content LIKE %:keyword%")
-    Page<Notice> findByTitleOrContentContaining(@Param("keyword") String keyword, Pageable pageable);
+    Page<Notice> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword, Pageable pageable);
 
     /**
      * 팝업 공지 (isPopup=true, 현재 기간 내, 최신 1건)
+     * - IS NULL OR 조건은 JPA 네이밍으로 표현 불가하여 @Query 유지
      */
     @Query("SELECT n FROM Notice n WHERE n.isPopup = true " +
            "AND (n.startDate IS NULL OR n.startDate <= :now) " +

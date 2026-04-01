@@ -38,7 +38,7 @@ public class NoticePersistenceAdapter implements NoticePort {
         return switch (searchType != null ? searchType : "all") {
             case "title" -> noticeJpaRepository.findByTitleContaining(keyword, pageable);
             case "content" -> noticeJpaRepository.findByContentContaining(keyword, pageable);
-            default -> noticeJpaRepository.findByTitleOrContentContaining(keyword, pageable);
+            default -> noticeJpaRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
         };
     }
 
