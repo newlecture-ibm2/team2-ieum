@@ -38,12 +38,11 @@ export default async function MainPage({
 }) {
   // await searchParams (Next.js 15+ 방식 호환)
   const resolvedParams = await searchParams;
-  const currentTab = resolvedParams.status || '전체';
+  const currentTab = resolvedParams.status || 'all';
   const currentPageParams = resolvedParams.page || '1';
 
-  let statusQuery = '';
-  if (currentTab === '진행중') statusQuery = 'ongoing';
-  if (currentTab === '진행전') statusQuery = 'upcoming';
+  // URL의 status 파라미터가 그대로 백엔드 API 값과 매칭됨 (ongoing, upcoming, all)
+  const statusQuery = currentTab === 'all' ? '' : currentTab;
 
   const festivalData = await getFestivals(statusQuery, currentPageParams);
 

@@ -7,13 +7,13 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
@@ -25,36 +25,47 @@ public class FestivalController {
     private final FestivalJpaRepository repository;
     private final TourApiSyncService syncService;
 
-    @Operation(summary = "축제 목록 조회 (DB)", description = "DB에 저장된 축제 목록을 조회합니다. 1차 정렬(진행중 우선), 2차 정렬(최신순)")
+    @Operation(
+        summary = "축제 목록 조회 (날짜 기반 동적 필터링)",
+        description = "status 파라미터에 따라 전체/진행중/진행전 축제를 날짜 기반으로 필터링하여 조회합니다.\n" +
+                      "- 전체(all/미지정): 진행중 → 진행전(가까운 순) → 종료(최근 순)\n" +
+                      "- 진행중(ongoing): 오늘 날짜 기준 startDate ≤ 오늘 ≤ endDate\n" +
+                      "- 진행전(upcoming): startDate > 오늘, 시작일 가까운 순"
+    )
     @GetMapping
     public ResponseEntity<?> getFestivals(
+            @Parameter(description = "필터 상태 (all, ongoing, upcoming)", example = "ongoing")
             @RequestParam(required = false) String status,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size
     ) {
-        // Pageable 시작은 0번 인덱스이므로 프론트에서 넘어오는 page가 1부터 시작하면 -1 처리
-        org.springframework.data.domain.Pageable pageable = org.springframework.data.domain.PageRequest.of(page > 0 ? page - 1 : 0, size);
-        
-        // 프론트엔드에서 넘어오는 status 매핑 (전체는 null)
-        String queryStatus = null;
-        if (status != null && !status.isEmpty() && !status.equals("전체") && !status.equals("all")) {
-            queryStatus = status.toLowerCase().contains("ongoing") ? "ONGOING" : "UPCOMING";
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
+
+        // 날짜 기반 동적 필터링: DB 쿼리 레벨에서 CURRENT_DATE 비교
+        Page<FestivalEntity> festivalPage;
+
+        if ("ongoing".equalsIgnoreCase(status)) {
+            // 진행중: startDate <= 오늘 <= endDate
+            festivalPage = repository.findOngoingFestivals(pageable);
+        } else if ("upcoming".equalsIgnoreCase(status)) {
+            // 진행전: startDate > 오늘, 시작일 가까운 순
+            festivalPage = repository.findUpcomingFestivals(pageable);
+        } else {
+            // 전체: 진행중 우선 → 진행전(가까운 순) → 종료(최근 순)
+            festivalPage = repository.findAllWithDynamicOrder(pageable);
         }
 
-        // DB 쿼리 실행 (진행중 우선, 최신순 정렬)
-        org.springframework.data.domain.Page<FestivalEntity> festivalPage = repository.findFestivalsWithCustomOrder(queryStatus, pageable);
-        
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
-        
+
         Map<String, Object> data = new HashMap<>();
         data.put("list", festivalPage.getContent());
         data.put("total", festivalPage.getTotalElements());
         data.put("totalPages", festivalPage.getTotalPages());
         data.put("currentPage", page);
-        
+
         response.put("data", data);
-        
+
         return ResponseEntity.ok(response);
     }
 

@@ -35,7 +35,11 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
     return () => clearInterval(timer);
   }, []);
 
-  const TABS = ['전체', '진행중', '진행전'];
+  const TABS = [
+    { label: '전체', value: 'all' },
+    { label: '진행중', value: 'ongoing' },
+    { label: '진행전', value: 'upcoming' },
+  ];
 
   return (
     <section className={styles.heroSection}>
@@ -67,11 +71,11 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
             <div className={styles.pills}>
               {TABS.map(tab => (
                 <Link 
-                  key={tab} 
-                  href={`/?status=${tab}`} 
-                  className={`${styles.pill} ${currentTab === tab ? styles.activePill : ''}`}
+                  key={tab.value} 
+                  href={tab.value === 'all' ? '/' : `/?status=${tab.value}`} 
+                  className={`${styles.pill} ${currentTab === tab.value ? styles.activePill : ''}`}
                 >
-                  {tab}
+                  {tab.label}
                 </Link>
               ))}
             </div>
