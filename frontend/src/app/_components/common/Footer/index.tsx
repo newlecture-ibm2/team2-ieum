@@ -32,7 +32,7 @@ export default function Footer() {
           <div className={styles.linkCol}>
             <h4>서비스</h4>
             <ul>
-              <li><Link href="/festivals">전국축제</Link></li>
+              <li><Link href="/">전국축제</Link></li>
               <li><Link href="/pastFestivals">지난축제</Link></li>
               <li><Link href="/calendar">축제 달력</Link></li>
               <li><Link href="/community">커뮤니티</Link></li>

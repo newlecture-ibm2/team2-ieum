@@ -2,8 +2,7 @@
  * 이음(IEUM) 글로벌 디자인 시스템
  * — 브랜드 컬러, 리셋, 폰트, 공통 유틸
  */
-
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
 
 :root {
   /* ===== Primary & Accent — 이음 브랜드 (화면설계서 기준) ===== */
@@ -49,6 +48,7 @@
   --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
   --shadow-lg: 0 2px 12px rgba(0, 0, 0, 0.06);
   --shadow-header: 0 2px 12px rgba(0, 0, 0, 0.06);
+  --shadow-hover: 0 10px 25px rgba(108, 92, 231, 0.15);
 
   /* ===== Border Radius ===== */
   --radius-sm: 6px;

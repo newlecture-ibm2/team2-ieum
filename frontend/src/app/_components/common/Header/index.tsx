@@ -14,7 +14,7 @@ interface NavItem {
 }
 
 const NAV_ITEMS: NavItem[] = [
-  { label: "전국축제", href: "/festivals", match: "/festivals" },
+  { label: "전국축제", href: "/", match: "/festivals" },
   { label: "지난축제", href: "/pastFestivals", match: "/pastFestivals" },
   { label: "달력", href: "/calendar", match: "/calendar" },
   { label: "커뮤니티", href: "/community", match: "/community" },
