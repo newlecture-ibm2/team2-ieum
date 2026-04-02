@@ -2,10 +2,14 @@
 spring:
   application:
     name: ieum-festival
+  config:
+    import: 
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ieum
-    username: ieum
+    url: jdbc:postgresql://localhost:${DB_PORT:5454}/${DB_NAME:ieum-db}
+    username: ${SPRING_DATASOURCE_USERNAME:ieum}
     password: ${DB_PASSWORD:YOUR_SECRET_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
@@ -17,13 +21,16 @@ spring:
       hibernate:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
 
 server:
   port: 8080
-
 # JWT 설정
 jwt:
-  secret: ${JWT_SECRET:your-secret-key-at-least-256-bits-long-for-hs256}
+  secret: ${JWT_SECRET}
   expiration: 86400000  # 24시간 (밀리초)
 
 # Swagger 설정
@@ -44,3 +51,7 @@ springdoc:
 tour-api:
   base-url: https://apis.data.go.kr/B551011/KorService2
   service-key: ${TOUR_API_SERVICE_KEY:your-service-key-here}
+
+# Firebase (FCM) 연동
+firebase:
+  config-path: classpath:firebase-service-key.json

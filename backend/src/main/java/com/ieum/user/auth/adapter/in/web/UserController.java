@@ -83,24 +83,4 @@ public class UserController {
         return ResponseEntity.ok(Map.of("message", "내 리뷰"));
     }
 
-    @Operation(summary = "내 알림 목록", description = "내 알림 목록을 조회합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
-    @GetMapping("/me/notifications")
-    public ResponseEntity<?> getMyNotifications() {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "내 알림"));
-    }
-
-    @Operation(summary = "FCM 토큰 등록", description = "푸시 알림용 FCM 토큰을 등록합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "등록 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요")
-    })
-    @PostMapping("/me/fcm-token")
-    public ResponseEntity<?> registerFcmToken(@RequestBody Map<String, String> request) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "FCM 토큰 등록 성공"));
-    }
 }
