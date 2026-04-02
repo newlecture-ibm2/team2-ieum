@@ -7,13 +7,15 @@ import styles from '../page.module.css';
 import { Festival } from '@/types/festival';
 
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
-async function getFestivals(status?: string, page: string = '1', keyword?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
+async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
   try {
     const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'http://localhost:8080';
 
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (keyword) params.append('keyword', keyword);
+    if (areaCode) params.append('areaCode', areaCode);
+    if (month) params.append('month', month);
     params.append('page', page);
     params.append('size', '12');
 
@@ -39,10 +41,12 @@ export default async function MainPage({
   const currentTab = resolvedParams.status || 'all';
   const currentPageParams = resolvedParams.page || '1';
   const currentKeyword = resolvedParams.keyword || '';
+  const currentAreaCode = resolvedParams.areaCode || '';
+  const currentMonth = resolvedParams.month || '';
 
   const statusQuery = currentTab === 'all' ? '' : currentTab;
 
-  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined);
+  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined);
 
   return (
     <main className={styles.mainContainer}>

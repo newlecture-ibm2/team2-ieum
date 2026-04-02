@@ -37,7 +37,7 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
 
   const TABS = [
     { label: '전체', value: 'all' },
-    { label: '진행중', value: 'ongoing' },
+    { label: '진행예정', value: 'ongoing' },
     { label: '진행전', value: 'upcoming' },
   ];
 
@@ -45,7 +45,7 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
     <section className={styles.heroSection}>
       {/* Background Slides */}
       {BANNERS.map((banner, idx) => (
-        <div 
+        <div
           key={banner.id}
           className={`${styles.slide} ${idx === currentIndex ? styles.active : ''}`}
           style={{ backgroundImage: `url(${banner.image})` }}
@@ -70,27 +70,27 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
           <div className={styles.tabsRow}>
             <div className={styles.pills}>
               {TABS.map(tab => (
-                <Link 
-                  key={tab.value} 
-                  href={tab.value === 'all' ? '/' : `/?status=${tab.value}`} 
+                <Link
+                  key={tab.value}
+                  href={tab.value === 'all' ? '/' : `/?status=${tab.value}`}
                   className={`${styles.pill} ${currentTab === tab.value ? styles.activePill : ''}`}
                 >
                   {tab.label}
                 </Link>
               ))}
             </div>
-            
+
             <Link href="/festivals/map" className={styles.mapBtn}>
               <Map size={14} /> 지도 뷰로 보기
             </Link>
           </div>
         </div>
       </div>
-      
+
       {/* Dots Indicator */}
       <div className={styles.dots}>
         {BANNERS.map((_, idx) => (
-          <button 
+          <button
             key={idx}
             className={`${styles.dot} ${idx === currentIndex ? styles.activeDot : ''}`}
             onClick={() => setCurrentIndex(idx)}

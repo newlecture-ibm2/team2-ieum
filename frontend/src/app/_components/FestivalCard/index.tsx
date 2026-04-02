@@ -15,11 +15,11 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
   const imageSrc = festival.imageUrl || festival.thumbnailUrl || '/images/hero_spring.png'; // Fallback
   const rating = festival.avgStar || festival.avgRating || 0;
   const reviews = festival.reviewCount || 0;
-  
+
   // 상태에 따른 뱃지 스타일 분기
   const isOngoing = festival.status === 'ONGOING';
   const badgeClass = isOngoing ? styles.badgeOngoing : styles.badgeUpcoming;
-  const badgeText = isOngoing ? '진행중' : (festival.status === 'UPCOMING' ? '진행전' : '종료');
+  const badgeText = isOngoing ? '진행예정' : (festival.status === 'UPCOMING' ? '진행전' : '종료');
 
   // 날짜 포맷 (2026-04-01 -> 2026.04.01)
   const formatDt = (dt: string) => dt ? dt.replace(/-/g, '.') : '';
@@ -29,11 +29,11 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
       <div className={styles.imageWrap}>
         {/* Next.js Image를 쓸 수 있지만 외부 도메인 설정이 복잡할 수 있어 
             배경 이미지로 프리미엄하게 처리했습니다 */}
-        <div 
-          className={styles.image} 
-          style={{ backgroundImage: `url(${imageSrc})` }} 
+        <div
+          className={styles.image}
+          style={{ backgroundImage: `url(${imageSrc})` }}
         />
-        
+
         {/* 오버레이 마스크 */}
         <div className={styles.overlay} />
 
@@ -41,8 +41,8 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
         <span className={`${styles.badge} ${badgeClass}`}>
           {badgeText}
         </span>
-        
-        <button 
+
+        <button
           className={styles.heartBtn}
           onClick={(e) => {
             e.preventDefault();

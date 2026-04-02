@@ -12,15 +12,15 @@
 
 | API ID | Method | Endpoint | 설명 | 사용 화면 |
 |--------|--------|----------|------|----------|
-| API_FES_0010 | GET | `/api/festivals` | 축제 통합 목록 조회 | 전체 목록, 진행중 목록, 진행전 목록 |
-| API_FES_0020 | GET | `/api/festivals/{festivalId}` | 축제 상세 정보 조회 | 진행중 상세, 진행전 상세 |
-| API_FES_0040 | POST | `/api/festivals/{festivalId}/scrap` | 축제 찜하기 토글 | 진행중 목록, 진행중 상세 |
-| API_FES_0050 | GET | `/api/festivals/{festivalId}/filters` | 필터 옵션 조회 | 진행중 목록 |
-| API_REV_0010 | GET | `/api/festivals/{festivalId}/reviews` | 리뷰 목록 조회 | 진행중 상세 |
-| API_REV_0011 | POST | `/api/festivals/{festivalId}/reviews` | 리뷰 신규 등록 | 진행중 상세 |
-| API_REV_0012 | PATCH | `/api/reviews/{commentId}` | 리뷰 내용 수정 | 진행중 상세 |
-| API_REV_0013 | DELETE | `/api/reviews/{commentId}` | 리뷰 삭제 | 진행중 상세 |
-| API_REV_0020 | GET | `/api/festivals/{festivalId}/reviews/stats` | 리뷰 통계/별점 조회 | 진행중 목록, 진행중 상세 |
+| API_FES_0010 | GET | `/api/festivals` | 축제 통합 목록 조회 | 전체 목록, 진행예정 목록, 진행전 목록 |
+| API_FES_0020 | GET | `/api/festivals/{festivalId}` | 축제 상세 정보 조회 | 진행예정 상세, 진행전 상세 |
+| API_FES_0040 | POST | `/api/festivals/{festivalId}/scrap` | 축제 찜하기 토글 | 진행예정 목록, 진행예정 상세 |
+| API_FES_0050 | GET | `/api/festivals/{festivalId}/filters` | 필터 옵션 조회 | 진행예정 목록 |
+| API_REV_0010 | GET | `/api/festivals/{festivalId}/reviews` | 리뷰 목록 조회 | 진행예정 상세 |
+| API_REV_0011 | POST | `/api/festivals/{festivalId}/reviews` | 리뷰 신규 등록 | 진행예정 상세 |
+| API_REV_0012 | PATCH | `/api/reviews/{commentId}` | 리뷰 내용 수정 | 진행예정 상세 |
+| API_REV_0013 | DELETE | `/api/reviews/{commentId}` | 리뷰 삭제 | 진행예정 상세 |
+| API_REV_0020 | GET | `/api/festivals/{festivalId}/reviews/stats` | 리뷰 통계/별점 조회 | 진행예정 목록, 진행예정 상세 |
 
 ---
 
@@ -32,7 +32,7 @@
 |--------|-------------|----------|--------|------|
 | GET | `status`, `region` | `{ "list": [...], "total": 100 }` | API_FES_0010 | 축제 통합 목록 조회 |
 
-### 2-2. 전국축제 > 진행중 목록 (`/festivals?status=ongoing`)
+### 2-2. 전국축제 > 진행예정 목록 (`/festivals?status=ongoing`)
 
 | Method | 요청 파라미터 | 응답 예시 | API ID | 설명 |
 |--------|-------------|----------|--------|------|
@@ -41,7 +41,7 @@
 | POST | `festivalId` | `{ "isScrapped": true }` | API_FES_0040 | 축제 찜하기 토글 |
 | GET | `festivalId` | `{ "avgStar": 4.5, "dist": {} }` | API_REV_0020 | 리뷰 통계/별점 |
 
-### 2-3. 전국축제 > 진행중 상세 (`/festivals/[id]`)
+### 2-3. 전국축제 > 진행예정 상세 (`/festivals/[id]`)
 
 | Method | 요청 파라미터 | 응답 예시 | API ID | 설명 |
 |--------|-------------|----------|--------|------|
@@ -85,7 +85,7 @@
 
 | 파라미터 | 타입 | 필수 | 기본값 | 설명 |
 |---------|------|------|-------|------|
-| status | string | ❌ | 전체 | `ongoing` (진행중) / `upcoming` (진행전) / `ended` (종료) |
+| status | string | ❌ | 전체 | `ongoing` (진행예정) / `upcoming` (진행전) / `ended` (종료) |
 | region | string | ❌ | 전체 | 지역 코드 (예: `seoul`, `gyeonggi`, `busan` 등) |
 | page | int | ❌ | 1 | 페이지 번호 |
 | size | int | ❌ | 10 | 한 페이지당 항목 수 (최대 50) |
@@ -608,7 +608,7 @@ sequenceDiagram
     participant U as 사용자 (브라우저)
     participant S as 서버
 
-    Note over U,S: 전체/진행중/진행전 목록 화면
+    Note over U,S: 전체/진행예정/진행전 목록 화면
     U->>S: GET /api/festivals?status=ongoing&region=seoul
     S-->>U: 200 { list: [...], total: 100 }
 

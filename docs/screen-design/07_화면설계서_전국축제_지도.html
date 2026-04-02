@@ -834,7 +834,7 @@
             <div class="hero-sub">지도로 전국의 축제를 한눈에 탐색하세요 🗺️</div>
             <div class="tab-pills">
               <a href="#">전체</a>
-              <a href="#">진행중</a>
+              <a href="#">진행예정</a>
               <a href="#">진행전</a>
               <a href="#" class="active">🗺️ 지도</a>
             </div>
@@ -1042,7 +1042,7 @@
           <tr>
             <td class="num">2</td>
             <td class="desc-text">
-              <strong>히어로 배너 + 탭 필 (전체 / 진행중 / 진행전 / 🗺️ 지도)</strong><br>
+              <strong>히어로 배너 + 탭 필 (전체 / 진행예정 / 진행전 / 🗺️ 지도)</strong><br>
               · 퍼플 그라데이션 배경의 히어로 배너 영역<br>
               · 현재 "🗺️ 지도" 탭이 활성 상태 (화이트 필 하이라이트)<br>
               · 다른 탭 클릭 시 카드 리스트 뷰로 전환<br>
@@ -1105,13 +1105,14 @@
         </table>
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
           <tr>
             <td class="num" style="color:#3730a3;">E1</td>
             <td class="desc-text">
               <strong>탭 전환 (Switch View)</strong><br>
-              · 트리거: 전체/진행중/진행전 탭 클릭<br>
+              · 트리거: 전체/진행예정/진행전 탭 클릭<br>
               · 동작: 카드 리스트 뷰(UI-F-001)로 전환 + URL view 파라미터 변경
             </td>
           </tr>
@@ -1251,44 +1252,44 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(screenArea) {
-      var areaRect = screenArea.getBoundingClientRect();
-      screenArea.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      var targets = screenArea.querySelectorAll('[data-marker]');
-      targets.forEach(function(target) {
-        var num = target.getAttribute('data-marker');
-        var tRect = target.getBoundingClientRect();
-        var isButton = (target.tagName === 'BUTTON');
-        var marker = document.createElement('div');
-        marker.className = 'marker';
-        marker.textContent = num;
-        var top, left;
-        if (isButton) {
-          top = tRect.top - areaRect.top - 32;
-          left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
-        } else {
-          top = tRect.top - areaRect.top;
-          left = tRect.right - areaRect.left + 6;
-        }
-        if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
-        if (left < 0) left = 4;
-        if (top < 0) top = 4;
-        marker.style.top = top + 'px';
-        marker.style.left = left + 'px';
-        screenArea.appendChild(marker);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (screenArea) {
+        var areaRect = screenArea.getBoundingClientRect();
+        screenArea.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        var targets = screenArea.querySelectorAll('[data-marker]');
+        targets.forEach(function (target) {
+          var num = target.getAttribute('data-marker');
+          var tRect = target.getBoundingClientRect();
+          var isButton = (target.tagName === 'BUTTON');
+          var marker = document.createElement('div');
+          marker.className = 'marker';
+          marker.textContent = num;
+          var top, left;
+          if (isButton) {
+            top = tRect.top - areaRect.top - 32;
+            left = tRect.left - areaRect.left + (tRect.width / 2) - 14;
+          } else {
+            top = tRect.top - areaRect.top;
+            left = tRect.right - areaRect.left + 6;
+          }
+          if (left + 28 > areaRect.width) left = tRect.left - areaRect.left - 34;
+          if (left < 0) left = 4;
+          if (top < 0) top = 4;
+          marker.style.top = top + 'px';
+          marker.style.left = left + 'px';
+          screenArea.appendChild(marker);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>
