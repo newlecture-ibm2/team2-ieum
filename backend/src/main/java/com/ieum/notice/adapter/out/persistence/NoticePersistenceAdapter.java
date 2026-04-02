@@ -1,5 +1,6 @@
 package com.ieum.notice.adapter.out.persistence;
 
+import com.ieum.notice.adapter.out.persistence.entity.NoticeJpaEntity;
 import com.ieum.notice.application.port.out.NoticePort;
 import com.ieum.notice.domain.model.Notice;
 import lombok.RequiredArgsConstructor;
@@ -21,40 +22,49 @@ public class NoticePersistenceAdapter implements NoticePort {
 
     @Override
     public Notice save(Notice notice) {
-        return noticeJpaRepository.save(notice);
+        NoticeJpaEntity entity = NoticeJpaEntity.fromDomain(notice);
+        return noticeJpaRepository.save(entity).toDomain();
     }
 
     @Override
     public Optional<Notice> findById(Long noticeId) {
-        return noticeJpaRepository.findById(noticeId);
+        return noticeJpaRepository.findById(noticeId)
+                .map(NoticeJpaEntity::toDomain);
     }
 
     @Override
     public Page<Notice> findAll(String searchType, String keyword, Pageable pageable) {
+        Page<NoticeJpaEntity> page;
+
         if (keyword == null || keyword.isBlank()) {
-            return noticeJpaRepository.findAll(pageable);
+            page = noticeJpaRepository.findAll(pageable);
+        } else {
+            page = switch (searchType != null ? searchType : "all") {
+                case "title" -> noticeJpaRepository.findByTitleContaining(keyword, pageable);
+                case "content" -> noticeJpaRepository.findByContentContaining(keyword, pageable);
+                default -> noticeJpaRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
+            };
         }
 
-        return switch (searchType != null ? searchType : "all") {
-            case "title" -> noticeJpaRepository.findByTitleContaining(keyword, pageable);
-            case "content" -> noticeJpaRepository.findByContentContaining(keyword, pageable);
-            default -> noticeJpaRepository.findByTitleContainingOrContentContaining(keyword, keyword, pageable);
-        };
+        return page.map(NoticeJpaEntity::toDomain);
     }
 
     @Override
     public Optional<Notice> findPopupNotice() {
-        return noticeJpaRepository.findTopPopupNotice(LocalDateTime.now());
+        return noticeJpaRepository.findTopPopupNotice(LocalDateTime.now())
+                .map(NoticeJpaEntity::toDomain);
     }
 
     @Override
     public Optional<Notice> findPrevious(Long noticeId) {
-        return noticeJpaRepository.findFirstByIdLessThanOrderByIdDesc(noticeId);
+        return noticeJpaRepository.findFirstByIdLessThanOrderByIdDesc(noticeId)
+                .map(NoticeJpaEntity::toDomain);
     }
 
     @Override
     public Optional<Notice> findNext(Long noticeId) {
-        return noticeJpaRepository.findFirstByIdGreaterThanOrderByIdAsc(noticeId);
+        return noticeJpaRepository.findFirstByIdGreaterThanOrderByIdAsc(noticeId)
+                .map(NoticeJpaEntity::toDomain);
     }
 
     @Override

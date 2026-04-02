@@ -316,7 +316,7 @@ COMMENT ON COLUMN reports.processed_at  IS '처리 완료 일시';
 -- 2-9. 공지사항 (notices)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notices (
-    id              BIGSERIAL       PRIMARY KEY,
+    notice_id       BIGSERIAL       PRIMARY KEY,
     title           VARCHAR(255)    NOT NULL,
     content         TEXT            NOT NULL,
     is_pinned       BOOLEAN         NOT NULL DEFAULT FALSE,

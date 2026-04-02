@@ -62,13 +62,18 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
         NotificationSetting setting = notificationPort.findSettingByUserId(userId)
                 .orElse(NotificationSetting.builder().userId(userId).build());
 
-        if (pushEnabled != null) setting.setPushEnabled(pushEnabled);
-        if (festivalStart != null) setting.setFestivalStart(festivalStart);
-        if (festivalEnd != null) setting.setFestivalEnd(festivalEnd);
-        if (notice != null) setting.setNotice(notice);
-        if (comment != null) setting.setComment(comment);
+        NotificationSetting updated = NotificationSetting.builder()
+                .id(setting.getId())
+                .userId(setting.getUserId())
+                .pushEnabled(pushEnabled != null ? pushEnabled : setting.getPushEnabled())
+                .festivalStart(festivalStart != null ? festivalStart : setting.getFestivalStart())
+                .festivalEnd(festivalEnd != null ? festivalEnd : setting.getFestivalEnd())
+                .notice(notice != null ? notice : setting.getNotice())
+                .comment(comment != null ? comment : setting.getComment())
+                .updatedAt(setting.getUpdatedAt())
+                .build();
 
-        return notificationPort.saveSetting(setting);
+        return notificationPort.saveSetting(updated);
     }
 
     // ── API_USR_0070: 알림 읽음 처리 ──
