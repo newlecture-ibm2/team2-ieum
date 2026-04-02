@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 public class FestivalAdminService {
 
     private final AdminFestivalRepository festivalRepository;
+    private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
 
     public AdminFestivalListResult getFestivals(int page, int size, String keyword, String statusStr) {
         FestivalStatus status = null;
@@ -83,6 +84,7 @@ public class FestivalAdminService {
                 .startDate(f.getStartDate() != null ? f.getStartDate().toString() : "")
                 .endDate(f.getEndDate() != null ? f.getEndDate().toString() : "")
                 .category(f.getCategory())
+                .categoryLabel(categoryOptionService.resolveLabel(f.getCategorySub() != null ? f.getCategorySub() : f.getCategory()))
                 .status(f.getStatus().name().toLowerCase())
                 .isVisible(f.isVisible())
                 .build();

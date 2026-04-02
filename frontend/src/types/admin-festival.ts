@@ -89,6 +89,7 @@ export interface CustomFestivalItem {
   createdAt: string;
   content: string; // 상세 내용
   imgUrl: string | null; // 이미지 URL
+  extraImages: string | null; // 콤마로 연결된 갤러리 이미지 URL 
 }
 
 export interface CustomFestivalListResult {
@@ -98,6 +99,12 @@ export interface CustomFestivalListResult {
 }
 
 export interface RegionOptionDto {
+  label: string;
+  value: string;
+  type: string;
+}
+
+export interface CategoryOptionDto {
   label: string;
   value: string;
   type: string;

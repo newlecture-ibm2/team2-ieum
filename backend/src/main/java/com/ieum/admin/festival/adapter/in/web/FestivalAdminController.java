@@ -18,20 +18,29 @@ public class FestivalAdminController {
     private final com.ieum.admin.festival.application.service.FestivalAdminService festivalAdminService;
     private final com.ieum.admin.festival.application.service.FestivalSyncService festivalSyncService;
     private final com.ieum.festival.application.service.RegionOptionService regionOptionService;
+    private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
 
     public FestivalAdminController(
             com.ieum.admin.festival.application.service.FestivalAdminService festivalAdminService,
             com.ieum.admin.festival.application.service.FestivalSyncService festivalSyncService,
-            com.ieum.festival.application.service.RegionOptionService regionOptionService) {
+            com.ieum.festival.application.service.RegionOptionService regionOptionService,
+            com.ieum.festival.application.service.CategoryOptionService categoryOptionService) {
         this.festivalAdminService = festivalAdminService;
         this.festivalSyncService = festivalSyncService;
         this.regionOptionService = regionOptionService;
+        this.categoryOptionService = categoryOptionService;
     }
 
     @Operation(summary = "지역 옵션 분류 조회", description = "표준(공공API) 및 자체 기획 예외 옵션을 병합한 지역 목록 반환")
     @GetMapping("/regions/options")
     public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.RegionOptionDto>>> getRegionOptions() {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(regionOptionService.getMergedRegionOptions()));
+    }
+
+    @Operation(summary = "카테고리 옵션 분류 조회", description = "표준(공공API) 및 자체 기획 예외 카테고리 옵션을 병합한 목록 반환")
+    @GetMapping("/categories/options")
+    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.CategoryOptionDto>>> getCategoryOptions() {
+        return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(categoryOptionService.getMergedCategoryOptions()));
     }
 
     @Operation(summary = "관리자용 축제 목록 조회", description = "관리자용 축제 목록을 조회합니다. source, sourceId 등 관리 필드를 포함합니다.")

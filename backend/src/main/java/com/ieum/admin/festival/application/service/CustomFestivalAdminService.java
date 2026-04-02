@@ -31,6 +31,7 @@ public class CustomFestivalAdminService {
     private final AdminFestivalRepository repository;
     private final FileStorageService fileStorageService;
     private final RegionOptionService regionOptionService;
+    private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
 
     @Transactional(readOnly = true)
     public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam) {
@@ -50,7 +51,8 @@ public class CustomFestivalAdminService {
         List<CustomFestivalItem> items = festivalPage.getContent().stream()
                 .map(festival -> {
                     String resolvedLabel = regionOptionService.resolveLabel(festival.getAreaCode());
-                    return CustomFestivalItem.from(festival, resolvedLabel);
+                    String categoryLabel = categoryOptionService.resolveLabel(festival.getCategory());
+                    return CustomFestivalItem.from(festival, resolvedLabel, categoryLabel);
                 })
                 .collect(Collectors.toList());
 
@@ -89,6 +91,18 @@ public class CustomFestivalAdminService {
                 .status(calculateStatus(request.getStartDate(), request.getEndDate()))
                 .build();
 
+        if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
+            java.util.List<String> extraImageUrls = new java.util.ArrayList<>();
+            for (org.springframework.web.multipart.MultipartFile extraImg : request.getExtraImgs()) {
+                if (extraImg != null && !extraImg.isEmpty()) {
+                    extraImageUrls.add(fileStorageService.storeFile(extraImg));
+                }
+            }
+            if (!extraImageUrls.isEmpty()) {
+                festival.setExtraImages(String.join(",", extraImageUrls));
+            }
+        }
+
         return repository.save(festival).getId();
     }
 
@@ -116,6 +130,18 @@ public class CustomFestivalAdminService {
         if (request.getImg() != null && !request.getImg().isEmpty()) {
             String imgUrl = fileStorageService.storeFile(request.getImg());
             festival.setImageUrl(imgUrl);
+        }
+
+        if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
+            java.util.List<String> extraImageUrls = new java.util.ArrayList<>();
+            for (org.springframework.web.multipart.MultipartFile extraImg : request.getExtraImgs()) {
+                if (extraImg != null && !extraImg.isEmpty()) {
+                    extraImageUrls.add(fileStorageService.storeFile(extraImg));
+                }
+            }
+            if (!extraImageUrls.isEmpty()) {
+                festival.setExtraImages(String.join(",", extraImageUrls));
+            }
         }
     }
 

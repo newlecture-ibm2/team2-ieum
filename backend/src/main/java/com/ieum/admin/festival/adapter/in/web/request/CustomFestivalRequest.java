@@ -13,5 +13,6 @@ public class CustomFestivalRequest {
     private String content;
     private String category;
     private MultipartFile img;
+    private java.util.List<MultipartFile> extraImgs;
     private Boolean isVisible; // nullable for POST (default true), provided usually for PUT
 }

@@ -60,6 +60,9 @@ public class Festival {
     @Column(name = "thumbnail_url", length = 500)
     private String thumbnailUrl;
 
+    @Column(name = "extra_images", columnDefinition = "TEXT")
+    private String extraImages;
+
     @Column(name = "homepage", length = 500)
     private String homepage;
 

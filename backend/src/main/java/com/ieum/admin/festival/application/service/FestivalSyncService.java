@@ -65,13 +65,18 @@ public class FestivalSyncService {
                     responseBody = restTemplate.getForObject(uri, String.class);
                 } catch (org.springframework.web.client.HttpClientErrorException apiEx) {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
-                    if (apiEx.getStatusCode() == org.springframework.http.HttpStatus.FORBIDDEN || apiEx.getStatusCode() == org.springframework.http.HttpStatus.UNAUTHORIZED) {
-                        throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_002, "API 통신 권한 없음: " + apiEx.getMessage(), apiEx);
+                    if (apiEx.getStatusCode() == org.springframework.http.HttpStatus.FORBIDDEN
+                            || apiEx.getStatusCode() == org.springframework.http.HttpStatus.UNAUTHORIZED) {
+                        throw new com.ieum.global.exception.BusinessException(
+                                com.ieum.global.exception.ErrorCode.FEST_002, "API 통신 권한 없음: " + apiEx.getMessage(),
+                                apiEx);
                     }
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001, "API 통신 실패: " + apiEx.getMessage(), apiEx);
+                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001,
+                            "API 통신 실패: " + apiEx.getMessage(), apiEx);
                 } catch (Exception apiEx) {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001, "API 통신 에러: " + apiEx.getMessage(), apiEx);
+                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001,
+                            "API 통신 에러: " + apiEx.getMessage(), apiEx);
                 }
 
                 JsonNode rootNode = objectMapper.readTree(responseBody);
@@ -83,7 +88,8 @@ public class FestivalSyncService {
                     for (JsonNode item : itemsNode) {
                         try {
                             String sourceId = item.path("contentid").asText(null);
-                            if (sourceId == null) continue;
+                            if (sourceId == null)
+                                continue;
 
                             Festival festival = festivalRepository.findBySourceId(sourceId).orElse(null);
                             if (festival == null) {
@@ -94,7 +100,7 @@ public class FestivalSyncService {
                                         .isVisible(true)
                                         .build();
                             }
-                            
+
                             updateFestivalData(festival, item);
                             saveList.add(festival);
                             syncCount++;
@@ -113,7 +119,7 @@ public class FestivalSyncService {
                 }
                 pageNo++;
             }
-            
+
             log.info("TourAPI sync completed successfully. Synced {} items.", syncCount);
             return FestivalSyncResult.builder().status("COMPLETED").syncCount(syncCount).build();
 
@@ -121,7 +127,8 @@ public class FestivalSyncService {
             throw be;
         } catch (Exception e) {
             log.error("Failed to sync festivals from TourAPI", e);
-            throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.COMMON_500, "동기화 중 오류 발생: " + e.getMessage(), e);
+            throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.COMMON_500,
+                    "동기화 중 오류 발생: " + e.getMessage(), e);
         }
     }
 
@@ -134,6 +141,11 @@ public class FestivalSyncService {
         String tel = item.path("tel").asText(null);
         String mapx = item.path("mapx").asText(null);
         String mapy = item.path("mapy").asText(null);
+        String areacode = item.path("areacode").asText();
+        String sigungucode = item.path("sigungucode").asText();
+        String cat1 = item.path("cat1").asText();
+        String cat2 = item.path("cat2").asText();
+        String cat3 = item.path("cat3").asText();
 
         LocalDate startDate = parseDate(item.path("eventstartdate").asText(null));
         LocalDate endDate = parseDate(item.path("eventenddate").asText(null));
@@ -151,25 +163,37 @@ public class FestivalSyncService {
         }
 
         title = title != null ? title : "제목 없음";
-        if (title.length() > 255) title = title.substring(0, 255);
+        if (title.length() > 255)
+            title = title.substring(0, 255);
         festival.setTitle(title);
 
         String fullAddress = (addr1 + " " + addr2).trim();
-        if (fullAddress.length() > 500) fullAddress = fullAddress.substring(0, 500);
+        if (fullAddress.length() > 500)
+            fullAddress = fullAddress.substring(0, 500);
         festival.setAddress(fullAddress);
 
         String loc = addr1.split(" ").length > 0 ? addr1.split(" ")[0] : "";
-        if (loc.length() > 255) loc = loc.substring(0, 255);
+        if (loc.length() > 255)
+            loc = loc.substring(0, 255);
         festival.setLocation(loc);
 
-        if (firstimage != null && firstimage.length() > 500) firstimage = firstimage.substring(0, 500);
+        if (firstimage != null && firstimage.length() > 500)
+            firstimage = firstimage.substring(0, 500);
         festival.setImageUrl(firstimage);
 
-        if (firstimage2 != null && firstimage2.length() > 500) firstimage2 = firstimage2.substring(0, 500);
+        if (firstimage2 != null && firstimage2.length() > 500)
+            firstimage2 = firstimage2.substring(0, 500);
         festival.setThumbnailUrl(firstimage2);
 
-        if (tel != null && tel.length() > 50) tel = tel.substring(0, 50);
+        if (tel != null && tel.length() > 50)
+            tel = tel.substring(0, 50);
         festival.setTel(tel);
+
+        festival.setAreaCode(areacode.isEmpty() ? null : areacode);
+        festival.setSigunguCode(sigungucode.isEmpty() ? null : sigungucode);
+        festival.setCategory(cat1.isEmpty() ? null : cat1);
+        festival.setCategoryMid(cat2.isEmpty() ? null : cat2);
+        festival.setCategorySub(cat3.isEmpty() ? null : cat3);
 
         try {
             festival.setLongitude(mapx != null && !mapx.isEmpty() ? Double.parseDouble(mapx) : null);
@@ -177,6 +201,7 @@ public class FestivalSyncService {
         } catch (NumberFormatException e) {
             log.debug("Invalid mapx/mapy format for sourceId {}", festival.getSourceId());
         }
+        
         festival.setStartDate(startDate);
         festival.setEndDate(endDate);
         if (festival.getStatus() != FestivalStatus.ENDED || !festival.isCustom()) {

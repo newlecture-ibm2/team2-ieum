@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse, RegionOptionDto } from '@/types/admin-festival';
+import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse, RegionOptionDto, CategoryOptionDto } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
 import styles from './CustomFestivalListPage.module.css';
 
@@ -33,6 +33,7 @@ export default function CustomFestivalListPage() {
   const [festivals, setFestivals] = useState<CustomFestivalItem[]>([]);
   const [statusCounts, setStatusCounts] = useState({ total: 0, ongoing: 0, upcoming: 0, ended: 0 });
   const [regionOptions, setRegionOptions] = useState<RegionOptionDto[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOptionDto[]>([]);
   
   // URL에서 초기값 읽기
   const initialPage = parseInt(searchParams.get('page') || '1', 10);
@@ -76,6 +77,9 @@ export default function CustomFestivalListPage() {
     title: '', areaCode: '', startDate: getToday(), endDate: getToday(), category: '', content: '', isVisible: true
   });
   const [file, setFile] = useState<File | null>(null);
+  const [extraFiles, setExtraFiles] = useState<File[]>([]);
+  const [mainPreview, setMainPreview] = useState<string | null>(null);
+  const [extraPreviews, setExtraPreviews] = useState<string[]>([]);
 
   // 모달 띄워졌을 때 배경 스크롤 방지
   useEffect(() => {
@@ -124,19 +128,34 @@ export default function CustomFestivalListPage() {
     }
   }, []);
 
+  const fetchCategoryOptions = useCallback(async () => {
+    try {
+      const res = await adminApi.get<ApiResponse<CategoryOptionDto[]>>('/festivals/categories/options');
+      if (res.data.success && res.data.data) {
+        setCategoryOptions(res.data.data);
+      }
+    } catch (error) {
+      console.error('Failed to fetch category options:', error);
+    }
+  }, []);
+
   useEffect(() => {
     fetchFestivals();
   }, [fetchFestivals]);
 
   useEffect(() => {
     fetchRegionOptions();
-  }, [fetchRegionOptions]);
+    fetchCategoryOptions();
+  }, [fetchRegionOptions, fetchCategoryOptions]);
 
   const resetForm = () => {
     setEditingId(null);
     const today = getToday();
     setFormData({ title: '', areaCode: '', startDate: today, endDate: today, category: '', content: '', isVisible: true });
     setFile(null);
+    setExtraFiles([]);
+    setMainPreview(null);
+    setExtraPreviews([]);
     setShowForm(false);
   };
 
@@ -157,6 +176,9 @@ export default function CustomFestivalListPage() {
       isVisible: fst.isVisible
     });
     setFile(null);
+    setExtraFiles([]);
+    setMainPreview(fst.imgUrl || null);
+    setExtraPreviews(fst.extraImages ? fst.extraImages.split(',') : []);
     setShowForm(true);
   };
 
@@ -175,6 +197,11 @@ export default function CustomFestivalListPage() {
       data.append('isVisible', String(formData.isVisible));
       if (file) {
         data.append('img', file);
+      }
+      if (extraFiles && extraFiles.length > 0) {
+        extraFiles.forEach(f => {
+          data.append('extraImgs', f);
+        });
       }
 
       const isEdit = !!editingId;
@@ -411,14 +438,50 @@ export default function CustomFestivalListPage() {
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>카테고리</label>
-              <select className={`${styles.formSelect} ${styles.selectDisabled}`} value="" disabled onChange={() => {}}>
-                <option value="">공공 API 기준 정리 후 제공 예정</option>
+              <select 
+                className={styles.formSelect} 
+                value={formData.category} 
+                onChange={e => setFormData({ ...formData, category: e.target.value })}
+              >
+                <option value="" disabled>카테고리를 선택하세요</option>
+                
+                <optgroup label="표준 (공공 API) 분류">
+                  {categoryOptions.filter(o => o.type === 'STANDARD').map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </optgroup>
+                
+                <optgroup label="자체 기획 특수 분류">
+                  {categoryOptions.filter(o => o.type === 'CUSTOM').map(o => (
+                    <option key={o.value} value={o.value}>{o.label}</option>
+                  ))}
+                </optgroup>
               </select>
-              <span className={styles.helperText}>추후 옵션 활성화 예정</span>
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>대표 이미지</label>
-              <input type="file" className={styles.formInput} accept="image/*" onChange={e => setFile(e.target.files?.[0] || null)} />
+              <input type="file" className={styles.formInput} accept="image/*" onChange={e => {
+                const f = e.target.files?.[0] || null;
+                setFile(f);
+                if (f) setMainPreview(URL.createObjectURL(f));
+                else setMainPreview(null);
+              }} />
+              {mainPreview && <img src={mainPreview.startsWith('/') || mainPreview.startsWith('http') || mainPreview.startsWith('blob:') ? mainPreview : `http://localhost:8080${mainPreview}`} alt="대표 이미지 미리보기" style={{ marginTop: '8px', width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />}
+            </div>
+            <div className={styles.formGroup}>
+              <label className={styles.formLabel}>갤러리 이미지 (최대 7장)</label>
+              <input type="file" multiple className={styles.formInput} accept="image/*" onChange={e => {
+                const files = Array.from(e.target.files || []).slice(0, 7);
+                setExtraFiles(files);
+                setExtraPreviews(files.map(f => URL.createObjectURL(f)));
+              }} />
+              {extraPreviews.length > 0 && (
+                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
+                  {extraPreviews.map((p, i) => (
+                    <img key={i} src={p.startsWith('/') || p.startsWith('http') || p.startsWith('blob:') ? p : `http://localhost:8080${p}`} alt={`갤러리 미리보기 ${i+1}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
+                  ))}
+                </div>
+              )}
             </div>
             <div className={`${styles.formGroup} ${styles.formFullWidth}`}>
               <label className={styles.formLabel}>상세 내용</label>
