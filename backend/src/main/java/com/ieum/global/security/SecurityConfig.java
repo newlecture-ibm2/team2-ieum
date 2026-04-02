@@ -92,6 +92,9 @@ public class SecurityConfig {
                         // ✅ 관리자 로그인 — 인증 불필요
                         .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
 
+                        // 🔐 임시 허용 (페스티벌 관리자 기능 테스트용 - JWT 구현전)
+                        .requestMatchers("/api/admin/festivals/**").permitAll()
+
                         // 🔐 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 

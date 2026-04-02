@@ -6,7 +6,7 @@ import axios from "axios";
 
 const adminApi = axios.create({
   baseURL: (process.env.BACKEND_URL || "http://localhost:8080") + "/api/admin",
-  timeout: 10000,
+  timeout: 120000, // 동기화 등 장시간 작업 고려 (120초)
   headers: {
     "Content-Type": "application/json",
   },
