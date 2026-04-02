@@ -55,6 +55,16 @@ public class ApiResponse<T> {
                 .build();
     }
 
+    /**
+     * 실패 응답 (ErrorInfo 직접 전달)
+     */
+    public static <T> ApiResponse<T> error(ErrorInfo errorInfo) {
+        return ApiResponse.<T>builder()
+                .success(false)
+                .error(errorInfo)
+                .build();
+    }
+
     @Getter
     @NoArgsConstructor
     @AllArgsConstructor
