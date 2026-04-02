@@ -76,7 +76,7 @@ public class SecurityConfig {
                         // ✅ 공지사항 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
-                        // 🔒 회원 전용 — 프로필
+                        // 🔒 회원 전용 — 프로필, 알림, FCM
                         .requestMatchers("/api/users/me/**").hasRole("USER")
 
                         // 🔒 회원 전용 — 리뷰 CUD
@@ -101,8 +101,6 @@ public class SecurityConfig {
                         // ✅ 달력(캘린더) 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
 
-                        // 🔒 회원 전용 — 프로필, 알림, FCM
-                        .requestMatchers("/api/users/me/**").hasRole("USER")
 
                         // 🔐 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
