@@ -29,7 +29,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
     public void handle(HttpServletRequest request, HttpServletResponse response, AccessDeniedException accessDeniedException) throws IOException {
         log.warn("인가 실패 (403): {}", accessDeniedException.getMessage());
 
-        ApiResponse.ErrorResponse errorResponse = ApiResponse.ErrorResponse.of(
+        ApiResponse<?> apiResponse = ApiResponse.error(
                 "AUTH_003",
                 HttpStatus.FORBIDDEN.value(),
                 "해당 기능에 대한 접근 권한이 없습니다.",
@@ -40,7 +40,7 @@ public class JwtAccessDeniedHandler implements AccessDeniedHandler {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        String json = objectMapper.writeValueAsString(ApiResponse.error(errorResponse));
+        String json = objectMapper.writeValueAsString(apiResponse);
         response.getWriter().write(json);
     }
 }

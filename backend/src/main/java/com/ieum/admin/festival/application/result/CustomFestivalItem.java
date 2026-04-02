@@ -13,7 +13,8 @@ import java.time.LocalDateTime;
 public class CustomFestivalItem {
     private Long festivalId;
     private String title;
-    private String region;
+    private String areaCode;
+    private String areaLabel;
     private LocalDate startDate;
     private LocalDate endDate;
     @com.fasterxml.jackson.annotation.JsonProperty("isVisible")
@@ -26,11 +27,12 @@ public class CustomFestivalItem {
     private String content;
     private String imgUrl;
 
-    public static CustomFestivalItem from(Festival festival) {
+    public static CustomFestivalItem from(Festival festival, String resolvedLabel) {
         return CustomFestivalItem.builder()
                 .festivalId(festival.getId())
                 .title(festival.getTitle())
-                .region(festival.getLocation())
+                .areaCode(festival.getAreaCode())
+                .areaLabel(resolvedLabel)
                 .startDate(festival.getStartDate())
                 .endDate(festival.getEndDate())
                 .isVisible(festival.isVisible())

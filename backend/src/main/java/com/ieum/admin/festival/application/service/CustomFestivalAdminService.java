@@ -8,6 +8,7 @@ import com.ieum.festival.domain.model.Festival;
 import com.ieum.festival.domain.model.FestivalSource;
 import com.ieum.festival.domain.model.FestivalStatus;
 import com.ieum.global.file.FileStorageService;
+import com.ieum.festival.application.service.RegionOptionService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,6 +30,7 @@ public class CustomFestivalAdminService {
 
     private final AdminFestivalRepository repository;
     private final FileStorageService fileStorageService;
+    private final RegionOptionService regionOptionService;
 
     @Transactional(readOnly = true)
     public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam) {
@@ -45,12 +48,23 @@ public class CustomFestivalAdminService {
         Page<Festival> festivalPage = repository.searchCustomFestivals(keyword, status, pageable);
 
         List<CustomFestivalItem> items = festivalPage.getContent().stream()
-                .map(CustomFestivalItem::from)
+                .map(festival -> {
+                    String resolvedLabel = regionOptionService.resolveLabel(festival.getAreaCode());
+                    return CustomFestivalItem.from(festival, resolvedLabel);
+                })
                 .collect(Collectors.toList());
+
+        com.ieum.admin.festival.application.result.FestivalStatusCountsResult statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
+                .total(repository.countCustomFestivals())
+                .ongoing(repository.countCustomFestivalsByStatus(FestivalStatus.ONGOING))
+                .upcoming(repository.countCustomFestivalsByStatus(FestivalStatus.UPCOMING))
+                .ended(repository.countCustomFestivalsByStatus(FestivalStatus.ENDED))
+                .build();
 
         return CustomFestivalListResult.builder()
                 .totalElements(festivalPage.getTotalElements())
                 .festivals(items)
+                .statusCounts(statusCounts)
                 .build();
     }
 
@@ -63,7 +77,7 @@ public class CustomFestivalAdminService {
 
         Festival festival = Festival.builder()
                 .title(request.getTitle())
-                .location(request.getRegion())
+                .areaCode(request.getAreaCode())
                 .startDate(request.getStartDate())
                 .endDate(request.getEndDate())
                 .description(request.getContent())
@@ -88,7 +102,7 @@ public class CustomFestivalAdminService {
         }
 
         festival.setTitle(request.getTitle());
-        festival.setLocation(request.getRegion());
+        festival.setAreaCode(request.getAreaCode());
         festival.setStartDate(request.getStartDate());
         festival.setEndDate(request.getEndDate());
         festival.setDescription(request.getContent());

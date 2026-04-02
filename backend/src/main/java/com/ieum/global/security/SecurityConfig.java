@@ -101,8 +101,8 @@ public class SecurityConfig {
                         // 🔐 임시 허용 (페스티벌 관리자 기능 테스트용 - JWT 구현전)
                         .requestMatchers("/api/admin/festivals/**").permitAll()
 
-                        // 🔐 관리자 전용
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // 🔐 관리자 전용 (임시 개발용 전체 허용)
+                        .requestMatchers("/api/admin/**").permitAll()
 
                         // 🔒 그 외 인증 필요
                         .anyRequest().authenticated()

@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @Data
 public class CustomFestivalRequest {
     private String title;
-    private String region;
+    private String areaCode;
     private LocalDate startDate;
     private LocalDate endDate;
     private String content;

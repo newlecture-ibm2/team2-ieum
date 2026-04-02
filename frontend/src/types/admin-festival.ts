@@ -39,7 +39,6 @@ export interface FestivalListItem {
   region: string;
   startDate: string; // yyyy-MM-dd
   endDate: string;   // yyyy-MM-dd
-  category: string;
   status: 'ongoing' | 'upcoming' | 'ended';
   isVisible: boolean;
 }
@@ -80,7 +79,8 @@ export interface FestivalVisibilityData {
 export interface CustomFestivalItem {
   festivalId: number;
   title: string;
-  region: string;
+  areaCode: string;
+  areaLabel: string;
   startDate: string; // yyyy-MM-dd
   endDate: string; // yyyy-MM-dd
   isVisible: boolean;
@@ -94,4 +94,11 @@ export interface CustomFestivalItem {
 export interface CustomFestivalListResult {
   totalElements: number;
   festivals: CustomFestivalItem[];
+  statusCounts: FestivalStatusCounts;
+}
+
+export interface RegionOptionDto {
+  label: string;
+  value: string;
+  type: string;
 }

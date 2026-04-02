@@ -9,4 +9,5 @@ import java.util.List;
 public class CustomFestivalListResult {
     private long totalElements;
     private List<CustomFestivalItem> festivals;
+    private FestivalStatusCountsResult statusCounts;
 }

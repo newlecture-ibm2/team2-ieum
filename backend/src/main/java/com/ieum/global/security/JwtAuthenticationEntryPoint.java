@@ -29,7 +29,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.warn("인증 실패 (401): {}", authException.getMessage());
 
-        ApiResponse.ErrorResponse errorResponse = ApiResponse.ErrorResponse.of(
+        ApiResponse<?> apiResponse = ApiResponse.error(
                 "AUTH_001",
                 HttpStatus.UNAUTHORIZED.value(),
                 "로그인이 필요한 서비스입니다.",
@@ -40,7 +40,7 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
-        String json = objectMapper.writeValueAsString(ApiResponse.error(errorResponse));
+        String json = objectMapper.writeValueAsString(apiResponse);
         response.getWriter().write(json);
     }
 }

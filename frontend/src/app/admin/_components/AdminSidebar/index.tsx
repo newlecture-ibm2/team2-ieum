@@ -33,6 +33,8 @@ export default function AdminSidebar() {
             const isActive =
               item.href === '/admin'
                 ? pathname === '/admin'
+                : item.href === '/admin/festivals'
+                ? pathname === '/admin/festivals'
                 : pathname.startsWith(item.href);
 
             return (

@@ -46,4 +46,10 @@ public interface AdminFestivalRepository extends JpaRepository<Festival, Long> {
             @Param("keyword") String keyword,
             @Param("status") FestivalStatus status,
             Pageable pageable);
+
+    @Query("SELECT COUNT(f) FROM Festival f WHERE f.isCustom = true")
+    int countCustomFestivals();
+
+    @Query("SELECT COUNT(f) FROM Festival f WHERE f.isCustom = true AND f.status = :status")
+    int countCustomFestivalsByStatus(@Param("status") FestivalStatus status);
 }
