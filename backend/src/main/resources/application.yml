@@ -2,9 +2,13 @@
 spring:
   application:
     name: ieum-festival
+  config:
+    import: 
+      - optional:file:.env[.properties]
+      - optional:file:../.env[.properties]
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/ieum
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/ieum}
     username: ieum
     password: ${DB_PASSWORD:YOUR_SECRET_PASSWORD}
     driver-class-name: org.postgresql.Driver
@@ -23,7 +27,7 @@ server:
 
 # JWT 설정
 jwt:
-  secret: ${JWT_SECRET:your-secret-key-at-least-256-bits-long-for-hs256}
+  secret: ${JWT_SECRET}
   expiration: 86400000  # 24시간 (밀리초)
 
 # Swagger 설정
