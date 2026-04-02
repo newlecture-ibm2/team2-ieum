@@ -37,8 +37,8 @@ public class LocalFileStorageAdapter implements FileStoragePort {
     @Override
     public String store(String targetType, Long targetId, MultipartFile file) {
         try {
-            // 저장 경로: uploads/{targetType}/{targetId}/{UUID_원본파일명}
-            Path targetDir = rootLocation.resolve(targetType.toLowerCase()).resolve(String.valueOf(targetId));
+            // 저장 경로: uploads/{targetType}/{UUID_원본파일명}
+            Path targetDir = rootLocation.resolve(targetType.toLowerCase());
             Files.createDirectories(targetDir);
 
             String storedName = UUID.randomUUID() + "_" + file.getOriginalFilename();

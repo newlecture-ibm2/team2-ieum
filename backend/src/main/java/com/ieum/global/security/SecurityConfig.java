@@ -98,6 +98,12 @@ public class SecurityConfig {
                         // ✅ 관리자 로그인 — 인증 불필요
                         .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
 
+                        // ✅ 달력(캘린더) 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
+
+                        // 🔒 회원 전용 — 프로필, 알림, FCM
+                        .requestMatchers("/api/users/me/**").hasRole("USER")
+
                         // 🔐 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
