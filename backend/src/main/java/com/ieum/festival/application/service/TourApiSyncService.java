@@ -124,4 +124,61 @@ public class TourApiSyncService {
             log.error("Failed to sync TourAPI", e);
         }
     }
+
+    /**
+     * 특정 축제의 상세 정보(개요, 전화번호, 이용요금)를 TourAPI에서 실시간 조회
+     */
+    public java.util.Map<String, Object> fetchFestivalDetail(String contentId) {
+        java.util.Map<String, Object> details = new java.util.HashMap<>();
+        try {
+            // 1. 공통정보 (overview, tel, title)
+            String commonUrl = baseUrl + "/detailCommon2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId;
+            
+            JsonNode commonRoot = mapper.readTree(restTemplate.getForObject(URI.create(commonUrl), String.class));
+            JsonNode commonItem = commonRoot.path("response").path("body").path("items").path("item").get(0);
+            if (commonItem != null) {
+                details.put("overview", commonItem.path("overview").asText().replaceAll("<[^>]*>", "")); // HTML 태그 제거
+                details.put("tel", commonItem.path("tel").asText().replaceAll("<[^>]*>", ""));
+            }
+
+            // 2. 소개정보 (fee / usetimefestival)
+            String introUrl = baseUrl + "/detailIntro2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId
+                    + "&contentTypeId=15"; // 행사/공연/축제 타입
+            
+            JsonNode introRoot = mapper.readTree(restTemplate.getForObject(URI.create(introUrl), String.class));
+            JsonNode introItem = introRoot.path("response").path("body").path("items").path("item").get(0);
+            if (introItem != null) {
+                details.put("fee", introItem.path("usetimefestival").asText().replaceAll("<[^>]*>", ""));
+            }
+            // 3. 사진 정보 (detailImage2)
+            String imageUrlReq = baseUrl + "/detailImage2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId;
+            
+            JsonNode imageRoot = mapper.readTree(restTemplate.getForObject(URI.create(imageUrlReq), String.class));
+            JsonNode imageItems = imageRoot.path("response").path("body").path("items").path("item");
+            
+            java.util.List<String> images = new java.util.ArrayList<>();
+            if (imageItems != null && imageItems.isArray()) {
+                for (JsonNode imgItem : imageItems) {
+                    String originImgUrl = imgItem.path("originimgurl").asText();
+                    if (!originImgUrl.isEmpty()) {
+                        images.add(originImgUrl);
+                    }
+                }
+            }
+            details.put("images", images);
+
+        } catch (Exception e) {
+            log.error("Failed to fetch detail for contentId: {}", contentId, e);
+        }
+        return details;
+    }
 }
