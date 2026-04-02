@@ -1,5 +1,6 @@
 package com.ieum.attachment.adapter.out.persistence;
 
+import com.ieum.attachment.adapter.out.persistence.entity.AttachmentJpaEntity;
 import com.ieum.attachment.application.port.out.AttachmentPort;
 import com.ieum.attachment.domain.model.Attachment;
 import lombok.RequiredArgsConstructor;
@@ -20,17 +21,22 @@ public class AttachmentPersistenceAdapter implements AttachmentPort {
 
     @Override
     public Attachment save(Attachment attachment) {
-        return attachmentJpaRepository.save(attachment);
+        AttachmentJpaEntity entity = AttachmentJpaEntity.fromDomain(attachment);
+        return attachmentJpaRepository.save(entity).toDomain();
     }
 
     @Override
     public Optional<Attachment> findById(Long fileId) {
-        return attachmentJpaRepository.findById(fileId);
+        return attachmentJpaRepository.findById(fileId)
+                .map(AttachmentJpaEntity::toDomain);
     }
 
     @Override
     public List<Attachment> findByTarget(String targetType, Long targetId) {
-        return attachmentJpaRepository.findByTargetTypeAndTargetId(targetType, targetId);
+        return attachmentJpaRepository.findByTargetTypeAndTargetId(targetType, targetId)
+                .stream()
+                .map(AttachmentJpaEntity::toDomain)
+                .toList();
     }
 
     @Override

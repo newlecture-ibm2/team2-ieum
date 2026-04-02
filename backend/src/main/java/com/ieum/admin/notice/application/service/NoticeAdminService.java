@@ -4,10 +4,10 @@ import com.ieum.admin.notice.application.port.in.CreateNoticeUseCase;
 import com.ieum.admin.notice.application.port.in.DeleteNoticeUseCase;
 import com.ieum.admin.notice.application.port.in.GetAdminNoticeListUseCase;
 import com.ieum.admin.notice.application.port.in.UpdateNoticeUseCase;
+import com.ieum.admin.notice.application.port.out.AdminNoticePort;
+import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.attachment.application.port.in.DeleteAttachmentUseCase;
 import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
-import com.ieum.notice.application.port.out.NoticePort;
-import com.ieum.notice.domain.model.Notice;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,23 +21,23 @@ import java.util.List;
 /**
  * 관리자용 공지사항 서비스 (UseCase 구현체)
  * - attachment 공통 모듈의 UseCase를 주입받아 파일 처리
- * - notice 도메인의 Port OUT을 주입받아 DB 접근
+ * - 자체 AdminNoticePort를 주입받아 DB 접근 (사용자 모듈과 완전 독립)
  */
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseCase, DeleteNoticeUseCase, GetAdminNoticeListUseCase {
 
-    private final NoticePort noticePort;
+    private final AdminNoticePort adminNoticePort;
     private final UploadAttachmentUseCase uploadAttachmentUseCase;
     private final DeleteAttachmentUseCase deleteAttachmentUseCase;
 
     @Override
-    public Notice create(String title, String content, String summary,
+    public AdminNotice create(String title, String content, String summary,
                          Boolean isPinned, Boolean isPopup,
                          List<MultipartFile> files) {
 
-        Notice notice = Notice.builder()
+        AdminNotice notice = AdminNotice.builder()
                 .title(title)
                 .content(content)
                 .summary(summary)
@@ -45,7 +45,7 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
                 .isPopup(isPopup != null ? isPopup : false)
                 .build();
 
-        Notice saved = noticePort.save(notice);
+        AdminNotice saved = adminNoticePort.save(notice);
 
         // 첨부파일 업로드 (attachment 공통 모듈 사용)
         if (files != null && !files.isEmpty()) {
@@ -56,18 +56,25 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
     }
 
     @Override
-    public Notice update(Long noticeId, String title, String content, String summary,
+    public AdminNotice update(Long noticeId, String title, String content, String summary,
                          Boolean isPinned, Boolean isPopup,
                          List<MultipartFile> newFiles, List<Long> deleteFileIds) {
 
-        Notice notice = noticePort.findById(noticeId)
+        AdminNotice notice = adminNoticePort.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
 
-        notice.setTitle(title);
-        notice.setContent(content);
-        notice.setSummary(summary);
-        if (isPinned != null) notice.setIsPinned(isPinned);
-        if (isPopup != null) notice.setIsPopup(isPopup);
+        AdminNotice updated = AdminNotice.builder()
+                .id(notice.getId())
+                .title(title)
+                .content(content)
+                .summary(summary)
+                .viewCount(notice.getViewCount())
+                .isPinned(isPinned != null ? isPinned : notice.getIsPinned())
+                .isPopup(isPopup != null ? isPopup : notice.getIsPopup())
+                .startDate(notice.getStartDate())
+                .endDate(notice.getEndDate())
+                .createdAt(notice.getCreatedAt())
+                .build();
 
         // 삭제할 기존 파일 처리
         if (deleteFileIds != null && !deleteFileIds.isEmpty()) {
@@ -79,23 +86,23 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
             uploadAttachmentUseCase.uploadAll("NOTICE", noticeId, newFiles);
         }
 
-        return noticePort.save(notice);
+        return adminNoticePort.save(updated);
     }
 
     @Override
     public void delete(Long noticeId) {
-        noticePort.findById(noticeId)
+        adminNoticePort.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
 
         // 첨부파일 전체 삭제 (attachment 공통 모듈 사용)
         deleteAttachmentUseCase.deleteAllByTarget("NOTICE", noticeId);
-        noticePort.deleteById(noticeId);
+        adminNoticePort.deleteById(noticeId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Notice> getAdminNotices(int page, int size) {
+    public Page<AdminNotice> getAdminNotices(int page, int size) {
         Sort sort = Sort.by("createdAt").descending();
-        return noticePort.findAll(null, null, PageRequest.of(page - 1, size, sort));
+        return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort));
     }
 }

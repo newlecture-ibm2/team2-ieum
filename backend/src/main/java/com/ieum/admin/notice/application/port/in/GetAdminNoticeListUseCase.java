@@ -1,6 +1,6 @@
 package com.ieum.admin.notice.application.port.in;
 
-import com.ieum.notice.domain.model.Notice;
+import com.ieum.admin.notice.domain.AdminNotice;
 import org.springframework.data.domain.Page;
 
 /**
@@ -11,5 +11,5 @@ public interface GetAdminNoticeListUseCase {
     /**
      * 관리자용 공지 목록 (전체 포함, 숨김/팝업 상태 모두 표시)
      */
-    Page<Notice> getAdminNotices(int page, int size);
+    Page<AdminNotice> getAdminNotices(int page, int size);
 }
