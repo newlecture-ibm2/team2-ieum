@@ -10,11 +10,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+
+import org.springframework.scheduling.annotation.Scheduled;
 
 @Slf4j
 @Service
@@ -31,72 +32,165 @@ public class TourApiSyncService {
     @Value("${tour-api.base-url}")
     private String baseUrl;
 
+    @Scheduled(cron = "0 0 4 * * ?") // 매일 04시에 자동 수행
+    public void scheduledSync() {
+        log.info("⏰ 스케줄러 작동: 공공데이터 자동 동기화 시작");
+        // 오늘 날짜 기준 2년 전부터의 축제 데이터를 모두 수집
+        String twoYearsAgo = LocalDate.now().minusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
+        syncFestivals(twoYearsAgo);
+    }
+
     @Transactional
     public void syncFestivals(String eventStartDate) {
         try {
-            // 안전하고 명확하게 수동 문자열 결합 방식으로 URL 구성
-            String url = baseUrl + "/searchFestival2"
-                    + "?serviceKey=" + serviceKey
-                    + "&MobileOS=ETC"
-                    + "&MobileApp=ieum"
-                    + "&_type=json"
-                    + "&eventStartDate=" + eventStartDate
-                    + "&numOfRows=50"
-                    + "&pageNo=1"
-                    + "&arrange=A";
+            int pageNo = 1;
+            int totalSynced = 0;
 
-            URI uri = URI.create(url);
+            while (true) {
+                // 안전하고 명확하게 수동 문자열 결합 방식으로 URL 구성
+                String url = baseUrl + "/searchFestival2"
+                        + "?serviceKey=" + serviceKey
+                        + "&MobileOS=ETC"
+                        + "&MobileApp=ieum"
+                        + "&_type=json"
+                        + "&eventStartDate=" + eventStartDate
+                        + "&numOfRows=100"
+                        + "&pageNo=" + pageNo
+                        + "&arrange=A";
 
-            log.info("Fetching TourAPI festivals...");
-            String response = restTemplate.getForObject(uri, String.class);
-            JsonNode root = mapper.readTree(response);
+                URI uri = URI.create(url);
 
-            JsonNode itemsNode = root.path("response").path("body").path("items").path("item");
-            if (itemsNode.isMissingNode() || !itemsNode.isArray()) {
-                log.warn("No items found or API error: {}", response);
-                return;
-            }
+                log.info("Fetching TourAPI festivals... Page: {}", pageNo);
+                String response = restTemplate.getForObject(uri, String.class);
+                JsonNode root = mapper.readTree(response);
 
-            int count = 0;
-            for (JsonNode item : itemsNode) {
-                String contentId = item.path("contentid").asText();
-                String title = item.path("title").asText();
-                String addr1 = item.path("addr1").asText();
-                String firstImage = item.path("firstimage").asText();
-                String firstImage2 = item.path("firstimage2").asText();
-                String startDt = item.path("eventstartdate").asText();
-                String endDt = item.path("eventenddate").asText();
-                double mapX = item.path("mapx").asDouble(0);
-                double mapY = item.path("mapy").asDouble(0);
-
-                FestivalEntity entity = repository.findBySourceId(contentId)
-                        .orElseGet(() -> FestivalEntity.builder()
-                                .sourceId(contentId)
-                                .source("API")
-                                .status("UPCOMING") // 기본값
-                                .build());
-
-                entity.setTitle(title);
-                entity.setAddress(addr1);
-                entity.setImageUrl(firstImage.isEmpty() ? null : firstImage);
-                entity.setThumbnailUrl(firstImage2.isEmpty() ? null : firstImage2);
-
-                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
-                try {
-                    if (!startDt.isEmpty()) entity.setStartDate(LocalDate.parse(startDt, dtf));
-                    if (!endDt.isEmpty()) entity.setEndDate(LocalDate.parse(endDt, dtf));
-                } catch (Exception e) {}
+                JsonNode itemsNode = root.path("response").path("body").path("items").path("item");
                 
-                entity.setLongitude(mapX == 0 ? null : mapX);
-                entity.setLatitude(mapY == 0 ? null : mapY);
+                // 더 이상 가져올 데이터가 없으면 루프 탈출
+                if (itemsNode.isMissingNode() || !itemsNode.isArray() || itemsNode.isEmpty()) {
+                    log.info("모든 페이지를 순회했습니다. (최종 페이지: {})", pageNo - 1);
+                    break;
+                }
 
-                repository.save(entity);
-                count++;
+                int count = 0;
+                for (JsonNode item : itemsNode) {
+                    String contentId = item.path("contentid").asText();
+                    String title = item.path("title").asText();
+                    String addr1 = item.path("addr1").asText();
+                    String firstImage = item.path("firstimage").asText();
+                    String firstImage2 = item.path("firstimage2").asText();
+                    String startDt = item.path("eventstartdate").asText();
+                    String endDt = item.path("eventenddate").asText();
+                    double mapX = item.path("mapx").asDouble(0);
+                    double mapY = item.path("mapy").asDouble(0);
+                    
+                    String areaCode = item.path("areacode").asText();
+                    String sigunguCode = item.path("sigungucode").asText();
+                    String cat1 = item.path("cat1").asText();
+                    String cat2 = item.path("cat2").asText();
+                    String cat3 = item.path("cat3").asText();
+
+                    FestivalEntity entity = repository.findBySourceId(contentId)
+                            .orElseGet(() -> FestivalEntity.builder()
+                                    .sourceId(contentId)
+                                    .source("API")
+                                    .status("UPCOMING") // 기본값
+                                    .build());
+
+                    entity.setTitle(title);
+                    entity.setAddress(addr1);
+                    entity.setImageUrl(firstImage.isEmpty() ? null : firstImage);
+                    entity.setThumbnailUrl(firstImage2.isEmpty() ? null : firstImage2);
+
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    try {
+                        if (!startDt.isEmpty()) entity.setStartDate(LocalDate.parse(startDt, dtf));
+                        if (!endDt.isEmpty()) entity.setEndDate(LocalDate.parse(endDt, dtf));
+                    } catch (Exception e) {}
+                    
+                    entity.setLongitude(mapX == 0 ? null : mapX);
+                    entity.setLatitude(mapY == 0 ? null : mapY);
+
+                    entity.setAreaCode(areaCode.isEmpty() ? null : areaCode);
+                    entity.setSigunguCode(sigunguCode.isEmpty() ? null : sigunguCode);
+                    entity.setCategory(cat1.isEmpty() ? null : cat1);
+                    entity.setCategoryMid(cat2.isEmpty() ? null : cat2);
+                    entity.setCategorySub(cat3.isEmpty() ? null : cat3);
+
+                    repository.save(entity);
+                    count++;
+                }
+                
+                totalSynced += count;
+                pageNo++;
+
+                // 무한 루프 방지 (안전망: 최대 100페이지 = 10,000개 수집)
+                if (pageNo > 100) {
+                    log.warn("안전망 도달: 최대 지정된 페이지(100)를 초과하여 동기화를 중단합니다.");
+                    break;
+                }
             }
-            log.info("Successfully synced {} festivals into DB.", count);
+            log.info("🎉 전체 동기화 완료! 총 {} 개 데이터 무사히 저장/업데이트", totalSynced);
 
         } catch (Exception e) {
             log.error("Failed to sync TourAPI", e);
         }
+    }
+
+    /**
+     * 특정 축제의 상세 정보(개요, 전화번호, 이용요금)를 TourAPI에서 실시간 조회
+     */
+    public java.util.Map<String, Object> fetchFestivalDetail(String contentId) {
+        java.util.Map<String, Object> details = new java.util.HashMap<>();
+        try {
+            // 1. 공통정보 (overview, tel, title)
+            String commonUrl = baseUrl + "/detailCommon2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId;
+            
+            JsonNode commonRoot = mapper.readTree(restTemplate.getForObject(URI.create(commonUrl), String.class));
+            JsonNode commonItem = commonRoot.path("response").path("body").path("items").path("item").get(0);
+            if (commonItem != null) {
+                details.put("overview", commonItem.path("overview").asText().replaceAll("<[^>]*>", "")); // HTML 태그 제거
+                details.put("tel", commonItem.path("tel").asText().replaceAll("<[^>]*>", ""));
+            }
+
+            // 2. 소개정보 (fee / usetimefestival)
+            String introUrl = baseUrl + "/detailIntro2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId
+                    + "&contentTypeId=15"; // 행사/공연/축제 타입
+            
+            JsonNode introRoot = mapper.readTree(restTemplate.getForObject(URI.create(introUrl), String.class));
+            JsonNode introItem = introRoot.path("response").path("body").path("items").path("item").get(0);
+            if (introItem != null) {
+                details.put("fee", introItem.path("usetimefestival").asText().replaceAll("<[^>]*>", ""));
+            }
+            // 3. 사진 정보 (detailImage2)
+            String imageUrlReq = baseUrl + "/detailImage2"
+                    + "?serviceKey=" + serviceKey
+                    + "&MobileOS=ETC&MobileApp=ieum&_type=json"
+                    + "&contentId=" + contentId;
+            
+            JsonNode imageRoot = mapper.readTree(restTemplate.getForObject(URI.create(imageUrlReq), String.class));
+            JsonNode imageItems = imageRoot.path("response").path("body").path("items").path("item");
+            
+            java.util.List<String> images = new java.util.ArrayList<>();
+            if (imageItems != null && imageItems.isArray()) {
+                for (JsonNode imgItem : imageItems) {
+                    String originImgUrl = imgItem.path("originimgurl").asText();
+                    if (!originImgUrl.isEmpty()) {
+                        images.add(originImgUrl);
+                    }
+                }
+            }
+            details.put("images", images);
+
+        } catch (Exception e) {
+            log.error("Failed to fetch detail for contentId: {}", contentId, e);
+        }
+        return details;
     }
 }

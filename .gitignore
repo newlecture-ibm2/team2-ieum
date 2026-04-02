@@ -16,6 +16,7 @@ Icon?
 .env
 .env.*
 !.env.example
+firebase-service-key.json
 
 # Node
 node_modules/
@@ -44,4 +45,5 @@ yarn-error.log*
 
 # Docker
 docker-compose.override.yml
+docker-compose-dev.yml
 docker-compose.dev.yml

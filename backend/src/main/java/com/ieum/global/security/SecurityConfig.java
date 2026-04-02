@@ -76,7 +76,7 @@ public class SecurityConfig {
                         // ✅ 공지사항 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
-                        // 🔒 회원 전용 — 프로필
+                        // 🔒 회원 전용 — 프로필, 알림, FCM
                         .requestMatchers("/api/users/me/**").hasRole("USER")
 
                         // 🔒 회원 전용 — 리뷰 CUD
@@ -97,6 +97,9 @@ public class SecurityConfig {
 
                         // ✅ 관리자 로그인 — 인증 불필요
                         .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
+
+                        // ✅ 달력(캘린더) 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
 
                         // 🔐 임시 허용 (페스티벌 관리자 기능 테스트용 - JWT 구현전)
                         .requestMatchers("/api/admin/festivals/**").permitAll()

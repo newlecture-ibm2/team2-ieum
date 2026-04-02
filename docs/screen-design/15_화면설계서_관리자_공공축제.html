@@ -452,7 +452,7 @@
                 </div>
                 <div
                   style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 10px; color: #6c5ce7;">진행예정</div>
+                  <div style="font-size: 10px; color: #6c5ce7;">진행중</div>
                   <div style="font-size: 22px; font-weight: 800; color: #6c5ce7;">4</div>
                 </div>
                 <div
@@ -517,7 +517,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.04.15 - 04.20</td>
                     <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -533,7 +533,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.07.10 - 07.15</td>
                     <td style="padding: 10px 6px; color: #475569;">음악/공연</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -575,7 +575,7 @@
           <ul>
             <li>공공 API(data.go.kr)에서 수집된 전국 축제 데이터를 관리하는 화면</li>
             <li>수동 갱신 버튼으로 공공 데이터 동기화 가능</li>
-            <li>축제 상태(진행중/진행전/종료) 요약 카드 4종 제공</li>
+            <li>축제 상태(진행중/진행예정/종료) 요약 카드 4종 제공</li>
             <li>축제 목록 테이블에서 노출/숨김, 수정, 삭제 관리</li>
             <li>좌측 사이드바로 관리자 메뉴 간 이동</li>
           </ul>
@@ -616,7 +616,7 @@
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030) 응답 집계<br>
               · 전체 축제 — 전체 갯수<br>
               · <span style="color:#16a34a;">진행중</span> — 현재 운영 중인 축제 수<br>
-              · <span style="color:#6c5ce7;">진행예정</span> — 시작 전 축제 수<br>
+              · <span style="color:#6c5ce7;">진행중</span> — 시작 전 축제 수<br>
               · 종료 — 종료된 축제 수<br>
               · 각 카드는 배경 색상으로 구분
             </td>
@@ -628,7 +628,7 @@
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030)<br>
               · 컬럼: 축제명, 지역, 날짜, 카테고리, 상태, 관리<br>
               · 축제명 클릭 → 축제 상세 페이지 이동<br>
-              · 상태 배지: 진행중(녹색), 진행전(파란), 종료(회색)<br>
+              · 상태 배지: 진행중(녹색), 진행예정(파란), 종료(회색)<br>
               · 페이지네이션 지원 (page, size 파라미터)
             </td>
           </tr>
@@ -646,13 +646,34 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>수동 갱신 (Sync Data)</strong><br>· 트리거: [수동 갱신] 버튼 클릭<br>· 동작: data.go.kr API 호출 → 축제 데이터 동기화<br>· API: <code>POST /api/admin/festivals/sync</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 축제 상세 페이지 이동</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>노출/숨김 토글 (Toggle Visibility)</strong><br>· 트리거: ✏️ 버튼 클릭<br>· 동작: isVisible 토글 → 사용자 화면 노출 여부 변경<br>· API: <code>PATCH /api/admin/festivals/{id}/visibility</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>축제 삭제 (Delete Festival)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → isVisible=false 처리 (소프트 삭제)</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>수동 갱신 (Sync Data)</strong><br>· 트리거: [수동 갱신] 버튼 클릭<br>· 동작: data.go.kr API 호출
+              → 축제 데이터 동기화<br>· API: <code>POST /api/admin/festivals/sync</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 축제 상세 페이지 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>노출/숨김 토글 (Toggle Visibility)</strong><br>· 트리거: ✏️ 버튼 클릭<br>· 동작: isVisible 토글
+              → 사용자 화면 노출 여부 변경<br>· API: <code>PATCH /api/admin/festivals/{id}/visibility</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>축제 삭제 (Delete Festival)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 →
+              isVisible=false 처리 (소프트 삭제)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -713,33 +734,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>
