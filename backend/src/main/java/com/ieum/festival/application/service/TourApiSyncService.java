@@ -83,6 +83,12 @@ public class TourApiSyncService {
                     String endDt = item.path("eventenddate").asText();
                     double mapX = item.path("mapx").asDouble(0);
                     double mapY = item.path("mapy").asDouble(0);
+                    
+                    String areaCode = item.path("areacode").asText();
+                    String sigunguCode = item.path("sigungucode").asText();
+                    String cat1 = item.path("cat1").asText();
+                    String cat2 = item.path("cat2").asText();
+                    String cat3 = item.path("cat3").asText();
 
                     FestivalEntity entity = repository.findBySourceId(contentId)
                             .orElseGet(() -> FestivalEntity.builder()
@@ -104,6 +110,12 @@ public class TourApiSyncService {
                     
                     entity.setLongitude(mapX == 0 ? null : mapX);
                     entity.setLatitude(mapY == 0 ? null : mapY);
+
+                    entity.setAreaCode(areaCode.isEmpty() ? null : areaCode);
+                    entity.setSigunguCode(sigunguCode.isEmpty() ? null : sigunguCode);
+                    entity.setCategory(cat1.isEmpty() ? null : cat1);
+                    entity.setCategoryMid(cat2.isEmpty() ? null : cat2);
+                    entity.setCategorySub(cat3.isEmpty() ? null : cat3);
 
                     repository.save(entity);
                     count++;

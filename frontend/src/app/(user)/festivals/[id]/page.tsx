@@ -3,16 +3,46 @@
 import { useState, useEffect, use } from 'react';
 import { Heart } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import axios from 'axios';
 import styles from './FestivalDetail.module.css';
 
 export default function FestivalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const fid = resolvedParams.id;
-  
+
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+
+  // 팝업 상태
+  const [popupMsg, setPopupMsg] = useState<string | null>(null);
+
+  // 리뷰 연동 State
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewStats, setReviewStats] = useState<any>(null);
+  const [rating, setRating] = useState<number>(0);
+  const [hoverRating, setHoverRating] = useState<number>(0);
+  const [reviewContent, setReviewContent] = useState<string>('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const fetchReviews = async () => {
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
+      const res = await axios.get(`${baseUrl}/api/reviews?festivalId=${fid}&page=1&size=10&sort=latest`);
+      if (res.data && res.data.success) {
+        setReviews(res.data.data.content);
+        setReviewStats({
+          totalPages: res.data.data.totalPages,
+          totalElements: res.data.data.totalElements,
+          averageRating: res.data.data.averageRating,
+          ratingDistribution: res.data.data.ratingDistribution
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch reviews', err);
+    }
+  };
 
   useEffect(() => {
     const fetchFestival = async () => {
@@ -29,6 +59,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       }
     };
     fetchFestival();
+    fetchReviews();
   }, [fid]);
 
   const toggleBookmark = () => {
@@ -36,21 +67,70 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
     // API_FES_0040 연동
   };
 
+  const showPopup = (msg: string) => setPopupMsg(msg);
+  const closePopup = () => setPopupMsg(null);
+
+  const handleSubmitReview = async () => {
+    if (rating === 0) return showPopup('별점을 먼저 선택해주세요.');
+    if (reviewContent.trim().length < 10) return showPopup('리뷰를 최소 10자 이상 작성해주세요.');
+
+    setIsSubmitting(true);
+    try {
+      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
+      await axios.post(`${baseUrl}/api/reviews`, {
+        festivalId: fid,
+        rating,
+        content: reviewContent
+      });
+      showPopup('리뷰가 성공적으로 등록되었습니다.');
+      setReviewContent('');
+      setRating(0);
+      fetchReviews(); // 새로고침
+    } catch (err: any) {
+      showPopup(err.response?.data?.message || '리뷰 등록에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const renderStars = (score: number) => {
+    return [1, 2, 3, 4, 5].map(num => (
+      <span key={num} className={styles.starDisplay} style={{ color: num <= score ? '#fbbf24' : '#e2e8f0' }}>★</span>
+    ));
+  };
+
+  const renderFormStars = () => {
+    return [1, 2, 3, 4, 5].map(num => (
+      <span
+        key={num}
+        onMouseEnter={() => setHoverRating(num)}
+        onMouseLeave={() => setHoverRating(0)}
+        onClick={() => setRating(num)}
+        className={styles.starForm}
+        style={{ color: num <= (hoverRating || rating) ? '#fbbf24' : '#e2e8f0' }}
+      >
+        ★
+      </span>
+    ));
+  };
+
   if (loading) {
-    return <div style={{ minHeight: '800px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '18px', color: '#666' }}>축제 정보를 불러오는 중입니다...</div>;
+    return <div className={styles.loadingContainer}>축제 정보를 불러오는 중입니다...</div>;
   }
 
   if (!data) {
-    return <div style={{ minHeight: '800px', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '16px' }}>
-      <p style={{ fontSize: '18px', color: '#666' }}>축제 데이터를 찾을 수 없습니다.</p>
-    </div>;
+    return (
+      <div className={styles.errorContainer}>
+        <p>축제 데이터를 찾을 수 없습니다.</p>
+      </div>
+    );
   }
 
   // Format data
   const formatDt = (dt: string) => dt ? dt.toString().replace(/-/g, '.') : '';
   const dateString = data.startDate && data.endDate ? `${formatDt(data.startDate)} ~ ${formatDt(data.endDate)}` : '상시 진행 (미정)';
-  
-  let badgeText = '진행전';
+
+  let badgeText = '진행예정';
   if (data.status === 'ONGOING') badgeText = '진행중';
   if (data.status === 'ENDED') badgeText = '종료';
 
@@ -59,8 +139,8 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
   return (
     <main>
       {/* 1. 히어로 배경 영역 (동적 이미지 렌더링) */}
-      <section 
-        className={styles.hero} 
+      <section
+        className={styles.hero}
         style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url(${imageSrc})` }}
       >
         <div className={styles.heroInner}>
@@ -72,10 +152,10 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
               <h1>{data.title}</h1>
               <p><span>📅 {dateString}</span> <span>📍 {data.address ? data.address.split(' ')[0] : '지역 미상'}</span></p>
             </div>
-            
+
             {/* 북마크 (찜하기) 토글 영역 */}
-            <button 
-              className={`${styles.bookmark} ${isBookmarked ? styles.active : ''}`} 
+            <button
+              className={`${styles.bookmark} ${isBookmarked ? styles.active : ''}`}
               onClick={toggleBookmark}
               aria-label="찜하기"
             >
@@ -88,10 +168,10 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       {/* 2. 콘텐츠 2단 분할 영역 */}
       <section className={styles.contentWrap}>
         <div className={styles.contentInner}>
-          
+
           {/* 좌측 메인: 상세설명 */}
           <div className={styles.leftCol}>
-            
+
             <div className={styles.section}>
               <h2 className={styles.sectionTitle}>축제 상세 정보</h2>
               <div className={styles.descText}>
@@ -107,7 +187,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
                   <div className={styles.extraImageGrid}>
                     {data.images.map((img: string, idx: number) => (
                       <div key={idx} className={styles.extraImageWrapper}>
-                        <Image src={img} alt={`추가 이미지 ${idx+1}`} fill sizes="(max-width: 1200px) 25vw, 200px" style={{ objectFit: 'cover' }} />
+                        <Image src={img} alt={`추가 이미지 ${idx + 1}`} fill sizes="(max-width: 1200px) 25vw, 200px" style={{ objectFit: 'cover' }} />
                       </div>
                     ))}
                   </div>
@@ -115,40 +195,76 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
 
-            {/* 후기 섹션 - 플레이스홀더 */}
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>축제 후기 (0)</h2>
-              
+            <section className={styles.section}>
+              <header className={styles.sectionTitle}>
+                <h2>축제 후기 ({reviewStats?.totalElements || 0})</h2>
+              </header>
+
               <div className={styles.reviewForm}>
-                <div className={styles.reviewAvatar}></div>
+                <div className={styles.reviewAvatar}>Me</div>
                 <div className={styles.reviewInputBox}>
-                  <input type="text" placeholder="이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)" disabled style={{ cursor: 'not-allowed', background: '#f8fafc' }} />
+                  <input
+                    type="text"
+                    placeholder="이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)"
+                    value={reviewContent}
+                    onChange={(e) => setReviewContent(e.target.value)}
+                  />
                   <div className={styles.reviewActions}>
-                    <span className={styles.reviewStars}>☆☆☆☆☆</span>
-                    <button className={styles.reviewBtn} disabled style={{opacity: 0.5, cursor: 'not-allowed'}}>리뷰 등록 (준비중)</button>
+                    <span className={styles.reviewStars}>{renderFormStars()}</span>
+                    <button
+                      className={`${styles.reviewBtn} ${isSubmitting ? styles.submitDisabled : ''}`}
+                      onClick={handleSubmitReview}
+                      disabled={isSubmitting}
+                    >
+                      {isSubmitting ? '진행중...' : '리뷰 등록'}
+                    </button>
                   </div>
                 </div>
               </div>
 
               <div className={styles.reviewList}>
-                <div style={{ textAlign: 'center', padding: '40px 0', color: '#94a3b8', fontSize: '14px' }}>
-                  아직 등록된 리뷰가 없습니다. 첫 리뷰를 남겨보세요!
-                </div>
+                {reviews.length === 0 ? (
+                  <div className={styles.emptyReviews}>
+                    아직 등록된 리뷰가 없습니다. 첫 리뷰를 남겨보세요!
+                  </div>
+                ) : (
+                  reviews.slice(0, 3).map(review => (
+                    <article key={review.id} className={styles.reviewCard}>
+                      <div className={styles.rcAvatar}>익명</div>
+                      <div className={styles.rcContent}>
+                        <div className={styles.rcTop}>
+                          <div className={styles.rcName}>
+                            익명 사용자
+                            <span className={styles.rcStars}>{renderStars(review.rating)}</span>
+                          </div>
+                          <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                        </div>
+                        <div className={styles.rcText}>{review.content}</div>
+                      </div>
+                    </article>
+                  ))
+                )}
               </div>
-            </div>
+
+              <Link href={`/festivals/${fid}/reviews`} style={{ textDecoration: 'none' }}>
+                <button className={styles.reviewMoreBtn}>
+                  + 후기 전체보기 (총 {reviewStats?.totalElements || 0}개)
+                </button>
+              </Link>
+            </section>
 
           </div>
 
           {/* 우측 사이드바: 기본정보 요약 */}
-          <div className={styles.rightCol}>
-            
+          <aside className={styles.rightCol}>
+
             {/* 정보 박스 */}
             <div className={styles.infoBox}>
               <div className={styles.infoRow}>
                 <div className={styles.infoIcon}>📍</div>
                 <div>
                   <div className={styles.infoLabel}>장소</div>
-                  <div className={styles.infoVal} style={{ whiteSpace: 'pre-line' }}>{data.address || '상세 주소 미등록'}</div>
+                  <div className={`${styles.infoVal} ${styles.preLine}`}>{data.address || '상세 주소 미등록'}</div>
                 </div>
               </div>
               <div className={styles.infoRow}>
@@ -174,30 +290,49 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
               </div>
             </div>
 
-            {/* 별점 통계 - 플레이스홀더 */}
+            {/* 별점 통계 */}
             <div className={styles.ratingBox}>
               <div className={styles.ratingTitle}>리뷰 통계</div>
-              <div className={styles.ratingBig}>0.0</div>
-              <div className={styles.ratingStarsMain}>☆☆☆☆☆</div>
-              <div className={styles.ratingCount}>총 0개의 리뷰</div>
+              <div className={styles.ratingBig}>{reviewStats?.averageRating?.toFixed(1) || '0.0'}</div>
+              <div className={styles.ratingStarsMain}>{renderStars(Math.round(reviewStats?.averageRating || 0))}</div>
+              <div className={styles.ratingCount}>총 {reviewStats?.totalElements || 0}개의 리뷰</div>
 
               <div className={styles.ratingBars}>
-                {[5, 4, 3, 2, 1].map(num => (
-                  <div key={num} className={styles.rbRow}>
-                    <span>{num}점</span>
-                    <div className={styles.rbBarWrap}>
-                      <div className={styles.rbBar} style={{ width: '0%' }}></div>
+                {[5, 4, 3, 2, 1].map(num => {
+                  const count = reviewStats?.ratingDistribution?.[num] || 0;
+                  const total = reviewStats?.totalElements || 1;
+                  const percent = total === 0 ? 0 : (count / total) * 100;
+                  return (
+                    <div key={num} className={styles.rbRow}>
+                      <span>{num}점</span>
+                      <div className={styles.rbBarWrap}>
+                        <div className={styles.rbBar} style={{ width: `${percent}%` }}></div>
+                      </div>
+                      <span>{count}</span>
                     </div>
-                    <span>0</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
 
-          </div>
+          </aside>
 
         </div>
       </section>
+
+      {/* 팝업 모달 */}
+      {popupMsg && (
+        <div className={styles.modalOverlay}>
+          <dialog open className={styles.modalBox} style={{ border: 'none' }}>
+            <p className={styles.modalText}>
+              {popupMsg}
+            </p>
+            <button className={styles.modalBtn} onClick={closePopup}>
+              확인
+            </button>
+          </dialog>
+        </div>
+      )}
     </main>
   );
 }

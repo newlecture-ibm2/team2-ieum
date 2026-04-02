@@ -476,6 +476,110 @@
   border-radius: 4px;
 }
 
+/* 추가된 컴포넌트 유틸리티들 */
+.loadingContainer, .errorContainer {
+  min-height: 800px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 16px;
+  font-size: 18px;
+  color: #666;
+}
+
+.starDisplay {
+  font-size: 18px;
+}
+.starForm {
+  font-size: 20px;
+  cursor: pointer;
+}
+
+.emptyReviews {
+  text-align: center;
+  padding: 40px 0;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+.reviewMoreBtn {
+  width: 100%;
+  padding: 12px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  color: #475569;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: background 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.reviewMoreBtn:hover {
+  background: #f1f5f9;
+}
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.4);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modalBox {
+  background: white;
+  padding: 32px 40px;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  min-width: 320px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.modalText {
+  margin: 0;
+  font-size: 16px;
+  color: #334155;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.modalBtn {
+  background: var(--color-primary-500);
+  color: white;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 6px;
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background 0.2s;
+}
+.modalBtn:hover {
+  background: var(--color-primary-600);
+}
+
+.submitDisabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.preLine {
+  white-space: pre-line;
+}
+
 @media (max-width: 992px) {
   .contentInner {
     grid-template-columns: 1fr;
