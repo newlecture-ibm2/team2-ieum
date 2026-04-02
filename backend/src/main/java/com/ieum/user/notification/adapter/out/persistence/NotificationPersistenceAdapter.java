@@ -1,5 +1,8 @@
 package com.ieum.user.notification.adapter.out.persistence;
 
+import com.ieum.user.notification.adapter.out.persistence.entity.FcmTokenJpaEntity;
+import com.ieum.user.notification.adapter.out.persistence.entity.NotificationJpaEntity;
+import com.ieum.user.notification.adapter.out.persistence.entity.NotificationSettingJpaEntity;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
 import com.ieum.user.notification.domain.model.Notification;
@@ -25,7 +28,10 @@ public class NotificationPersistenceAdapter implements NotificationPort {
 
     @Override
     public List<Notification> findByUserId(Long userId) {
-        return notificationJpaRepository.findByUserIdOrderByCreatedAtDesc(userId);
+        return notificationJpaRepository.findByUserIdOrderByCreatedAtDesc(userId)
+                .stream()
+                .map(NotificationJpaEntity::toDomain)
+                .toList();
     }
 
     @Override
@@ -47,23 +53,27 @@ public class NotificationPersistenceAdapter implements NotificationPort {
 
     @Override
     public Optional<FcmToken> findTokenByUserIdAndToken(Long userId, String token) {
-        return fcmTokenJpaRepository.findByUserIdAndToken(userId, token);
+        return fcmTokenJpaRepository.findByUserIdAndToken(userId, token)
+                .map(FcmTokenJpaEntity::toDomain);
     }
 
     @Override
     public FcmToken saveToken(FcmToken fcmToken) {
-        return fcmTokenJpaRepository.save(fcmToken);
+        FcmTokenJpaEntity entity = FcmTokenJpaEntity.fromDomain(fcmToken);
+        return fcmTokenJpaRepository.save(entity).toDomain();
     }
 
     // ── NotificationSetting ──
 
     @Override
     public Optional<NotificationSetting> findSettingByUserId(Long userId) {
-        return notificationSettingJpaRepository.findByUserId(userId);
+        return notificationSettingJpaRepository.findByUserId(userId)
+                .map(NotificationSettingJpaEntity::toDomain);
     }
 
     @Override
     public NotificationSetting saveSetting(NotificationSetting setting) {
-        return notificationSettingJpaRepository.save(setting);
+        NotificationSettingJpaEntity entity = NotificationSettingJpaEntity.fromDomain(setting);
+        return notificationSettingJpaRepository.save(entity).toDomain();
     }
 }

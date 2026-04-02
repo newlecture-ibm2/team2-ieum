@@ -4,8 +4,8 @@ import com.ieum.admin.notice.application.port.in.CreateNoticeUseCase;
 import com.ieum.admin.notice.application.port.in.DeleteNoticeUseCase;
 import com.ieum.admin.notice.application.port.in.GetAdminNoticeListUseCase;
 import com.ieum.admin.notice.application.port.in.UpdateNoticeUseCase;
+import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.global.response.ApiResponse;
-import com.ieum.notice.domain.model.Notice;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -40,7 +40,7 @@ public class NoticeAdminController {
      */
     @Operation(summary = "관리자용 공지 목록 조회", description = "전체 공지사항을 관리자 화면에서 조회합니다.")
     @GetMapping
-    public ResponseEntity<ApiResponse<Page<Notice>>> getAdminNotices(
+    public ResponseEntity<ApiResponse<Page<AdminNotice>>> getAdminNotices(
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -56,7 +56,7 @@ public class NoticeAdminController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "403", description = "관리자 권한 필요")
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<Notice>> createNotice(
+    public ResponseEntity<ApiResponse<AdminNotice>> createNotice(
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam(required = false) String summary,
@@ -77,7 +77,7 @@ public class NoticeAdminController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공지사항을 찾을 수 없음")
     })
     @PutMapping(value = "/{noticeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ApiResponse<Notice>> updateNotice(
+    public ResponseEntity<ApiResponse<AdminNotice>> updateNotice(
             @Parameter(description = "공지사항 ID", required = true, example = "1")
             @PathVariable Long noticeId,
             @RequestParam String title,

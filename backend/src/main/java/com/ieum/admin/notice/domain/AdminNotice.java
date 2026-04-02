@@ -1,18 +1,17 @@
-package com.ieum.notice.domain.model;
+package com.ieum.admin.notice.domain;
 
 import lombok.*;
 
 import java.time.LocalDateTime;
 
 /**
- * 공지사항 도메인 모델 (순수 자바 객체)
- * - JPA 의존성 없음
+ * 관리자용 공지사항 도메인 모델 (순수 자바 객체)
  */
 @Getter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Notice {
+public class AdminNotice {
 
     private Long id;
     private String title;

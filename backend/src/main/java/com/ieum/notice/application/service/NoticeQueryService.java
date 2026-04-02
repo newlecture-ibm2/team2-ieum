@@ -41,8 +41,19 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
                 .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
 
         // 조회수 증가
-        notice.setViewCount(notice.getViewCount() + 1);
-        noticePort.save(notice);
+        Notice updated = Notice.builder()
+                .id(notice.getId())
+                .title(notice.getTitle())
+                .content(notice.getContent())
+                .summary(notice.getSummary())
+                .viewCount(notice.getViewCount() + 1)
+                .isPinned(notice.getIsPinned())
+                .isPopup(notice.getIsPopup())
+                .startDate(notice.getStartDate())
+                .endDate(notice.getEndDate())
+                .createdAt(notice.getCreatedAt())
+                .build();
+        noticePort.save(updated);
 
         Map<String, Object> result = new HashMap<>();
         result.put("notice", notice);
