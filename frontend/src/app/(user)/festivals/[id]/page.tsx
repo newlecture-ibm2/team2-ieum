@@ -130,8 +130,8 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
   const formatDt = (dt: string) => dt ? dt.toString().replace(/-/g, '.') : '';
   const dateString = data.startDate && data.endDate ? `${formatDt(data.startDate)} ~ ${formatDt(data.endDate)}` : '상시 진행 (미정)';
 
-  let badgeText = '진행전';
-  if (data.status === 'ONGOING') badgeText = '진행예정';
+  let badgeText = '진행예정';
+  if (data.status === 'ONGOING') badgeText = '진행중';
   if (data.status === 'ENDED') badgeText = '종료';
 
   const imageSrc = data.imageUrl || data.thumbnailUrl || 'https://images.unsplash.com/photo-1522864697368-8096add2e6df?auto=format&fit=crop&q=80&w=800';
@@ -216,7 +216,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
                       onClick={handleSubmitReview}
                       disabled={isSubmitting}
                     >
-                      {isSubmitting ? '진행예정...' : '리뷰 등록'}
+                      {isSubmitting ? '진행중...' : '리뷰 등록'}
                     </button>
                   </div>
                 </div>

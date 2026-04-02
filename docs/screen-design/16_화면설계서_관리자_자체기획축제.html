@@ -423,11 +423,13 @@
           <div class="content-area">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 자체 기획 축제 관리</h1>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 자체
+                  기획 축제 관리</h1>
                 <p style="font-size: 12px; color: #94a3b8;">직접 기획한 축제를 등록하고 관리합니다</p>
               </div>
               <button
-                style="background: #6c5ce7; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" data-marker="3">+
+                style="background: #6c5ce7; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;"
+                data-marker="3">+
                 축제 등록</button>
             </div>
 
@@ -453,7 +455,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.07.10 - 07.15</td>
                     <td style="padding: 10px 6px; color: #475569;">음악/공연</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td style="padding: 10px 6px; text-align: center;">
                       <span style="cursor: pointer; font-size: 14px;">✏️</span>
@@ -468,7 +470,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.10.05 - 10.12</td>
                     <td style="padding: 10px 6px; color: #475569;">음식/먹거리</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td style="padding: 10px 6px; text-align: center;">
                       <span style="cursor: pointer; font-size: 14px;">✏️</span>
@@ -483,7 +485,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.10.20 - 10.21</td>
                     <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td style="padding: 10px 6px; text-align: center;">
                       <span style="cursor: pointer; font-size: 14px;">✏️</span>
@@ -497,7 +499,8 @@
             <!-- 축제 등록 폼 (하단 참고) -->
             <div
               style="background: #fff; border-radius: 12px; padding: 20px; margin-top: 16px; border: 2px dashed #cbd5e1;">
-              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 14px;" data-marker="5">📝 축제 등록/수정 폼</div>
+              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 14px;" data-marker="5">📝 축제
+                등록/수정 폼</div>
               <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <div>
                   <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">축제명</label>
@@ -623,14 +626,39 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>축제 등록 버튼 클릭 (Open Form)</strong><br>· 트리거: [+ 축제 등록] 버튼 클릭<br>· 동작: 하단 등록 폼 표시 (빈 상태)</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>축제 등록 (Create)</strong><br>· 트리거: 폼 [등록] 버튼 클릭<br>· 동작: 유효성 검사 → 신규 축제 등록<br>· API: <code>POST /api/admin/festivals/custom</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>축제 수정 (Update)</strong><br>· 트리거: ✏️ 버튼 클릭 → 폼에 기존 데이터 pre-fill → [등록] 클릭<br>· 동작: 기존 축제 정보 수정<br>· API: <code>PUT /api/admin/festivals/custom/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>축제 삭제 (Delete)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → 하드 삭제 처리<br>· API: <code>DELETE /api/admin/festivals/custom/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 해당 축제 상세/수정 모드 진입</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>축제 등록 버튼 클릭 (Open Form)</strong><br>· 트리거: [+ 축제 등록] 버튼 클릭<br>· 동작: 하단 등록 폼 표시
+              (빈 상태)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>축제 등록 (Create)</strong><br>· 트리거: 폼 [등록] 버튼 클릭<br>· 동작: 유효성 검사 → 신규 축제 등록<br>·
+              API: <code>POST /api/admin/festivals/custom</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>축제 수정 (Update)</strong><br>· 트리거: ✏️ 버튼 클릭 → 폼에 기존 데이터 pre-fill → [등록] 클릭<br>·
+              동작: 기존 축제 정보 수정<br>· API: <code>PUT /api/admin/festivals/custom/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>축제 삭제 (Delete)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → 하드 삭제 처리<br>·
+              API: <code>DELETE /api/admin/festivals/custom/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 해당 축제 상세/수정 모드
+              진입</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -698,33 +726,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

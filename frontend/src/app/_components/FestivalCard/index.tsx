@@ -19,7 +19,7 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
   // 상태에 따른 뱃지 스타일 분기
   const isOngoing = festival.status === 'ONGOING';
   const badgeClass = isOngoing ? styles.badgeOngoing : styles.badgeUpcoming;
-  const badgeText = isOngoing ? '진행예정' : (festival.status === 'UPCOMING' ? '진행전' : '종료');
+  const badgeText = isOngoing ? '진행중' : (festival.status === 'UPCOMING' ? '진행예정' : '종료');
 
   // 날짜 포맷 (2026-04-01 -> 2026.04.01)
   const formatDt = (dt: string) => dt ? dt.replace(/-/g, '.') : '';

@@ -110,7 +110,7 @@ frontend/src/
   --color-gray-900: #222222;  /* 본문 기본 텍스트 */
   
   /* Semantic (상태 표시, 기타) */
-  --color-success: #00b894;   /* 진행예정 상태 (badge-ongoing) */
+  --color-success: #00b894;   /* 진행중 상태 (badge-ongoing) */
   --color-warning: #fbbf24;   /* 별점 (star rating) */
   --color-error: #FF4D6A;     /* 에러 및 주의 */
 }
@@ -128,7 +128,7 @@ frontend/src/
 #### 4.1 축제 목록 페이지 (`/admin/festivals`)
 - [ ] 지역별 탭/드롭다운 필터 (서울, 부산, 제주 등)
 - [ ] 축제 목록 (Data Table 뷰 또는 List 뷰 지원)
-- [ ] 진행상태 표시 (진행전, 진행예정, 종료됨)
+- [ ] 진행상태 표시 (진행예정, 진행중, 종료됨)
 - [ ] 축제명/지역명 검색 바
 
 #### 4.2 축제 등록 및 수정 폼 (`/admin/festivals/new` & `edit`)

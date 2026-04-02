@@ -25,11 +25,11 @@ public class FestivalController {
     private final FestivalJpaRepository repository;
     private final TourApiSyncService syncService;
 
-    @Operation(summary = "축제 목록 조회 (날짜 기반 동적 필터링)", description = "status 파라미터에 따라 전체/진행예정/진행전 축제를 날짜 기반으로 필터링하여 조회합니다.\n"
+    @Operation(summary = "축제 목록 조회 (날짜 기반 동적 필터링)", description = "status 파라미터에 따라 전체/진행중/진행예정 축제를 날짜 기반으로 필터링하여 조회합니다.\n"
             +
-            "- 전체(all/미지정): 진행예정 → 진행전(가까운 순) → 종료(최근 순)\n" +
-            "- 진행예정(ongoing): 오늘 날짜 기준 startDate ≤ 오늘 ≤ endDate\n" +
-            "- 진행전(upcoming): startDate > 오늘, 시작일 가까운 순")
+            "- 전체(all/미지정): 진행중 → 진행예정(가까운 순) → 종료(최근 순)\n" +
+            "- 진행중(ongoing): 오늘 날짜 기준 startDate ≤ 오늘 ≤ endDate\n" +
+            "- 진행예정(upcoming): startDate > 오늘, 시작일 가까운 순")
     @GetMapping
     public ResponseEntity<?> getFestivals(
             @Parameter(description = "필터 상태 (all, ongoing, upcoming)", example = "ongoing") @RequestParam(required = false) String status,

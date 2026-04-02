@@ -447,12 +447,12 @@
                 </div>
                 <div
                   style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 10px; color: #16a34a;">진행예정</div>
+                  <div style="font-size: 10px; color: #16a34a;">진행중</div>
                   <div style="font-size: 22px; font-weight: 800; color: #16a34a;">8</div>
                 </div>
                 <div
                   style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 10px; color: #6c5ce7;">진행예정</div>
+                  <div style="font-size: 10px; color: #6c5ce7;">진행중</div>
                   <div style="font-size: 22px; font-weight: 800; color: #6c5ce7;">4</div>
                 </div>
                 <div
@@ -485,7 +485,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.04.01 - 04.10</td>
                     <td style="padding: 10px 6px; color: #475569;">자연/꽃</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
+                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행중</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -501,7 +501,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.03.20 - 03.27</td>
                     <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
+                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행중</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -517,7 +517,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.04.15 - 04.20</td>
                     <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -533,7 +533,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.07.10 - 07.15</td>
                     <td style="padding: 10px 6px; color: #475569;">음악/공연</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -575,7 +575,7 @@
           <ul>
             <li>공공 API(data.go.kr)에서 수집된 전국 축제 데이터를 관리하는 화면</li>
             <li>수동 갱신 버튼으로 공공 데이터 동기화 가능</li>
-            <li>축제 상태(진행예정/진행전/종료) 요약 카드 4종 제공</li>
+            <li>축제 상태(진행중/진행예정/종료) 요약 카드 4종 제공</li>
             <li>축제 목록 테이블에서 노출/숨김, 수정, 삭제 관리</li>
             <li>좌측 사이드바로 관리자 메뉴 간 이동</li>
           </ul>
@@ -615,8 +615,8 @@
               <strong>상태 요약 카드 (4종)</strong><br>
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030) 응답 집계<br>
               · 전체 축제 — 전체 갯수<br>
-              · <span style="color:#16a34a;">진행예정</span> — 현재 운영 중인 축제 수<br>
-              · <span style="color:#6c5ce7;">진행예정</span> — 시작 전 축제 수<br>
+              · <span style="color:#16a34a;">진행중</span> — 현재 운영 중인 축제 수<br>
+              · <span style="color:#6c5ce7;">진행중</span> — 시작 전 축제 수<br>
               · 종료 — 종료된 축제 수<br>
               · 각 카드는 배경 색상으로 구분
             </td>
@@ -628,7 +628,7 @@
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030)<br>
               · 컬럼: 축제명, 지역, 날짜, 카테고리, 상태, 관리<br>
               · 축제명 클릭 → 축제 상세 페이지 이동<br>
-              · 상태 배지: 진행예정(녹색), 진행전(파란), 종료(회색)<br>
+              · 상태 배지: 진행중(녹색), 진행예정(파란), 종료(회색)<br>
               · 페이지네이션 지원 (page, size 파라미터)
             </td>
           </tr>

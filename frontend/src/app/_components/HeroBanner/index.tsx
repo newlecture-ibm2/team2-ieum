@@ -37,8 +37,8 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
 
   const TABS = [
     { label: '전체', value: 'all' },
-    { label: '진행예정', value: 'ongoing' },
-    { label: '진행전', value: 'upcoming' },
+    { label: '진행중', value: 'ongoing' },
+    { label: '진행예정', value: 'upcoming' },
   ];
 
   return (
