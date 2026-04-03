@@ -3,15 +3,15 @@ import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
 import { getMessaging, getToken } from "firebase/messaging";
 
-// .env.local에 저장된 환경변수 불러오기
+// Firebase 설정 (클라이언트 키 — 브라우저에 노출되는 공개 정보이므로 하드코딩 OK)
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+  apiKey: "AIzaSyATlHhbCwTDkKaolwYB5AaMiKzDq9WPDBw",
+  authDomain: "team2-ieum.firebaseapp.com",
+  projectId: "team2-ieum",
+  storageBucket: "team2-ieum.firebasestorage.app",
+  messagingSenderId: "920769033731",
+  appId: "1:920769033731:web:9a443d83025a788cb3c036",
+  measurementId: "G-W1D66PBWS7"
 };
 
 // Initialize Firebase
@@ -29,7 +29,7 @@ export const requestFcmToken = async () => {
     try {
         // 백엔드에 전달할 디바이스 토큰 받기 (VAPID KEY는 추후 콘솔에서 복사 필요)
         const currentToken = await getToken(messaging, { 
-            vapidKey: process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY
+            vapidKey: "BC8lNT59SL9jHN7qPyMHUinuu8NuMHi9Dhqx6jMilqdps3E6aIbxLQEPfWJOIdo_pzuejRzvikhNIzZo5M3780A"
         });
 
         if (currentToken) {
