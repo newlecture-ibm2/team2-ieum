@@ -4,9 +4,8 @@ import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
 import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
 import com.ieum.admin.festival.application.result.CustomFestivalItem;
 import com.ieum.admin.festival.application.result.CustomFestivalListResult;
-import com.ieum.festival.domain.model.Festival;
-import com.ieum.festival.domain.model.FestivalSource;
-import com.ieum.festival.domain.model.FestivalStatus;
+import com.ieum.admin.festival.application.result.FestivalStatusCountsResult;
+import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import com.ieum.global.file.FileStorageService;
 import com.ieum.festival.application.service.RegionOptionService;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +15,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,23 +33,20 @@ public class CustomFestivalAdminService {
     private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
 
     @Transactional(readOnly = true)
-    public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam, boolean excludeHidden) {
+    public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam, String categoryCode, String areaCode, boolean excludeHidden) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
         
-        FestivalStatus status = null;
+        // status를 String 그대로 전달 (FestivalEntity.status는 String)
+        String status = null;
         if (statusParam != null && !statusParam.isEmpty()) {
-            try {
-                status = FestivalStatus.valueOf(statusParam.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid status mapping
-            }
+            status = statusParam.toUpperCase();
         }
 
-        Page<Festival> festivalPage;
+        Page<FestivalEntity> festivalPage;
         if (excludeHidden) {
-            festivalPage = repository.searchVisibleCustomFestivals(keyword, status, pageable);
+            festivalPage = repository.searchVisibleCustomFestivals(keyword, status, categoryCode, areaCode, pageable);
         } else {
-            festivalPage = repository.searchCustomFestivals(keyword, status, pageable);
+            festivalPage = repository.searchCustomFestivals(keyword, status, categoryCode, areaCode, pageable);
         }
 
         List<CustomFestivalItem> items = festivalPage.getContent().stream()
@@ -59,20 +57,20 @@ public class CustomFestivalAdminService {
                 })
                 .collect(Collectors.toList());
 
-        com.ieum.admin.festival.application.result.FestivalStatusCountsResult statusCounts;
+        FestivalStatusCountsResult statusCounts;
         if (excludeHidden) {
-            statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
+            statusCounts = FestivalStatusCountsResult.builder()
                     .total(repository.countVisibleCustomFestivals())
-                    .ongoing(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.ONGOING))
-                    .upcoming(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.UPCOMING))
-                    .ended(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.ENDED))
+                    .ongoing(repository.countVisibleCustomFestivalsByStatus("ONGOING"))
+                    .upcoming(repository.countVisibleCustomFestivalsByStatus("UPCOMING"))
+                    .ended(repository.countVisibleCustomFestivalsByStatus("ENDED"))
                     .build();
         } else {
-            statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
+            statusCounts = FestivalStatusCountsResult.builder()
                     .total(repository.countCustomFestivals())
-                    .ongoing(repository.countCustomFestivalsByStatus(FestivalStatus.ONGOING))
-                    .upcoming(repository.countCustomFestivalsByStatus(FestivalStatus.UPCOMING))
-                    .ended(repository.countCustomFestivalsByStatus(FestivalStatus.ENDED))
+                    .ongoing(repository.countCustomFestivalsByStatus("ONGOING"))
+                    .upcoming(repository.countCustomFestivalsByStatus("UPCOMING"))
+                    .ended(repository.countCustomFestivalsByStatus("ENDED"))
                     .build();
         }
 
@@ -90,7 +88,7 @@ public class CustomFestivalAdminService {
             imgUrl = fileStorageService.storeFile(request.getImg());
         }
 
-        Festival festival = Festival.builder()
+        FestivalEntity festival = FestivalEntity.builder()
                 .title(request.getTitle())
                 .areaCode(request.getAreaCode())
                 .startDate(request.getStartDate())
@@ -105,16 +103,16 @@ public class CustomFestivalAdminService {
                 .homepage(request.getHomepage())
                 .sigunguCode(request.getSigunguCode())
                 .imageUrl(imgUrl)
-                .thumbnailUrl(imgUrl) // 대표이미지(imageUrl)와 썸네일(thumbnailUrl) 공용 사용 (사용자 요구사항 отраж)
+                .thumbnailUrl(imgUrl)
                 .isCustom(true)
-                .source(FestivalSource.MANUAL)
+                .source("MANUAL")
                 .isVisible(request.getIsVisible() != null ? request.getIsVisible() : true)
                 .status(calculateStatus(request.getStartDate(), request.getEndDate()))
                 .build();
 
         if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
-            java.util.List<String> extraImageUrls = new java.util.ArrayList<>();
-            for (org.springframework.web.multipart.MultipartFile extraImg : request.getExtraImgs()) {
+            List<String> extraImageUrls = new ArrayList<>();
+            for (MultipartFile extraImg : request.getExtraImgs()) {
                 if (extraImg != null && !extraImg.isEmpty()) {
                     extraImageUrls.add(fileStorageService.storeFile(extraImg));
                 }
@@ -129,11 +127,11 @@ public class CustomFestivalAdminService {
 
     @Transactional
     public void updateCustomFestival(Long festivalId, CustomFestivalRequest request) {
-        Festival festival = repository.findById(festivalId)
+        FestivalEntity festival = repository.findById(festivalId)
                 .orElseThrow(() -> new RuntimeException("축제를 찾을 수 없습니다."));
 
-        if (!festival.isCustom()) {
-            throw new RuntimeException("자체 기획 축제만 수정할 수 있습니다.");
+        if (!Boolean.TRUE.equals(festival.getIsCustom())) {
+            throw new RuntimeException("축제 등록만 수정할 수 있습니다.");
         }
 
         festival.setTitle(request.getTitle());
@@ -144,7 +142,6 @@ public class CustomFestivalAdminService {
         festival.setCategory(request.getCategory());
         festival.setStatus(calculateStatus(request.getStartDate(), request.getEndDate()));
         
-        // 추가 세부 필드
         festival.setEventPlace(request.getEventPlace());
         festival.setAddress(request.getAddress());
         festival.setUseFee(request.getUseFee());
@@ -154,18 +151,18 @@ public class CustomFestivalAdminService {
         festival.setSigunguCode(request.getSigunguCode());
 
         if (request.getIsVisible() != null) {
-            festival.setVisible(request.getIsVisible());
+            festival.setIsVisible(request.getIsVisible());
         }
 
         if (request.getImg() != null && !request.getImg().isEmpty()) {
             String imgUrl = fileStorageService.storeFile(request.getImg());
             festival.setImageUrl(imgUrl);
-            festival.setThumbnailUrl(imgUrl); // 대표이미지와 썸네일 동기화
+            festival.setThumbnailUrl(imgUrl);
         }
 
         if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
-            java.util.List<String> extraImageUrls = new java.util.ArrayList<>();
-            for (org.springframework.web.multipart.MultipartFile extraImg : request.getExtraImgs()) {
+            List<String> extraImageUrls = new ArrayList<>();
+            for (MultipartFile extraImg : request.getExtraImgs()) {
                 if (extraImg != null && !extraImg.isEmpty()) {
                     extraImageUrls.add(fileStorageService.storeFile(extraImg));
                 }
@@ -178,25 +175,25 @@ public class CustomFestivalAdminService {
 
     @Transactional
     public void deleteCustomFestival(Long festivalId) {
-        Festival festival = repository.findById(festivalId)
+        FestivalEntity festival = repository.findById(festivalId)
                 .orElseThrow(() -> new RuntimeException("축제를 찾을 수 없습니다."));
 
-        if (!festival.isCustom()) {
-            throw new RuntimeException("자체 기획 축제만 삭제할 수 있습니다.");
+        if (!Boolean.TRUE.equals(festival.getIsCustom())) {
+            throw new RuntimeException("축제 등록만 삭제할 수 있습니다.");
         }
 
         repository.delete(festival);
     }
     
-    private FestivalStatus calculateStatus(LocalDate start, LocalDate end) {
-        if (start == null || end == null) return FestivalStatus.UPCOMING;
+    private String calculateStatus(LocalDate start, LocalDate end) {
+        if (start == null || end == null) return "UPCOMING";
         LocalDate now = LocalDate.now();
         if (now.isBefore(start)) {
-            return FestivalStatus.UPCOMING;
+            return "UPCOMING";
         } else if (now.isAfter(end)) {
-            return FestivalStatus.ENDED;
+            return "ENDED";
         } else {
-            return FestivalStatus.ONGOING;
+            return "ONGOING";
         }
     }
 }

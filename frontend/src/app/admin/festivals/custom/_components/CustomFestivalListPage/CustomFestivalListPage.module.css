@@ -1,10 +1,10 @@
 /* ======================================================
-   관리자 > 자체 기획 축제 리스트 페이지 전용 스타일
+   관리자 > 축제 등록 리스트 페이지 전용 스타일
    (공공 축제 리스트 디자인 시스템과 완전 동일하게 맞춤)
    ====================================================== */
 
 .container {
-  padding: 28px 32px;
+  padding: 28px 32px 80px 32px; /* 하단에 한 줄 이상의 여유 공간 추가 */
   max-width: 1100px;
 }
 
@@ -28,8 +28,8 @@
 }
 
 .addButton {
-  background: #fff;
-  border: 1.5px solid #1e293b;
+  background: #6c5ce7;
+  border: 1.5px solid #6c5ce7;
   padding: 9px 18px;
   border-radius: 8px;
   font-size: 13px;
@@ -39,12 +39,37 @@
   align-items: center;
   gap: 6px;
   transition: all 0.2s ease;
-  color: #1e293b;
+  color: #fff;
 }
 
 .addButton:hover {
+  background: #5a4bcf;
+  border-color: #5a4bcf;
+}
+
+.syncButton {
+  background: #fff;
+  border: 1.5px solid #1e293b;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  color: #1e293b;
+}
+
+.syncButton:hover:not(:disabled) {
   background: #1e293b;
   color: #fff;
+}
+
+.syncButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 /* ── 상태 요약(KPI) 카드 그룹 컨테이너 ── */
@@ -148,20 +173,55 @@
 .filterBar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.filterSelect {
+  padding: 10px 36px 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg stroke='%2364748b' fill='none' stroke-width='2' viewBox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  appearance: none;
+  height: 42px;
+  outline: none;
+  min-width: 160px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  font-weight: 500;
+}
+
+.filterSelect:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.filterSelect:hover {
+  border-color: #94a3b8;
 }
 
 .searchInput {
-  flex: 1;
+  width: 280px;
   padding: 10px 16px;
-  border: 1px solid #e2e8f0;
+  border: 1px solid #cbd5e1;
   border-radius: 8px;
   font-size: 14px;
   height: 42px;
   outline: none;
-  transition: border-color 0.2s;
+  transition: all 0.2s;
   background: #fff;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
 }
 
 .searchInput:focus {
@@ -174,30 +234,28 @@
 }
 
 .filterBtn {
-  padding: 8px 16px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  color: #64748b;
+  padding: 0 20px;
+  height: 42px;
+  border: none;
+  background: #1e293b;
+  color: #fff;
   border-radius: 8px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
   white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(30, 41, 59, 0.2);
 }
 
 .filterBtn:hover {
-  background: #f8fafc;
+  background: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(30, 41, 59, 0.25);
 }
 
-.activeFilter {
-  background: #6c5ce7;
-  color: white;
-  border-color: #6c5ce7;
-}
-
-.activeFilter:hover {
-  background: #5a4bcf;
+.filterBtn:active {
+  transform: translateY(0);
 }
 
 /* ── 테이블 카드 ── */
@@ -212,7 +270,8 @@
 /* ── 테이블 ── */
 .table {
   width: 100%;
-  border-collapse: collapse;
+  border-collapse: separate;
+  border-spacing: 0;
   font-size: 14px;
 }
 
@@ -249,6 +308,14 @@
   font-size: 14px;
   white-space: nowrap;
   border-bottom: 2px solid #e2e8f0;
+}
+
+.tableHeaderCell:first-child {
+  border-top-left-radius: 12px;
+}
+
+.tableHeaderCell:last-child {
+  border-top-right-radius: 12px;
 }
 
 .tableRow {

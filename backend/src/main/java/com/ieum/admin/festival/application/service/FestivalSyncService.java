@@ -4,24 +4,26 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
 import com.ieum.admin.festival.application.result.FestivalSyncResult;
-import com.ieum.festival.domain.model.Festival;
-import com.ieum.festival.domain.model.FestivalSource;
-import com.ieum.festival.domain.model.FestivalStatus;
+import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * 관리자 수동 동기화 서비스 (공공 API → DB)
+ * - TourApiSyncService(스케줄러)와 동일 테이블/엔티티를 사용하지만,
+ *   관리자가 수동으로 트리거하는 용도로 분리.
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -38,13 +40,12 @@ public class FestivalSyncService {
     private String baseUrl;
 
     public FestivalSyncResult syncFestivalsFromTourApi() {
-        log.info("Starting TourAPI sync...");
+        log.info("Starting TourAPI sync (admin manual trigger)...");
         int syncCount = 0;
         int pageNo = 1;
         int numOfRows = 200;
 
         try {
-            // 오늘 기준으로 2년 전 데이터부터 검색
             LocalDate now = LocalDate.now();
             String startDateStr = now.minusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -57,7 +58,7 @@ public class FestivalSyncService {
                         .queryParam("MobileApp", "ieum")
                         .queryParam("_type", "json")
                         .queryParam("eventStartDate", startDateStr)
-                        .queryParam("arrange", "A") // 제목순 정렬 기준. 혹은 최신순 C도 가능. 우리는 전부 가져옴
+                        .queryParam("arrange", "A")
                         .build(true).toUri();
 
                 String responseBody;
@@ -84,18 +85,18 @@ public class FestivalSyncService {
                 JsonNode itemsNode = bodyNode.path("items").path("item");
 
                 if (itemsNode.isArray() && !itemsNode.isEmpty()) {
-                    List<Festival> saveList = new ArrayList<>();
+                    List<FestivalEntity> saveList = new ArrayList<>();
                     for (JsonNode item : itemsNode) {
                         try {
                             String sourceId = item.path("contentid").asText(null);
                             if (sourceId == null)
                                 continue;
 
-                            Festival festival = festivalRepository.findBySourceId(sourceId).orElse(null);
+                            FestivalEntity festival = festivalRepository.findBySourceId(sourceId).orElse(null);
                             if (festival == null) {
-                                festival = Festival.builder()
+                                festival = FestivalEntity.builder()
                                         .sourceId(sourceId)
-                                        .source(FestivalSource.API)
+                                        .source("API")
                                         .isCustom(false)
                                         .isVisible(true)
                                         .build();
@@ -132,7 +133,7 @@ public class FestivalSyncService {
         }
     }
 
-    private void updateFestivalData(Festival festival, JsonNode item) {
+    private void updateFestivalData(FestivalEntity festival, JsonNode item) {
         String title = item.path("title").asText(null);
         String addr1 = item.path("addr1").asText("");
         String addr2 = item.path("addr2").asText("");
@@ -150,15 +151,15 @@ public class FestivalSyncService {
         LocalDate startDate = parseDate(item.path("eventstartdate").asText(null));
         LocalDate endDate = parseDate(item.path("eventenddate").asText(null));
 
-        FestivalStatus status = FestivalStatus.UPCOMING;
+        String status = "UPCOMING";
         LocalDate today = LocalDate.now();
         if (startDate != null && endDate != null) {
             if (today.isBefore(startDate)) {
-                status = FestivalStatus.UPCOMING;
+                status = "UPCOMING";
             } else if (today.isAfter(endDate)) {
-                status = FestivalStatus.ENDED;
+                status = "ENDED";
             } else {
-                status = FestivalStatus.ONGOING;
+                status = "ONGOING";
             }
         }
 
@@ -204,11 +205,11 @@ public class FestivalSyncService {
         
         festival.setStartDate(startDate);
         festival.setEndDate(endDate);
-        if (festival.getStatus() != FestivalStatus.ENDED || !festival.isCustom()) {
+        if (!"ENDED".equals(festival.getStatus()) || !Boolean.TRUE.equals(festival.getIsCustom())) {
             festival.setStatus(status);
         }
         
-        festival.setApiModifiedAt(java.time.LocalDateTime.now());
+        festival.setApiModifiedAt(LocalDateTime.now());
     }
 
     private LocalDate parseDate(String dateStr) {

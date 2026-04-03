@@ -21,14 +21,14 @@ public class CustomFestivalStatusScheduler {
     @Scheduled(cron = "0 0 0 * * *") // 매일 00시(자정)에 실행
     @Transactional
     public void updateCustomFestivalStatuses() {
-        log.info("자체 기획 축제 상태 자동 업데이트 스케줄러 시작...");
+        log.info("축제 등록 상태 자동 업데이트 스케줄러 시작...");
         
         List<FestivalEntity> allFestivals = festivalJpaRepository.findAll();
         LocalDate today = LocalDate.now();
         int updateCount = 0;
 
         for (FestivalEntity f : allFestivals) {
-            // 자체 기획 축제만 필터링
+            // 축제 등록만 필터링
             if (Boolean.TRUE.equals(f.getIsCustom())) {
                 String oldStatus = f.getStatus();
                 String newStatus = "UPCOMING";
@@ -49,6 +49,6 @@ public class CustomFestivalStatusScheduler {
                 }
             }
         }
-        log.info("자체 기획 축제 상태 업데이트 완료. 총 {}건 변경됨.", updateCount);
+        log.info("축제 등록 상태 업데이트 완료. 총 {}건 변경됨.", updateCount);
     }
 }

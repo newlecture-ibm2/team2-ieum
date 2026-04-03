@@ -39,6 +39,8 @@ export interface FestivalListItem {
   region: string;
   startDate: string; // yyyy-MM-dd
   endDate: string;   // yyyy-MM-dd
+  category?: string;
+  categoryLabel?: string;
   status: 'ongoing' | 'upcoming' | 'ended';
   isVisible: boolean;
 }
@@ -73,7 +75,7 @@ export interface FestivalVisibilityData {
 }
 
 // ────────────────────────────────────────
-// 자체 기획 축제 관련 타입
+// 축제 등록 관련 타입
 // ────────────────────────────────────────
 
 export interface CustomFestivalItem {
@@ -85,6 +87,7 @@ export interface CustomFestivalItem {
   endDate: string; // yyyy-MM-dd
   isVisible: boolean;
   category: string;
+  categoryLabel?: string;
   status: 'UPCOMING' | 'ONGOING' | 'ENDED';
   createdAt: string;
   content: string; // 상세 내용

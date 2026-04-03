@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
 @Tag(name = "[관리자] 축제 관리", description = "축제 목록 관리 / 공공데이터 API 동기화 / 상태 변경")
 @RestController
 @RequestMapping("/api/admin/festivals")
@@ -34,7 +32,7 @@ public class FestivalAdminController {
         this.sigunguOptionService = sigunguOptionService;
     }
 
-    @Operation(summary = "지역 옵션 분류 조회", description = "표준(공공API) 및 자체 기획 예외 옵션을 병합한 지역 목록 반환")
+    @Operation(summary = "지역 옵션 분류 조회", description = "표준(공공API) 및 축제 등록 예외 옵션을 병합한 지역 목록 반환")
     @GetMapping("/regions/options")
     public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.RegionOptionDto>>> getRegionOptions() {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(regionOptionService.getMergedRegionOptions()));
@@ -46,7 +44,7 @@ public class FestivalAdminController {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(sigunguOptionService.getSigungusByAreaCode(areaCode)));
     }
 
-    @Operation(summary = "카테고리 옵션 분류 조회", description = "표준(공공API) 및 자체 기획 예외 카테고리 옵션을 병합한 목록 반환")
+    @Operation(summary = "카테고리 옵션 분류 조회", description = "표준(공공API) 및 축제 등록 예외 카테고리 옵션을 병합한 목록 반환")
     @GetMapping("/categories/options")
     public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.CategoryOptionDto>>> getCategoryOptions() {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(categoryOptionService.getMergedCategoryOptions()));
@@ -65,12 +63,16 @@ public class FestivalAdminController {
             @RequestParam(required = false) String status,
             @Parameter(description = "검색 키워드 (축제명 또는 지역)")
             @RequestParam(required = false) String keyword,
+            @Parameter(description = "카테고리 코드")
+            @RequestParam(required = false) String categoryCode,
+            @Parameter(description = "지역 코드")
+            @RequestParam(required = false) String areaCode,
             @Parameter(description = "페이지 번호", example = "1")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size
     ) {
-        var result = festivalAdminService.getFestivals(page, size, keyword, status);
+        var result = festivalAdminService.getFestivals(page, size, keyword, status, categoryCode, areaCode);
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(result));
     }
 

@@ -7,7 +7,7 @@ import styles from './AdminSidebar.module.css';
 const MENU_ITEMS = [
   { label: '🏠 대시보드', href: '/admin' },
   { label: '🌐 공공축제 리스트', href: '/admin/festivals' },
-  { label: '🎪 자체기획 축제', href: '/admin/festivals/custom' },
+  { label: '🎪 축제 등록', href: '/admin/festivals/custom' },
   { label: '🚨 신고 관리', href: '/admin/reports' },
   { label: '📢 공지/팝업', href: '/admin/notices' },
   { label: '💬 문의 관리', href: '/admin/inquiries' },

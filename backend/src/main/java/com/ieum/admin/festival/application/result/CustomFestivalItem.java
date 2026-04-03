@@ -1,7 +1,6 @@
 package com.ieum.admin.festival.application.result;
 
-import com.ieum.festival.domain.model.Festival;
-import com.ieum.festival.domain.model.FestivalStatus;
+import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -21,7 +20,7 @@ public class CustomFestivalItem {
     private boolean isVisible;
     private String category;
     private String categoryLabel;
-    private FestivalStatus status;
+    private String status;
     private LocalDateTime createdAt;
     
     // For detail UI pre-fill
@@ -38,7 +37,7 @@ public class CustomFestivalItem {
     private String homepage;
     private String sigunguCode;
 
-    public static CustomFestivalItem from(Festival festival, String resolvedLabel, String categoryLabel) {
+    public static CustomFestivalItem from(FestivalEntity festival, String resolvedLabel, String categoryLabel) {
         return CustomFestivalItem.builder()
                 .festivalId(festival.getId())
                 .title(festival.getTitle())
@@ -46,7 +45,7 @@ public class CustomFestivalItem {
                 .areaLabel(resolvedLabel)
                 .startDate(festival.getStartDate())
                 .endDate(festival.getEndDate())
-                .isVisible(festival.isVisible())
+                .isVisible(Boolean.TRUE.equals(festival.getIsVisible()))
                 .category(festival.getCategory())
                 .categoryLabel(categoryLabel)
                 .status(festival.getStatus())

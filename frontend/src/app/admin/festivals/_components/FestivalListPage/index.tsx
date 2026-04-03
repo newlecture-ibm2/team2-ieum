@@ -11,6 +11,7 @@ import type {
   FestivalVisibilityData,
 } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
+import type { RegionOptionDto, CategoryOptionDto } from '@/types/admin-festival';
 import styles from './FestivalListPage.module.css';
 
 function formatDateRange(startDateStr: string, endDateStr: string): string {
@@ -52,6 +53,11 @@ export default function FestivalListPage() {
   const [searchTerm, setSearchTerm] = useState(initialKeyword);
   const [statusFilter, setStatusFilter] = useState(initialStatus);
   const [currentPage, setCurrentPage] = useState(initialPage);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [regionFilter, setRegionFilter] = useState('');
+
+  const [regionOptions, setRegionOptions] = useState<RegionOptionDto[]>([]);
+  const [categoryOptions, setCategoryOptions] = useState<CategoryOptionDto[]>([]);
   
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
@@ -62,19 +68,12 @@ export default function FestivalListPage() {
     if (currentPage > 1) params.set('page', currentPage.toString());
     if (keyword) params.set('keyword', keyword);
     if (statusFilter) params.set('status', statusFilter);
+    if (categoryFilter) params.set('categoryCode', categoryFilter);
+    if (regionFilter) params.set('areaCode', regionFilter);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [currentPage, keyword, statusFilter, pathname, router]);
+  }, [currentPage, keyword, statusFilter, categoryFilter, regionFilter, pathname, router]);
 
-  // 검색어 입력 시 Debounce 처리
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (keyword !== searchTerm) {
-        setKeyword(searchTerm);
-        setCurrentPage(1); // 검색어가 확정되면 1페이지로
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm, keyword]);
+  // 삭제: 검색어 자동 Debounce 처리 제거 (버튼 클릭/엔터로만 검색하도록 변경)
 
   // ── 데이터 페칭 함수 ──
   const fetchFestivals = useCallback(async () => {
@@ -86,6 +85,8 @@ export default function FestivalListPage() {
           size: 10,
           keyword: keyword || undefined,
           status: statusFilter || undefined,
+          categoryCode: categoryFilter || undefined,
+          areaCode: regionFilter || undefined,
         },
       });
       if (res.data.success && res.data.data) {
@@ -107,6 +108,15 @@ export default function FestivalListPage() {
   useEffect(() => {
     fetchFestivals();
   }, [fetchFestivals]);
+
+  useEffect(() => {
+    adminApi.get<ApiResponse<RegionOptionDto[]>>('/festivals/regions/options').then(res => {
+      if (res.data.success && res.data.data) setRegionOptions(res.data.data);
+    });
+    adminApi.get<ApiResponse<CategoryOptionDto[]>>('/festivals/categories/options').then(res => {
+      if (res.data.success && res.data.data) setCategoryOptions(res.data.data);
+    });
+  }, []);
 
   // ── E1: 수동 갱신 (API_ADM_0031) ──
   const handleSync = useCallback(async () => {
@@ -230,14 +240,52 @@ export default function FestivalListPage() {
 
       {/* ── 필터 바 ── */}
       <section className={styles.filterBar}>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="축제명 또는 지역으로 검색하세요"
-          value={searchTerm}
-          onChange={handleKeywordChange}
-          onKeyDown={handleKeyDown}
-        />
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <select 
+            className={styles.filterSelect}
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="">전체 카테고리</option>
+            {categoryOptions.filter(o => o.type !== 'STANDARD').map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+            <optgroup label="표준(공공) 분류">
+              {categoryOptions.filter(o => o.type === 'STANDARD').map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </optgroup>
+          </select>
+
+          <select 
+            className={styles.filterSelect}
+            value={regionFilter}
+            onChange={(e) => { setRegionFilter(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="">전체 지역</option>
+            {regionOptions.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+        </div>
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="축제명 또는 장소(주소) 검색..."
+            value={searchTerm}
+            onChange={handleKeywordChange}
+            onKeyDown={handleKeyDown}
+          />
+          <button 
+            type="button" 
+            className={styles.filterBtn}
+            onClick={() => { setKeyword(searchTerm); setCurrentPage(1); }}
+          >
+            검색
+          </button>
+        </div>
       </section>
 
       {/* ── 축제 목록 테이블 ── */}
@@ -245,6 +293,7 @@ export default function FestivalListPage() {
         <table className={styles.table}>
           <colgroup>
             <col className={styles.festivalNameCol} />
+            <col className={styles.categoryCol} />
             <col className={styles.regionCol} />
             <col className={styles.dateCol} />
             <col className={styles.statusCol} />
@@ -254,6 +303,7 @@ export default function FestivalListPage() {
             <tr className={styles.tableHeaderRow}>
               {/* 인라인 스타일 폭 대신 CSS Module(colgroup)로 너비 위임 */}
               <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>축제명</th>
+              <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>카테고리</th>
               <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>지역</th>
               <th className={`${styles.tableHeaderCell} ${styles.textCenter}`}>날짜</th>
               <th className={`${styles.tableHeaderCell} ${styles.textCenter}`}>상태</th>
@@ -263,13 +313,13 @@ export default function FestivalListPage() {
           <tbody>
             {loading ? (
               <tr>
-                <td colSpan={5} className={styles.emptyRow}>
+                <td colSpan={6} className={styles.emptyRow}>
                   로딩 중...
                 </td>
               </tr>
             ) : festivals.length === 0 ? (
               <tr>
-                <td colSpan={5} className={styles.emptyRow}>
+                <td colSpan={6} className={styles.emptyRow}>
                   검색 결과가 없습니다.
                 </td>
               </tr>
@@ -284,6 +334,7 @@ export default function FestivalListPage() {
                       {festival.title}
                     </div>
                   </td>
+                  <td className={`${styles.tableCell} ${styles.textLeft}`}>{festival.categoryLabel}</td>
                   <td className={`${styles.tableCell} ${styles.textLeft}`}>{festival.region}</td>
                   <td className={`${styles.tableCell} ${styles.textCenter}`}>
                     {formatDateRange(festival.startDate, festival.endDate)}

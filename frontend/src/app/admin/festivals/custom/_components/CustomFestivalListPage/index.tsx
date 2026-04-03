@@ -41,6 +41,8 @@ export default function CustomFestivalListPage() {
   const [keyword, setKeyword] = useState(initialKeyword);
   const [searchTerm, setSearchTerm] = useState(initialKeyword);
   const [statusFilter, setStatusFilter] = useState(initialStatus);
+  const [categoryFilter, setCategoryFilter] = useState('');
+  const [regionFilter, setRegionFilter] = useState('');
   const [excludeHidden, setExcludeHidden] = useState(false);
   const [currentPage, setCurrentPage] = useState(initialPage);
   
@@ -53,19 +55,13 @@ export default function CustomFestivalListPage() {
     if (currentPage > 1) params.set('page', currentPage.toString());
     if (keyword) params.set('keyword', keyword);
     if (statusFilter) params.set('status', statusFilter);
+    if (categoryFilter) params.set('categoryCode', categoryFilter);
+    if (regionFilter) params.set('areaCode', regionFilter);
     if (excludeHidden) params.set('excludeHidden', String(excludeHidden));
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [currentPage, keyword, statusFilter, excludeHidden, pathname, router]);
+  }, [currentPage, keyword, statusFilter, categoryFilter, regionFilter, excludeHidden, pathname, router]);
 
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (keyword !== searchTerm) {
-        setKeyword(searchTerm);
-        setCurrentPage(1);
-      }
-    }, 300);
-    return () => clearTimeout(timer);
-  }, [searchTerm, keyword]);
+  // 삭제: 검색어 자동 Debounce 처리 제거 (버튼 클릭/엔터로만 검색하도록 변경)
 
   // Form State
   const getToday = () => new Date().toISOString().split('T')[0];
@@ -106,6 +102,8 @@ export default function CustomFestivalListPage() {
           size: 10,
           keyword: keyword || undefined,
           status: statusFilter || undefined,
+          categoryCode: categoryFilter || undefined,
+          areaCode: regionFilter || undefined,
           excludeHidden: excludeHidden || undefined,
         },
       });
@@ -381,7 +379,7 @@ export default function CustomFestivalListPage() {
   };
 
   const handleToggleVisibility = async (festivalId: number, currentVisible: boolean) => {
-    if (!confirm(`해당 자체 기획 축제를 ${currentVisible ? '숨김' : '공개'} 처리하시겠습니까?`)) return;
+    if (!confirm(`해당 축제 등록을 ${currentVisible ? '숨김' : '공개'} 처리하시겠습니까?`)) return;
     try {
       const res = await adminApi.patch(`/festivals/${festivalId}/visibility`, {
         isVisible: !currentVisible,
@@ -400,7 +398,7 @@ export default function CustomFestivalListPage() {
   };
 
   const handleSyncButton = async () => {
-    if (!confirm('지역 마스터 데이터 및 자체 기획 축제 상태 동기화를 진행하시겠습니까?')) return;
+    if (!confirm('지역 마스터 데이터 및 축제 등록 상태 동기화를 진행하시겠습니까?')) return;
     try {
       const res = await adminApi.post('/festivals/custom/sync');
       if (res.data.success) {
@@ -420,7 +418,7 @@ export default function CustomFestivalListPage() {
     <div className={styles.container}>
       <header className={styles.pageHeader}>
         <div>
-          <h1 className={styles.pageTitle}>🎪 자체 기획 축제 관리</h1>
+          <h1 className={styles.pageTitle}>🎪 축제 등록 관리</h1>
           <p className={styles.pageSubtitle}>직접 기획한 축제를 등록하고 관리합니다.</p>
         </div>
       </header>
@@ -432,7 +430,7 @@ export default function CustomFestivalListPage() {
             <div className={styles.kpiSubtitle}>자체적으로 등록한 축제들의 상태 통계입니다.</div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
-            <button onClick={handleSyncButton} className={styles.filterBtn} style={{ background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1' }}>
+            <button onClick={handleSyncButton} className={styles.syncButton}>
               <span>🔄</span>
               <span style={{ marginLeft: '4px' }}>동기화 실행</span>
             </button>
@@ -475,30 +473,68 @@ export default function CustomFestivalListPage() {
       </section>
 
       <section className={styles.filterBar}>
-        <div style={{ display: 'flex', gap: '8px' }}>
-          <button 
-            className={`${styles.filterBtn} ${!excludeHidden ? styles.activeFilter : ''}`} 
-            onClick={() => { setExcludeHidden(false); setCurrentPage(1); }}
-          >전체 보기</button>
-          <button 
-            className={`${styles.filterBtn} ${excludeHidden ? styles.activeFilter : ''}`} 
-            onClick={() => { setExcludeHidden(true); setCurrentPage(1); }}
-          >숨김 제외</button>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+          <select 
+            className={styles.filterSelect}
+            value={categoryFilter}
+            onChange={(e) => { setCategoryFilter(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="">전체 카테고리</option>
+            {categoryOptions.filter(o => o.type !== 'STANDARD').map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+            <optgroup label="표준(공공) 분류">
+              {categoryOptions.filter(o => o.type === 'STANDARD').map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </optgroup>
+          </select>
+
+          <select 
+            className={styles.filterSelect}
+            value={regionFilter}
+            onChange={(e) => { setRegionFilter(e.target.value); setCurrentPage(1); }}
+          >
+            <option value="">전체 지역</option>
+            {regionOptions.map(o => (
+              <option key={o.value} value={o.value}>{o.label}</option>
+            ))}
+          </select>
+
+          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', marginLeft: '10px' }}>
+            <input 
+              type="checkbox" 
+              checked={excludeHidden}
+              onChange={(e) => { setExcludeHidden(e.target.checked); setCurrentPage(1); }}
+            />
+            숨김 축제 제외
+          </label>
         </div>
-        <input
-          type="text"
-          className={styles.searchInput}
-          placeholder="축제명 또는 지역으로 검색하세요"
-          value={searchTerm}
-          onChange={handleKeywordChange}
-          onKeyDown={handleKeyDown}
-        />
+
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <input
+            type="text"
+            className={styles.searchInput}
+            placeholder="축제명 또는 지역으로 검색하세요"
+            value={searchTerm}
+            onChange={handleKeywordChange}
+            onKeyDown={handleKeyDown}
+          />
+          <button 
+            type="button" 
+            className={styles.filterBtn}
+            onClick={() => { setKeyword(searchTerm); setCurrentPage(1); }}
+          >
+            검색
+          </button>
+        </div>
       </section>
 
       <section className={styles.tableCard}>
         <table className={styles.table}>
           <colgroup>
             <col className={styles.festivalNameCol} />
+            <col className={styles.categoryCol} />
             <col className={styles.regionCol} />
             <col className={styles.dateCol} />
             <col className={styles.statusCol} />
@@ -507,6 +543,7 @@ export default function CustomFestivalListPage() {
           <thead>
             <tr className={styles.tableHeaderRow}>
               <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>축제명</th>
+              <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>카테고리</th>
               <th className={`${styles.tableHeaderCell} ${styles.textLeft}`}>지역</th>
               <th className={`${styles.tableHeaderCell} ${styles.textCenter}`}>날짜</th>
               <th className={`${styles.tableHeaderCell} ${styles.textCenter}`}>상태</th>
@@ -515,9 +552,9 @@ export default function CustomFestivalListPage() {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan={5} className={styles.emptyRow}>로딩 중...</td></tr>
+              <tr><td colSpan={6} className={styles.emptyRow}>로딩 중...</td></tr>
             ) : festivals.length === 0 ? (
-              <tr><td colSpan={5} className={styles.emptyRow}>조회된 자체 기획 축제가 없습니다.</td></tr>
+              <tr><td colSpan={6} className={styles.emptyRow}>조회된 축제 등록이 없습니다.</td></tr>
             ) : (
               festivals.map((f) => (
                 <tr 
@@ -529,6 +566,7 @@ export default function CustomFestivalListPage() {
                       {f.title}
                     </div>
                   </td>
+                  <td className={`${styles.tableCell} ${styles.textLeft}`}>{f.categoryLabel}</td>
                   <td className={`${styles.tableCell} ${styles.textLeft}`}>{f.areaLabel || f.areaCode}</td>
                   <td className={`${styles.tableCell} ${styles.textCenter}`}>
                     {formatDateRange(f.startDate, f.endDate)}
@@ -572,7 +610,7 @@ export default function CustomFestivalListPage() {
         <div className={styles.modalOverlay}>
           <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
-              <div className={styles.formTitle}>📝 자체 기획 축제 {editingId ? '수정' : '등록'}</div>
+              <div className={styles.formTitle}>📝 축제 등록 {editingId ? '수정' : '등록'}</div>
               <button className={styles.closeBtn} onClick={resetForm}>✕</button>
             </div>
             

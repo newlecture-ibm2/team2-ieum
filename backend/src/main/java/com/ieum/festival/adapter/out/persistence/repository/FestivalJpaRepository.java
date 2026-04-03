@@ -17,13 +17,13 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
 
        /**
         * [전체 탭] 키워드 검색 + 날짜 기반 동적 정렬
+        * - isVisible = true 조건: 관리자가 숨김 처리한 축제는 사용자에게 노출하지 않음
         */
        @Query("SELECT f FROM FestivalEntity f " +
                      "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
-                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "
-                     +
+                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
                      "ORDER BY " +
                      "CASE " +
                      "  WHEN CURRENT_DATE BETWEEN f.startDate AND f.endDate THEN 1 " +
@@ -41,28 +41,28 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
 
        /**
         * [진행중 탭] 키워드 검색 + 오늘 날짜가 startDate~endDate 범위 안에 있는 축제만
+        * - isVisible = true 조건 추가
         */
        @Query("SELECT f FROM FestivalEntity f " +
                      "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
                      "AND f.startDate <= CURRENT_DATE AND f.endDate >= CURRENT_DATE " +
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
-                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "
-                     +
+                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
                      "ORDER BY f.endDate ASC")
        Page<FestivalEntity> findOngoingFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
                      @Param("month") Integer month, Pageable pageable);
 
        /**
         * [진행예정 탭] 키워드 검색 + 아직 시작되지 않은 축제만
+        * - isVisible = true 조건 추가
         */
        @Query("SELECT f FROM FestivalEntity f " +
                      "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
                      "AND f.startDate > CURRENT_DATE " +
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
-                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "
-                     +
+                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
                      "ORDER BY f.startDate ASC")
        Page<FestivalEntity> findUpcomingFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
                      @Param("month") Integer month, Pageable pageable);

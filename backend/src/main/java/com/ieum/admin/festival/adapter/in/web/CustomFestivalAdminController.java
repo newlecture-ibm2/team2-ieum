@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
-@Tag(name = "[관리자] 자체 기획 축제 관리", description = "관리자 전용 자체 기획 축제 CRUD")
+@Tag(name = "[관리자] 축제 등록 관리", description = "관리자 전용 축제 등록 CRUD")
 @RestController
 @RequestMapping("/api/admin/festivals/custom")
 @RequiredArgsConstructor
@@ -25,7 +25,7 @@ public class CustomFestivalAdminController {
     private final RegionSigunguSyncScheduler regionSigunguSyncScheduler;
     private final CustomFestivalStatusScheduler customFestivalStatusScheduler;
 
-    @Operation(summary = "자체 기획 축제 목록 조회 (API_ADM_0040)")
+    @Operation(summary = "축제 등록 목록 조회 (API_ADM_0040)")
     @GetMapping
     public ResponseEntity<ApiResponse<CustomFestivalListResult>> getCustomFestivals(
             @Parameter(description = "조회할 페이지 (기본값 1)")
@@ -36,14 +36,18 @@ public class CustomFestivalAdminController {
             @RequestParam(required = false) String keyword,
             @Parameter(description = "진행 상태 (UPCOMING/ONGOING/ENDED)")
             @RequestParam(required = false) String status,
+            @Parameter(description = "카테고리 코드")
+            @RequestParam(required = false) String categoryCode,
+            @Parameter(description = "지역 코드")
+            @RequestParam(required = false) String areaCode,
             @Parameter(description = "숨김 제외 여부")
             @RequestParam(required = false, defaultValue = "false") boolean excludeHidden
     ) {
-        CustomFestivalListResult result = customFestivalAdminService.getCustomFestivals(page, size, keyword, status, excludeHidden);
+        CustomFestivalListResult result = customFestivalAdminService.getCustomFestivals(page, size, keyword, status, categoryCode, areaCode, excludeHidden);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
-    @Operation(summary = "자체 기획 신규 등록 (API_ADM_0041)")
+    @Operation(summary = "축제 등록 신규 등록 (API_ADM_0041)")
     @PostMapping(consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Map<String, Object>>> createCustomFestival(
             @ModelAttribute CustomFestivalRequest request
@@ -54,7 +58,7 @@ public class CustomFestivalAdminController {
         ));
     }
 
-    @Operation(summary = "자체 기획 수정 (API_ADM_0042)")
+    @Operation(summary = "축제 등록 수정 (API_ADM_0042)")
     @PutMapping(value = "/{festivalId}", consumes = {"multipart/form-data"})
     public ResponseEntity<ApiResponse<Map<String, Object>>> updateCustomFestival(
             @PathVariable Long festivalId,
@@ -66,7 +70,7 @@ public class CustomFestivalAdminController {
         ));
     }
 
-    @Operation(summary = "자체 기획 삭제 (API_ADM_0043)")
+    @Operation(summary = "축제 등록 삭제 (API_ADM_0043)")
     @DeleteMapping("/{festivalId}")
     public ResponseEntity<ApiResponse<Map<String, Object>>> deleteCustomFestival(
             @PathVariable Long festivalId

@@ -183,7 +183,7 @@ COMMENT ON COLUMN festivals.play_time           IS '공연/행사 시간 (공공
 COMMENT ON COLUMN festivals.program             IS '행사 프로그램 (공공API detailIntro1)';
 COMMENT ON COLUMN festivals.use_fee             IS '이용 요금 (공공API detailIntro1)';
 COMMENT ON COLUMN festivals.sponsor             IS '주최 기관 (공공API detailIntro1)';
-COMMENT ON COLUMN festivals.is_custom           IS '자체 기획 축제 여부';
+COMMENT ON COLUMN festivals.is_custom           IS '축제 등록 여부';
 COMMENT ON COLUMN festivals.is_visible          IS '노출 여부 (관리자 비공개 처리용)';
 COMMENT ON COLUMN festivals.avg_rating          IS '평균 별점 (캐시)';
 COMMENT ON COLUMN festivals.review_count        IS '리뷰 수 (캐시)';
