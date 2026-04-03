@@ -35,7 +35,7 @@
 > 📐 **구조 원칙: 코로케이션(Co-location)**
 > - 하나의 기능은 하나의 폴더 안에서 완결되도록 구성한다.
 > - **컴포넌트 레벨 코로케이션 권장**: 특정 컴포넌트에서만 쓰이는 로직(커스텀 훅/Usecase)과 스타일 파일은 해당 컴포넌트 폴더 내부에 함께 둔다.
-> - 특정 기능 내 여러 컴포넌트에서 범용으로 쓰이는 훅, 유틸 등은 기능 폴더 하위 `_hooks/`, `_lib/` 에 둔다.
+> - 특정 기능 내 여러 컴포넌트에서 범용으로 쓰이는 비즈니스 로직(Usecase)이나 유틸 등은 기능 폴더 하위 `_usecases/`, `_lib/` 에 둔다.
 > - 도메인(기능)과 무관하게 프로젝트 전체에서 쓰이는 공통 컴포넌트만 `src/_component/common/`에 모은다.
 
 ```text
@@ -73,7 +73,7 @@ frontend/src/
 │   │   │       ├── index.ts
 │   │   │       ├── FestivalCard.tsx
 │   │   │       └── FestivalCard.module.css
-│   │   ├── _hooks/             # 축제 도메인 전체에서 널리 쓰이는 커스텀 훅 (옵션)
+│   │   ├── _usecases/          # 축제 도메인 전체에서 공용으로 쓰이는 비즈니스 로직 (옵션)
 │   │   ├── [id]/               # 축제 상세 (/festivals/123)
 │   │   │   ├── page.tsx
 │   │   │   ├── _components/    # 상세 전용 (FestivalDetail, ImageGallery 등)
@@ -157,7 +157,7 @@ frontend/src/
 |------|------|------|
 | `src/_component/common/` | 프로젝트 전역 공통 UI 폴더 | `Header`, `Footer`, `Pagination`, `Modal` |
 | `app/{feature}/_components/{Name}/` | 특정 기능에 종속된 **컴포넌트 + 스타일 + 전용 로직(Usecase)** 묶음 | `index.ts`, `{Name}.tsx`, `{Name}.module.css`, `use{Name}.ts` |
-| `app/{feature}/_hooks/` | 기능 폴더 내 여러 컴포넌트에서 공용으로 쓰는 훅 (옵션) | `useFestivalFilter.ts` |
+| `app/{feature}/_usecases/` | 기능 폴더 내 여러 컴포넌트에서 공용으로 쓰는 비즈니스 로직 (옵션) | `useFestivalFilter.ts`, `validateFestival.ts` |
 | `app/{feature}/_lib/` | 해당 기능 전용 순수 비즈니스 로직 또는 API 통신 함수 | `fetchFestivals.ts`, `validateDate.ts` |
 | `app/{feature}/_types/` | 해당 기능 전용 타입 정의 (인터페이스가 클 경우 분리) | `FestivalFormData.ts` |
 
