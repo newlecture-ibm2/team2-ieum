@@ -32,58 +32,123 @@
 
 ## 2. 디렉토리 구조 (Frontend / App Router)
 
+> 📐 **구조 원칙: 코로케이션(Co-location)**
+> - 하나의 기능은 하나의 폴더 안에서 완결되도록 한다.
+> - 특정 기능에서만 사용되는 컴포넌트, 훅, 유틸, 타입 등은 해당 기능 폴더 내부 `_components/`, `_hooks/`, `_lib/`, `_types/` 에 배치한다.
+> - 여러 기능에서 공통으로 사용되는 UI(Header, Footer, Pagination 등)만 `src/_component/common/`에 모은다.
+
 ```text
-frontend/src/                   
-├── _shared/                    # 전역 공용 UI 컴포넌트 (순수 UI 컴포넌트)
-│   ├── ConfirmDialog/
-│   ├── DataTable/
-│   ├── Modal/
-│   ├── Pagination/
-│   └── StarRating/
+frontend/src/
+├── _component/                 # 🔧 전역 공용 컴포넌트 (프로젝트 전체에서 재사용)
+│   └── common/                 # 공통 UI 컴포넌트
+│       ├── Header/             # 공통 헤더 네비게이션
+│       ├── Footer/             # 공통 푸터
+│       ├── Pagination/         # 공통 페이지네이션
+│       ├── SearchFilter/       # 공통 검색/필터 바
+│       ├── ConfirmDialog/      # 공통 확인 다이얼로그
+│       ├── DataTable/          # 공통 데이터 테이블
+│       ├── Modal/              # 공통 모달
+│       ├── Toast/              # 공통 토스트 알림
+│       └── StarRating/         # 공통 별점 컴포넌트
 │
 ├── app/                        # Next.js App Router 폴더
-│   ├── layout.tsx              # 최상단 루트 레이아웃 (공통 Header/Footer)
+│   ├── layout.tsx              # 최상단 루트 레이아웃
 │   ├── page.tsx                # 홈페이지 (루트 경로)
 │   ├── globals.css             # 이음 브랜드 디자인 시스템 (CSS Variables)
 │   │
-│   ├── _components/            # 홈페이지 등 app 최상단 전용 컴포넌트
+│   ├── _components/            # 홈페이지(루트) 전용 컴포넌트
 │   │   ├── HeroBanner/
 │   │   └── PopularFestivals/
 │   │
-│   ├── (user)/                 # 일반 사용자 대상 뷰 라우트 (Route Group)
-│   │   ├── _components/        # 유저 뷰 전용 공통 컴포넌트 (사이드바, 네비 등)
-│   │   ├── calendar/           # 축제 달력
-│   │   ├── community/          # 자유게시판/커뮤니티
-│   │   ├── festivals/          # 전국 축제 메인 및 조회
-│   │   ├── myPage/             # 마이페이지
-│   │   ├── notices/            # 사용자별 공지사항 조회
-│   │   └── pastFestivals/      # 지난 축제 정보
+│   ├── festivals/              # 🎪 축제 기능 도메인 (사용자)
+│   │   ├── page.tsx            # 전국 축제 목록 (/festivals)
+│   │   ├── _components/        # 축제 목록 전용 컴포넌트 (FestivalCard, FestivalMap 등)
+│   │   ├── [id]/               # 축제 상세 (/festivals/123)
+│   │   │   ├── page.tsx
+│   │   │   ├── _components/    # 상세 전용 컴포넌트 (FestivalDetail, ImageGallery, LocationMap 등)
+│   │   │   └── reviews/        # 리뷰 (/festivals/123/reviews)
+│   │   │       ├── page.tsx
+│   │   │       └── _components/
+│   │   └── past/               # 지난 축제 (/festivals/past)
+│   │       ├── page.tsx
+│   │       └── _components/    # (PastFestivalList, RatingSummary 등)
 │   │
-│   ├── admin/                  # 🎯 관리자 전용 대시보드 프로토타입
-│   │   ├── layout.tsx          # 관리자용 공통 레이아웃 (Admin LNB, Header 유지)
-│   │   ├── _components/        # admin 전역 컴포넌트 (AdminSidebar 등)
+│   ├── community/              # 💬 커뮤니티 기능 도메인
+│   │   ├── page.tsx            # 게시판 목록 (/community)
+│   │   ├── _components/        # 게시판 전용 컴포넌트 (BoardTabs, PostCard 등)
+│   │   ├── write/              # 글 작성 (/community/write)
+│   │   │   ├── page.tsx
+│   │   │   └── _components/    # (PostForm 등)
+│   │   └── [id]/               # 게시글 상세 (/community/123)
+│   │       ├── page.tsx
+│   │       └── _components/    # (PostDetail, CommentSection 등)
+│   │
+│   ├── notices/                # 📢 공지사항 기능 도메인
+│   │   ├── page.tsx            # 공지 목록 (/notices)
+│   │   ├── _components/        # 공지 전용 컴포넌트 (NoticeList 등)
+│   │   └── [id]/               # 공지 상세 (/notices/123)
+│   │       └── page.tsx
+│   │
+│   ├── calendar/               # 📅 축제 달력 기능 도메인
+│   │   ├── page.tsx
+│   │   └── _components/        # (CalendarView 등)
+│   │
+│   ├── mypage/                 # 👤 마이페이지 기능 도메인
+│   │   ├── page.tsx
+│   │   └── _components/        # (ProfileEdit, FavoriteList, MyPosts, MyReviews 등)
+│   │
+│   ├── admin/                  # 🎯 관리자 전용 대시보드
+│   │   ├── layout.tsx          # 관리자용 공통 레이아웃 (Admin LNB, Header)
+│   │   ├── _components/        # admin 전역 컴포넌트 (AdminSidebar, AdminTopbar, StatCard 등)
 │   │   │
 │   │   ├── festivals/          # 축제 데이터 관리 도메인
-│   │   │   ├── page.tsx        # 1. 축제 목록 조회 (/admin/festivals)
-│   │   │   ├── _components/    # 목록용 특화 컴포넌트 (FestivalCard, Filter 등)
-│   │   │   │
-│   │   │   ├── new/            # 2. 신규 축제 등록 (/admin/festivals/new)
+│   │   │   ├── page.tsx        # 축제 목록 조회 (/admin/festivals)
+│   │   │   ├── _components/    # 관리 목록 특화 컴포넌트 (FestivalTable, Filter 등)
+│   │   │   ├── new/            # 신규 축제 등록 (/admin/festivals/new)
 │   │   │   │   └── page.tsx
-│   │   │   │
-│   │   │   └── [id]/           # 3. 상세 조회 (/admin/festivals/123)
-│   │   │       ├── page.tsx    
-│   │   │       └── edit/       # 4. 기존 축제 수정 (/admin/festivals/123/edit)
+│   │   │   ├── sync/           # 축제 데이터 동기화 (/admin/festivals/sync)
+│   │   │   └── [id]/           # 상세 조회 (/admin/festivals/123)
+│   │   │       ├── page.tsx
+│   │   │       └── edit/       # 기존 축제 수정 (/admin/festivals/123/edit)
 │   │   │
-│   │   └── regions/            # 지역 카테고리 관리 도메인 
+│   │   ├── notices/            # 관리자 공지사항 관리
+│   │   │   ├── _components/
+│   │   │   ├── write/
+│   │   │   └── [id]/
+│   │   │
+│   │   ├── reports/            # 신고 관리
+│   │   │   ├── _components/    # (ReportTable 등)
+│   │   │   └── [id]/
+│   │   │
+│   │   ├── users/              # 사용자 관리
+│   │   │   └── _components/    # (UserTable 등)
+│   │   │
+│   │   ├── statistics/         # 통계 대시보드
+│   │   │   └── _components/    # (ActivityChart, RegionChart 등)
+│   │   │
+│   │   └── regions/            # 지역 카테고리 관리 도메인
 │   │
 │   ├── api/                    # Next.js Serverless API (내부 로직)
 │   └── auth/                   # 인증(Authentication) 뷰 및 로직
+│       ├── login/
+│       │   └── _components/    # (LoginForm 등)
+│       └── register/
+│           └── _components/    # (RegisterForm 등)
 │
 ├── lib/                        # 범용 액션 함수, Axios 클라이언트 인스턴스
 ├── stores/                     # Zustand (로그인 세션, 장바구니 등 전역 상태)
 ├── types/                      # 글로벌 TypeScript 모델 선언 (Festival 등)
 └── package.json
 ```
+
+### 📂 코로케이션 규칙 요약
+| 위치 | 용도 | 예시 |
+|------|------|------|
+| `src/_component/common/` | 프로젝트 전역 공통 UI | Header, Footer, Pagination, Modal, Toast |
+| `app/{feature}/_components/` | 해당 기능 전용 컴포넌트 | FestivalCard, PostForm, AdminSidebar |
+| `app/{feature}/_hooks/` | 해당 기능 전용 커스텀 훅 | useFestivalFilter, usePostForm |
+| `app/{feature}/_lib/` | 해당 기능 전용 유틸/API | fetchFestivals, formatDate |
+| `app/{feature}/_types/` | 해당 기능 전용 타입 | FestivalFormData, PostCreateRequest |
 
 ---
 
@@ -176,7 +241,7 @@ export interface RegionCategory {
 ---
 
 ## ✅ 승인 체크리스트
-- [ ] Next.js 16 App Router 기반 아키텍처 및 `src/_shared` 폴더 사용규칙 동의
+- [ ] Next.js 16 App Router 기반 아키텍처 및 `src/_component/common` 폴더 사용규칙 동의
 - [ ] 축제 관련 데이터 도메인 구조 (지역/이미지 다중맵핑) 동의
 - [ ] Vanilla CSS / CSS Modules 을 통한 독립적 스타일링 지향 동의
 - [ ] 백엔드 API(`/api/admin/festivals`)와의 규격 일치 여부 확인
