@@ -43,6 +43,9 @@ const STATUS_OPTIONS = [
 const KOREA_CENTER = { lat: 36.5, lng: 127.5 };
 const KOREA_ZOOM = 13;
 
+// 인트로 애니메이션 단계
+type IntroPhase = "warp" | "fadeout" | "done";
+
 export default function FestivalMap() {
   // ===== 카카오맵 SDK 로드 =====
   const [loading, error] = useKakaoLoader({
@@ -50,13 +53,18 @@ export default function FestivalMap() {
     libraries: ["clusterer", "services"],
   });
 
-  // ===== 지도 줌인 애니메이션 =====
-  const [zoomReady, setZoomReady] = useState(false); // 줌인 완료 여부
+  // ===== 인트로 애니메이션 상태 =====
+  const [introPhase, setIntroPhase] = useState<IntroPhase>("warp");
+  const introComplete = introPhase === "done";
 
-  // 지도 시작: 매우 줌아웃 (level 14 = 전세계/아시아)
-  const [center, setCenter] = useState({ lat: 35, lng: 127 });
-  const [level, setLevel] = useState(14);
+  // 지도는 처음부터 최종 한반도 줌으로 로드 (타일 재로딩 없음)
+  const [center, setCenter] = useState(KOREA_CENTER);
+  const [level, setLevel] = useState(KOREA_ZOOM);
   const [mapInstance, setMapInstance] = useState<kakao.maps.Map | null>(null);
+
+  // Canvas refs for hyperspace warp
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const animFrameRef = useRef<number>(0);
 
   // ===== 인포윈도우 =====
   const [selectedFestival, setSelectedFestival] = useState<FestivalItem | null>(null);
@@ -105,43 +113,116 @@ export default function FestivalMap() {
     document.addEventListener("mouseup", handleMouseUp);
   }, [listHeight]);
 
-  // ===== 🌍 지도 줌인 애니메이션 (지구 → 전국 → 한반도) =====
+  // ===== 🚀 하이퍼스페이스 워프 캔버스 애니메이션 =====
   useEffect(() => {
-    if (!mapInstance || zoomReady) return;
+    if (introComplete || loading || introPhase !== "warp") return;
 
-    // 지도 생성 후 0.5초 대기 → 부드럽게 줌인 시작
-    const startTimer = setTimeout(() => {
-      // 단계별 줌인: 14(전세계) → 13(한반도)
-      // requestAnimationFrame으로 부드럽게
-      const zoomSteps = [
-        { lvl: 13, cx: 35.5, cy: 127.2, delay: 0 },
-        { lvl: 12, cx: 36.0, cy: 127.3, delay: 350 },
-        { lvl: 11, cx: 36.3, cy: 127.4, delay: 700 },
-        { lvl: 12, cx: 36.4, cy: 127.45, delay: 1100 },
-        { lvl: KOREA_ZOOM, cx: KOREA_CENTER.lat, cy: KOREA_CENTER.lng, delay: 1500 },
-      ];
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
 
-      const timers: ReturnType<typeof setTimeout>[] = [];
+    // HiDPI
+    const dpr = window.devicePixelRatio || 1;
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * dpr;
+    canvas.height = rect.height * dpr;
+    ctx.scale(dpr, dpr);
 
-      zoomSteps.forEach(({ lvl, cx, cy, delay }) => {
-        const t = setTimeout(() => {
-          setLevel(lvl);
-          setCenter({ lat: cx, lng: cy });
-        }, delay);
-        timers.push(t);
-      });
+    const W = rect.width;
+    const H = rect.height;
+    const CX = W / 2;
+    const CY = H / 2;
+    const FOV = W * 0.6;
+    const MAX_Z = 1800;
 
-      // 줌인 완료 → 마커 & 컨트롤 표시
-      const doneTimer = setTimeout(() => {
-        setZoomReady(true);
-      }, 1800);
-      timers.push(doneTimer);
+    // 별 파티클
+    interface Star { x: number; y: number; z: number; pz: number }
+    const makeStar = (): Star => {
+      const a = Math.random() * Math.PI * 2;
+      const r = Math.random() * Math.max(W, H) * 0.8;
+      return { x: Math.cos(a) * r, y: Math.sin(a) * r, z: Math.random() * MAX_Z + 200, pz: 0 };
+    };
+    const stars: Star[] = Array.from({ length: 500 }, makeStar);
+    stars.forEach((s) => { s.pz = s.z; });
 
-      return () => timers.forEach(clearTimeout);
-    }, 500);
+    const T0 = performance.now();
+    const DUR = 1500;   // 1.5초 워프
+    const FLASH = 1200; // 1.2초부터 플래시
+    let prev = T0;
 
-    return () => clearTimeout(startTimer);
-  }, [mapInstance, zoomReady]);
+    const frame = (now: number) => {
+      const elapsed = now - T0;
+      const dt = Math.min((now - prev) / 16.67, 3);
+      prev = now;
+      const t = Math.min(elapsed / DUR, 1);
+
+      ctx.fillStyle = "#030308";
+      ctx.fillRect(0, 0, W, H);
+
+      // 지수적 가속: 처음 느림 → 폭발
+      const speed = 3 + Math.pow(t, 2.5) * 250;
+
+      for (const s of stars) {
+        s.pz = s.z;
+        s.z -= speed * dt;
+        if (s.z <= 1) {
+          const n = makeStar(); s.x = n.x; s.y = n.y; s.z = MAX_Z; s.pz = MAX_Z;
+          continue;
+        }
+        const sx = (s.x / s.z) * FOV + CX;
+        const sy = (s.y / s.z) * FOV + CY;
+        const px = (s.x / s.pz) * FOV + CX;
+        const py = (s.y / s.pz) * FOV + CY;
+        if (sx < -100 || sx > W + 100 || sy < -100 || sy > H + 100) continue;
+
+        const d = Math.max(0, 1 - s.z / MAX_Z);
+        const a = Math.min(1, d * 2.2);
+        const sz = Math.max(0.1, 0.3 + d * 3);
+
+        // 속도선 트레일
+        if (t > 0.03) {
+          const tr = Math.min(t * 1.8, 1);
+          ctx.strokeStyle = `rgba(180, 160, 255, ${a * tr * 0.5})`;
+          ctx.lineWidth = Math.max(0.1, sz * 0.6);
+          ctx.beginPath(); ctx.moveTo(px, py); ctx.lineTo(sx, sy); ctx.stroke();
+        }
+        // 별 점
+        ctx.fillStyle = `rgba(255, 255, 255, ${a})`;
+        ctx.beginPath(); ctx.arc(sx, sy, Math.max(0.1, sz * 0.4), 0, Math.PI * 2); ctx.fill();
+      }
+
+      // 중심 보라 글로우
+      const gr = 60 + t * 300;
+      const gg = ctx.createRadialGradient(CX, CY, 0, CX, CY, gr);
+      gg.addColorStop(0, `rgba(108, 92, 231, ${0.08 + t * 0.2})`);
+      gg.addColorStop(0.5, `rgba(147, 120, 255, ${0.02 + t * 0.06})`);
+      gg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = gg; ctx.fillRect(0, 0, W, H);
+
+      // 비네트
+      const vg = ctx.createRadialGradient(CX, CY, Math.min(W, H) * 0.2, CX, CY, Math.max(W, H) * 0.75);
+      vg.addColorStop(0, "rgba(0,0,0,0)"); vg.addColorStop(1, "rgba(0,0,0,0.4)");
+      ctx.fillStyle = vg; ctx.fillRect(0, 0, W, H);
+
+      // 화이트 플래시
+      if (elapsed > FLASH) {
+        const fp = (elapsed - FLASH) / (DUR - FLASH);
+        ctx.fillStyle = `rgba(255, 255, 255, ${Math.pow(fp, 0.5) * 0.85})`;
+        ctx.fillRect(0, 0, W, H);
+      }
+
+      if (elapsed < DUR) {
+        animFrameRef.current = requestAnimationFrame(frame);
+      } else {
+        setIntroPhase("fadeout");
+        setTimeout(() => setIntroPhase("done"), 350);
+      }
+    };
+
+    animFrameRef.current = requestAnimationFrame(frame);
+    return () => cancelAnimationFrame(animFrameRef.current);
+  }, [introComplete, loading, introPhase]);
 
   // ===== 축제 데이터 fetch =====
   const fetchFestivals = useCallback(async () => {
@@ -150,14 +231,37 @@ export default function FestivalMap() {
       const params = new URLSearchParams();
       if (statusFilter !== "all") params.set("status", statusFilter);
       if (searchKeyword.trim()) params.set("keyword", searchKeyword.trim());
-      params.set("size", "100");
+      params.set("size", "999"); // 한 번에 모든 지도 마커 호출을 위해 확장
 
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
-      const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`);
+      const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
+        cache: "no-store",
+      });
       const json = await res.json();
 
       if (json.success && json.data?.list) {
-        setFestivals(json.data.list);
+        // 숨김처리 판단: 백엔드에서 문자열 'False' 또는 불리언 false로 올 수 있으므로 대소문자 무시 검사
+        const isHidden = (f: any) => {
+          const val = f.isVisible !== undefined ? f.isVisible : f.is_visible;
+          if (val === false) return true;
+          if (typeof val === "string" && val.toLowerCase() === "false") return true;
+          return false;
+        };
+
+        const filteredList = json.data.list.filter(
+          (fest: any) =>
+            !isHidden(fest) &&
+            (fest.status === "ONGOING" || fest.status === "UPCOMING")
+        );
+
+        // 진행중(ONGOING)인 축제를 우선적으로 앞쪽에 배치
+        filteredList.sort((a: FestivalItem, b: FestivalItem) => {
+          if (a.status === "ONGOING" && b.status !== "ONGOING") return -1;
+          if (a.status !== "ONGOING" && b.status === "ONGOING") return 1;
+          return 0;
+        });
+
+        setFestivals(filteredList);
       } else {
         setFestivals([]);
       }
@@ -261,6 +365,8 @@ export default function FestivalMap() {
     return `${d.getMonth() + 1}/${d.getDate()}`;
   };
 
+
+
   // ===== 렌더링 =====
   return (
     <div className={styles.mapPageWrapper}>
@@ -330,6 +436,7 @@ export default function FestivalMap() {
         {/* 오른쪽 영역 */}
         <div className={styles.mapContent}>
           <div className={styles.mapArea}>
+            {/* 카카오맵 (뒤에서 이미 로드) */}
             {loading ? (
               <div className={styles.mapLoading}>
                 <div className={styles.spinner} />
@@ -346,13 +453,13 @@ export default function FestivalMap() {
                 style={{ width: "100%", height: "100%" }}
                 level={level}
                 onZoomChanged={(map) => {
-                  if (zoomReady) setLevel(map.getLevel());
+                  if (introComplete) setLevel(map.getLevel());
                 }}
                 onCreate={(map) => setMapInstance(map)}
                 onClick={() => setSelectedFestival(null)}
               >
-                {/* 마커는 줌인 완료 후에만 표시 */}
-                {zoomReady && (
+                {/* 마커는 인트로 완료 후에만 표시 */}
+                {introComplete && (
                   <MarkerClusterer averageCenter={true} minLevel={10}>
                     {markerFestivals.map((fest) => (
                       <MapMarker
@@ -367,7 +474,7 @@ export default function FestivalMap() {
                   </MarkerClusterer>
                 )}
 
-                {zoomReady &&
+                {introComplete &&
                   selectedFestival &&
                   selectedFestival.latitude &&
                   selectedFestival.longitude && (
@@ -404,11 +511,32 @@ export default function FestivalMap() {
               </Map>
             )}
 
-            {/* GPS / 줌 컨트롤 (줌인 완료 후 페이드인) */}
+            {/* ===== 🚀 하이퍼스페이스 워프 인트로 ===== */}
+            {!introComplete && !loading && !error && (
+              <div
+                className={`${styles.introOverlay} ${
+                  introPhase === "fadeout" ? styles.introFadeOut : ""
+                }`}
+              >
+                <canvas ref={canvasRef} className={styles.warpCanvas} />
+                
+                {/* 🌍 지구 워프 줌인 이미지 */}
+                <div className={styles.warpEarth}>
+                  <img src="/images/map-intro/earth.png" alt="지구" />
+                </div>
+
+                <div className={styles.introText}>
+                  <div className={styles.introTextTitle}>🎭 전국 축제 지도</div>
+                  <div className={styles.introTextSub}>FESTIVAL MAP OF KOREA</div>
+                </div>
+              </div>
+            )}
+
+            {/* GPS / 줌 컨트롤 (인트로 완료 후 페이드인) */}
             {!loading && !error && (
               <div
                 className={`${styles.mapControls} ${
-                  zoomReady ? styles.mapControlsVisible : ""
+                  introComplete ? styles.mapControlsVisible : ""
                 }`}
               >
                 <button
@@ -491,7 +619,7 @@ export default function FestivalMap() {
                     조건에 맞는 축제가 없습니다.
                   </div>
                 ) : (
-                  filteredFestivals.slice(0, 50).map((fest) => (
+                  filteredFestivals.slice(0, 999).map((fest) => (
                     <div
                       key={fest.id}
                       className={styles.listRow}
