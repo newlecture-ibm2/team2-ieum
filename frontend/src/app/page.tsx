@@ -1,7 +1,7 @@
-import axios from 'axios';
+import api from '@/lib/api';
 import HeroBanner from './_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
-import FestivalList from './_components/FestivalList';
+import FestivalList from './festivals/_components/FestivalList';
 import Pagination from '@/_component/common/Pagination';
 import styles from './page.module.css';
 import { Festival } from '@/types/festival';
@@ -9,8 +9,6 @@ import { Festival } from '@/types/festival';
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
 async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || process.env.API_BASE_URL || 'http://localhost:8080';
-
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (keyword) params.append('keyword', keyword);
@@ -19,7 +17,7 @@ async function getFestivals(status?: string, page: string = '1', keyword?: strin
     params.append('page', page);
     params.append('size', '12');
 
-    const res = await axios.get(`${baseUrl}/api/festivals?${params.toString()}`);
+    const res = await api.get(`/api/festivals?${params.toString()}`);
 
     if (res.data && res.data.success) {
       return res.data.data; // { list: [...], total: ... }

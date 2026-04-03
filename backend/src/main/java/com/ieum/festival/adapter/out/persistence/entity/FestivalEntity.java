@@ -1,5 +1,7 @@
 package com.ieum.festival.adapter.out.persistence.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.DynamicUpdate;
@@ -61,8 +63,21 @@ public class FestivalEntity {
     @Column(name = "end_date")
     private LocalDate endDate;
 
+    @JsonIgnore
     @Column(name = "status", length = 20)
     private String status; // UPCOMING, ONGOING, ENDED
+
+    /**
+     * JSON 직렬화 시 DB status 대신 오늘 날짜 기준으로 동적 계산된 상태를 반환
+     */
+    @JsonProperty("status")
+    public String getDynamicStatus() {
+        if (startDate == null || endDate == null) return status;
+        LocalDate today = LocalDate.now();
+        if (today.isBefore(startDate)) return "UPCOMING";
+        if (today.isAfter(endDate)) return "ENDED";
+        return "ONGOING";
+    }
     
     @Column(length = 20)
     private String source; // API, MANUAL
