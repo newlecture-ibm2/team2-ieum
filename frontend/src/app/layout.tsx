@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Header from "@/_component/common/Header";
 import Footer from "@/_component/common/Footer";
+import LayoutWrapper from "@/_component/common/LayoutWrapper";
 
 export const metadata: Metadata = {
   title: "이음 — 지역 축제 통합 정보 플랫폼",
@@ -16,11 +17,9 @@ export default function RootLayout({
   return (
     <html lang="ko">
       <body>
-        <Header />
-        <main style={{ minHeight: "calc(100vh - var(--header-height) - 200px)" }}>
+        <LayoutWrapper header={<Header />} footer={<Footer />}>
           {children}
-        </main>
-        <Footer />
+        </LayoutWrapper>
       </body>
     </html>
   );
