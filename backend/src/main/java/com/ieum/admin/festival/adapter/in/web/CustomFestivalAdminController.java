@@ -4,7 +4,6 @@ import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
 import com.ieum.admin.festival.application.result.CustomFestivalListResult;
 import com.ieum.admin.festival.application.service.CustomFestivalAdminService;
 import com.ieum.admin.festival.application.service.CustomFestivalStatusScheduler;
-import com.ieum.festival.application.service.RegionSigunguSyncScheduler;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -22,7 +21,6 @@ import java.util.Map;
 public class CustomFestivalAdminController {
 
     private final CustomFestivalAdminService customFestivalAdminService;
-    private final RegionSigunguSyncScheduler regionSigunguSyncScheduler;
     private final CustomFestivalStatusScheduler customFestivalStatusScheduler;
 
     @Operation(summary = "축제 등록 목록 조회 (API_ADM_0040)")
@@ -84,7 +82,7 @@ public class CustomFestivalAdminController {
     @Operation(summary = "지역 마스터 및 축제 상태 동기화 (API_ADM_0044)")
     @PostMapping("/sync")
     public ResponseEntity<ApiResponse<Map<String, Object>>> syncCustomFestivalData() {
-        regionSigunguSyncScheduler.syncRegionsAndSigungus();
+        // 지역 마스터 주석 처리 (현재 파일 제외됨)
         customFestivalStatusScheduler.updateCustomFestivalStatuses();
         return ResponseEntity.ok(ApiResponse.success(
                 Map.of("status", "SYNC_COMPLETED")

@@ -1,6 +1,6 @@
 package com.ieum.admin.festival.application.result;
 
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
+import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -37,7 +37,7 @@ public class CustomFestivalItem {
     private String homepage;
     private String sigunguCode;
 
-    public static CustomFestivalItem from(FestivalEntity festival, String resolvedLabel, String categoryLabel) {
+    public static CustomFestivalItem from(AdminFestivalEntity festival, String resolvedLabel, String categoryLabel) {
         return CustomFestivalItem.builder()
                 .festivalId(festival.getId())
                 .title(festival.getTitle())

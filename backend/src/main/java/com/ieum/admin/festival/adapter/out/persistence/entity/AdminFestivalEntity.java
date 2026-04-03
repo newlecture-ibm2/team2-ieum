@@ -107,11 +107,11 @@ public class AdminFestivalEntity {
 
     @Column(name = "is_custom", nullable = false)
     @ColumnDefault("false")
-    private boolean isCustom;
+    private Boolean isCustom;
 
     @Column(name = "is_visible", nullable = false)
     @ColumnDefault("true")
-    private boolean isVisible;
+    private Boolean isVisible;
 
     @Column(name = "avg_rating", nullable = false)
     @ColumnDefault("0.0")

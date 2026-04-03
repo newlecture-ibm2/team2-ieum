@@ -4,7 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
 import com.ieum.admin.festival.application.result.FestivalSyncResult;
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
+import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -68,15 +68,15 @@ public class FestivalSyncService {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
                     if (apiEx.getStatusCode() == org.springframework.http.HttpStatus.FORBIDDEN
                             || apiEx.getStatusCode() == org.springframework.http.HttpStatus.UNAUTHORIZED) {
-                        throw new com.ieum.global.exception.BusinessException(
-                                com.ieum.global.exception.ErrorCode.FEST_002, "API 통신 권한 없음: " + apiEx.getMessage(),
+                        throw new RuntimeException(
+                                "API 통신 권한 없음: " + apiEx.getMessage(),
                                 apiEx);
                     }
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001,
+                    throw new RuntimeException(
                             "API 통신 실패: " + apiEx.getMessage(), apiEx);
                 } catch (Exception apiEx) {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001,
+                    throw new RuntimeException(
                             "API 통신 에러: " + apiEx.getMessage(), apiEx);
                 }
 
@@ -85,16 +85,16 @@ public class FestivalSyncService {
                 JsonNode itemsNode = bodyNode.path("items").path("item");
 
                 if (itemsNode.isArray() && !itemsNode.isEmpty()) {
-                    List<FestivalEntity> saveList = new ArrayList<>();
+                    List<AdminFestivalEntity> saveList = new ArrayList<>();
                     for (JsonNode item : itemsNode) {
                         try {
                             String sourceId = item.path("contentid").asText(null);
                             if (sourceId == null)
                                 continue;
 
-                            FestivalEntity festival = festivalRepository.findBySourceId(sourceId).orElse(null);
+                            AdminFestivalEntity festival = festivalRepository.findBySourceId(sourceId).orElse(null);
                             if (festival == null) {
-                                festival = FestivalEntity.builder()
+                                festival = AdminFestivalEntity.builder()
                                         .sourceId(sourceId)
                                         .source("API")
                                         .isCustom(false)
@@ -124,16 +124,16 @@ public class FestivalSyncService {
             log.info("TourAPI sync completed successfully. Synced {} items.", syncCount);
             return FestivalSyncResult.builder().status("COMPLETED").syncCount(syncCount).build();
 
-        } catch (com.ieum.global.exception.BusinessException be) {
+        } catch (RuntimeException be) {
             throw be;
         } catch (Exception e) {
             log.error("Failed to sync festivals from TourAPI", e);
-            throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.COMMON_500,
+            throw new RuntimeException(
                     "동기화 중 오류 발생: " + e.getMessage(), e);
         }
     }
 
-    private void updateFestivalData(FestivalEntity festival, JsonNode item) {
+    private void updateFestivalData(AdminFestivalEntity festival, JsonNode item) {
         String title = item.path("title").asText(null);
         String addr1 = item.path("addr1").asText("");
         String addr2 = item.path("addr2").asText("");

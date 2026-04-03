@@ -2,7 +2,7 @@ package com.ieum.admin.festival.application.service;
 
 import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
 import com.ieum.admin.festival.application.result.*;
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
+import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -18,17 +18,17 @@ import java.util.stream.Collectors;
 public class FestivalAdminService {
 
     private final AdminFestivalRepository festivalRepository;
-    private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
+    private final com.ieum.admin.festival.application.service.CategoryOptionService categoryOptionService;
 
     public AdminFestivalListResult getFestivals(int page, int size, String keyword, String statusStr, String categoryCode, String areaCode) {
-        // status를 그대로 String으로 전달 (FestivalEntity.status는 String 타입)
+        // status를 그대로 String으로 전달 (AdminFestivalEntity.status는 String 타입)
         String status = null;
         if (statusStr != null && !statusStr.isEmpty()) {
             status = statusStr.toUpperCase();
         }
 
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<FestivalEntity> festivalPage = festivalRepository.searchAdminFestivals(keyword, status, categoryCode, areaCode, pageRequest);
+        Page<AdminFestivalEntity> festivalPage = festivalRepository.searchAdminFestivals(keyword, status, categoryCode, areaCode, pageRequest);
 
         List<FestivalListItemResult> content = festivalPage.getContent().stream()
                 .map(this::mapToItemResult)
@@ -59,7 +59,7 @@ public class FestivalAdminService {
 
     @Transactional
     public FestivalVisibilityResult updateVisibility(Long festivalId, boolean isVisible) {
-        FestivalEntity festival = festivalRepository.findById(festivalId)
+        AdminFestivalEntity festival = festivalRepository.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("Festival not found: " + festivalId));
 
         festival.setIsVisible(isVisible);
@@ -70,7 +70,7 @@ public class FestivalAdminService {
                 .build();
     }
 
-    private FestivalListItemResult mapToItemResult(FestivalEntity f) {
+    private FestivalListItemResult mapToItemResult(AdminFestivalEntity f) {
         String statusStr = f.getStatus() != null ? f.getStatus().toLowerCase() : "";
         String categoryKey = f.getCategorySub() != null ? f.getCategorySub() : f.getCategory();
 

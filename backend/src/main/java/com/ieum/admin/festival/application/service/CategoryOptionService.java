@@ -15,4 +15,10 @@ public class CategoryOptionService {
                 .map(c -> c.getName())
                 .orElse("미지정");
     }
+
+    public java.util.List<com.ieum.admin.festival.application.dto.CategoryOptionDto> getMergedCategoryOptions() {
+        return categoryMasterRepository.findAll().stream()
+                .map(c -> new com.ieum.admin.festival.application.dto.CategoryOptionDto(c.getCode(), c.getName()))
+                .collect(java.util.stream.Collectors.toList());
+    }
 }

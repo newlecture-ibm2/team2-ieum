@@ -15,16 +15,16 @@ public class FestivalAdminController {
 
     private final com.ieum.admin.festival.application.service.FestivalAdminService festivalAdminService;
     private final com.ieum.admin.festival.application.service.FestivalSyncService festivalSyncService;
-    private final com.ieum.festival.application.service.RegionOptionService regionOptionService;
-    private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
-    private final com.ieum.festival.application.service.SigunguOptionService sigunguOptionService;
+    private final com.ieum.admin.festival.application.service.RegionOptionService regionOptionService;
+    private final com.ieum.admin.festival.application.service.CategoryOptionService categoryOptionService;
+    private final com.ieum.admin.festival.application.service.SigunguOptionService sigunguOptionService;
 
     public FestivalAdminController(
             com.ieum.admin.festival.application.service.FestivalAdminService festivalAdminService,
             com.ieum.admin.festival.application.service.FestivalSyncService festivalSyncService,
-            com.ieum.festival.application.service.RegionOptionService regionOptionService,
-            com.ieum.festival.application.service.CategoryOptionService categoryOptionService,
-            com.ieum.festival.application.service.SigunguOptionService sigunguOptionService) {
+            com.ieum.admin.festival.application.service.RegionOptionService regionOptionService,
+            com.ieum.admin.festival.application.service.CategoryOptionService categoryOptionService,
+            com.ieum.admin.festival.application.service.SigunguOptionService sigunguOptionService) {
         this.festivalAdminService = festivalAdminService;
         this.festivalSyncService = festivalSyncService;
         this.regionOptionService = regionOptionService;
@@ -34,19 +34,19 @@ public class FestivalAdminController {
 
     @Operation(summary = "지역 옵션 분류 조회", description = "표준(공공API) 및 축제 등록 예외 옵션을 병합한 지역 목록 반환")
     @GetMapping("/regions/options")
-    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.RegionOptionDto>>> getRegionOptions() {
+    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.admin.festival.application.dto.RegionOptionDto>>> getRegionOptions() {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(regionOptionService.getMergedRegionOptions()));
     }
 
     @Operation(summary = "시군구 옵션 조회", description = "지역 코드(areaCode)에 속하는 시군구 목록을 반환합니다.")
     @GetMapping("/regions/{areaCode}/sigungus")
-    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.RegionOptionDto>>> getSigunguOptions(@PathVariable String areaCode) {
+    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.admin.festival.application.dto.RegionOptionDto>>> getSigunguOptions(@PathVariable String areaCode) {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(sigunguOptionService.getSigungusByAreaCode(areaCode)));
     }
 
     @Operation(summary = "카테고리 옵션 분류 조회", description = "표준(공공API) 및 축제 등록 예외 카테고리 옵션을 병합한 목록 반환")
     @GetMapping("/categories/options")
-    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.festival.application.dto.CategoryOptionDto>>> getCategoryOptions() {
+    public ResponseEntity<com.ieum.global.response.ApiResponse<java.util.List<com.ieum.admin.festival.application.dto.CategoryOptionDto>>> getCategoryOptions() {
         return ResponseEntity.ok(com.ieum.global.response.ApiResponse.success(categoryOptionService.getMergedCategoryOptions()));
     }
 

@@ -1,7 +1,7 @@
 package com.ieum.admin.festival.application.service;
 
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
-import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
+import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
+import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -16,18 +16,18 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CustomFestivalStatusScheduler {
 
-    private final FestivalJpaRepository festivalJpaRepository;
+    private final AdminFestivalRepository festivalJpaRepository;
 
     @Scheduled(cron = "0 0 0 * * *") // 매일 00시(자정)에 실행
     @Transactional
     public void updateCustomFestivalStatuses() {
         log.info("축제 등록 상태 자동 업데이트 스케줄러 시작...");
         
-        List<FestivalEntity> allFestivals = festivalJpaRepository.findAll();
+        List<AdminFestivalEntity> allFestivals = festivalJpaRepository.findAll();
         LocalDate today = LocalDate.now();
         int updateCount = 0;
 
-        for (FestivalEntity f : allFestivals) {
+        for (AdminFestivalEntity f : allFestivals) {
             // 축제 등록만 필터링
             if (Boolean.TRUE.equals(f.getIsCustom())) {
                 String oldStatus = f.getStatus();
