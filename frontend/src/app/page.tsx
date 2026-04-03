@@ -1,9 +1,9 @@
 import axios from 'axios';
-import HeroBanner from '../_components/HeroBanner'
-import SearchFilter from '../_components/SearchFilter';
-import FestivalList from '../_components/FestivalList';
-import Pagination from '../_components/Pagination';
-import styles from '../page.module.css';
+import HeroBanner from './_components/HeroBanner'
+import SearchFilter from '@/_component/common/SearchFilter';
+import FestivalList from './_components/FestivalList';
+import Pagination from '@/_component/common/Pagination';
+import styles from './page.module.css';
 import { Festival } from '@/types/festival';
 
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
@@ -68,9 +68,9 @@ export default async function MainPage({
 
           {/* 4. 페이지네이션 UI */}
           {festivalData.totalPages && festivalData.totalPages > 1 && (
-            <Pagination 
-              currentPage={Number(festivalData.currentPage) || 1} 
-              totalPages={festivalData.totalPages} 
+            <Pagination
+              currentPage={Number(festivalData.currentPage) || 1}
+              totalPages={festivalData.totalPages}
             />
           )}
         </div>
