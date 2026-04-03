@@ -1,11 +1,14 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { Heart, User } from 'lucide-react';
-import Image from 'next/image';
-import Link from 'next/link';
 import api from '@/lib/api';
 import styles from './FestivalDetail.module.css';
+
+// 컴포넌트 임포트
+import FestivalHero from './_components/FestivalHero';
+import FestivalDetailInfo from './_components/FestivalDetailInfo';
+import FestivalSidebar from './_components/FestivalSidebar';
+import ReviewSection from './_components/ReviewSection';
 
 export default function FestivalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
@@ -18,13 +21,9 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
   // 팝업 상태
   const [popupMsg, setPopupMsg] = useState<string | null>(null);
 
-  // 리뷰 연동 State
+  // 리뷰 데이터
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewStats, setReviewStats] = useState<any>(null);
-  const [rating, setRating] = useState<number>(0);
-  const [hoverRating, setHoverRating] = useState<number>(0);
-  const [reviewContent, setReviewContent] = useState<string>('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const fetchReviews = async () => {
     try {
@@ -35,7 +34,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
           totalPages: res.data.data.totalPages,
           totalElements: res.data.data.totalElements,
           averageRating: res.data.data.averageRating,
-          ratingDistribution: res.data.data.ratingDistribution
+          ratingDistribution: res.data.data.ratingDistribution,
         });
       }
     } catch (err) {
@@ -60,57 +59,16 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
     fetchReviews();
   }, [fid]);
 
+  // --- 이벤트 핸들러 ---
   const toggleBookmark = () => {
     setIsBookmarked(prev => !prev);
-    // API_FES_0040 연동
+    // TODO: API_FES_0040 연동
   };
 
   const showPopup = (msg: string) => setPopupMsg(msg);
   const closePopup = () => setPopupMsg(null);
 
-  const handleSubmitReview = async () => {
-    if (rating === 0) return showPopup('별점을 먼저 선택해주세요.');
-    if (reviewContent.trim().length < 10) return showPopup('리뷰를 최소 10자 이상 작성해주세요.');
-
-    setIsSubmitting(true);
-    try {
-      await api.post(`/api/reviews`, {
-        festivalId: fid,
-        rating,
-        content: reviewContent
-      });
-      showPopup('리뷰가 성공적으로 등록되었습니다.');
-      setReviewContent('');
-      setRating(0);
-      fetchReviews(); // 새로고침
-    } catch (err: any) {
-      showPopup(err.response?.data?.message || '리뷰 등록에 실패했습니다.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const renderStars = (score: number) => {
-    return [1, 2, 3, 4, 5].map(num => (
-      <span key={num} className={styles.starDisplay} style={{ color: num <= score ? '#fbbf24' : '#e2e8f0' }}>★</span>
-    ));
-  };
-
-  const renderFormStars = () => {
-    return [1, 2, 3, 4, 5].map(num => (
-      <span
-        key={num}
-        onMouseEnter={() => setHoverRating(num)}
-        onMouseLeave={() => setHoverRating(0)}
-        onClick={() => setRating(num)}
-        className={styles.starForm}
-        style={{ color: num <= (hoverRating || rating) ? '#fbbf24' : '#e2e8f0' }}
-      >
-        ★
-      </span>
-    ));
-  };
-
+  // --- 로딩 / 에러 상태 ---
   if (loading) {
     return <div className={styles.loadingContainer}>축제 정보를 불러오는 중입니다...</div>;
   }
@@ -123,200 +81,57 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
     );
   }
 
-  // Format data
+  // --- 파생 데이터 ---
   const formatDt = (dt: string) => dt ? dt.toString().replace(/-/g, '.') : '';
-  const dateString = data.startDate && data.endDate ? `${formatDt(data.startDate)} ~ ${formatDt(data.endDate)}` : '상시 진행 (미정)';
+  const dateString = data.startDate && data.endDate
+    ? `${formatDt(data.startDate)} ~ ${formatDt(data.endDate)}`
+    : '상시 진행 (미정)';
+  const imageSrc = data.imageUrl || data.thumbnailUrl
+    || 'https://images.unsplash.com/photo-1522864697368-8096add2e6df?auto=format&fit=crop&q=80&w=800';
 
-  let badgeText = '진행예정';
-  if (data.status === 'ONGOING') badgeText = '진행중';
-  if (data.status === 'ENDED') badgeText = '종료';
-
-  const imageSrc = data.imageUrl || data.thumbnailUrl || 'https://images.unsplash.com/photo-1522864697368-8096add2e6df?auto=format&fit=crop&q=80&w=800';
-
+  // --- 렌더링: 컴포넌트 조립만 담당 ---
   return (
     <main>
-      {/* 1. 히어로 배경 영역 (동적 이미지 렌더링) */}
-      <section
-        className={styles.hero}
-        style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url(${imageSrc})` }}
-      >
-        <div className={styles.heroInner}>
-          <div className={styles.badgeWrap}>
-            <span className={styles.badge}>{badgeText}</span>
-          </div>
-          <div className={styles.titleRow}>
-            <div className={styles.titleBox}>
-              <h1>{data.title}</h1>
-              <p><span>📅 {dateString}</span> <span>📍 {data.address ? data.address.split(' ')[0] : '지역 미상'}</span></p>
-            </div>
+      {/* 1. 히어로 배너 */}
+      <FestivalHero
+        title={data.title}
+        status={data.status}
+        dateString={dateString}
+        address={data.address}
+        imageSrc={imageSrc}
+        isBookmarked={isBookmarked}
+        onToggleBookmark={toggleBookmark}
+      />
 
-            {/* 북마크 (찜하기) 토글 영역 */}
-            <button
-              className={`${styles.bookmark} ${isBookmarked ? styles.active : ''}`}
-              onClick={toggleBookmark}
-              aria-label="찜하기"
-            >
-              <Heart fill={isBookmarked ? "currentColor" : "none"} strokeWidth={2} />
-            </button>
-          </div>
-        </div>
-      </section>
-
-      {/* 2. 콘텐츠 2단 분할 영역 */}
+      {/* 2. 콘텐츠 2단 레이아웃 */}
       <section className={styles.contentWrap}>
         <div className={styles.contentInner}>
 
-          {/* 좌측 메인: 상세설명 */}
+          {/* 좌측: 상세정보 + 리뷰 */}
           <div className={styles.leftCol}>
-
-            <div className={styles.section}>
-              <h2 className={styles.sectionTitle}>축제 상세 정보</h2>
-              <div className={styles.descText}>
-                {/* 공공데이터는 종종 설명이 없을 수도 있습니다. */}
-                {data.overview || data.description || '축제의 상세 설명이 아직 등록되지 않았습니다. (공공데이터 내용 업데이트 예정)'}
-              </div>
-              <div className={styles.descImageGallery}>
-                <div className={styles.mainImageWrapper}>
-                  <Image src={imageSrc} alt="축제 포스터 및 전경" fill sizes="(max-width: 1200px) 100vw, 800px" style={{ objectFit: 'cover' }} />
-                </div>
-                {/* 추가 이미지 갤러리 */}
-                {data.images && data.images.length > 0 && (
-                  <div className={styles.extraImageGrid}>
-                    {data.images.map((img: string, idx: number) => (
-                      <div key={idx} className={styles.extraImageWrapper}>
-                        <Image src={img} alt={`추가 이미지 ${idx + 1}`} fill sizes="(max-width: 1200px) 25vw, 200px" style={{ objectFit: 'cover' }} />
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <section className={styles.section}>
-              <header className={styles.sectionTitle}>
-                <h2>축제 후기 ({reviewStats?.totalElements || 0})</h2>
-              </header>
-
-              <div className={styles.reviewForm}>
-                <div className={styles.reviewAvatar}>
-                  <User size={20} color="#a0aec0" strokeWidth={2.5} />
-                </div>
-                <div className={styles.reviewInputBox}>
-                  <input
-                    type="text"
-                    placeholder="이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)"
-                    value={reviewContent}
-                    onChange={(e) => setReviewContent(e.target.value)}
-                  />
-                  <div className={styles.reviewActions}>
-                    <span className={styles.reviewStars}>{renderFormStars()}</span>
-                    <button
-                      className={`${styles.reviewBtn} ${isSubmitting ? styles.submitDisabled : ''}`}
-                      onClick={handleSubmitReview}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? '진행중...' : '리뷰 등록'}
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className={styles.reviewList}>
-                {reviews.length === 0 ? (
-                  <div className={styles.emptyReviews}>
-                    아직 등록된 리뷰가 없습니다. 첫 리뷰를 남겨보세요!
-                  </div>
-                ) : (
-                  reviews.slice(0, 3).map(review => (
-                    <article key={review.id} className={styles.reviewCard}>
-                      <div className={styles.rcAvatar}>
-                        <User size={18} color="#ffffff" strokeWidth={2.5} />
-                      </div>
-                      <div className={styles.rcContent}>
-                        <div className={styles.rcTop}>
-                          <div className={styles.rcName}>
-                            익명 사용자
-                            <span className={styles.rcStars}>{renderStars(review.rating)}</span>
-                          </div>
-                          <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
-                        </div>
-                        <div className={styles.rcText}>{review.content}</div>
-                      </div>
-                    </article>
-                  ))
-                )}
-              </div>
-
-              <Link href={`/festivals/${fid}/reviews`} style={{ textDecoration: 'none' }}>
-                <button className={styles.reviewMoreBtn}>
-                  + 후기 전체보기 (총 {reviewStats?.totalElements || 0}개)
-                </button>
-              </Link>
-            </section>
-
+            <FestivalDetailInfo
+              overview={data.overview}
+              description={data.description}
+              imageSrc={imageSrc}
+              images={data.images}
+            />
+            <ReviewSection
+              festivalId={fid}
+              reviews={reviews}
+              reviewStats={reviewStats}
+              onReviewSubmitted={fetchReviews}
+              onPopup={showPopup}
+            />
           </div>
 
-          {/* 우측 사이드바: 기본정보 요약 */}
-          <aside className={styles.rightCol}>
-
-            {/* 정보 박스 */}
-            <div className={styles.infoBox}>
-              <div className={styles.infoRow}>
-                <div className={styles.infoIcon}>📍</div>
-                <div>
-                  <div className={styles.infoLabel}>장소</div>
-                  <div className={`${styles.infoVal} ${styles.preLine}`}>{data.address || '상세 주소 미등록'}</div>
-                </div>
-              </div>
-              <div className={styles.infoRow}>
-                <div className={styles.infoIcon}>📅</div>
-                <div>
-                  <div className={styles.infoLabel}>기간</div>
-                  <div className={styles.infoVal}>{dateString}</div>
-                </div>
-              </div>
-              <div className={styles.infoRow}>
-                <div className={styles.infoIcon}>📞</div>
-                <div>
-                  <div className={styles.infoLabel}>문의안내</div>
-                  <div className={styles.infoVal}>{data.tel || '전화번호 미등록'}</div>
-                </div>
-              </div>
-              <div className={styles.infoRow}>
-                <div className={styles.infoIcon}>💰</div>
-                <div>
-                  <div className={styles.infoLabel}>이용요금</div>
-                  <div className={styles.infoVal}>{data.fee || '무료 또는 상세설명 참조'}</div>
-                </div>
-              </div>
-            </div>
-
-            {/* 별점 통계 */}
-            <div className={styles.ratingBox}>
-              <div className={styles.ratingTitle}>리뷰 통계</div>
-              <div className={styles.ratingBig}>{reviewStats?.averageRating?.toFixed(1) || '0.0'}</div>
-              <div className={styles.ratingStarsMain}>{renderStars(Math.round(reviewStats?.averageRating || 0))}</div>
-              <div className={styles.ratingCount}>총 {reviewStats?.totalElements || 0}개의 리뷰</div>
-
-              <div className={styles.ratingBars}>
-                {[5, 4, 3, 2, 1].map(num => {
-                  const count = reviewStats?.ratingDistribution?.[num] || 0;
-                  const total = reviewStats?.totalElements || 1;
-                  const percent = total === 0 ? 0 : (count / total) * 100;
-                  return (
-                    <div key={num} className={styles.rbRow}>
-                      <span>{num}점</span>
-                      <div className={styles.rbBarWrap}>
-                        <div className={styles.rbBar} style={{ width: `${percent}%` }}></div>
-                      </div>
-                      <span>{count}</span>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-
-          </aside>
+          {/* 우측: 사이드바 */}
+          <FestivalSidebar
+            address={data.address}
+            dateString={dateString}
+            tel={data.tel}
+            fee={data.fee}
+            reviewStats={reviewStats}
+          />
 
         </div>
       </section>
@@ -325,9 +140,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       {popupMsg && (
         <div className={styles.modalOverlay}>
           <dialog open className={styles.modalBox} style={{ border: 'none' }}>
-            <p className={styles.modalText}>
-              {popupMsg}
-            </p>
+            <p className={styles.modalText}>{popupMsg}</p>
             <button className={styles.modalBtn} onClick={closePopup}>
               확인
             </button>
