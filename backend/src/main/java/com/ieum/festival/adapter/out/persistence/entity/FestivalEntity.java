@@ -63,7 +63,7 @@ public class FestivalEntity {
 
     @Column(name = "status", length = 20)
     private String status; // UPCOMING, ONGOING, ENDED
-    
+
     @Column(length = 20)
     private String source; // API, MANUAL
 
