@@ -397,7 +397,7 @@
     <div class="header">
         <div class="header-left">
             <h1>🎪 이음 ERD</h1>
-            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (16 Tables)</span>
+            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (18 Tables)</span>
         </div>
         <div class="legend">
             <div class="legend-item">
@@ -475,8 +475,8 @@
                     { name: 'category', type: 'varchar(10)', note: '대분류 코드' },
                     { name: 'category_mid', type: 'varchar(10)', note: '중분류 코드' },
                     { name: 'category_sub', type: 'varchar(10)', note: '소분류 코드' },
-                    { name: 'area_code', type: 'varchar(10)', note: '지역 코드 (시/도)' },
-                    { name: 'sigungu_code', type: 'varchar(5)', note: '시군구 코드' },
+                    { name: 'area_code', type: 'varchar(10)', fk: true, note: '지역 코드 (시/도)' },
+                    { name: 'sigungu_code', type: 'varchar(5)', fk: true, note: '시군구 코드' },
                     { name: 'ldong_code', type: 'varchar(20)', note: '법정동 코드' },
                     { name: 'event_place', type: 'varchar(200)', note: '행사 장소명 (API)' },
                     { name: 'play_time', type: 'varchar(200)', note: '공연/행사 시간 (API)' },
@@ -700,6 +700,30 @@
                 ],
                 footer: 'IDX: (batch_id), (status), (started_at)'
             },
+            {
+                id: 'region_master', name: 'region_master', label: '지역 마스터', type: 'support',
+                x: 232.0, y: 151.0,
+                columns: [
+                    { name: 'region_code', type: 'varchar(20)', pk: true, note: 'PK: 지역 코드' },
+                    { name: 'name', type: 'varchar(50)', note: '지역명 (시/도)' },
+                    { name: 'type', type: 'varchar(20)', note: 'STANDARD / CUSTOM' },
+                    { name: 'is_active', type: 'boolean', note: '활성 여부' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ]
+            },
+            {
+                id: 'sigungu_master', name: 'sigungu_master', label: '시군구 마스터', type: 'support',
+                x: 232.0, y: 454.0,
+                columns: [
+                    { name: 'id', type: 'bigint', pk: true, note: 'PK: 고유 ID' },
+                    { name: 'region_code', type: 'varchar(20)', fk: true, note: 'FK → region_master' },
+                    { name: 'sigungu_code', type: 'varchar(20)', note: '시군구 코드' },
+                    { name: 'name', type: 'varchar(50)', note: '시군구명' },
+                    { name: 'is_active', type: 'boolean', note: '활성 여부' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ],
+                footer: 'UK: (region_code, sigungu_code)'
+            },
         ];
 
         // ─── Relationships ───
@@ -724,6 +748,8 @@
             { from: 'users', to: 'notification_settings', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'categories', to: 'posts', label: '1:N', fromCol: 'category_id', toCol: 'category_id' },
             { from: 'users', to: 'batch_log', label: '1:N', fromCol: 'user_id', toCol: 'triggered_by' },
+            { from: 'region_master', to: 'sigungu_master', label: '1:N', fromCol: 'region_code', toCol: 'region_code' },
+            { from: 'region_master', to: 'festivals', label: '1:N (논리적)', fromCol: 'region_code', toCol: 'area_code' },
         ];
 
         // ─── Render ───
