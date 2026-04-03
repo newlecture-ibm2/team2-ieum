@@ -33,9 +33,10 @@
 ## 2. 디렉토리 구조 (Frontend / App Router)
 
 > 📐 **구조 원칙: 코로케이션(Co-location)**
-> - 하나의 기능은 하나의 폴더 안에서 완결되도록 한다.
-> - 특정 기능에서만 사용되는 컴포넌트, 훅, 유틸, 타입 등은 해당 기능 폴더 내부 `_components/`, `_hooks/`, `_lib/`, `_types/` 에 배치한다.
-> - 여러 기능에서 공통으로 사용되는 UI(Header, Footer, Pagination 등)만 `src/_component/common/`에 모은다.
+> - 하나의 기능은 하나의 폴더 안에서 완결되도록 구성한다.
+> - **컴포넌트 레벨 코로케이션 권장**: 특정 컴포넌트에서만 쓰이는 로직(커스텀 훅/Usecase)과 스타일 파일은 해당 컴포넌트 폴더 내부에 함께 둔다.
+> - 특정 기능 내 여러 컴포넌트에서 범용으로 쓰이는 훅, 유틸 등은 기능 폴더 하위 `_hooks/`, `_lib/` 에 둔다.
+> - 도메인(기능)과 무관하게 프로젝트 전체에서 쓰이는 공통 컴포넌트만 `src/_component/common/`에 모은다.
 
 ```text
 frontend/src/
@@ -62,10 +63,20 @@ frontend/src/
 │   │
 │   ├── festivals/              # 🎪 축제 기능 도메인 (사용자)
 │   │   ├── page.tsx            # 전국 축제 목록 (/festivals)
-│   │   ├── _components/        # 축제 목록 전용 컴포넌트 (FestivalCard, FestivalMap 등)
+│   │   ├── _components/        # 축제 도메인 전용 컴포넌트 모음
+│   │   │   ├── FestivalList/   # ✨ 컴포넌트 레벨 코로케이션 패턴
+│   │   │   │   ├── index.ts
+│   │   │   │   ├── FestivalList.tsx
+│   │   │   │   ├── FestivalList.module.css
+│   │   │   │   └── useFestivalList.ts  # 이 컴포넌트 전용 로직 (Usecase / Hook)
+│   │   │   └── FestivalCard/
+│   │   │       ├── index.ts
+│   │   │       ├── FestivalCard.tsx
+│   │   │       └── FestivalCard.module.css
+│   │   ├── _hooks/             # 축제 도메인 전체에서 널리 쓰이는 커스텀 훅 (옵션)
 │   │   ├── [id]/               # 축제 상세 (/festivals/123)
 │   │   │   ├── page.tsx
-│   │   │   ├── _components/    # 상세 전용 컴포넌트 (FestivalDetail, ImageGallery, LocationMap 등)
+│   │   │   ├── _components/    # 상세 전용 (FestivalDetail, ImageGallery 등)
 │   │   │   └── reviews/        # 리뷰 (/festivals/123/reviews)
 │   │   │       ├── page.tsx
 │   │   │       └── _components/
@@ -142,13 +153,13 @@ frontend/src/
 ```
 
 ### 📂 코로케이션 규칙 요약
-| 위치 | 용도 | 예시 |
+| 위치 | 용도 | 포함되는 파일들 예시 |
 |------|------|------|
-| `src/_component/common/` | 프로젝트 전역 공통 UI | Header, Footer, Pagination, Modal, Toast |
-| `app/{feature}/_components/` | 해당 기능 전용 컴포넌트 | FestivalCard, PostForm, AdminSidebar |
-| `app/{feature}/_hooks/` | 해당 기능 전용 커스텀 훅 | useFestivalFilter, usePostForm |
-| `app/{feature}/_lib/` | 해당 기능 전용 유틸/API | fetchFestivals, formatDate |
-| `app/{feature}/_types/` | 해당 기능 전용 타입 | FestivalFormData, PostCreateRequest |
+| `src/_component/common/` | 프로젝트 전역 공통 UI 폴더 | `Header`, `Footer`, `Pagination`, `Modal` |
+| `app/{feature}/_components/{Name}/` | 특정 기능에 종속된 **컴포넌트 + 스타일 + 전용 로직(Usecase)** 묶음 | `index.ts`, `{Name}.tsx`, `{Name}.module.css`, `use{Name}.ts` |
+| `app/{feature}/_hooks/` | 기능 폴더 내 여러 컴포넌트에서 공용으로 쓰는 훅 (옵션) | `useFestivalFilter.ts` |
+| `app/{feature}/_lib/` | 해당 기능 전용 순수 비즈니스 로직 또는 API 통신 함수 | `fetchFestivals.ts`, `validateDate.ts` |
+| `app/{feature}/_types/` | 해당 기능 전용 타입 정의 (인터페이스가 클 경우 분리) | `FestivalFormData.ts` |
 
 ---
 
