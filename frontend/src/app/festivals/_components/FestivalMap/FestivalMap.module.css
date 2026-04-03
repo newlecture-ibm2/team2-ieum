@@ -566,6 +566,95 @@
 
 .infoLink:hover { color: #4834d4; }
 
+/* ===== 추가: 활성화된 (클릭된) 리스트 행 ===== */
+.listRowActive {
+  background: #f5f3ff !important;
+}
+
+/* ===== 추가: 커스텀 인포윈도우 ===== */
+.customInfoWindow {
+  background: #ffffff;
+  border-radius: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(108, 92, 231, 0.08);
+  padding: 16px 18px;
+  min-width: 260px;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: auto;
+  pointer-events: auto;
+  font-family: 'Noto Sans KR', sans-serif;
+  z-index: 10;
+}
+
+/* 오버레이 말풍선 꼬리 (흰색 배경) */
+.customInfoWindow::after {
+  content: "";
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 8px 8px 0;
+  border-style: solid;
+  border-color: #ffffff transparent transparent transparent;
+  display: block;
+  width: 0;
+  z-index: 2;
+}
+
+/* 오버레이 말풍선 꼬리 선 (얇은 보라색) */
+.customInfoWindow::before {
+  content: "";
+  position: absolute;
+  bottom: -9px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 9px 9px 0;
+  border-style: solid;
+  border-color: rgba(108, 92, 231, 0.1) transparent transparent transparent;
+  display: block;
+  width: 0;
+  z-index: 1;
+}
+
+.customInfoTitle {
+  font-size: 16px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 2px;
+  line-height: 1.4;
+  word-break: keep-all;
+}
+
+.customInfoMeta {
+  font-size: 13px;
+  color: #475569;
+  display: flex;
+  align-items: flex-start;
+  gap: 5px;
+  line-height: 1.4;
+}
+
+.customInfoLink {
+  margin-top: 10px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #ffffff !important;
+  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 100%);
+  text-decoration: none;
+  align-self: flex-end;
+  transition: all 0.2s ease;
+  padding: 8px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.2);
+}
+
+.customInfoLink:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.35);
+}
+
 .emptyState {
   display: flex;
   align-items: center;

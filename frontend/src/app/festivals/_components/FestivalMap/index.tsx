@@ -5,6 +5,7 @@ import {
   Map,
   MapMarker,
   MarkerClusterer,
+  CustomOverlayMap,
   useKakaoLoader,
 } from "react-kakao-maps-sdk";
 import styles from "./FestivalMap.module.css";
@@ -478,35 +479,41 @@ export default function FestivalMap() {
                   selectedFestival &&
                   selectedFestival.latitude &&
                   selectedFestival.longitude && (
-                    <MapMarker
+                    <CustomOverlayMap
                       position={{
                         lat: selectedFestival.latitude,
                         lng: selectedFestival.longitude,
                       }}
+                      yAnchor={1.35}
+                      clickable={true}
+                      zIndex={100}
                     >
-                      <div className={styles.infoWindow}>
-                        <div className={styles.infoTitle}>
+                      <div
+                        className={styles.customInfoWindow}
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <div className={styles.customInfoTitle}>
                           🎪 {selectedFestival.title}
                         </div>
-                        <div className={styles.infoMeta}>
-                          <span>
-                            📍 {selectedFestival.address || "위치 정보 없음"}
-                          </span>
+                        <div className={styles.customInfoMeta}>
+                          <span>📍</span>
+                          <span>{selectedFestival.address || "위치 정보 없음"}</span>
                         </div>
-                        <div className={styles.infoMeta}>
+                        <div className={styles.customInfoMeta}>
+                          <span>📅</span>
                           <span>
-                            📅 {formatDate(selectedFestival.startDate)} ~{" "}
+                            {formatDate(selectedFestival.startDate)} ~{" "}
                             {formatDate(selectedFestival.endDate)}
                           </span>
                         </div>
                         <a
                           href={`/festivals/${selectedFestival.id}`}
-                          className={styles.infoLink}
+                          className={styles.customInfoLink}
                         >
                           상세보기 →
                         </a>
                       </div>
-                    </MapMarker>
+                    </CustomOverlayMap>
                   )}
               </Map>
             )}
@@ -514,12 +521,11 @@ export default function FestivalMap() {
             {/* ===== 🚀 하이퍼스페이스 워프 인트로 ===== */}
             {!introComplete && !loading && !error && (
               <div
-                className={`${styles.introOverlay} ${
-                  introPhase === "fadeout" ? styles.introFadeOut : ""
-                }`}
+                className={`${styles.introOverlay} ${introPhase === "fadeout" ? styles.introFadeOut : ""
+                  }`}
               >
                 <canvas ref={canvasRef} className={styles.warpCanvas} />
-                
+
                 {/* 🌍 지구 워프 줌인 이미지 */}
                 <div className={styles.warpEarth}>
                   <img src="/images/map-intro/earth.png" alt="지구" />
@@ -535,9 +541,8 @@ export default function FestivalMap() {
             {/* GPS / 줌 컨트롤 (인트로 완료 후 페이드인) */}
             {!loading && !error && (
               <div
-                className={`${styles.mapControls} ${
-                  introComplete ? styles.mapControlsVisible : ""
-                }`}
+                className={`${styles.mapControls} ${introComplete ? styles.mapControlsVisible : ""
+                  }`}
               >
                 <button
                   type="button"
@@ -570,9 +575,8 @@ export default function FestivalMap() {
           {/* 리사이즈 핸들 */}
           {listOpen && (
             <div
-              className={`${styles.resizeHandle} ${
-                isResizing.current ? styles.resizeHandleActive : ""
-              }`}
+              className={`${styles.resizeHandle} ${isResizing.current ? styles.resizeHandleActive : ""
+                }`}
               onMouseDown={handleResizeStart}
             >
               <div className={styles.resizeHandleBar} />
@@ -581,9 +585,8 @@ export default function FestivalMap() {
 
           {/* 하단 검색 결과 목록 */}
           <div
-            className={`${styles.bottomList} ${
-              !listOpen ? styles.bottomListCollapsed : ""
-            }`}
+            className={`${styles.bottomList} ${!listOpen ? styles.bottomListCollapsed : ""
+              }`}
             style={listOpen ? { height: listHeight } : undefined}
           >
             <div className={styles.listHeader}>
@@ -622,7 +625,7 @@ export default function FestivalMap() {
                   filteredFestivals.slice(0, 999).map((fest) => (
                     <div
                       key={fest.id}
-                      className={styles.listRow}
+                      className={`${styles.listRow} ${selectedFestival?.id === fest.id ? styles.listRowActive : ""}`}
                       onClick={() => handleListRowClick(fest)}
                     >
                       <div>
@@ -649,8 +652,8 @@ export default function FestivalMap() {
                         {fest.status === "ONGOING"
                           ? "🟢 진행중"
                           : fest.status === "UPCOMING"
-                          ? "🔵 예정"
-                          : "⚫ 종료"}
+                            ? "🔵 예정"
+                            : "⚫ 종료"}
                       </div>
                     </div>
                   ))
