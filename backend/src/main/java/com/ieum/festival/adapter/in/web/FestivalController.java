@@ -15,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import com.ieum.festival.adapter.in.web.dto.FestivalResponseDto;
 
 @Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
 @RestController
@@ -71,7 +74,10 @@ public class FestivalController {
         response.put("success", true);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("list", festivalPage.getContent());
+        List<FestivalResponseDto> dtoList = festivalPage.getContent().stream()
+                .map(FestivalResponseDto::new)
+                .collect(Collectors.toList());
+        data.put("list", dtoList);
         data.put("total", festivalPage.getTotalElements());
         data.put("totalPages", festivalPage.getTotalPages());
         data.put("currentPage", page);
@@ -132,7 +138,9 @@ public class FestivalController {
                     result.put("thumbnailUrl", entity.getThumbnailUrl());
                     result.put("startDate", entity.getStartDate());
                     result.put("endDate", entity.getEndDate());
-                    result.put("status", entity.getDynamicStatus());
+                    
+                    FestivalResponseDto dto = new FestivalResponseDto(entity);
+                    result.put("status", dto.getStatus());
 
                     // DB에서 바로 제공 (또는 방금 막 캐싱된 데이터)
                     result.put("overview", entity.getOverview());
