@@ -658,9 +658,14 @@ export default function CustomFestivalListPage() {
                     <div className={styles.formGroup}>
                       <label className={styles.formLabel}><span className={styles.requiredStar}>*</span> 축제 기간</label>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                        <input type="date" className={`${styles.formInput} ${errors.startDate ? styles.errorInput : ''}`} value={formData.startDate} onChange={e => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => ({ ...prev, startDate: undefined, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
-                        <span style={{ color: '#94a3b8' }}>~</span>
-                        <input type="date" className={`${styles.formInput} ${errors.endDate ? styles.errorInput : ''}`} value={formData.endDate} onChange={e => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => ({ ...prev, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                          <input type="date" className={`${styles.formInput} ${errors.startDate ? styles.errorInput : ''}`} value={formData.startDate} onChange={e => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => ({ ...prev, startDate: undefined, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                          <span style={{ color: '#94a3b8' }}>~</span>
+                          <input type="date" className={`${styles.formInput} ${errors.endDate ? styles.errorInput : ''}`} value={formData.endDate} onChange={e => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => ({ ...prev, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', marginLeft: '8px', flex: 'none', visibility: 'hidden', pointerEvents: 'none' }}>
+                          <input type="checkbox" /> 종일
+                        </label>
                       </div>
                       {(errors.startDate || errors.endDate) && <span className={styles.errorText}>⚠ {errors.startDate || errors.endDate}</span>}
                     </div>
