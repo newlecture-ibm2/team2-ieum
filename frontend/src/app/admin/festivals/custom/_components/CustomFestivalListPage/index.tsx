@@ -665,10 +665,15 @@ export default function CustomFestivalListPage() {
                       {(errors.startDate || errors.endDate) && <span className={styles.errorText}>⚠ {errors.startDate || errors.endDate}</span>}
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>
-                        운영 시간
-                        <label style={{ display: 'inline-flex', alignItems: 'center', marginLeft: 'auto', fontSize: '13px', fontWeight: 'normal', color: '#64748b', cursor: 'pointer' }}>
-                          <input type="checkbox" style={{ marginRight: '4px' }} checked={formData.isAllDay || false} onChange={e => {
+                      <label className={styles.formLabel}>운영 시간</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, opacity: formData.isAllDay ? 0.5 : 1, pointerEvents: formData.isAllDay ? 'none' : 'auto' }}>
+                          <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.startTime} onChange={e => { setFormData({ ...formData, startTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                          <span style={{ color: '#94a3b8' }}>~</span>
+                          <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.endTime} onChange={e => { setFormData({ ...formData, endTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', userSelect: 'none', marginLeft: '8px', flex: 'none' }}>
+                          <input type="checkbox" checked={formData.isAllDay || false} onChange={e => {
                             const checked = e.target.checked;
                             if (checked) {
                               setFormData({ ...formData, isAllDay: true, startTime: '', endTime: '' });
@@ -678,11 +683,6 @@ export default function CustomFestivalListPage() {
                             }
                           }} /> 종일
                         </label>
-                      </label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, opacity: formData.isAllDay ? 0.5 : 1, pointerEvents: formData.isAllDay ? 'none' : 'auto' }}>
-                        <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.startTime} onChange={e => { setFormData({ ...formData, startTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
-                        <span style={{ color: '#94a3b8' }}>~</span>
-                        <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.endTime} onChange={e => { setFormData({ ...formData, endTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
                       </div>
                       {errors.endTime && <span className={styles.errorText}>⚠ {errors.endTime}</span>}
                     </div>
