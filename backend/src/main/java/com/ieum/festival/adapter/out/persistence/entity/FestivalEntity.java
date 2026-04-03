@@ -67,6 +67,7 @@ public class FestivalEntity {
     @Column(name = "status", length = 20)
     private String status; // UPCOMING, ONGOING, ENDED
 
+<<<<<<< HEAD
     /**
      * JSON 직렬화 시 DB status 대신 오늘 날짜 기준으로 동적 계산된 상태를 반환
      */
@@ -79,6 +80,8 @@ public class FestivalEntity {
         return "ONGOING";
     }
     
+=======
+>>>>>>> 0ecf0ea5ee86f0e040a18ec3f869026f8d8f6e11
     @Column(length = 20)
     private String source; // API, MANUAL
 

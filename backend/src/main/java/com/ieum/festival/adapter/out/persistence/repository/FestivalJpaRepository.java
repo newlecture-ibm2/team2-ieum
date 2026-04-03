@@ -19,7 +19,8 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
         * [전체 탭] 키워드 검색 + 날짜 기반 동적 정렬
         */
        @Query("SELECT f FROM FestivalEntity f " +
-                     "WHERE (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
+                     "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+                     "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
                      "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "
                      +
@@ -42,7 +43,8 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
         * [진행중 탭] 키워드 검색 + 오늘 날짜가 startDate~endDate 범위 안에 있는 축제만
         */
        @Query("SELECT f FROM FestivalEntity f " +
-                     "WHERE f.startDate <= CURRENT_DATE AND f.endDate >= CURRENT_DATE " +
+                     "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+                     "AND f.startDate <= CURRENT_DATE AND f.endDate >= CURRENT_DATE " +
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
                      "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "
@@ -55,7 +57,8 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
         * [진행예정 탭] 키워드 검색 + 아직 시작되지 않은 축제만
         */
        @Query("SELECT f FROM FestivalEntity f " +
-                     "WHERE f.startDate > CURRENT_DATE " +
+                     "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+                     "AND f.startDate > CURRENT_DATE " +
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
                      "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) "

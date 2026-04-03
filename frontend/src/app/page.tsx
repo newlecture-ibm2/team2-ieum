@@ -1,5 +1,5 @@
 import api from '@/lib/api';
-import HeroBanner from './_components/HeroBanner'
+import HeroBanner from './festivals/_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
 import FestivalList from './festivals/_components/FestivalList';
 import Pagination from '@/_component/common/Pagination';
