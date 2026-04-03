@@ -27,106 +27,102 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-        /**
-         * Swagger UI 관련 허용 경로 목록
-         */
-        private static final String[] SWAGGER_WHITELIST = {
-                        "/swagger-ui/**",
-                        "/swagger-ui.html",
-                        "/v3/api-docs/**",
-                        "/v3/api-docs.yaml"
-        };
+    /**
+     * Swagger UI 관련 허용 경로 목록
+     */
+    private static final String[] SWAGGER_WHITELIST = {
+            "/swagger-ui/**",
+            "/swagger-ui.html",
+            "/v3/api-docs/**",
+            "/v3/api-docs.yaml"
+    };
 
-        @Bean
-        public SecurityFilterChain filterChain(
-                        HttpSecurity http,
-                        JwtAuthenticationFilter jwtAuthenticationFilter,
-                        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                        JwtAccessDeniedHandler jwtAccessDeniedHandler) throws Exception {
-                http
-                                // CSRF 비활성화 (REST API는 Stateless)
-                                .csrf(csrf -> csrf.disable())
+    @Bean
+    public SecurityFilterChain filterChain(
+            HttpSecurity http, 
+            JwtAuthenticationFilter jwtAuthenticationFilter,
+            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+            JwtAccessDeniedHandler jwtAccessDeniedHandler
+    ) throws Exception {
+        http
+                // CSRF 비활성화 (REST API는 Stateless)
+                .csrf(csrf -> csrf.disable())
 
-                                // CORS 설정 활성화 (WebConfig의 CorsConfigurationSource 사용)
-                                .cors(cors -> {
-                                })
+                // CORS 설정 활성화 (WebConfig의 CorsConfigurationSource 사용)
+                .cors(cors -> {})
 
-                                // 세션 사용하지 않음 (JWT 기반)
-                                .sessionManagement(session -> session
-                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                // 세션 사용하지 않음 (JWT 기반)
+                .sessionManagement(session ->
+                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                                // URL별 권한 설정
-                                .authorizeHttpRequests(auth -> auth
-                                                // ✅ Swagger UI 허용
-                                                .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                // URL별 권한 설정
+                .authorizeHttpRequests(auth -> auth
+                        // ✅ Swagger UI 허용
+                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
 
-                                                // ✅ 인증 API 허용 (회원가입, 로그인)
-                                                .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                        // ✅ 인증 API 허용 (회원가입, 로그인)
+                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-                                                // ✅ 축제 조회 — 비회원 허용
-                                                .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
-                                                .requestMatchers(HttpMethod.POST, "/api/festivals/sync").permitAll() // ✅
-                                                                                                                     // 공공데이터
-                                                                                                                     // 수동
-                                                                                                                     // 동기화
-                                                                                                                     // 허용
+                        // ✅ 축제 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/festivals/sync").permitAll() // ✅ 공공데이터 수동 동기화 허용
 
-                                                // ✅ 리뷰 조회 — 비회원 허용
-                                                .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+                        // ✅ 리뷰 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
 
-                                                // ✅ 커뮤니티 조회 — 비회원 허용
-                                                .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
+                        // ✅ 커뮤니티 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
 
-                                                // ✅ 공지사항 조회 — 비회원 허용
-                                                .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
+                        // ✅ 공지사항 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
-                                                // 🔒 회원 전용 — 프로필, 알림, FCM
-                                                .requestMatchers("/api/users/me/**").hasRole("USER")
+                        // 🔒 회원 전용 — 프로필, 알림, FCM
+                        .requestMatchers("/api/users/me/**").hasRole("USER")
 
-                                                // 🔒 회원 전용 — 리뷰 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("USER")
-                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasRole("USER")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasRole("USER")
+                        // 🔒 회원 전용 — 리뷰 CUD
+                        .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasRole("USER")
 
-                                                // 🔒 회원 전용 — 즐겨찾기
-                                                .requestMatchers("/api/favorites/**").hasRole("USER")
+                        // 🔒 회원 전용 — 즐겨찾기
+                        .requestMatchers("/api/favorites/**").hasRole("USER")
 
-                                                // 🔒 회원 전용 — 커뮤니티 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/community/**").hasRole("USER")
-                                                .requestMatchers(HttpMethod.PUT, "/api/community/**").hasRole("USER")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasRole("USER")
+                        // 🔒 회원 전용 — 커뮤니티 CUD
+                        .requestMatchers(HttpMethod.POST, "/api/community/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.PUT, "/api/community/**").hasRole("USER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasRole("USER")
 
-                                                // 🔒 회원 전용 — 신고
-                                                .requestMatchers(HttpMethod.POST, "/api/reports").hasRole("USER")
+                        // 🔒 회원 전용 — 신고
+                        .requestMatchers(HttpMethod.POST, "/api/reports").hasRole("USER")
 
-                                                // ✅ 관리자 로그인 — 인증 불필요
-                                                .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
+                        // ✅ 관리자 로그인 — 인증 불필요
+                        .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
 
-                                                // ✅ 달력(캘린더) 조회 — 비회원 허용
-                                                .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
+                        // ✅ 달력(캘린더) 조회 — 비회원 허용
+                        .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
 
-                                                // 🔒 관리자 전용 API
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                                                // ✅ 정적 파일 업로드 경로 허용 (로컬 이미지 접근 가능하게)
-                                                .requestMatchers("/uploads/**").permitAll()
+                        // 🔐 관리자 전용
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                                                // 🔒 그 외 인증 필요
-                                                .anyRequest().authenticated())
+                        // 🔒 그 외 인증 필요
+                        .anyRequest().authenticated()
+                )
 
-                                // 🚨 예외 처리 핸들러 (401, 403)
-                                .exceptionHandling(exception -> exception
-                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                                                .accessDeniedHandler(jwtAccessDeniedHandler))
+                // 🚨 예외 처리 핸들러 (401, 403)
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                        .accessDeniedHandler(jwtAccessDeniedHandler)
+                )
 
-                                // JWT 필터 추가
-                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                // JWT 필터 추가
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
-                return http.build();
-        }
+        return http.build();
+    }
 
-        @Bean
-        public PasswordEncoder passwordEncoder() {
-                return new BCryptPasswordEncoder();
-        }
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
