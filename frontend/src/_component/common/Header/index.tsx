@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, User } from "lucide-react";
+import api from "@/lib/api";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -63,6 +64,24 @@ export default function Header() {
 
         {/* ③④ 우측 액션 영역 */}
         <div className={styles.actions}>
+          {/* ⚙️ [DEV] 축제 상태 최신화 버튼 — 개발 완료 후 제거 */}
+          <button
+            className={styles.devRefreshBtn}
+            onClick={async () => {
+              try {
+                const res = await api.patch('/api/festivals/refresh-status');
+                const data = res.data;
+                alert(`✅ ${data.message} (${data.updatedCount}건 변경)`);
+                window.location.reload();
+              } catch (err) {
+                alert('❌ 상태 최신화 실패: ' + err);
+              }
+            }}
+            title="[DEV] 축제 status DB 일괄 갱신"
+          >
+            🔄 상태 최신화
+          </button>
+
           {/* ③ 알림 아이콘 — E3: 클릭 시 알림 목록 / 비회원은 로그인 유도 */}
           <Link
             href={isLoggedIn ? "/notifications" : "/auth/login"}

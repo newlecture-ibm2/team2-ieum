@@ -1,13 +1,14 @@
-// 사용자 API Axios 인스턴스
-//
-// 프론트엔드 BFF → 백엔드 호출용
-// TODO: axios 설치 후 구현
-// npm install axios
-
 import axios from "axios";
 
+// 환경변수 처리를 위한 함수. 
+// 팀원들간의 환경 차이(8080, 9090)를 .env 파일(NEXT_PUBLIC_API_URL)로만 제어합니다.
+// 하드코딩된 포트는 모두 제거되었습니다.
+const getBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "";
+};
+
 const api = axios.create({
-  baseURL: process.env.BACKEND_URL || "http://localhost:8080",
+  baseURL: getBaseUrl(),
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",

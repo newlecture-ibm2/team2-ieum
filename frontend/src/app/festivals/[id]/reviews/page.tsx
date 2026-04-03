@@ -3,7 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 import styles from './Reviews.module.css';
 
 export default function ReviewListPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,8 +21,7 @@ export default function ReviewListPage({ params }: { params: Promise<{ id: strin
   useEffect(() => {
     const fetchFestivalInfo = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
-        const res = await axios.get(`${baseUrl}/api/festivals/${fid}`);
+        const res = await api.get(`/api/festivals/${fid}`);
         if (res.data && res.data.success) {
           setFestivalData(res.data.data);
         }
@@ -37,10 +36,9 @@ export default function ReviewListPage({ params }: { params: Promise<{ id: strin
     const fetchReviews = async () => {
       setLoading(true);
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:9090';
         let apiSort = sort; // 'latest' or 'rating'
 
-        const res = await axios.get(`${baseUrl}/api/reviews?festivalId=${fid}&page=${page}&size=10&sort=${apiSort}`);
+        const res = await api.get(`/api/reviews?festivalId=${fid}&page=${page}&size=10&sort=${apiSort}`);
         if (res.data && res.data.success) {
           setReviews(res.data.data.content);
           setTotalPages(res.data.data.totalPages);
