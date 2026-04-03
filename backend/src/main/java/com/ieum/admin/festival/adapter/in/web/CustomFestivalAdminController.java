@@ -3,6 +3,8 @@ package com.ieum.admin.festival.adapter.in.web;
 import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
 import com.ieum.admin.festival.application.result.CustomFestivalListResult;
 import com.ieum.admin.festival.application.service.CustomFestivalAdminService;
+import com.ieum.admin.festival.application.service.CustomFestivalStatusScheduler;
+import com.ieum.festival.application.service.RegionSigunguSyncScheduler;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -20,6 +22,8 @@ import java.util.Map;
 public class CustomFestivalAdminController {
 
     private final CustomFestivalAdminService customFestivalAdminService;
+    private final RegionSigunguSyncScheduler regionSigunguSyncScheduler;
+    private final CustomFestivalStatusScheduler customFestivalStatusScheduler;
 
     @Operation(summary = "자체 기획 축제 목록 조회 (API_ADM_0040)")
     @GetMapping
@@ -31,9 +35,11 @@ public class CustomFestivalAdminController {
             @Parameter(description = "축제명 검색 키워드")
             @RequestParam(required = false) String keyword,
             @Parameter(description = "진행 상태 (UPCOMING/ONGOING/ENDED)")
-            @RequestParam(required = false) String status
+            @RequestParam(required = false) String status,
+            @Parameter(description = "숨김 제외 여부")
+            @RequestParam(required = false, defaultValue = "false") boolean excludeHidden
     ) {
-        CustomFestivalListResult result = customFestivalAdminService.getCustomFestivals(page, size, keyword, status);
+        CustomFestivalListResult result = customFestivalAdminService.getCustomFestivals(page, size, keyword, status, excludeHidden);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
@@ -68,6 +74,16 @@ public class CustomFestivalAdminController {
         customFestivalAdminService.deleteCustomFestival(festivalId);
         return ResponseEntity.ok(ApiResponse.success(
                 Map.of("status", "DELETED")
+        ));
+    }
+
+    @Operation(summary = "지역 마스터 및 축제 상태 동기화 (API_ADM_0044)")
+    @PostMapping("/sync")
+    public ResponseEntity<ApiResponse<Map<String, Object>>> syncCustomFestivalData() {
+        regionSigunguSyncScheduler.syncRegionsAndSigungus();
+        customFestivalStatusScheduler.updateCustomFestivalStatuses();
+        return ResponseEntity.ok(ApiResponse.success(
+                Map.of("status", "SYNC_COMPLETED")
         ));
     }
 }

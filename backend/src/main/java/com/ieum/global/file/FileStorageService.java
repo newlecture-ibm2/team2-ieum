@@ -19,8 +19,11 @@ import java.util.UUID;
 public class FileStorageService {
 
     private final Path fileStorageLocation;
+    private final String uploadPrefix;
 
-    public FileStorageService(@Value("${file.upload-dir:uploads}") String uploadDir) {
+    public FileStorageService(
+            @Value("${file.upload-dir:uploads}") String uploadDir,
+            @Value("${file.upload-prefix:/uploads/}") String uploadPrefix) {
         this.fileStorageLocation = Paths.get(uploadDir).toAbsolutePath().normalize();
         try {
             Files.createDirectories(this.fileStorageLocation);
@@ -28,6 +31,7 @@ public class FileStorageService {
             log.error("Could not create the directory where the uploaded files will be stored.", ex);
             throw new RuntimeException("Could not create upload directory", ex);
         }
+        this.uploadPrefix = uploadPrefix;
     }
 
     public String storeFile(MultipartFile file) {
@@ -50,7 +54,11 @@ public class FileStorageService {
             Path targetLocation = this.fileStorageLocation.resolve(newFileName);
             Files.copy(file.getInputStream(), targetLocation, StandardCopyOption.REPLACE_EXISTING);
 
-            return "/uploads/" + newFileName;
+            if (this.uploadPrefix.endsWith("/")) {
+                return this.uploadPrefix + newFileName;
+            } else {
+                return this.uploadPrefix + "/" + newFileName;
+            }
         } catch (IOException ex) {
             throw new RuntimeException("Could not store file " + originalFileName + ". Please try again!", ex);
         }

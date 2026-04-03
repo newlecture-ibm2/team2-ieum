@@ -20,5 +20,13 @@ const nextConfig: NextConfig = {
       }
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/uploads/:path*',
+        destination: 'http://localhost:8080/uploads/:path*', // Proxy to Backend for local development
+      },
+    ];
+  },
 };
 export default nextConfig;

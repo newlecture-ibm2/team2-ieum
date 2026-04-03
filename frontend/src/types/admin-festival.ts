@@ -102,6 +102,7 @@ export interface RegionOptionDto {
   label: string;
   value: string;
   type: string;
+  active?: boolean;
 }
 
 export interface CategoryOptionDto {

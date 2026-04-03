@@ -107,6 +107,9 @@ public class SecurityConfig {
                         // 🔐 관리자 전용 (임시 개발용 전체 허용)
                         .requestMatchers("/api/admin/**").permitAll()
 
+                        // ✅ 정적 파일 업로드 경로 허용 (로컬 이미지 접근 가능하게)
+                        .requestMatchers("/uploads/**").permitAll()
+
                         // 🔒 그 외 인증 필요
                         .anyRequest().authenticated()
                 )

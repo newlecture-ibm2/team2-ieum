@@ -28,6 +28,15 @@ public class CustomFestivalItem {
     private String content;
     private String imgUrl;
     private String extraImages;
+    
+    // New Fields
+    private String eventPlace;
+    private String address;
+    private String useFee;
+    private String playTime;
+    private String tel;
+    private String homepage;
+    private String sigunguCode;
 
     public static CustomFestivalItem from(Festival festival, String resolvedLabel, String categoryLabel) {
         return CustomFestivalItem.builder()
@@ -45,6 +54,13 @@ public class CustomFestivalItem {
                 .content(festival.getDescription())
                 .imgUrl(festival.getImageUrl())
                 .extraImages(festival.getExtraImages())
+                .eventPlace(festival.getEventPlace())
+                .address(festival.getAddress())
+                .useFee(festival.getUseFee())
+                .playTime(festival.getPlayTime())
+                .tel(festival.getTel())
+                .homepage(festival.getHomepage())
+                .sigunguCode(festival.getSigunguCode())
                 .build();
     }
 }

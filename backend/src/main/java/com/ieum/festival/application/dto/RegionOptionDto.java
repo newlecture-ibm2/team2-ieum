@@ -13,4 +13,6 @@ public class RegionOptionDto {
     private String label;
     private String value;
     private String type;
+    @Builder.Default
+    private boolean active = true;
 }

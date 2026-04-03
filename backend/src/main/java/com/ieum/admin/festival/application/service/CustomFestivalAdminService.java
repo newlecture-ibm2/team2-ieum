@@ -14,13 +14,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -34,7 +32,7 @@ public class CustomFestivalAdminService {
     private final com.ieum.festival.application.service.CategoryOptionService categoryOptionService;
 
     @Transactional(readOnly = true)
-    public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam) {
+    public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam, boolean excludeHidden) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
         
         FestivalStatus status = null;
@@ -46,7 +44,12 @@ public class CustomFestivalAdminService {
             }
         }
 
-        Page<Festival> festivalPage = repository.searchCustomFestivals(keyword, status, pageable);
+        Page<Festival> festivalPage;
+        if (excludeHidden) {
+            festivalPage = repository.searchVisibleCustomFestivals(keyword, status, pageable);
+        } else {
+            festivalPage = repository.searchCustomFestivals(keyword, status, pageable);
+        }
 
         List<CustomFestivalItem> items = festivalPage.getContent().stream()
                 .map(festival -> {
@@ -56,12 +59,22 @@ public class CustomFestivalAdminService {
                 })
                 .collect(Collectors.toList());
 
-        com.ieum.admin.festival.application.result.FestivalStatusCountsResult statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
-                .total(repository.countCustomFestivals())
-                .ongoing(repository.countCustomFestivalsByStatus(FestivalStatus.ONGOING))
-                .upcoming(repository.countCustomFestivalsByStatus(FestivalStatus.UPCOMING))
-                .ended(repository.countCustomFestivalsByStatus(FestivalStatus.ENDED))
-                .build();
+        com.ieum.admin.festival.application.result.FestivalStatusCountsResult statusCounts;
+        if (excludeHidden) {
+            statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
+                    .total(repository.countVisibleCustomFestivals())
+                    .ongoing(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.ONGOING))
+                    .upcoming(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.UPCOMING))
+                    .ended(repository.countVisibleCustomFestivalsByStatus(FestivalStatus.ENDED))
+                    .build();
+        } else {
+            statusCounts = com.ieum.admin.festival.application.result.FestivalStatusCountsResult.builder()
+                    .total(repository.countCustomFestivals())
+                    .ongoing(repository.countCustomFestivalsByStatus(FestivalStatus.ONGOING))
+                    .upcoming(repository.countCustomFestivalsByStatus(FestivalStatus.UPCOMING))
+                    .ended(repository.countCustomFestivalsByStatus(FestivalStatus.ENDED))
+                    .build();
+        }
 
         return CustomFestivalListResult.builder()
                 .totalElements(festivalPage.getTotalElements())
@@ -84,7 +97,15 @@ public class CustomFestivalAdminService {
                 .endDate(request.getEndDate())
                 .description(request.getContent())
                 .category(request.getCategory())
+                .eventPlace(request.getEventPlace())
+                .address(request.getAddress())
+                .useFee(request.getUseFee())
+                .playTime(request.getPlayTime())
+                .tel(request.getTel())
+                .homepage(request.getHomepage())
+                .sigunguCode(request.getSigunguCode())
                 .imageUrl(imgUrl)
+                .thumbnailUrl(imgUrl) // 대표이미지(imageUrl)와 썸네일(thumbnailUrl) 공용 사용 (사용자 요구사항 отраж)
                 .isCustom(true)
                 .source(FestivalSource.MANUAL)
                 .isVisible(request.getIsVisible() != null ? request.getIsVisible() : true)
@@ -122,6 +143,15 @@ public class CustomFestivalAdminService {
         festival.setDescription(request.getContent());
         festival.setCategory(request.getCategory());
         festival.setStatus(calculateStatus(request.getStartDate(), request.getEndDate()));
+        
+        // 추가 세부 필드
+        festival.setEventPlace(request.getEventPlace());
+        festival.setAddress(request.getAddress());
+        festival.setUseFee(request.getUseFee());
+        festival.setPlayTime(request.getPlayTime());
+        festival.setTel(request.getTel());
+        festival.setHomepage(request.getHomepage());
+        festival.setSigunguCode(request.getSigunguCode());
 
         if (request.getIsVisible() != null) {
             festival.setVisible(request.getIsVisible());
@@ -130,6 +160,7 @@ public class CustomFestivalAdminService {
         if (request.getImg() != null && !request.getImg().isEmpty()) {
             String imgUrl = fileStorageService.storeFile(request.getImg());
             festival.setImageUrl(imgUrl);
+            festival.setThumbnailUrl(imgUrl); // 대표이미지와 썸네일 동기화
         }
 
         if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {

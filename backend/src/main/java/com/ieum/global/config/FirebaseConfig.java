@@ -21,16 +21,20 @@ public class FirebaseConfig {
     @PostConstruct
     public void init() {
         try {
-            if (FirebaseApp.getApps().isEmpty()) {
-                InputStream serviceAccount = firebaseConfigPath.getInputStream();
-                FirebaseOptions options = FirebaseOptions.builder()
-                        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                        .build();
-                FirebaseApp.initializeApp(options);
-                log.info("🔥 FirebaseApp 초기화 성공");
+            if (firebaseConfigPath != null && firebaseConfigPath.exists()) {
+                if (FirebaseApp.getApps().isEmpty()) {
+                    InputStream serviceAccount = firebaseConfigPath.getInputStream();
+                    FirebaseOptions options = FirebaseOptions.builder()
+                            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                            .build();
+                    FirebaseApp.initializeApp(options);
+                    log.info("🔥 FirebaseApp 초기화 성공");
+                }
+            } else {
+                log.warn("🔥 FirebaseApp 초기화 건너뜀 (firebase-service-key.json 파일 없음)");
             }
         } catch (Exception e) {
-            log.error("💥 FirebaseApp 초기화 실패: {}", e.getMessage(), e);
+            log.warn("💥 FirebaseApp 초기화 실패 (무시됨): {}", e.getMessage());
         }
     }
 }

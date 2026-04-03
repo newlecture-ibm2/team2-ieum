@@ -16,13 +16,14 @@ services:
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET 환경변수가 설정되지 않았습니다.}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
       - FILE_UPLOAD_DIR=/app/upload
+      - FILE_UPLOAD_PREFIX=/upload/
       - UPLOAD_LOCATION=file:/app/upload/
       - TOUR_API_SERVICE_KEY=${TOUR_API_SERVICE_KEY}
       - TOUR_API_BASE_URL=${TOUR_API_BASE_URL:-https://apis.data.go.kr/B551011/KorService2}
     restart: unless-stopped
     depends_on:
       - db
-
+wls
   frontend:
     image: ${FRONTEND_IMAGE:-${USER_ID}-frontend:latest}
     build:

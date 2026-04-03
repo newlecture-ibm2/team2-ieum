@@ -2,6 +2,8 @@
 description: 
 ---
 
+--현재 jwt (Security 설정 임시 해제) 
+
 Before performing any action, always inspect the .agent/workflows directory.
 	•	Treat it as the single source of truth for workflow, structure, and conventions.
 	•	Follow its instructions strictly.

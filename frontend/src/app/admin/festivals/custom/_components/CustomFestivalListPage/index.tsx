@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import Script from 'next/script';
 import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse, RegionOptionDto, CategoryOptionDto } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
 import styles from './CustomFestivalListPage.module.css';
@@ -10,9 +11,6 @@ function formatDateRange(startDateStr: string, endDateStr: string): string {
   if (!startDateStr || !endDateStr) return '';
   const start = startDateStr.replace(/-/g, '.');
   const end = endDateStr.replace(/-/g, '.');
-  if (start.substring(0, 4) === end.substring(0, 4)) {
-    return `${start} ~ ${end.substring(5)}`;
-  }
   return `${start} ~ ${end}`;
 }
 
@@ -43,6 +41,7 @@ export default function CustomFestivalListPage() {
   const [keyword, setKeyword] = useState(initialKeyword);
   const [searchTerm, setSearchTerm] = useState(initialKeyword);
   const [statusFilter, setStatusFilter] = useState(initialStatus);
+  const [excludeHidden, setExcludeHidden] = useState(false);
   const [currentPage, setCurrentPage] = useState(initialPage);
   
   const [totalPages, setTotalPages] = useState(1);
@@ -54,8 +53,9 @@ export default function CustomFestivalListPage() {
     if (currentPage > 1) params.set('page', currentPage.toString());
     if (keyword) params.set('keyword', keyword);
     if (statusFilter) params.set('status', statusFilter);
+    if (excludeHidden) params.set('excludeHidden', String(excludeHidden));
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [currentPage, keyword, statusFilter, pathname, router]);
+  }, [currentPage, keyword, statusFilter, excludeHidden, pathname, router]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -74,12 +74,17 @@ export default function CustomFestivalListPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
-    title: '', areaCode: '', startDate: getToday(), endDate: getToday(), category: '', content: '', isVisible: true
+    title: '', areaCode: '', startDate: getToday(), endDate: getToday(), category: '', content: '', isVisible: true,
+    eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '', endTime: '', tel: '', homepage: '', sigunguCode: ''
   });
   const [file, setFile] = useState<File | null>(null);
   const [extraFiles, setExtraFiles] = useState<File[]>([]);
   const [mainPreview, setMainPreview] = useState<string | null>(null);
   const [extraPreviews, setExtraPreviews] = useState<string[]>([]);
+  const [enlargedImage, setEnlargedImage] = useState<string | null>(null);
+  const [errors, setErrors] = useState<Record<string, string | undefined>>({});
+  const [sigunguOptions, setSigunguOptions] = useState<RegionOptionDto[]>([]);
+  const [isFree, setIsFree] = useState(false);
 
   // 모달 띄워졌을 때 배경 스크롤 방지
   useEffect(() => {
@@ -101,6 +106,7 @@ export default function CustomFestivalListPage() {
           size: 10,
           keyword: keyword || undefined,
           status: statusFilter || undefined,
+          excludeHidden: excludeHidden || undefined,
         },
       });
       if (res.data.success && res.data.data) {
@@ -115,7 +121,7 @@ export default function CustomFestivalListPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, keyword, statusFilter]);
+  }, [currentPage, keyword, statusFilter, excludeHidden]);
 
   const fetchRegionOptions = useCallback(async () => {
     try {
@@ -139,6 +145,53 @@ export default function CustomFestivalListPage() {
     }
   }, []);
 
+  const fetchSigungus = async (areaCode: string) => {
+    if (!areaCode) return;
+    const isStandard = regionOptions.some(r => r.value === areaCode && r.type === 'STANDARD');
+    if (isStandard) {
+      try {
+        const res = await adminApi.get<ApiResponse<RegionOptionDto[]>>(`/festivals/regions/${areaCode}/sigungus`);
+        if (res.data.success && res.data.data) {
+          setSigunguOptions(res.data.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch sigungu options:', error);
+      }
+    } else {
+      setSigunguOptions([]);
+    }
+  };
+
+  const handleAreaCodeChange = (newAreaCode: string) => {
+    setFormData(prev => ({ ...prev, areaCode: newAreaCode, sigunguCode: '' }));
+    setErrors(prev => ({ ...prev, areaCode: undefined }));
+    fetchSigungus(newAreaCode);
+  };
+
+  const openPostcode = () => {
+    const loadAndOpen = () => {
+      new (window as any).daum.Postcode({
+        oncomplete: function(data: any) {
+          const fullAddress = data.roadAddress || data.jibunAddress;
+          setFormData(prev => ({ ...prev, address: fullAddress }));
+        }
+      }).open();
+    };
+
+    if (typeof window !== 'undefined' && (window as any).daum && (window as any).daum.Postcode) {
+      loadAndOpen();
+    } else {
+      const script = document.createElement('script');
+      script.src = "//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js";
+      script.onload = () => {
+        (window as any).daum.postcode.load(() => {
+          loadAndOpen();
+        });
+      };
+      document.head.appendChild(script);
+    }
+  };
+
   useEffect(() => {
     fetchFestivals();
   }, [fetchFestivals]);
@@ -151,11 +204,15 @@ export default function CustomFestivalListPage() {
   const resetForm = () => {
     setEditingId(null);
     const today = getToday();
-    setFormData({ title: '', areaCode: '', startDate: today, endDate: today, category: '', content: '', isVisible: true });
+    setFormData({ 
+      title: '', areaCode: '', startDate: today, endDate: today, category: '', content: '', isVisible: true,
+      eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '09:00', endTime: '18:00', tel: '', homepage: '', sigunguCode: ''
+    });
     setFile(null);
     setExtraFiles([]);
     setMainPreview(null);
     setExtraPreviews([]);
+    setErrors({});
     setShowForm(false);
   };
 
@@ -173,19 +230,89 @@ export default function CustomFestivalListPage() {
       endDate: fst.endDate || '',
       category: fst.category || '',
       content: fst.content || '',
-      isVisible: fst.isVisible
+      isVisible: fst.isVisible,
+      // @ts-ignore
+      eventPlace: (fst as any).eventPlace || '',
+      address: (fst as any).address || '',
+      detailAddress: '',
+      useFee: String((fst as any).useFee || ''),
+      startTime: ((fst as any).playTime || '').split(' ~ ')[0] || '',
+      endTime: ((fst as any).playTime || '').split(' ~ ')[1] || '',
+      tel: (fst as any).tel || '',
+      homepage: (fst as any).homepage || '',
+      sigunguCode: (fst as any).sigunguCode || ''
     });
     setFile(null);
-    setExtraFiles([]);
     setMainPreview(fst.imgUrl || null);
     setExtraPreviews(fst.extraImages ? fst.extraImages.split(',') : []);
+    
+    // reset extraFiles when opening form since it's only meant for newly uploaded files
+    setExtraFiles([]);
+    setErrors({});
+    
+    // Check if free
+    if ((fst as any).useFee === '무료') {
+      setIsFree(true);
+    } else {
+      setIsFree(false);
+    }
+
     setShowForm(true);
+    
+    // Fetch sigungu if area code is standard
+    if (fst.areaCode) {
+      setTimeout(() => fetchSigungus(fst.areaCode), 0); // Allow regionOptions to be accessible or if it's dependent on state
+    }
   };
 
   const handleSubmit = async () => {
-    if (!formData.title || !formData.startDate || !formData.endDate || !formData.areaCode) {
-      return alert('필수 값(축제명, 지역, 날짜)을 입력해주세요.');
+    const newErrors: Record<string, string | undefined> = {};
+    if (!formData.title.trim()) newErrors.title = '축제명을 입력해주세요.';
+    else if (formData.title.length > 100) newErrors.title = '축제명은 100자 이내로 입력하세요.';
+    
+    if (!formData.areaCode) newErrors.areaCode = '개최 지역을 선택해주세요.';
+    if (!formData.startDate) newErrors.startDate = '시작일을 선택해주세요.';
+    if (!formData.endDate) newErrors.endDate = '종료일을 선택해주세요.';
+    if (!formData.category) newErrors.category = '카테고리를 선택해주세요.';
+    
+    if (formData.startDate && formData.endDate && formData.startDate > formData.endDate) {
+      newErrors.endDate = '종료일은 시작일 이후여야 합니다.';
     }
+    if (formData.startTime && formData.endTime && formData.startTime > formData.endTime) {
+      newErrors.endTime = '종료 시간은 시작 시간 이후여야 합니다.';
+    }
+    if (formData.tel && !/^[\d-]+$/.test(formData.tel)) {
+      newErrors.tel = '올바른 전화번호 형식이 아닙니다. (숫자와 하이픈만)';
+    }
+    if (formData.homepage && !/^https?:\/\/.+/.test(formData.homepage)) {
+      newErrors.homepage = 'http:// 또는 https:// 로 시작하는 주소여야 합니다.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return; // Stop submission
+    }
+
+    if (formData.eventPlace && formData.eventPlace.length > 100) {
+      alert('행사장명은 100자 이내로 입력하세요.');
+      return;
+    }
+    
+    if (formData.content && formData.content.length > 2000) {
+      alert('상세 내용은 2000자 이내로 입력하세요.');
+      return;
+    }
+    
+    if (!isFree && formData.useFee && /[^0-9,]/.test(formData.useFee)) {
+      alert('이용 요금은 숫자만 입력할 수 있습니다.');
+      return;
+    }
+
+    if (!file && !mainPreview) {
+      alert('대표 이미지는 필수 등록 항목입니다.');
+      return;
+    }
+
     try {
       const data = new FormData();
       data.append('title', formData.title);
@@ -195,6 +322,20 @@ export default function CustomFestivalListPage() {
       data.append('category', formData.category);
       data.append('content', formData.content);
       data.append('isVisible', String(formData.isVisible));
+      
+      const fullAddress = [formData.address, formData.detailAddress].filter(Boolean).join(' ');
+      
+      if (formData.eventPlace) data.append('eventPlace', formData.eventPlace);
+      if (fullAddress) data.append('address', fullAddress);
+      
+      const finalFee = isFree ? '무료' : formData.useFee;
+      if (finalFee) data.append('useFee', finalFee);
+      
+      const builtPlayTime = [formData.startTime, formData.endTime].filter(Boolean).join(' ~ ');
+      if (builtPlayTime) data.append('playTime', builtPlayTime);
+      if (formData.tel) data.append('tel', formData.tel);
+      if (formData.homepage) data.append('homepage', formData.homepage);
+      if (formData.sigunguCode) data.append('sigunguCode', formData.sigunguCode);
       if (file) {
         data.append('img', file);
       }
@@ -254,6 +395,23 @@ export default function CustomFestivalListPage() {
     }
   };
 
+  const handleSyncButton = async () => {
+    if (!confirm('지역 마스터 데이터 및 자체 기획 축제 상태 동기화를 진행하시겠습니까?')) return;
+    try {
+      const res = await adminApi.post('/festivals/custom/sync');
+      if (res.data.success) {
+        alert('동기화가 신속하게 완료되었습니다.');
+        fetchFestivals();
+        fetchRegionOptions();
+      } else {
+        alert('동기화 실패: ' + res.data.error?.message);
+      }
+    } catch (error) {
+      console.error('Failed to sync locally', error);
+      alert('오류가 발생했습니다.');
+    }
+  };
+
   return (
     <div className={styles.container}>
       <header className={styles.pageHeader}>
@@ -269,10 +427,16 @@ export default function CustomFestivalListPage() {
             <div className={styles.kpiTitle}>축제 현황 및 관리</div>
             <div className={styles.kpiSubtitle}>자체적으로 등록한 축제들의 상태 통계입니다.</div>
           </div>
-          <button onClick={handleOpenCreateForm} className={styles.addButton}>
-            <span>+</span>
-            <span>축제 등록</span>
-          </button>
+          <div style={{ display: 'flex', gap: '8px' }}>
+            <button onClick={handleSyncButton} className={styles.filterBtn} style={{ background: '#f8fafc', color: '#334155', border: '1px solid #cbd5e1' }}>
+              <span>🔄</span>
+              <span style={{ marginLeft: '4px' }}>동기화 실행</span>
+            </button>
+            <button onClick={handleOpenCreateForm} className={styles.addButton}>
+              <span>+</span>
+              <span>축제 등록</span>
+            </button>
+          </div>
         </div>
         <div className={styles.statGrid}>
         <div 
@@ -307,6 +471,16 @@ export default function CustomFestivalListPage() {
       </section>
 
       <section className={styles.filterBar}>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button 
+            className={`${styles.filterBtn} ${!excludeHidden ? styles.activeFilter : ''}`} 
+            onClick={() => { setExcludeHidden(false); setCurrentPage(1); }}
+          >전체 보기</button>
+          <button 
+            className={`${styles.filterBtn} ${excludeHidden ? styles.activeFilter : ''}`} 
+            onClick={() => { setExcludeHidden(true); setCurrentPage(1); }}
+          >숨김 제외</button>
+        </div>
         <input
           type="text"
           className={styles.searchInput}
@@ -391,117 +565,326 @@ export default function CustomFestivalListPage() {
       </section>
 
       {showForm && (
-        <div className={styles.modalOverlay} onClick={resetForm}>
-          <div 
-            className={styles.modalContent} 
-            onClick={(e) => e.stopPropagation()} /* 오버레이 클릭 시에만 닫히도록 */
-          >
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalContent}>
             <div className={styles.modalHeader}>
               <div className={styles.formTitle}>📝 자체 기획 축제 {editingId ? '수정' : '등록'}</div>
               <button className={styles.closeBtn} onClick={resetForm}>✕</button>
             </div>
             
-            <div className={styles.formGrid}>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>축제명</label>
-              <input type="text" className={styles.formInput} value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} placeholder="축제 이름 입력" />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>개최 지역 / 유형</label>
-              <select 
-                className={styles.formSelect} 
-                value={formData.areaCode} 
-                onChange={e => setFormData({ ...formData, areaCode: e.target.value })}
-              >
-                <option value="" disabled>지역을 선택하세요</option>
-                
-                <optgroup label="표준 지역 (공공 API)">
-                  {regionOptions.filter(o => o.type === 'STANDARD').map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </optgroup>
-                
-                <optgroup label="자체 예외 지역">
-                  {regionOptions.filter(o => o.type === 'CUSTOM').map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>시작일</label>
-              <input type="date" className={styles.formInput} value={formData.startDate} onChange={e => setFormData({ ...formData, startDate: e.target.value })} />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>종료일</label>
-              <input type="date" className={styles.formInput} value={formData.endDate} onChange={e => setFormData({ ...formData, endDate: e.target.value })} />
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>카테고리</label>
-              <select 
-                className={styles.formSelect} 
-                value={formData.category} 
-                onChange={e => setFormData({ ...formData, category: e.target.value })}
-              >
-                <option value="" disabled>카테고리를 선택하세요</option>
-                
-                <optgroup label="표준 (공공 API) 분류">
-                  {categoryOptions.filter(o => o.type === 'STANDARD').map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </optgroup>
-                
-                <optgroup label="자체 기획 특수 분류">
-                  {categoryOptions.filter(o => o.type === 'CUSTOM').map(o => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </optgroup>
-              </select>
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>대표 이미지</label>
-              <input type="file" className={styles.formInput} accept="image/*" onChange={e => {
-                const f = e.target.files?.[0] || null;
-                setFile(f);
-                if (f) setMainPreview(URL.createObjectURL(f));
-                else setMainPreview(null);
-              }} />
-              {mainPreview && <img src={mainPreview.startsWith('/') || mainPreview.startsWith('http') || mainPreview.startsWith('blob:') ? mainPreview : `http://localhost:8080${mainPreview}`} alt="대표 이미지 미리보기" style={{ marginTop: '8px', width: '100px', height: '100px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />}
-            </div>
-            <div className={styles.formGroup}>
-              <label className={styles.formLabel}>갤러리 이미지 (최대 7장)</label>
-              <input type="file" multiple className={styles.formInput} accept="image/*" onChange={e => {
-                const files = Array.from(e.target.files || []).slice(0, 7);
-                setExtraFiles(files);
-                setExtraPreviews(files.map(f => URL.createObjectURL(f)));
-              }} />
-              {extraPreviews.length > 0 && (
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', flexWrap: 'wrap' }}>
-                  {extraPreviews.map((p, i) => (
-                    <img key={i} src={p.startsWith('/') || p.startsWith('http') || p.startsWith('blob:') ? p : `http://localhost:8080${p}`} alt={`갤러리 미리보기 ${i+1}`} style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '4px', border: '1px solid #cbd5e1' }} />
-                  ))}
+            <div className={styles.formGrid} style={{ overflowY: 'auto' }}>
+                {/* --- 좌측 컬럼 --- */}
+                <div className={styles.layoutLeft}>
+                  
+                  {/* 기본 정보 */}
+                  <div className={styles.formSection}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}><span className={styles.requiredStar}>*</span> 축제명</label>
+                      <input type="text" maxLength={100} className={`${styles.formInput} ${errors.title ? styles.errorInput : ''}`} value={formData.title} onChange={e => { setFormData({ ...formData, title: e.target.value }); setErrors(prev => ({ ...prev, title: undefined })); }} placeholder="축제 이름 입력" />
+                      {errors.title && <span className={styles.errorText}>⚠ {errors.title}</span>}
+                    </div>
+                    <div className={styles.formRowAligned}>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}><span className={styles.requiredStar}>*</span> 개최 지역</label>
+                        <select 
+                          className={`${styles.formSelect} ${errors.areaCode ? styles.errorInput : ''}`} 
+                          value={formData.areaCode} 
+                          onChange={e => handleAreaCodeChange(e.target.value)}
+                        >
+                          <option value="" disabled>지역 선택</option>
+                          <optgroup label="표준 (공공 API)">
+                            {regionOptions.filter(o => o.type === 'STANDARD').map(o => (
+                              <option key={o.value} value={o.value} disabled={o.active === false} style={o.active === false ? { color: '#999' } : {}}>
+                                {o.label} {o.active === false ? '(비활성)' : ''}
+                              </option>
+                            ))}
+                          </optgroup>
+                          <optgroup label="자체 예외 지역">
+                            {regionOptions.filter(o => o.type === 'CUSTOM').map(o => (
+                              <option key={o.value} value={o.value} disabled={o.active === false} style={o.active === false ? { color: '#999' } : {}}>
+                                {o.label} {o.active === false ? '(비활성)' : ''}
+                              </option>
+                            ))}
+                          </optgroup>
+                        </select>
+                        {errors.areaCode && <span className={styles.errorText}>⚠ {errors.areaCode}</span>}
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>시군구</label>
+                        <select 
+                          className={`${styles.formSelect} ${errors.sigunguCode ? styles.errorInput : ''} ${sigunguOptions.length === 0 ? styles.disabledField : ''}`} 
+                          value={formData.sigunguCode} 
+                          onChange={e => setFormData({ ...formData, sigunguCode: e.target.value })}
+                          disabled={sigunguOptions.length === 0}
+                        >
+                          <option value="">{sigunguOptions.length === 0 ? '선택 불필요' : '시군구 선택'}</option>
+                          {sigunguOptions.map(opt => (
+                            <option key={opt.value} value={opt.value} disabled={opt.active === false} style={opt.active === false ? { color: '#999' } : {}}>
+                              {opt.label} {opt.active === false ? '(비활성)' : ''}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}><span className={styles.requiredStar}>*</span> 카테고리</label>
+                      <select 
+                        className={`${styles.formSelect} ${errors.category ? styles.errorInput : ''}`} 
+                        value={formData.category} 
+                        onChange={e => { setFormData({ ...formData, category: e.target.value }); setErrors(prev => ({ ...prev, category: undefined })); }}
+                      >
+                        <option value="" disabled>분류 선택</option>
+                        <optgroup label="표준 분류">
+                          {categoryOptions.filter(o => o.type === 'STANDARD').map(o => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                        <optgroup label="특수 분류">
+                          {categoryOptions.filter(o => o.type === 'CUSTOM').map(o => (
+                            <option key={o.value} value={o.value}>{o.label}</option>
+                          ))}
+                        </optgroup>
+                      </select>
+                      {errors.category && <span className={styles.errorText}>⚠ {errors.category}</span>}
+                    </div>
+                  </div>
+
+                  {/* 일정 & 운영 */}
+                  <div className={styles.formSection}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}><span className={styles.requiredStar}>*</span> 축제 기간</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                        <input type="date" className={`${styles.formInput} ${errors.startDate ? styles.errorInput : ''}`} value={formData.startDate} onChange={e => { setFormData({ ...formData, startDate: e.target.value }); setErrors(prev => ({ ...prev, startDate: undefined, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        <span style={{ color: '#94a3b8' }}>~</span>
+                        <input type="date" className={`${styles.formInput} ${errors.endDate ? styles.errorInput : ''}`} value={formData.endDate} onChange={e => { setFormData({ ...formData, endDate: e.target.value }); setErrors(prev => ({ ...prev, endDate: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                      </div>
+                      {(errors.startDate || errors.endDate) && <span className={styles.errorText}>⚠ {errors.startDate || errors.endDate}</span>}
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>운영 시간</label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
+                        <input type="time" className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.startTime} onChange={e => { setFormData({ ...formData, startTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        <span style={{ color: '#94a3b8' }}>~</span>
+                        <input type="time" className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.endTime} onChange={e => { setFormData({ ...formData, endTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                      </div>
+                      {errors.endTime && <span className={styles.errorText}>⚠ {errors.endTime}</span>}
+                    </div>
+                  </div>
+
+                  {/* 장소 & 연락 */}
+                  <div className={styles.formSection}>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>행사장명</label>
+                      <input type="text" maxLength={100} className={styles.formInput} value={formData.eventPlace} onChange={e => setFormData({ ...formData, eventPlace: e.target.value })} placeholder="예: 킨텍스 1전시장" />
+                    </div>
+                    <div className={styles.formGroup} style={{ alignItems: 'flex-start' }}>
+                      <label className={styles.formLabel} style={{ marginTop: '8px' }}>주소</label>
+                      <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <input 
+                            type="text" 
+                            className={`${styles.formInput} ${styles.disabledField}`} 
+                            style={{ flex: 1 }}
+                            value={formData.address} 
+                            readOnly
+                            placeholder="기본 주소 (검색)" 
+                          />
+                          <button 
+                            type="button" 
+                            onClick={openPostcode}
+                            className={styles.searchBtn}
+                          >
+                            찾기
+                          </button>
+                        </div>
+                        <input 
+                          type="text" 
+                          maxLength={100}
+                          className={styles.formInput} 
+                          style={{ width: '100%' }}
+                          value={formData.detailAddress} 
+                          onChange={e => setFormData({ ...formData, detailAddress: e.target.value })} 
+                          placeholder="상세 주소 입력" 
+                        />
+                      </div>
+                    </div>
+                    <div className={styles.formGroup}>
+                      <label className={styles.formLabel}>이용 요금</label>
+                      <div style={{ display: 'flex', gap: '12px', alignItems: 'center', flex: 1, minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          <input 
+                            type="text" 
+                            maxLength={20}
+                            className={`${styles.formInput} ${isFree ? styles.disabledField : ''}`} 
+                            value={formData.useFee ? Number(formData.useFee.replace(/,/g, '')).toLocaleString() : ''} 
+                            onChange={e => setFormData({ ...formData, useFee: e.target.value.replace(/[^0-9]/g, '') })} 
+                            placeholder={isFree ? "무료 행사" : "예: 10,000"} 
+                            style={{ width: '160px', flex: 'none' }} 
+                            disabled={isFree}
+                          />
+                          <span style={{ color: '#475569', fontSize: '13px', fontWeight: 500 }}>원</span>
+                        </div>
+                        <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', userSelect: 'none', marginLeft: '8px' }}>
+                          <input type="checkbox" checked={isFree} onChange={e => { setIsFree(e.target.checked); if (e.target.checked) setFormData({ ...formData, useFee: '' }); }} /> 무료
+                        </label>
+                      </div>
+                    </div>
+                    <div className={styles.formRowAligned}>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>문의 연락처</label>
+                        <input type="tel" maxLength={13} className={`${styles.formInput} ${errors.tel ? styles.errorInput : ''}`} value={formData.tel} onChange={e => { setFormData({ ...formData, tel: e.target.value }); setErrors(prev => ({ ...prev, tel: undefined })); }} placeholder="예: 02-1234-5678" />
+                        {errors.tel && <span className={styles.errorText}>⚠ {errors.tel}</span>}
+                      </div>
+                      <div className={styles.formGroup}>
+                        <label className={styles.formLabel}>공식 홈페이지</label>
+                        <input type="url" maxLength={255} className={`${styles.formInput} ${errors.homepage ? styles.errorInput : ''}`} value={formData.homepage} onChange={e => { setFormData({ ...formData, homepage: e.target.value }); setErrors(prev => ({ ...prev, homepage: undefined })); }} placeholder="http://..." />
+                        {errors.homepage && <span className={styles.errorText}>⚠ {errors.homepage}</span>}
+                      </div>
+                    </div>
+                  </div>
                 </div>
-              )}
-            </div>
-            <div className={`${styles.formGroup} ${styles.formFullWidth}`}>
-              <label className={styles.formLabel}>상세 내용</label>
-              <textarea className={styles.formTextarea} value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} placeholder="축제 상세 설명을 입력하세요" />
-            </div>
-            {editingId && (
-              <div className={`${styles.formGroup} ${styles.formFullWidth}`}>
-                <label className={styles.formLabel}>노출 여부</label>
-                <select className={styles.formSelect} value={formData.isVisible ? 'true' : 'false'} onChange={e => setFormData({ ...formData, isVisible: e.target.value === 'true' })}>
-                  <option value="true">공개</option>
-                  <option value="false">숨김</option>
-                </select>
+
+                {/* --- 우측 컬럼 --- */}
+                <div className={styles.layoutRight}>
+                  {/* 콘텐츠 */}
+                  <div className={styles.formSection} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+                    
+                    <div className={styles.formGroupColumn}>
+                      <label className={styles.formLabelColumn}><span className={styles.requiredStar}>*</span> 대표 이미지</label>
+                      <label 
+                        className={styles.imageUploadBox}
+                        onDragOver={e => e.preventDefault()}
+                        onDrop={e => {
+                          e.preventDefault();
+                          const f = e.dataTransfer.files?.[0];
+                          if (f) { setFile(f); setMainPreview(URL.createObjectURL(f)); }
+                        }}
+                      >
+                        <input type="file" style={{ display: 'none' }} accept="image/*" onChange={e => {
+                          const f = e.target.files?.[0] || null;
+                          setFile(f);
+                          if (f) setMainPreview(URL.createObjectURL(f));
+                          else setMainPreview(null);
+                        }} />
+                        {mainPreview ? (
+                          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', width: '100%', padding: '16px', gap: '16px', boxSizing: 'border-box' }}>
+                            <img 
+                              src={mainPreview.startsWith('http') || mainPreview.startsWith('blob:') ? mainPreview : `${process.env.NEXT_PUBLIC_BACKEND_URL || ''}${mainPreview.startsWith('/') ? '' : '/'}${mainPreview}`} 
+                              alt="대표 이미지" 
+                              style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #e2e8f0' }}
+                              onClick={(e) => { e.preventDefault(); e.stopPropagation(); setEnlargedImage(mainPreview.startsWith('http') || mainPreview.startsWith('blob:') ? mainPreview : `${process.env.NEXT_PUBLIC_BACKEND_URL || ''}${mainPreview.startsWith('/') ? '' : '/'}${mainPreview}`); }} 
+                            />
+                            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'flex-start' }}>
+                              <span style={{ fontSize: '13px', color: '#1e293b', fontWeight: 600 }}>대표 이미지 등록됨</span>
+                              <span style={{ fontSize: '12px', color: '#64748b', marginTop: '2px' }}>클릭하여 변경 (또는 드래그앤드롭)</span>
+                            </div>
+                            <div style={{ padding: '8px 14px', backgroundColor: '#ffffff', border: '1px solid #cbd5e1', borderRadius: '6px', fontSize: '12px', color: '#475569', fontWeight: 600, boxShadow: '0 1px 2px rgba(0,0,0,0.05)' }}>
+                              이미지 변경
+                            </div>
+                          </div>
+                        ) : (
+                          <>
+                            <div className={styles.uploadIcon}>
+                              <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                            </div>
+                            <div style={{ color: '#64748b', fontSize: '13px', marginTop: '8px' }}>클릭 또는 드래그하여 등록</div>
+                          </>
+                        )}
+                      </label>
+                    </div>
+
+                    <div className={styles.formGroupColumn} style={{ flexGrow: 0, marginTop: '8px' }}>
+                      <label className={styles.formLabelColumn}>갤러리 이미지 (최대 7장)</label>
+                      <div className={styles.imagePreviewGrid}>
+                        {extraPreviews.map((p, i) => (
+                          <div key={i} className={styles.galleryPreviewItem}>
+                            <img 
+                              src={p.startsWith('http') || p.startsWith('blob:') ? p : `${process.env.NEXT_PUBLIC_BACKEND_URL || ''}${p.startsWith('/') ? '' : '/'}${p}`} 
+                              alt={`갤러리 ${i+1}`} 
+                              className={styles.galleryImg} 
+                              onClick={() => setEnlargedImage(p.startsWith('http') || p.startsWith('blob:') ? p : `${process.env.NEXT_PUBLIC_BACKEND_URL || ''}${p.startsWith('/') ? '' : '/'}${p}`)}
+                            />
+                            <button
+                              type="button"
+                              className={styles.removeBtn}
+                              onClick={() => {
+                                const idxToRemove = i;
+                                setExtraPreviews(prev => prev.filter((_, idx) => idx !== idxToRemove));
+                                const existingCount = extraPreviews.length - extraFiles.length;
+                                if (idxToRemove >= existingCount) {
+                                    const fileIdxToRemove = idxToRemove - existingCount;
+                                    setExtraFiles(prev => prev.filter((_, idx) => idx !== fileIdxToRemove));
+                                }
+                              }}
+                            >✕</button>
+                          </div>
+                        ))}
+                        {extraPreviews.length < 7 && (
+                          <label 
+                            className={styles.imageUploadBoxMini}
+                            onDragOver={e => e.preventDefault()}
+                            onDrop={e => {
+                              e.preventDefault();
+                              const newFiles = Array.from(e.dataTransfer.files || []);
+                              if (extraFiles.length + newFiles.length > 7) {
+                                alert('갤러리 이미지는 총 7장까지만 등록 가능합니다.');
+                                return;
+                              }
+                              setExtraFiles(prev => [...prev, ...newFiles]);
+                              setExtraPreviews(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))]);
+                            }}
+                          >
+                            <input type="file" multiple style={{ display: 'none' }} accept="image/*" onChange={e => {
+                              const newFiles = Array.from(e.target.files || []);
+                              if (extraFiles.length + newFiles.length > 7) {
+                                alert('갤러리 이미지는 총 7장까지만 등록 가능합니다.');
+                                e.target.value = '';
+                                return;
+                              }
+                              setExtraFiles(prev => [...prev, ...newFiles]);
+                              setExtraPreviews(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))]);
+                              e.target.value = '';
+                            }} />
+                            <svg width="20" height="20" fill="none" stroke="#94a3b8" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4"></path></svg>
+                          </label>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className={styles.formGroupColumn} style={{ flex: 1, marginTop: '8px' }}>
+                      <label className={styles.formLabelColumn}>상세 내용</label>
+                      <textarea className={styles.contentArea} value={formData.content} onChange={e => setFormData({ ...formData, content: e.target.value })} placeholder="축제 상세 설명을 입력하세요." />
+                    </div>
+                  </div>
+                </div>
               </div>
-            )}
+              
+              {/* --- 하단 설정 & 액션 --- */}
+              <div className={styles.formBottomBar}>
+                <div className={styles.settingsSection}>
+                  <label className={styles.formLabel} style={{ margin: 0, paddingRight: '12px' }}>노출 여부</label>
+                  <label className={styles.toggleWrapperSettings}>
+                    <input type="checkbox" checked={formData.isVisible} onChange={e => setFormData({ ...formData, isVisible: e.target.checked })} style={{ display: 'none' }} />
+                    <div className={`${styles.toggleSlot} ${formData.isVisible ? styles.activeSlot : ''}`}>
+                      <div className={styles.toggleKnob} />
+                    </div>
+                    <span className={formData.isVisible ? styles.blueText : styles.grayText} style={{ marginLeft: '12px', fontWeight: 600, fontSize: '14px' }}>{formData.isVisible ? '공개' : '비공개'}</span>
+                  </label>
+                </div>
+
+                <div className={styles.actionBar}>
+                  <button className={styles.cancelBtn} onClick={resetForm}>취소</button>
+                  <button className={styles.submitBtn} onClick={handleSubmit}>{editingId ? '수정 완료' : '등록 완료'}</button>
+                </div>
+              </div>
+            </div>
           </div>
-          
-          <div className={styles.formActions}>
-            <button className={styles.cancelBtn} onClick={resetForm}>취소</button>
-            <button className={styles.submitBtn} onClick={handleSubmit}>{editingId ? '수정 완료' : '등록 완료'}</button>
-          </div>
+      )}
+      {enlargedImage && (
+        <div className={styles.imageViewerOverlay} onClick={() => setEnlargedImage(null)}>
+          <div className={styles.imageViewerContent} onClick={(e) => e.stopPropagation()}>
+            <button className={styles.imageViewerCloseBtn} onClick={() => setEnlargedImage(null)}>✕</button>
+            <img src={enlargedImage} alt="크게 보기" className={styles.imageViewerImg} />
           </div>
         </div>
       )}
