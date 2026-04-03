@@ -25,7 +25,7 @@ public class CalendarPersistenceAdapter implements CalendarFestivalPort {
         LocalDate monthStart = LocalDate.of(year, month, 1);
         LocalDate monthEnd = monthStart.withDayOfMonth(monthStart.lengthOfMonth());
 
-        List<FestivalEntity> festivals = calendarJpaRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateAsc(monthEnd, monthStart);
+        List<FestivalEntity> festivals = calendarJpaRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAsc(monthEnd, monthStart);
 
         // 일자별 카운트 집계
         int daysInMonth = monthStart.lengthOfMonth();
@@ -50,6 +50,6 @@ public class CalendarPersistenceAdapter implements CalendarFestivalPort {
 
     @Override
     public List<FestivalEntity> findByDate(LocalDate date) {
-        return calendarJpaRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateAsc(date, date);
+        return calendarJpaRepository.findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAsc(date, date);
     }
 }
