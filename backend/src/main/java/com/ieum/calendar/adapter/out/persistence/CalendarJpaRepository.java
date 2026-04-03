@@ -15,10 +15,10 @@ import java.util.List;
 public interface CalendarJpaRepository extends JpaRepository<FestivalEntity, Long> {
 
     /**
-     * startDate <= param1 AND endDate >= param2 인 축제 목록 (시작일 오름차순)
+     * startDate <= param1 AND endDate >= param2 인 축제 목록 (종료일 오름차순)
      * - 일자별 조회: (date, date)
      * - 월별 조회: (monthEnd, monthStart)
      */
-    List<FestivalEntity> findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByStartDateAsc(
+    List<FestivalEntity> findByStartDateLessThanEqualAndEndDateGreaterThanEqualOrderByEndDateAsc(
             LocalDate startDateBound, LocalDate endDateBound);
 }
