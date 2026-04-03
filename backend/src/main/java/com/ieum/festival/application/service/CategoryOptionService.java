@@ -1,56 +1,45 @@
 package com.ieum.festival.application.service;
 
 import com.ieum.festival.application.dto.CategoryOptionDto;
-import com.ieum.festival.domain.model.CustomCategory;
-import com.ieum.festival.domain.model.StandardCategory;
+import com.ieum.festival.adapter.out.persistence.entity.CategoryMasterEntity;
+import com.ieum.festival.adapter.out.persistence.repository.CategoryMasterRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class CategoryOptionService {
 
-    private final Map<String, String> combinationMap;
-
-    public CategoryOptionService() {
-        this.combinationMap = new HashMap<>();
-
-        for (StandardCategory category : StandardCategory.values()) {
-            // "A02" 같이 중복 키가 없도록 조심 (위 Enum에서 키 충돌 없음)
-            combinationMap.put(category.name(), category.getLabel());
-        }
-
-        for (CustomCategory category : CustomCategory.values()) {
-            combinationMap.put(category.name(), category.getLabel());
-        }
-    }
+    private final CategoryMasterRepository categoryRepo;
 
     /**
      * 필터/등록 폼 등 프론트엔드 셀렉트박스 표시를 위해 병합된 카테고리 목록 반환
      */
     public List<CategoryOptionDto> getMergedCategoryOptions() {
+        List<CategoryMasterEntity> entities = categoryRepo.findByIsActiveTrue();
+        
         List<CategoryOptionDto> options = new ArrayList<>();
-
         options.addAll(
-                Stream.of(StandardCategory.values())
-                        .map(c -> CategoryOptionDto.builder()
-                                .value(c.name())
-                                .label(c.getLabel())
-                                .type("STANDARD")
+                entities.stream()
+                        .filter(e -> "STANDARD".equals(e.getType()))
+                        .map(e -> CategoryOptionDto.builder()
+                                .value(e.getCategoryCode())
+                                .label(e.getName())
+                                .type(e.getType())
                                 .build())
                         .collect(Collectors.toList()));
 
         options.addAll(
-                Stream.of(CustomCategory.values())
-                        .map(c -> CategoryOptionDto.builder()
-                                .value(c.name())
-                                .label(c.getLabel())
-                                .type("CUSTOM")
+                entities.stream()
+                        .filter(e -> "CUSTOM".equals(e.getType()))
+                        .map(e -> CategoryOptionDto.builder()
+                                .value(e.getCategoryCode())
+                                .label(e.getName())
+                                .type(e.getType())
                                 .build())
                         .collect(Collectors.toList()));
 
@@ -64,6 +53,8 @@ public class CategoryOptionService {
         if (categoryCode == null || categoryCode.isBlank()) {
             return "미지정";
         }
-        return combinationMap.getOrDefault(categoryCode, categoryCode + " (알 수 없음)");
+        return categoryRepo.findById(categoryCode)
+                .map(CategoryMasterEntity::getName)
+                .orElse(categoryCode + " (알 수 없음)");
     }
 }

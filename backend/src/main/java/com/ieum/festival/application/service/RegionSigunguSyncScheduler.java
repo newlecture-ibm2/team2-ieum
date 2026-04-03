@@ -6,6 +6,8 @@ import com.ieum.festival.adapter.out.persistence.entity.RegionMasterEntity;
 import com.ieum.festival.adapter.out.persistence.entity.SigunguMasterEntity;
 import com.ieum.festival.adapter.out.persistence.repository.RegionMasterRepository;
 import com.ieum.festival.adapter.out.persistence.repository.SigunguMasterRepository;
+import com.ieum.festival.adapter.out.persistence.entity.CategoryMasterEntity;
+import com.ieum.festival.adapter.out.persistence.repository.CategoryMasterRepository;
 import com.ieum.festival.domain.model.CustomRegion;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ public class RegionSigunguSyncScheduler {
 
     private final RegionMasterRepository regionRepo;
     private final SigunguMasterRepository sigunguRepo;
+    private final CategoryMasterRepository categoryRepo;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -50,10 +53,57 @@ public class RegionSigunguSyncScheduler {
                         .build());
             }
         }
-        log.info("자체 기획(CUSTOM) 지역 마스터 데이터 Seeding 완료.");
         
-        // 애플리케이션 시작 시 최초 1회 즉시 동기화 실행 (선택적)
-        // syncRegionsAndSigungus(); 
+        seedCategories();
+    }
+
+    private void seedCategories() {
+        java.util.Map<String, String> standardCat = new java.util.HashMap<>();
+        standardCat.put("A02070100", "문화관광축제");
+        standardCat.put("A02070200", "일반축제");
+        standardCat.put("A02080100", "전통공연/예술");
+        standardCat.put("A02080200", "연극");
+        standardCat.put("A02080300", "뮤지컬");
+        standardCat.put("A02080400", "오페라");
+        standardCat.put("A02080500", "전시/미술");
+        standardCat.put("A02080600", "박람회");
+        standardCat.put("A02081300", "대중공연");
+        standardCat.put("A02080700", "기타행사");
+        standardCat.put("A02", "인문(문화/예술/역사)");
+        standardCat.put("A0207", "축제");
+        standardCat.put("A0208", "공연/행사");
+
+        java.util.Map<String, String> customCat = new java.util.HashMap<>();
+        customCat.put("LOCAL", "지역축제");
+        customCat.put("SCHOOL", "대학축제");
+        customCat.put("COMPANY", "기업행사");
+        customCat.put("ONLINE", "온라인행사");
+        customCat.put("ETC", "기타");
+
+        for (java.util.Map.Entry<String, String> entry : standardCat.entrySet()) {
+            if (!categoryRepo.existsById(entry.getKey())) {
+                categoryRepo.save(CategoryMasterEntity.builder()
+                        .categoryCode(entry.getKey())
+                        .name(entry.getValue())
+                        .type("STANDARD")
+                        .isActive(true)
+                        .updatedAt(LocalDateTime.now())
+                        .build());
+            }
+        }
+
+        for (java.util.Map.Entry<String, String> entry : customCat.entrySet()) {
+            if (!categoryRepo.existsById(entry.getKey())) {
+                categoryRepo.save(CategoryMasterEntity.builder()
+                        .categoryCode(entry.getKey())
+                        .name(entry.getValue())
+                        .type("CUSTOM")
+                        .isActive(true)
+                        .updatedAt(LocalDateTime.now())
+                        .build());
+            }
+        }
+        log.info("카테고리 마스터 테이블 Seeding 완료.");
     }
 
     @Scheduled(cron = "0 0 3 * * ?") // 매일 03시 시행

@@ -397,7 +397,7 @@
     <div class="header">
         <div class="header-left">
             <h1>🎪 이음 ERD</h1>
-            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (18 Tables)</span>
+            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (19 Tables)</span>
         </div>
         <div class="legend">
             <div class="legend-item">
@@ -472,7 +472,7 @@
                     { name: 'longitude', type: 'decimal(10,7)', note: '경도' },
                     { name: 'tel', type: 'varchar(50)', note: '연락처' },
                     { name: 'homepage', type: 'varchar(500)', note: '홈페이지 URL' },
-                    { name: 'category', type: 'varchar(10)', note: '대분류 코드' },
+                    { name: 'category', type: 'varchar(10)', fk: true, note: '대분류 코드' },
                     { name: 'category_mid', type: 'varchar(10)', note: '중분류 코드' },
                     { name: 'category_sub', type: 'varchar(10)', note: '소분류 코드' },
                     { name: 'area_code', type: 'varchar(10)', fk: true, note: '지역 코드 (시/도)' },
@@ -724,6 +724,17 @@
                 ],
                 footer: 'UK: (region_code, sigungu_code)'
             },
+            {
+                id: 'category_master', name: 'category_master', label: '카테고리 마스터', type: 'support',
+                x: 232.0, y: 754.0,
+                columns: [
+                    { name: 'category_code', type: 'varchar(20)', pk: true, note: 'PK: 카테고리 코드' },
+                    { name: 'name', type: 'varchar(50)', note: '카테고리명' },
+                    { name: 'type', type: 'varchar(20)', note: 'STANDARD / CUSTOM' },
+                    { name: 'is_active', type: 'boolean', note: '활성 여부' },
+                    { name: 'updated_at', type: 'timestamp', note: '수정일' },
+                ]
+            },
         ];
 
         // ─── Relationships ───
@@ -750,6 +761,7 @@
             { from: 'users', to: 'batch_log', label: '1:N', fromCol: 'user_id', toCol: 'triggered_by' },
             { from: 'region_master', to: 'sigungu_master', label: '1:N', fromCol: 'region_code', toCol: 'region_code' },
             { from: 'region_master', to: 'festivals', label: '1:N (논리적)', fromCol: 'region_code', toCol: 'area_code' },
+            { from: 'category_master', to: 'festivals', label: '1:N (논리적)', fromCol: 'category_code', toCol: 'category' },
         ];
 
         // ─── Render ───
