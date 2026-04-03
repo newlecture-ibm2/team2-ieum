@@ -2,6 +2,7 @@ package com.ieum.festival.adapter.in.web;
 
 import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
+import com.ieum.festival.application.service.FestivalStatusScheduler;
 import com.ieum.festival.application.service.TourApiSyncService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -14,7 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import com.ieum.festival.adapter.in.web.dto.FestivalResponseDto;
 
 @Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
 @RestController
@@ -24,6 +28,18 @@ public class FestivalController {
 
     private final FestivalJpaRepository repository;
     private final TourApiSyncService syncService;
+    private final FestivalStatusScheduler statusScheduler;
+
+    @Operation(summary = "축제 상태 일괄 갱신 (개발용)", description = "모든 축제의 status를 오늘 날짜 기준으로 DB에 일괄 업데이트합니다.")
+    @PatchMapping("/refresh-status")
+    public ResponseEntity<?> refreshStatus() {
+        int updated = statusScheduler.refreshAllStatuses();
+        return ResponseEntity.ok(Map.of(
+                "success", true,
+                "message", "축제 상태 일괄 갱신 완료",
+                "updatedCount", updated
+        ));
+    }
 
     @Operation(summary = "축제 목록 조회 (날짜 기반 동적 필터링)", description = "status 파라미터에 따라 전체/진행중/진행예정 축제를 날짜 기반으로 필터링하여 조회합니다.\n"
             +
@@ -58,7 +74,10 @@ public class FestivalController {
         response.put("success", true);
 
         Map<String, Object> data = new HashMap<>();
-        data.put("list", festivalPage.getContent());
+        List<FestivalResponseDto> dtoList = festivalPage.getContent().stream()
+                .map(FestivalResponseDto::new)
+                .collect(Collectors.toList());
+        data.put("list", dtoList);
         data.put("total", festivalPage.getTotalElements());
         data.put("totalPages", festivalPage.getTotalPages());
         data.put("currentPage", page);
@@ -119,7 +138,9 @@ public class FestivalController {
                     result.put("thumbnailUrl", entity.getThumbnailUrl());
                     result.put("startDate", entity.getStartDate());
                     result.put("endDate", entity.getEndDate());
-                    result.put("status", entity.getStatus());
+                    
+                    FestivalResponseDto dto = new FestivalResponseDto(entity);
+                    result.put("status", dto.getStatus());
 
                     // DB에서 바로 제공 (또는 방금 막 캐싱된 데이터)
                     result.put("overview", entity.getOverview());

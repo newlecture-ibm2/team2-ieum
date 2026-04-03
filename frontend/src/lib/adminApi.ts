@@ -4,8 +4,13 @@
 
 import axios from "axios";
 
+// 환경변수 처리를 위한 함수. 
+const getBaseUrl = () => {
+  return process.env.NEXT_PUBLIC_API_URL || "";
+};
+
 const adminApi = axios.create({
-  baseURL: (process.env.BACKEND_URL || "http://localhost:8080") + "/api/admin",
+  baseURL: getBaseUrl() + "/api/admin",
   timeout: 10000,
   headers: {
     "Content-Type": "application/json",
