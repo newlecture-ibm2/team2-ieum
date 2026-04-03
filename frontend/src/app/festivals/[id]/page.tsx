@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
-import { Heart } from 'lucide-react';
+import { Heart, User } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 import api from '@/lib/api';
@@ -198,7 +198,9 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
               </header>
 
               <div className={styles.reviewForm}>
-                <div className={styles.reviewAvatar}>Me</div>
+                <div className={styles.reviewAvatar}>
+                  <User size={20} color="#a0aec0" strokeWidth={2.5} />
+                </div>
                 <div className={styles.reviewInputBox}>
                   <input
                     type="text"
@@ -227,7 +229,9 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
                 ) : (
                   reviews.slice(0, 3).map(review => (
                     <article key={review.id} className={styles.reviewCard}>
-                      <div className={styles.rcAvatar}>익명</div>
+                      <div className={styles.rcAvatar}>
+                        <User size={18} color="#ffffff" strokeWidth={2.5} />
+                      </div>
                       <div className={styles.rcContent}>
                         <div className={styles.rcTop}>
                           <div className={styles.rcName}>
