@@ -95,7 +95,77 @@ public class RegionSigunguSyncScheduler {
             }
             log.info("TourAPI 지역/시군구 배치 동기화 성공.");
         } catch (Exception e) {
-            log.error("TourAPI 지역/시군구 배치 동기화 실패", e);
+            log.warn("TourAPI 지역/시군구 배치 동기화 실패 (API 응답 에러 등). 사전에 정의된 정적 데이터로 Fallback 합니다. 원인: {}", e.getMessage());
+            fallbackSyncRegionsAndSigungus();
+        }
+    }
+
+    private void fallbackSyncRegionsAndSigungus() {
+        try {
+            java.util.Map<String, String> standardRegions = new java.util.HashMap<>();
+            standardRegions.put("1", "서울");
+            standardRegions.put("2", "인천");
+            standardRegions.put("3", "대전");
+            standardRegions.put("4", "대구");
+            standardRegions.put("5", "광주");
+            standardRegions.put("6", "부산");
+            standardRegions.put("7", "울산");
+            standardRegions.put("8", "세종특별자치시");
+            standardRegions.put("31", "경기도");
+            standardRegions.put("32", "강원특별자치도");
+            standardRegions.put("33", "충청북도");
+            standardRegions.put("34", "충청남도");
+            standardRegions.put("35", "경상북도");
+            standardRegions.put("36", "경상남도");
+            standardRegions.put("37", "전북특별자치도");
+            standardRegions.put("38", "전라남도");
+            standardRegions.put("39", "제주특별자치도");
+
+            for (java.util.Map.Entry<String, String> entry : standardRegions.entrySet()) {
+                String code = entry.getKey();
+                String name = entry.getValue();
+
+                RegionMasterEntity entity = regionRepo.findById(code).orElse(
+                        RegionMasterEntity.builder()
+                                .regionCode(code)
+                                .type("STANDARD")
+                                .build()
+                );
+                entity.setName(name);
+                entity.setActive(true);
+                entity.setUpdatedAt(LocalDateTime.now());
+                regionRepo.save(entity);
+            }
+
+            org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("sigungu.json");
+            if (resource.exists()) {
+                JsonNode sigunguJson = mapper.readTree(resource.getInputStream());
+                java.util.Iterator<String> fieldNames = sigunguJson.fieldNames();
+                while (fieldNames.hasNext()) {
+                    String regionCode = fieldNames.next();
+                    JsonNode sigungusNode = sigunguJson.path(regionCode);
+                    if (sigungusNode.isArray()) {
+                        for (JsonNode sItem : sigungusNode) {
+                            String code = sItem.path("value").asText();
+                            String name = sItem.path("label").asText();
+
+                            SigunguMasterEntity sm = sigunguRepo.findByRegionCodeAndSigunguCode(regionCode, code).orElse(
+                                    SigunguMasterEntity.builder()
+                                            .regionCode(regionCode)
+                                            .sigunguCode(code)
+                                            .build()
+                            );
+                            sm.setName(name);
+                            sm.setActive(true);
+                            sm.setUpdatedAt(LocalDateTime.now());
+                            sigunguRepo.save(sm);
+                        }
+                    }
+                }
+            }
+            log.info("정적 데이터 기반 지역/시군구 Fallback 동기화 완료.");
+        } catch (Exception ex) {
+            log.error("Fallback 동기화 중 에러 발생", ex);
         }
     }
 

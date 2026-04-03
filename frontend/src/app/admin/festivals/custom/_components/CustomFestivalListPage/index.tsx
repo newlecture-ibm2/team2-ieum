@@ -75,7 +75,7 @@ export default function CustomFestivalListPage() {
   
   const [formData, setFormData] = useState({
     title: '', areaCode: '', startDate: getToday(), endDate: getToday(), category: '', content: '', isVisible: true,
-    eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '', endTime: '', tel: '', homepage: '', sigunguCode: ''
+    eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '09:00', endTime: '18:00', isAllDay: false, tel: '', homepage: '', sigunguCode: ''
   });
   const [file, setFile] = useState<File | null>(null);
   const [extraFiles, setExtraFiles] = useState<File[]>([]);
@@ -206,7 +206,7 @@ export default function CustomFestivalListPage() {
     const today = getToday();
     setFormData({ 
       title: '', areaCode: '', startDate: today, endDate: today, category: '', content: '', isVisible: true,
-      eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '09:00', endTime: '18:00', tel: '', homepage: '', sigunguCode: ''
+      eventPlace: '', address: '', detailAddress: '', useFee: '', startTime: '09:00', endTime: '18:00', isAllDay: false, tel: '', homepage: '', sigunguCode: ''
     });
     setFile(null);
     setExtraFiles([]);
@@ -223,6 +223,9 @@ export default function CustomFestivalListPage() {
 
   const handleOpenEditForm = (fst: CustomFestivalItem) => {
     setEditingId(fst.festivalId);
+    const parsedPlayTime = (fst as any).playTime || '';
+    const isAllDay = parsedPlayTime === '종일';
+
     setFormData({
       title: fst.title || '',
       areaCode: fst.areaCode || '',
@@ -236,8 +239,9 @@ export default function CustomFestivalListPage() {
       address: (fst as any).address || '',
       detailAddress: '',
       useFee: String((fst as any).useFee || ''),
-      startTime: ((fst as any).playTime || '').split(' ~ ')[0] || '',
-      endTime: ((fst as any).playTime || '').split(' ~ ')[1] || '',
+      isAllDay: isAllDay,
+      startTime: isAllDay ? '' : parsedPlayTime.split(' ~ ')[0] || '',
+      endTime: isAllDay ? '' : parsedPlayTime.split(' ~ ')[1] || '',
       tel: (fst as any).tel || '',
       homepage: (fst as any).homepage || '',
       sigunguCode: (fst as any).sigunguCode || ''
@@ -331,7 +335,7 @@ export default function CustomFestivalListPage() {
       const finalFee = isFree ? '무료' : formData.useFee;
       if (finalFee) data.append('useFee', finalFee);
       
-      const builtPlayTime = [formData.startTime, formData.endTime].filter(Boolean).join(' ~ ');
+      const builtPlayTime = formData.isAllDay ? '종일' : [formData.startTime, formData.endTime].filter(Boolean).join(' ~ ');
       if (builtPlayTime) data.append('playTime', builtPlayTime);
       if (formData.tel) data.append('tel', formData.tel);
       if (formData.homepage) data.append('homepage', formData.homepage);
@@ -661,11 +665,24 @@ export default function CustomFestivalListPage() {
                       {(errors.startDate || errors.endDate) && <span className={styles.errorText}>⚠ {errors.startDate || errors.endDate}</span>}
                     </div>
                     <div className={styles.formGroup}>
-                      <label className={styles.formLabel}>운영 시간</label>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0 }}>
-                        <input type="time" className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.startTime} onChange={e => { setFormData({ ...formData, startTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                      <label className={styles.formLabel}>
+                        운영 시간
+                        <label style={{ display: 'inline-flex', alignItems: 'center', marginLeft: 'auto', fontSize: '13px', fontWeight: 'normal', color: '#64748b', cursor: 'pointer' }}>
+                          <input type="checkbox" style={{ marginRight: '4px' }} checked={formData.isAllDay || false} onChange={e => {
+                            const checked = e.target.checked;
+                            if (checked) {
+                              setFormData({ ...formData, isAllDay: true, startTime: '', endTime: '' });
+                              setErrors(prev => ({ ...prev, endTime: undefined }));
+                            } else {
+                              setFormData({ ...formData, isAllDay: false, startTime: '09:00', endTime: '18:00' });
+                            }
+                          }} /> 종일
+                        </label>
+                      </label>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, minWidth: 0, opacity: formData.isAllDay ? 0.5 : 1, pointerEvents: formData.isAllDay ? 'none' : 'auto' }}>
+                        <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.startTime} onChange={e => { setFormData({ ...formData, startTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
                         <span style={{ color: '#94a3b8' }}>~</span>
-                        <input type="time" className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.endTime} onChange={e => { setFormData({ ...formData, endTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
+                        <input type="time" disabled={formData.isAllDay} className={`${styles.formInput} ${errors.endTime ? styles.errorInput : ''}`} value={formData.endTime} onChange={e => { setFormData({ ...formData, endTime: e.target.value }); setErrors(prev => ({ ...prev, endTime: undefined })); }} onClick={e => (e.currentTarget as any).showPicker && (e.currentTarget as any).showPicker()} onKeyDown={e => e.preventDefault()} />
                       </div>
                       {errors.endTime && <span className={styles.errorText}>⚠ {errors.endTime}</span>}
                     </div>
