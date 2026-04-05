@@ -1,6 +1,6 @@
 package com.ieum.admin.festival.application.result;
 
-import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
+import com.ieum.admin.festival.domain.model.Festival;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -37,7 +37,11 @@ public class CustomFestivalItem {
     private String homepage;
     private String sigunguCode;
 
-    public static CustomFestivalItem from(AdminFestivalEntity festival, String resolvedLabel, String categoryLabel) {
+    /**
+     * 도메인 모델 → Result DTO 변환
+     * (기존 Entity 의존 제거 → Domain 기반으로 전환)
+     */
+    public static CustomFestivalItem from(Festival festival, String resolvedLabel, String specificCategory, String categoryLabel) {
         return CustomFestivalItem.builder()
                 .festivalId(festival.getId())
                 .title(festival.getTitle())
@@ -45,10 +49,10 @@ public class CustomFestivalItem {
                 .areaLabel(resolvedLabel)
                 .startDate(festival.getStartDate())
                 .endDate(festival.getEndDate())
-                .isVisible(Boolean.TRUE.equals(festival.getIsVisible()))
-                .category(festival.getCategory())
+                .isVisible(festival.isVisible())
+                .category(specificCategory)
                 .categoryLabel(categoryLabel)
-                .status(festival.getStatus())
+                .status(festival.getStatus() != null ? festival.getStatus().name() : "UPCOMING")
                 .createdAt(festival.getCreatedAt())
                 .content(festival.getDescription())
                 .imgUrl(festival.getImageUrl())

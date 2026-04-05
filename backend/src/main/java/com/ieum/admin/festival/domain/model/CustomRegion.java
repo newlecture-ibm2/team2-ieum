@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
 /**
- * 축제 등록 등 표준 공공 API 지역 코드 외의 커스텀 지역 코드 (최대 10자)
+ * 축제 관리 등 표준 공공 API 지역 코드 외의 커스텀 지역 코드 (최대 10자)
  */
 @Getter
 @RequiredArgsConstructor

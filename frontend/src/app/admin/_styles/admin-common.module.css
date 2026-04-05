@@ -1,0 +1,695 @@
+/* ==========================================================================
+   관리자 공통 UI 스타일 (Admin Design System)
+   ---------------------------------------------------------------------------
+   모든 admin 하위 페이지(festivals, reports, notices, inquiries, members)가
+   이 파일을 import하여 일관된 UI를 유지합니다.
+   
+   사용법:
+     import common from '@/app/admin/_styles/admin-common.module.css';
+     <div className={common.container}> ... </div>
+   ========================================================================== */
+
+/* ── 페이지 컨테이너 ── */
+.container {
+  padding: 28px 32px 80px 32px;
+  max-width: 1100px;
+}
+
+/* ── 페이지 헤더 ── */
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 4px;
+}
+
+.pageSubtitle {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+/* ── 카드(섹션) 컨테이너 ── */
+.card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.cardTitle {
+  font-weight: 700;
+  font-size: 15px;
+  color: #1e293b;
+}
+
+.cardSubtitle {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 2px;
+}
+
+/* ── 드롭다운 UI ── */
+.dropdownContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  min-width: 160px;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.dropdownItem {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  font-size: 13px;
+  color: #334155;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.dropdownItem:hover {
+  background-color: #f8fafc;
+}
+
+.dropdownItem:not(:last-child) {
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* ── 상태 요약(KPI) 카드 4종 ── */
+.statGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.statCard {
+  border-radius: 10px;
+  padding: 16px;
+  text-align: center;
+  transition: all 0.2s ease;
+}
+
+.statCardInteractive {
+  cursor: pointer;
+  position: relative;
+}
+
+.statCardInteractive:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.statActive {
+  transform: translateY(-2px);
+  box-shadow: 0 0 0 2px #6c5ce7, 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border-color: #6c5ce7 !important;
+}
+
+.statTotal {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+}
+.statTotal:hover { border-color: #cbd5e1; }
+
+.statOngoing {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+.statOngoing:hover { border-color: #86efac; }
+
+.statUpcoming {
+  background: #f3e8ff;
+  border: 1px solid #d8b4fe;
+}
+.statUpcoming:hover { border-color: #c084fc; }
+
+.statEnded {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+}
+.statEnded:hover { border-color: #cbd5e1; }
+
+.statLabel {
+  font-size: 11px;
+  color: #64748b;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.statValue {
+  font-size: 26px;
+  font-weight: 800;
+  color: #1e293b;
+}
+
+/* ── 색상 유틸리티 ── */
+.textGreen { color: #16a34a; }
+.textPurple { color: #6c5ce7; }
+.textGray { color: #64748b; }
+.textRed { color: #ef4444; }
+
+/* ── 필터 바 ── */
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+  background: #f8fafc;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+}
+
+.filterSelect {
+  padding: 10px 36px 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #334155;
+  background-color: #fff;
+  background-image: url("data:image/svg+xml,%3Csvg stroke='%2364748b' fill='none' stroke-width='2' viewBox='0 0 24 24' stroke-linecap='round' stroke-linejoin='round' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  appearance: none;
+  height: 42px;
+  outline: none;
+  min-width: 160px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+  font-weight: 500;
+}
+
+.filterSelect:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.filterSelect:hover {
+  border-color: #94a3b8;
+}
+
+.searchInput {
+  width: 280px;
+  padding: 10px 16px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  font-size: 14px;
+  height: 42px;
+  outline: none;
+  transition: all 0.2s;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+}
+
+.searchInput:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+.searchInput::placeholder {
+  color: #94a3b8;
+}
+
+.searchBtn {
+  padding: 0 20px;
+  height: 42px;
+  border: none;
+  background: #1e293b;
+  color: #fff;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  box-shadow: 0 2px 4px rgba(30, 41, 59, 0.2);
+}
+
+.searchBtn:hover {
+  background: #0f172a;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(30, 41, 59, 0.25);
+}
+
+.searchBtn:active {
+  transform: translateY(0);
+}
+
+/* ── 테이블 카드 ── */
+.tableCard {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+
+/* ── 테이블 ── */
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 14px;
+}
+
+.tableHeaderRow {
+  background: #f8fafc;
+}
+
+.tableHeaderCell {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8fafc;
+  padding: 16px 12px;
+  color: #334155;
+  font-weight: 600;
+  font-size: 14px;
+  white-space: nowrap;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.tableHeaderCell:first-child {
+  border-top-left-radius: 12px;
+}
+
+.tableHeaderCell:last-child {
+  border-top-right-radius: 12px;
+}
+
+.tableRow {
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background-color 0.2s ease;
+  cursor: default;
+}
+
+.tableRowHover:hover {
+  background-color: #f8fafc;
+}
+
+.tableCell {
+  padding: 16px 12px;
+  color: #475569;
+  vertical-align: middle;
+}
+
+.cellPrimary {
+  color: #1e293b;
+  font-weight: 600;
+}
+
+/* 셀 텍스트 말줄임 (2줄) */
+.cellEllipsis {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  line-height: 1.4;
+  white-space: normal;
+  padding-right: 8px;
+}
+
+.hiddenRow {
+  opacity: 0.5;
+}
+
+.emptyRow {
+  text-align: center;
+  padding: 60px 0 !important;
+  color: #94a3b8;
+  font-size: 14px;
+}
+
+/* ── 텍스트 정렬 ── */
+.textLeft { text-align: left; }
+.textCenter { text-align: center; }
+.textRight { text-align: right; }
+
+/* ── 상태 배지 ── */
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: -0.2px;
+}
+
+.badgeOngoing {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.badgeUpcoming {
+  background: #f3e8ff;
+  color: #6c5ce7;
+}
+
+.badgeEnded {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.badgePending {
+  background: #fef9c3;
+  color: #ca8a04;
+}
+
+.badgeDismissed {
+  background: #e0f2fe;
+  color: #0284c7;
+}
+
+.badgeDeleted {
+  background: #fecdd3;
+  color: #dc2626;
+}
+
+/* ── 토글 스위치 ── */
+.toggleWrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+}
+
+.toggleLabel {
+  font-size: 11px;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.toggleLabelOn {
+  color: #64748b;
+}
+
+.toggleLabelOff {
+  color: #94a3b8;
+}
+
+.toggleTrack {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  background: #e2e8f0;
+  border-radius: 9999px;
+  transition: background 0.2s;
+  flex-shrink: 0;
+}
+
+.toggleTrackOn {
+  background: #16a34a;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+.toggleThumbOn {
+  transform: translateX(18px);
+}
+
+/* ── 액션 그룹 ── */
+.actionGroup {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.actionBtn {
+  background: transparent;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionBtn:hover {
+  background: #f1f5f9;
+  transform: translateY(-1px);
+}
+
+/* ── 페이지네이션 ── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.pageBtn {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  padding: 7px 14px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.15s;
+  color: #475569;
+}
+
+.pageBtn:hover:not(:disabled) {
+  background: #f8fafc;
+  border-color: #6c5ce7;
+  color: #6c5ce7;
+}
+
+.pageBtn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.pageInfo {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+/* ── 공통 버튼 ── */
+.btnPrimary {
+  background: #6c5ce7;
+  border: 1.5px solid #6c5ce7;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  color: #fff;
+}
+
+.btnPrimary:hover {
+  background: #5a4bcf;
+  border-color: #5a4bcf;
+}
+
+.btnOutline {
+  background: #fff;
+  border: 1.5px solid #1e293b;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s ease;
+  color: #1e293b;
+}
+
+.btnOutline:hover:not(:disabled) {
+  background: #1e293b;
+  color: #fff;
+}
+
+.btnOutline:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ── 스피너 ── */
+.spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #94a3b8;
+  border-top-color: #1e293b;
+  border-radius: 50%;
+  animation: adminSpin 0.7s linear infinite;
+}
+
+@keyframes adminSpin {
+  to { transform: rotate(360deg); }
+}
+
+/* ── 모달 오버레이 ── */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(15, 23, 42, 0.4);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.modalContent {
+  background: #fff;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow-y: auto;
+  padding: 24px 32px;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.modalTitle {
+  font-weight: 700;
+  font-size: 18px;
+  color: #1e293b;
+}
+
+.modalCloseBtn {
+  background: transparent;
+  border: none;
+  font-size: 20px;
+  color: #94a3b8;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  line-height: 1;
+  padding: 4px;
+}
+
+.modalCloseBtn:hover {
+  color: #1e293b;
+}
+
+/* ── 모달 액션 바 ── */
+.modalActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+}
+
+.btnCancel {
+  background: #f1f5f9;
+  border: 1px solid #cbd5e1;
+  color: #475569;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnCancel:hover {
+  background: #e2e8f0;
+}
+
+.btnSubmit {
+  background: #6c5ce7;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnSubmit:hover {
+  background: #5a4bcf;
+}
+
+.btnDanger {
+  background: #ef4444;
+  color: #fff;
+  border: none;
+  padding: 10px 24px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btnDanger:hover {
+  background: #dc2626;
+}

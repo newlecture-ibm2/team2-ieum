@@ -75,7 +75,7 @@ export interface FestivalVisibilityData {
 }
 
 // ────────────────────────────────────────
-// 축제 등록 관련 타입
+// 축제 관리 관련 타입
 // ────────────────────────────────────────
 
 export interface CustomFestivalItem {
@@ -112,4 +112,27 @@ export interface CategoryOptionDto {
   label: string;
   value: string;
   type: string;
+}
+
+// ────────────────────────────────────────
+// 축제 관리 폼 상태 타입
+// ────────────────────────────────────────
+export interface CustomFestivalFormData {
+  title: string;
+  areaCode: string;
+  startDate: string;
+  endDate: string;
+  category: string;
+  content: string;
+  isVisible: boolean;
+  eventPlace: string;
+  address: string;
+  detailAddress: string;
+  useFee: string;
+  startTime: string;
+  endTime: string;
+  isAllDay: boolean;
+  tel: string;
+  homepage: string;
+  sigunguCode: string;
 }

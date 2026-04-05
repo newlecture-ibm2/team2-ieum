@@ -153,4 +153,108 @@ public class AdminFestivalEntity {
     public void preUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
+
+    /**
+     * JPA 엔티티 → 도메인 객체 변환
+     */
+    public com.ieum.admin.festival.domain.model.Festival toDomain() {
+        com.ieum.admin.festival.domain.model.FestivalSource festivalSource = com.ieum.admin.festival.domain.model.FestivalSource.MANUAL;
+        if (this.source != null) {
+            try { festivalSource = com.ieum.admin.festival.domain.model.FestivalSource.valueOf(this.source); }
+            catch (IllegalArgumentException e) { /* keep default */ }
+        }
+
+        com.ieum.admin.festival.domain.model.FestivalStatus festivalStatus = com.ieum.admin.festival.domain.model.FestivalStatus.UPCOMING;
+        if (this.status != null) {
+            try { festivalStatus = com.ieum.admin.festival.domain.model.FestivalStatus.valueOf(this.status); }
+            catch (IllegalArgumentException e) { /* keep default */ }
+        }
+
+        return com.ieum.admin.festival.domain.model.Festival.builder()
+                .id(this.id)
+                .sourceId(this.sourceId)
+                .source(festivalSource)
+                .title(this.title)
+                .description(this.description)
+                .overview(this.overview)
+                .location(this.location)
+                .address(this.address)
+                .startDate(this.startDate)
+                .endDate(this.endDate)
+                .status(festivalStatus)
+                .imageUrl(this.imageUrl)
+                .thumbnailUrl(this.thumbnailUrl)
+                .extraImages(this.extraImages)
+                .homepage(this.homepage)
+                .tel(this.tel)
+                .latitude(this.latitude)
+                .longitude(this.longitude)
+                .category(this.category)
+                .categoryMid(this.categoryMid)
+                .categorySub(this.categorySub)
+                .areaCode(this.areaCode)
+                .sigunguCode(this.sigunguCode)
+                .ldongCode(this.ldongCode)
+                .eventPlace(this.eventPlace)
+                .playTime(this.playTime)
+                .program(this.program)
+                .useFee(this.useFee)
+                .sponsor(this.sponsor)
+                .isCustom(Boolean.TRUE.equals(this.isCustom))
+                .isVisible(this.isVisible == null || Boolean.TRUE.equals(this.isVisible))
+                .avgRating(this.avgRating != null ? this.avgRating : 0.0)
+                .reviewCount(this.reviewCount != null ? this.reviewCount : 0)
+                .favoriteCount(this.favoriteCount != null ? this.favoriteCount : 0)
+                .viewCount(this.viewCount != null ? this.viewCount : 0)
+                .apiModifiedAt(this.apiModifiedAt)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
+                .build();
+    }
+
+    /**
+     * 도메인 객체 → JPA 엔티티 변환
+     */
+    public static AdminFestivalEntity fromDomain(com.ieum.admin.festival.domain.model.Festival festival) {
+        return AdminFestivalEntity.builder()
+                .id(festival.getId())
+                .sourceId(festival.getSourceId())
+                .source(festival.getSource() != null ? festival.getSource().name() : "MANUAL")
+                .title(festival.getTitle())
+                .description(festival.getDescription())
+                .overview(festival.getOverview())
+                .location(festival.getLocation())
+                .address(festival.getAddress())
+                .startDate(festival.getStartDate())
+                .endDate(festival.getEndDate())
+                .status(festival.getStatus() != null ? festival.getStatus().name() : "UPCOMING")
+                .imageUrl(festival.getImageUrl())
+                .thumbnailUrl(festival.getThumbnailUrl())
+                .extraImages(festival.getExtraImages())
+                .homepage(festival.getHomepage())
+                .tel(festival.getTel())
+                .latitude(festival.getLatitude())
+                .longitude(festival.getLongitude())
+                .category(festival.getCategory())
+                .categoryMid(festival.getCategoryMid())
+                .categorySub(festival.getCategorySub())
+                .areaCode(festival.getAreaCode())
+                .sigunguCode(festival.getSigunguCode())
+                .ldongCode(festival.getLdongCode())
+                .eventPlace(festival.getEventPlace())
+                .playTime(festival.getPlayTime())
+                .program(festival.getProgram())
+                .useFee(festival.getUseFee())
+                .sponsor(festival.getSponsor())
+                .isCustom(festival.isCustom())
+                .isVisible(festival.isVisible())
+                .avgRating(festival.getAvgRating())
+                .reviewCount(festival.getReviewCount())
+                .favoriteCount(festival.getFavoriteCount())
+                .viewCount(festival.getViewCount())
+                .apiModifiedAt(festival.getApiModifiedAt())
+                .createdAt(festival.getCreatedAt())
+                .updatedAt(festival.getUpdatedAt())
+                .build();
+    }
 }

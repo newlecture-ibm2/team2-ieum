@@ -2,13 +2,17 @@ package com.ieum.admin.festival.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
-import com.ieum.admin.festival.application.result.FestivalSyncResult;
-import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
+import com.ieum.admin.festival.application.port.in.SyncPublicFestivalUseCase;
+import com.ieum.admin.festival.application.port.out.AdminFestivalPort;
+import com.ieum.admin.festival.application.result.DataSyncResult;
+import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalSource;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -21,15 +25,15 @@ import java.util.List;
 
 /**
  * 관리자 수동 동기화 서비스 (공공 API → DB)
- * - TourApiSyncService(스케줄러)와 동일 테이블/엔티티를 사용하지만,
- *   관리자가 수동으로 트리거하는 용도로 분리.
+ * - SyncPublicFestivalUseCase 구현체
+ * - 공공 API 축제 데이터 동기화
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FestivalSyncService {
+public class FestivalSyncService implements SyncPublicFestivalUseCase {
 
-    private final AdminFestivalRepository festivalRepository;
+    private final AdminFestivalPort festivalPort;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -39,8 +43,11 @@ public class FestivalSyncService {
     @Value("${tour-api.base-url}")
     private String baseUrl;
 
-    public FestivalSyncResult syncFestivalsFromTourApi() {
-        log.info("Starting TourAPI sync (admin manual trigger)...");
+    @Override
+    @Transactional
+    public DataSyncResult syncPublicFestivals() {
+        log.info("Starting TourAPI public festival sync...");
+
         int syncCount = 0;
         int pageNo = 1;
         int numOfRows = 200;
@@ -85,18 +92,18 @@ public class FestivalSyncService {
                 JsonNode itemsNode = bodyNode.path("items").path("item");
 
                 if (itemsNode.isArray() && !itemsNode.isEmpty()) {
-                    List<AdminFestivalEntity> saveList = new ArrayList<>();
+                    List<Festival> saveList = new ArrayList<>();
                     for (JsonNode item : itemsNode) {
                         try {
                             String sourceId = item.path("contentid").asText(null);
                             if (sourceId == null)
                                 continue;
 
-                            AdminFestivalEntity festival = festivalRepository.findBySourceId(sourceId).orElse(null);
+                            Festival festival = festivalPort.findBySourceId(sourceId).orElse(null);
                             if (festival == null) {
-                                festival = AdminFestivalEntity.builder()
+                                festival = Festival.builder()
                                         .sourceId(sourceId)
-                                        .source("API")
+                                        .source(FestivalSource.API)
                                         .isCustom(false)
                                         .isVisible(true)
                                         .build();
@@ -109,7 +116,7 @@ public class FestivalSyncService {
                             log.warn("Skipping festival due to parsing error", e);
                         }
                     }
-                    festivalRepository.saveAll(saveList);
+                    festivalPort.saveAll(saveList);
                 } else {
                     break;
                 }
@@ -121,19 +128,28 @@ public class FestivalSyncService {
                 pageNo++;
             }
 
-            log.info("TourAPI sync completed successfully. Synced {} items.", syncCount);
-            return FestivalSyncResult.builder().status("COMPLETED").syncCount(syncCount).build();
+            log.info("TourAPI public festival sync completed successfully. Synced {} items.", syncCount);
+            
+            return DataSyncResult.builder()
+                    .status("COMPLETED")
+                    .type("PUBLIC")
+                    .totalChanged(syncCount)
+                    .details(DataSyncResult.Details.builder().festival(syncCount).build())
+                    .build();
 
         } catch (RuntimeException be) {
-            throw be;
+            log.error("Failed to sync public festivals from TourAPI", be);
+            return DataSyncResult.builder().status("FAILED").type("PUBLIC").totalChanged(0).build();
         } catch (Exception e) {
-            log.error("Failed to sync festivals from TourAPI", e);
-            throw new RuntimeException(
-                    "동기화 중 오류 발생: " + e.getMessage(), e);
+            log.error("Failed to sync public festivals from TourAPI", e);
+            return DataSyncResult.builder().status("FAILED").type("PUBLIC").totalChanged(0).build();
         }
     }
 
-    private void updateFestivalData(AdminFestivalEntity festival, JsonNode item) {
+    /**
+     * 공공 API JSON → Festival 도메인 모델 필드 업데이트
+     */
+    private void updateFestivalData(Festival festival, JsonNode item) {
         String title = item.path("title").asText(null);
         String addr1 = item.path("addr1").asText("");
         String addr2 = item.path("addr2").asText("");
@@ -151,17 +167,7 @@ public class FestivalSyncService {
         LocalDate startDate = parseDate(item.path("eventstartdate").asText(null));
         LocalDate endDate = parseDate(item.path("eventenddate").asText(null));
 
-        String status = "UPCOMING";
-        LocalDate today = LocalDate.now();
-        if (startDate != null && endDate != null) {
-            if (today.isBefore(startDate)) {
-                status = "UPCOMING";
-            } else if (today.isAfter(endDate)) {
-                status = "ENDED";
-            } else {
-                status = "ONGOING";
-            }
-        }
+        FestivalStatus newStatus = Festival.calculateStatus(startDate, endDate);
 
         title = title != null ? title : "제목 없음";
         if (title.length() > 255)
@@ -190,10 +196,20 @@ public class FestivalSyncService {
             tel = tel.substring(0, 50);
         festival.setTel(tel);
 
-        festival.setAreaCode(areacode.isEmpty() ? null : areacode);
+        // ── 지역코드: API 값 우선, 비어있으면 주소에서 역추론 ──
+        String resolvedAreaCode = areacode.isEmpty() ? null : areacode;
+        if (resolvedAreaCode == null) {
+            resolvedAreaCode = RegionCodeResolver.resolveFromAddress(addr1);
+            if (resolvedAreaCode != null) {
+                log.debug("지역코드 역추론: '{}' → areaCode={}", addr1, resolvedAreaCode);
+            }
+        }
+        festival.setAreaCode(resolvedAreaCode);
         festival.setSigunguCode(sigungucode.isEmpty() ? null : sigungucode);
-        festival.setCategory(cat1.isEmpty() ? null : cat1);
-        festival.setCategoryMid(cat2.isEmpty() ? null : cat2);
+
+        // ── 카테고리: API 값 우선, 비어있으면 축제 기본값(A02/A0207) 적용 ──
+        festival.setCategory(RegionCodeResolver.resolveCategoryFallback(cat1.isEmpty() ? null : cat1, "cat1"));
+        festival.setCategoryMid(RegionCodeResolver.resolveCategoryFallback(cat2.isEmpty() ? null : cat2, "cat2"));
         festival.setCategorySub(cat3.isEmpty() ? null : cat3);
 
         try {
@@ -202,13 +218,13 @@ public class FestivalSyncService {
         } catch (NumberFormatException e) {
             log.debug("Invalid mapx/mapy format for sourceId {}", festival.getSourceId());
         }
-        
+
         festival.setStartDate(startDate);
         festival.setEndDate(endDate);
-        if (!"ENDED".equals(festival.getStatus()) || !Boolean.TRUE.equals(festival.getIsCustom())) {
-            festival.setStatus(status);
+        if (festival.getStatus() != FestivalStatus.ENDED || !festival.isCustom()) {
+            festival.setStatus(newStatus);
         }
-        
+
         festival.setApiModifiedAt(LocalDateTime.now());
     }
 

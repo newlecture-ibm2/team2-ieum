@@ -402,7 +402,7 @@
             <ul class="sidebar-menu">
               <li>🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
-              <li>🎪 축제 등록</li>
+              <li>🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
               <li class="active">💬 문의 관리</li>
@@ -411,7 +411,8 @@
 
           <div class="content-area">
             <div style="margin-bottom: 20px;">
-              <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">💬 사용자 문의 관리</h1>
+              <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">💬 사용자
+                문의 관리</h1>
               <p style="font-size: 12px; color: #94a3b8;">사용자가 등록한 1:1 문의를 확인하고 답변합니다</p>
             </div>
 
@@ -584,13 +585,34 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>답변 버튼 클릭 (Open Reply)</strong><br>· 트리거: [답변] 버튼 클릭<br>· 동작: 해당 문의 상세 + 답변 작성 영역 펼침<br>· API: <code>GET /api/admin/inquiries/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>답변 등록 (Submit Reply)</strong><br>· 트리거: 답변 작성 후 [답변 등록] 버튼 클릭<br>· 동작: 유효성 검사 → 답변 전송 → 상태 "답변완료" 변경<br>· API: <code>POST /api/admin/inquiries/{id}/answer</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>답변 상세 보기 (View Detail)</strong><br>· 트리거: 📋 아이콘 클릭 (답변완료 문의)<br>· 동작: 문의 상세 + 등록된 답변 내용 표시</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>행 호버 인터랙션 (Row Hover)</strong><br>· 트리거: 테이블 행 마우스 호버<br>· 동작: 배경색 #f8fafc 변경 (클릭 유도)</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>답변 버튼 클릭 (Open Reply)</strong><br>· 트리거: [답변] 버튼 클릭<br>· 동작: 해당 문의 상세 + 답변 작성
+              영역 펼침<br>· API: <code>GET /api/admin/inquiries/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>답변 등록 (Submit Reply)</strong><br>· 트리거: 답변 작성 후 [답변 등록] 버튼 클릭<br>· 동작: 유효성 검사
+              → 답변 전송 → 상태 "답변완료" 변경<br>· API: <code>POST /api/admin/inquiries/{id}/answer</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>답변 상세 보기 (View Detail)</strong><br>· 트리거: 📋 아이콘 클릭 (답변완료 문의)<br>· 동작: 문의 상세 +
+              등록된 답변 내용 표시</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>행 호버 인터랙션 (Row Hover)</strong><br>· 트리거: 테이블 행 마우스 호버<br>· 동작: 배경색 #f8fafc 변경
+              (클릭 유도)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -651,33 +673,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

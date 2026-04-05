@@ -72,4 +72,19 @@ public class Festival {
     private LocalDateTime apiModifiedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+    /**
+     * 시작일/종료일 기준으로 축제 상태를 계산하는 도메인 비즈니스 로직
+     */
+    public static FestivalStatus calculateStatus(java.time.LocalDate startDate, java.time.LocalDate endDate) {
+        if (startDate == null || endDate == null) return FestivalStatus.UPCOMING;
+        java.time.LocalDate now = java.time.LocalDate.now();
+        if (now.isBefore(startDate)) {
+            return FestivalStatus.UPCOMING;
+        } else if (now.isAfter(endDate)) {
+            return FestivalStatus.ENDED;
+        } else {
+            return FestivalStatus.ONGOING;
+        }
+    }
 }

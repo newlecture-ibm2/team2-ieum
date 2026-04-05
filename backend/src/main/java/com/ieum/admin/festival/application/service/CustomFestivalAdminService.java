@@ -1,14 +1,17 @@
 package com.ieum.admin.festival.application.service;
 
 import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
-import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
+import com.ieum.admin.festival.application.port.in.CreateCustomFestivalUseCase;
+import com.ieum.admin.festival.application.port.in.DeleteCustomFestivalUseCase;
+import com.ieum.admin.festival.application.port.in.GetCustomFestivalListUseCase;
+import com.ieum.admin.festival.application.port.in.UpdateCustomFestivalUseCase;
+import com.ieum.admin.festival.application.port.out.AdminFestivalPort;
 import com.ieum.admin.festival.application.result.CustomFestivalItem;
 import com.ieum.admin.festival.application.result.CustomFestivalListResult;
 import com.ieum.admin.festival.application.result.FestivalStatusCountsResult;
-import com.ieum.admin.festival.adapter.out.persistence.entity.AdminFestivalEntity;
-import com.ieum.admin.festival.application.service.AdminFileStorageService;
-import com.ieum.admin.festival.application.service.RegionOptionService;
-import com.ieum.admin.festival.application.service.CategoryOptionService;
+import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalSource;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,60 +21,71 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 관리자용 축제 관리 서비스 (UseCase 구현체)
+ * - GetCustomFestivalListUseCase: 축제 관리 목록 조회
+ * - CreateCustomFestivalUseCase: 축제 관리 생성
+ * - UpdateCustomFestivalUseCase: 축제 관리 수정
+ * - DeleteCustomFestivalUseCase: 축제 관리 삭제
+ *
+ * Port를 통해 persistence에 접근하며, Entity를 직접 사용하지 않음
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CustomFestivalAdminService {
+public class CustomFestivalAdminService implements GetCustomFestivalListUseCase, CreateCustomFestivalUseCase, UpdateCustomFestivalUseCase, DeleteCustomFestivalUseCase {
 
-    private final AdminFestivalRepository repository;
+    private final AdminFestivalPort festivalPort;
     private final AdminFileStorageService fileStorageService;
     private final RegionOptionService regionOptionService;
     private final CategoryOptionService categoryOptionService;
 
+    @Override
     @Transactional(readOnly = true)
     public CustomFestivalListResult getCustomFestivals(int page, int size, String keyword, String statusParam, String categoryCode, String areaCode, boolean excludeHidden) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        
-        // status를 String 그대로 전달 (AdminFestivalEntity.status는 String)
+
         String status = null;
         if (statusParam != null && !statusParam.isEmpty()) {
             status = statusParam.toUpperCase();
         }
 
-        Page<AdminFestivalEntity> festivalPage;
+        List<String> targetCategories = categoryOptionService.getSelfAndDescendantCodes(categoryCode);
+        Page<Festival> festivalPage;
         if (excludeHidden) {
-            festivalPage = repository.searchVisibleCustomFestivals(keyword, status, categoryCode, areaCode, pageable);
+            festivalPage = festivalPort.searchVisibleCustomFestivals(keyword, status, targetCategories, areaCode, pageable);
         } else {
-            festivalPage = repository.searchCustomFestivals(keyword, status, categoryCode, areaCode, pageable);
+            festivalPage = festivalPort.searchCustomFestivals(keyword, status, targetCategories, areaCode, pageable);
         }
 
         List<CustomFestivalItem> items = festivalPage.getContent().stream()
                 .map(festival -> {
                     String resolvedLabel = regionOptionService.resolveLabel(festival.getAreaCode());
-                    String categoryLabel = categoryOptionService.resolveLabel(festival.getCategory());
-                    return CustomFestivalItem.from(festival, resolvedLabel, categoryLabel);
+                    String specificCategory = festival.getCategorySub() != null && !festival.getCategorySub().isEmpty() ? festival.getCategorySub() :
+                            (festival.getCategoryMid() != null && !festival.getCategoryMid().isEmpty() ? festival.getCategoryMid() : festival.getCategory());
+                    String categoryLabel = categoryOptionService.resolveLabel(specificCategory);
+                    return CustomFestivalItem.from(festival, resolvedLabel, specificCategory, categoryLabel);
                 })
                 .collect(Collectors.toList());
 
         FestivalStatusCountsResult statusCounts;
         if (excludeHidden) {
             statusCounts = FestivalStatusCountsResult.builder()
-                    .total(repository.countVisibleCustomFestivals())
-                    .ongoing(repository.countVisibleCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(repository.countVisibleCustomFestivalsByStatus("UPCOMING"))
-                    .ended(repository.countVisibleCustomFestivalsByStatus("ENDED"))
+                    .total(festivalPort.countVisibleCustomFestivals())
+                    .ongoing(festivalPort.countVisibleCustomFestivalsByStatus("ONGOING"))
+                    .upcoming(festivalPort.countVisibleCustomFestivalsByStatus("UPCOMING"))
+                    .ended(festivalPort.countVisibleCustomFestivalsByStatus("ENDED"))
                     .build();
         } else {
             statusCounts = FestivalStatusCountsResult.builder()
-                    .total(repository.countCustomFestivals())
-                    .ongoing(repository.countCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(repository.countCustomFestivalsByStatus("UPCOMING"))
-                    .ended(repository.countCustomFestivalsByStatus("ENDED"))
+                    .total(festivalPort.countCustomFestivals())
+                    .ongoing(festivalPort.countCustomFestivalsByStatus("ONGOING"))
+                    .upcoming(festivalPort.countCustomFestivalsByStatus("UPCOMING"))
+                    .ended(festivalPort.countCustomFestivalsByStatus("ENDED"))
                     .build();
         }
 
@@ -82,6 +96,7 @@ public class CustomFestivalAdminService {
                 .build();
     }
 
+    @Override
     @Transactional
     public Long createCustomFestival(CustomFestivalRequest request) {
         String imgUrl = null;
@@ -89,7 +104,20 @@ public class CustomFestivalAdminService {
             imgUrl = fileStorageService.storeFile(request.getImg());
         }
 
-        AdminFestivalEntity festival = AdminFestivalEntity.builder()
+        String extraImagesStr = null;
+        if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
+            List<String> extraImageUrls = new ArrayList<>();
+            for (MultipartFile extraImg : request.getExtraImgs()) {
+                if (extraImg != null && !extraImg.isEmpty()) {
+                    extraImageUrls.add(fileStorageService.storeFile(extraImg));
+                }
+            }
+            if (!extraImageUrls.isEmpty()) {
+                extraImagesStr = String.join(",", extraImageUrls);
+            }
+        }
+
+        Festival festival = Festival.builder()
                 .title(request.getTitle())
                 .areaCode(request.getAreaCode())
                 .startDate(request.getStartDate())
@@ -105,34 +133,25 @@ public class CustomFestivalAdminService {
                 .sigunguCode(request.getSigunguCode())
                 .imageUrl(imgUrl)
                 .thumbnailUrl(imgUrl)
+                .extraImages(extraImagesStr)
                 .isCustom(true)
-                .source("MANUAL")
+                .source(FestivalSource.MANUAL)
                 .isVisible(request.getIsVisible() != null ? request.getIsVisible() : true)
-                .status(calculateStatus(request.getStartDate(), request.getEndDate()))
+                .status(Festival.calculateStatus(request.getStartDate(), request.getEndDate()))
                 .build();
 
-        if (request.getExtraImgs() != null && !request.getExtraImgs().isEmpty()) {
-            List<String> extraImageUrls = new ArrayList<>();
-            for (MultipartFile extraImg : request.getExtraImgs()) {
-                if (extraImg != null && !extraImg.isEmpty()) {
-                    extraImageUrls.add(fileStorageService.storeFile(extraImg));
-                }
-            }
-            if (!extraImageUrls.isEmpty()) {
-                festival.setExtraImages(String.join(",", extraImageUrls));
-            }
-        }
-
-        return repository.save(festival).getId();
+        Festival saved = festivalPort.save(festival);
+        return saved.getId();
     }
 
+    @Override
     @Transactional
     public void updateCustomFestival(Long festivalId, CustomFestivalRequest request) {
-        AdminFestivalEntity festival = repository.findById(festivalId)
+        Festival festival = festivalPort.findById(festivalId)
                 .orElseThrow(() -> new RuntimeException("축제를 찾을 수 없습니다."));
 
-        if (!Boolean.TRUE.equals(festival.getIsCustom())) {
-            throw new RuntimeException("축제 등록만 수정할 수 있습니다.");
+        if (!festival.isCustom()) {
+            throw new RuntimeException("축제 관리만 수정할 수 있습니다.");
         }
 
         festival.setTitle(request.getTitle());
@@ -141,8 +160,8 @@ public class CustomFestivalAdminService {
         festival.setEndDate(request.getEndDate());
         festival.setDescription(request.getContent());
         festival.setCategory(request.getCategory());
-        festival.setStatus(calculateStatus(request.getStartDate(), request.getEndDate()));
-        
+        festival.setStatus(Festival.calculateStatus(request.getStartDate(), request.getEndDate()));
+
         festival.setEventPlace(request.getEventPlace());
         festival.setAddress(request.getAddress());
         festival.setUseFee(request.getUseFee());
@@ -152,7 +171,7 @@ public class CustomFestivalAdminService {
         festival.setSigunguCode(request.getSigunguCode());
 
         if (request.getIsVisible() != null) {
-            festival.setIsVisible(request.getIsVisible());
+            festival.setVisible(request.getIsVisible());
         }
 
         if (request.getImg() != null && !request.getImg().isEmpty()) {
@@ -172,29 +191,20 @@ public class CustomFestivalAdminService {
                 festival.setExtraImages(String.join(",", extraImageUrls));
             }
         }
+
+        festivalPort.save(festival);
     }
 
+    @Override
     @Transactional
     public void deleteCustomFestival(Long festivalId) {
-        AdminFestivalEntity festival = repository.findById(festivalId)
+        Festival festival = festivalPort.findById(festivalId)
                 .orElseThrow(() -> new RuntimeException("축제를 찾을 수 없습니다."));
 
-        if (!Boolean.TRUE.equals(festival.getIsCustom())) {
-            throw new RuntimeException("축제 등록만 삭제할 수 있습니다.");
+        if (!festival.isCustom()) {
+            throw new RuntimeException("축제 관리만 삭제할 수 있습니다.");
         }
 
-        repository.delete(festival);
-    }
-    
-    private String calculateStatus(LocalDate start, LocalDate end) {
-        if (start == null || end == null) return "UPCOMING";
-        LocalDate now = LocalDate.now();
-        if (now.isBefore(start)) {
-            return "UPCOMING";
-        } else if (now.isAfter(end)) {
-            return "ENDED";
-        } else {
-            return "ONGOING";
-        }
+        festivalPort.deleteById(festivalId);
     }
 }

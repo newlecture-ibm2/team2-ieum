@@ -1,8 +1,12 @@
 package com.ieum.admin.festival.application.service;
 
 import com.ieum.admin.festival.adapter.out.persistence.repository.SigunguMasterRepository;
+import com.ieum.admin.festival.application.dto.RegionOptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -15,9 +19,13 @@ public class SigunguOptionService {
         return name != null ? name : "미지정";
     }
 
-    public java.util.List<com.ieum.admin.festival.application.dto.RegionOptionDto> getSigungusByAreaCode(String areaCode) {
+    /**
+     * 특정 지역의 활성화된 시군구 옵션 목록 반환
+     */
+    public List<RegionOptionDto> getSigungusByAreaCode(String areaCode) {
         return sigunguMasterRepository.findByRegionCode(areaCode).stream()
-                .map(s -> new com.ieum.admin.festival.application.dto.RegionOptionDto(s.getSigunguCode(), s.getName()))
-                .collect(java.util.stream.Collectors.toList());
+                .filter(s -> s.isActive())
+                .map(s -> new RegionOptionDto(s.getSigunguCode(), s.getName(), "STANDARD"))
+                .collect(Collectors.toList());
     }
 }
