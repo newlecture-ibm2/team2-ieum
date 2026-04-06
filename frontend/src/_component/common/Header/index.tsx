@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, User } from "lucide-react";
 import api from "@/lib/api";
+import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -34,13 +35,38 @@ export default function Header() {
       window.location.reload();
     }
   };
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  /* ===== 인증 상태 (iron-session 기반) ===== */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+
+  /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    // 1) 로그인 상태 확인 — iron-session 세션 쿠키 기반
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoggedIn(data.isLoggedIn);
+        setUserNickname(data.user?.nickname ?? null);
+
+        // 2) 로그인 상태면 읽지 않은 알림 확인
+        if (data.isLoggedIn) {
+          api
+            .get("/api/users/me/notifications")
+            .then((res) => {
+              const unreadCount = res.data?.data?.unreadCount || 0;
+              setHasUnread(unreadCount > 0);
+            })
+            .catch(() => {}); // 에러 무시
+        }
+      })
+      .catch(() => {}); // 비로그인 or 에러 무시
+  }, []);
 
   if (pathname.startsWith("/admin")) return null;
-
-
-  // TODO: 실제 인증 상태는 zustand store 또는 iron-session에서 가져옴
-  const isLoggedIn = false;
-  const hasUnreadNotifications = true;
 
   return (
     <header className={styles.header}>
@@ -100,17 +126,27 @@ export default function Header() {
             🔄 상태 최신화
           </button>
 
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 목록 / 비회원은 로그인 유도 */}
-          <Link
-            href={isLoggedIn ? "/notifications" : "/auth/login"}
-            className={styles.bellBtn}
-            aria-label="알림"
-          >
-            <Bell strokeWidth={1.8} />
-            {isLoggedIn && hasUnreadNotifications && (
-              <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
-            )}
-          </Link>
+          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+          {isLoggedIn && (
+            <div className={styles.bellWrapper}>
+              <button
+                type="button"
+                className={styles.bellBtn}
+                aria-label="알림"
+                onClick={() => setIsNotiOpen((prev) => !prev)}
+              >
+                <Bell strokeWidth={1.8} />
+                {hasUnread && (
+                  <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
+                )}
+              </button>
+
+              {/* 알림 드롭다운 */}
+              {isNotiOpen && (
+                <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
+              )}
+            </div>
+          )}
 
           {/* ④ 마이페이지 / 로그인 — E4 */}
           {isLoggedIn ? (
@@ -143,4 +179,3 @@ export default function Header() {
     </header>
   );
 }
-

@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import type { CustomFestivalItem, CustomFestivalFormData, ApiResponse, RegionOptionDto, CategoryOptionDto } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
-import { resolveImageSrc, getToday } from '@/app/admin/_utils/format';
+import { resolveImageSrc, getToday } from '@/app/admin/festivals/format';
 import c from '@/app/admin/_styles/admin-common.module.css';
 import s from '../CustomFestivalListPage/CustomFestivalListPage.module.css';
 

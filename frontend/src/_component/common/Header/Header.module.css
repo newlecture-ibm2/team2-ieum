@@ -121,6 +121,10 @@
 }
 
 /* 알림 벨 */
+.bellWrapper {
+  position: relative;
+}
+
 .bellBtn {
   position: relative;
   width: 34px;
