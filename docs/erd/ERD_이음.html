@@ -397,7 +397,7 @@
     <div class="header">
         <div class="header-left">
             <h1>🎪 이음 ERD</h1>
-            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (19 Tables)</span>
+            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (20 Tables)</span>
         </div>
         <div class="legend">
             <div class="legend-item">
@@ -614,16 +614,31 @@
                 x: 2325.28, y: 1128.89,
                 columns: [
                     { name: 'report_id', type: 'bigint', pk: true, note: '신고 고유 ID' },
-                    { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
-                    { name: 'target_type', type: 'varchar(10)', note: 'POST/REVIEW/COMMENT' },
+                    { name: 'reporter_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
+                    { name: 'target_type', type: 'varchar(10)', note: 'REVIEW/POST/COMMENT' },
                     { name: 'target_id', type: 'bigint', note: '신고 대상 ID' },
-                    { name: 'reason', type: 'text', note: '신고 사유' },
-                    { name: 'status', type: 'varchar(10)', note: 'PENDING/PROCESSED/DISMISSED' },
-                    { name: 'action', type: 'varchar(10)', note: 'DELETE / DISMISS' },
-                    { name: 'created_at', type: 'timestamp', note: '신고일' },
-                    { name: 'processed_at', type: 'timestamp', note: '처리일' },
+                    { name: 'reason', type: 'report_reason', note: 'SPAM/ABUSE/INAPPROPRIATE/FALSE_INFO/OTHER' },
+                    { name: 'description', type: 'varchar(500)', note: '상세 사유 (사용자 입력)' },
+                    { name: 'status', type: 'report_status', note: 'PENDING/RESOLVED/REJECTED' },
+                    { name: 'action', type: 'report_action', note: 'DELETE_CONTENT/WARN_USER/NONE' },
+                    { name: 'admin_note', type: 'varchar(500)', note: '관리자 답변 (하위호환)' },
+                    { name: 'processed_at', type: 'timestamp', note: '처리 완료 일시' },
+                    { name: 'created_at', type: 'timestamp', note: '신고 접수 일시' },
                 ],
-                footer: 'UK: (user_id, target_type, target_id)'
+                footer: 'UK: (reporter_id, target_type, target_id)'
+            },
+            {
+                id: 'report_responses', name: 'report_responses', label: '신고 처리 답변', type: 'support',
+                x: 2700, y: 1128.89,
+                columns: [
+                    { name: 'id', type: 'bigserial', pk: true, note: '답변 고유 ID' },
+                    { name: 'report_id', type: 'bigint', fk: true, note: 'FK → reports (신고)' },
+                    { name: 'admin_id', type: 'bigint', fk: true, note: 'FK → users (관리자, NULL 허용)' },
+                    { name: 'action_type', type: 'varchar(20)', note: 'DISMISS / DELETE' },
+                    { name: 'message', type: 'text', note: '관리자 답변 내용 (필수)' },
+                    { name: 'created_at', type: 'timestamp', note: '답변 생성일' },
+                ],
+                footer: 'IDX: (report_id)'
             },
             {
                 id: 'notifications', name: 'notifications', label: '알림', type: 'support',
@@ -753,7 +768,9 @@
             { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
             { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'inquiry_id', toCol: 'target_id' },
             { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-            { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'reporter_id' },
+            { from: 'reports', to: 'report_responses', label: '1:N', fromCol: 'report_id', toCol: 'report_id' },
+            { from: 'users', to: 'report_responses', label: '1:N', fromCol: 'user_id', toCol: 'admin_id' },
             { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'fcm_tokens', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'notification_settings', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },

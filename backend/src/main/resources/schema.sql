@@ -313,6 +313,29 @@ COMMENT ON COLUMN reports.admin_note    IS '관리자 메모';
 COMMENT ON COLUMN reports.processed_at  IS '처리 완료 일시';
 
 -- ------------------------------------------------------------
+-- 2-8-1. 신고 처리 답변 (report_responses)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS report_responses (
+    id              BIGSERIAL       PRIMARY KEY,
+    report_id       BIGINT          NOT NULL,
+    admin_id        BIGINT,
+    action_type     VARCHAR(20)     NOT NULL,
+    message         TEXT            NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_report_responses_report
+        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+    CONSTRAINT fk_report_responses_admin
+        FOREIGN KEY (admin_id) REFERENCES users(id)
+);
+
+COMMENT ON TABLE  report_responses              IS '신고 처리 답변 테이블';
+COMMENT ON COLUMN report_responses.report_id    IS '신고 ID (FK → reports)';
+COMMENT ON COLUMN report_responses.admin_id     IS '처리한 관리자 ID (FK → users)';
+COMMENT ON COLUMN report_responses.action_type  IS '처리 유형 (DISMISS, DELETE)';
+COMMENT ON COLUMN report_responses.message      IS '관리자 답변 내용';
+
+-- ------------------------------------------------------------
 -- 2-9. 공지사항 (notices)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notices (
@@ -486,6 +509,9 @@ CREATE INDEX IF NOT EXISTS idx_comments_user        ON comments(user_id);
 CREATE INDEX IF NOT EXISTS idx_reports_status       ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_reports_target       ON reports(target_type, target_id);
 CREATE INDEX IF NOT EXISTS idx_reports_reporter     ON reports(reporter_id);
+
+-- report_responses
+CREATE INDEX IF NOT EXISTS idx_report_responses_report ON report_responses(report_id);
 
 -- notices
 CREATE INDEX IF NOT EXISTS idx_notices_pinned       ON notices(is_pinned DESC, created_at DESC);
