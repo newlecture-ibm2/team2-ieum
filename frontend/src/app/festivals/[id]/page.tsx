@@ -87,7 +87,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
     ? `${formatDt(data.startDate)} ~ ${formatDt(data.endDate)}`
     : '상시 진행 (미정)';
   const imageSrc = data.imageUrl || data.thumbnailUrl
-    || 'https://images.unsplash.com/photo-1522864697368-8096add2e6df?auto=format&fit=crop&q=80&w=800';
+    || '/images/hero_fallback.png'; // 기본 Fallback 이미지
 
   // --- 렌더링: 컴포넌트 조립만 담당 ---
   return (

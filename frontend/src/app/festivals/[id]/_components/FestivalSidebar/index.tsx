@@ -50,7 +50,27 @@ export default function FestivalSidebar({
           <div className={styles.infoIcon}>💰</div>
           <div>
             <div className={styles.infoLabel}>이용요금</div>
-            <div className={styles.infoVal}>{fee || '무료 또는 상세설명 참조'}</div>
+            <div className={`${styles.infoVal} ${styles.feeContainer}`}>
+              {!fee ? (
+                '무료 또는 상세설명 참조'
+              ) : (
+                fee.split(/\\n|\n|\r\n|<br\s*\/?>|,\s+(?![0-9]{3})|(?=- )/).map((line, idx) => {
+                  let trimmed = line.trim();
+                  // 앞의 하이픈이 중복되지 않도록 정리 (이미 bullet을 붙일 것이므로)
+                  if (trimmed.startsWith('-')) {
+                    trimmed = trimmed.substring(1).trim();
+                  }
+                  if (!trimmed) return null;
+                  
+                  // 항목 앞에 불릿 적용 
+                  return (
+                    <div key={idx} className={styles.preLine}>
+                      • {trimmed}
+                    </div>
+                  );
+                })
+              )}
+            </div>
           </div>
         </div>
       </div>

@@ -12,7 +12,7 @@ interface FestivalCardProps {
 
 export default function FestivalCard({ festival }: FestivalCardProps) {
   const festId = festival.festivalId || festival.id;
-  const imageSrc = festival.imageUrl || festival.thumbnailUrl || '/images/hero_spring.png'; // Fallback
+  const imageSrc = festival.imageUrl || festival.thumbnailUrl || '/images/hero_fallback.png'; // Fallback
   const rating = festival.avgStar || festival.avgRating || 0;
   const reviews = festival.reviewCount || 0;
 
