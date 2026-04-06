@@ -1,0 +1,297 @@
+'use client';
+
+import { useEffect, useState, useCallback } from 'react';
+import common from '@/app/admin/_styles/admin-common.module.css';
+import { useAdminList } from '@/app/admin/festivals/useAdminList';
+import adminApi from '@/lib/adminApi';
+import type { InquiryItem, InquiryListResponse } from '@/types/admin-inquiry';
+import InquiryDetailModal from '../InquiryDetailModal';
+import s from './InquiryListPage.module.css';
+
+/* ── 상태 배지 매핑 ── */
+const STATUS_MAP: Record<string, { label: string; className: string }> = {
+  PENDING:  { label: '대기중',   className: 'badgePending' },
+  ANSWERED: { label: '답변완료', className: 'badgeOngoing' },
+};
+
+export default function InquiryListPage() {
+  const list = useAdminList({ extraFilterKeys: ['searchType'] });
+  const {
+    currentPage, setCurrentPage, totalPages, setTotalPages,
+    statusFilter, setStatusFilterAndReset,
+    extraFilters, setExtraFilter,
+    loading, setLoading,
+    keyword, searchTerm, setSearchTerm, handleKeyDown, submitSearch
+  } = list;
+
+  const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
+  const [pendingCount, setPendingCount] = useState(0);
+  const [answeredCount, setAnsweredCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+
+  /* ── 모달/토스트 상태 ── */
+  const [selectedInquiry, setSelectedInquiry] = useState<InquiryItem | null>(null);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
+
+  const onSearchSubmit = () => {
+    setExtraFilter('searchType', localSearchType);
+    submitSearch();
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit();
+    }
+  };
+
+  /* ── 데이터 로드 ── */
+  const fetchInquiries = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params: Record<string, string | number> = {
+        page: currentPage,
+        size: 10,
+      };
+      if (statusFilter) params.status = statusFilter;
+      if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
+      if (keyword) params.keyword = keyword;
+
+      const { data } = await adminApi.get<{ data: InquiryListResponse }>('/inquiries', { params });
+      const result = data.data;
+
+      setInquiries(result.content);
+      setTotalPages(result.totalPages || 1);
+      setTotalCount(result.pendingCount + result.answeredCount);
+      setPendingCount(result.pendingCount);
+      setAnsweredCount(result.answeredCount);
+    } catch (err) {
+      console.error('문의 목록 조회 실패:', err);
+      setInquiries([]);
+    } finally {
+      setLoading(false);
+    }
+  }, [currentPage, statusFilter, extraFilters.searchType, keyword, setLoading, setTotalPages]);
+
+  useEffect(() => {
+    fetchInquiries();
+  }, [fetchInquiries]);
+
+  /* ── KPI 카드 클릭 ── */
+  const handleStatClick = (status: string) => {
+    setStatusFilterAndReset(statusFilter === status ? '' : status);
+  };
+
+  return (
+    <div className={common.container}>
+      {/* ── 페이지 헤더 ── */}
+      <div className={common.pageHeader}>
+        <div>
+          <h1 className={common.pageTitle}>💬 사용자 문의 관리</h1>
+          <p className={common.pageSubtitle}>사용자가 등록한 1:1 문의를 확인하고 답변합니다</p>
+        </div>
+        {pendingCount > 0 && (
+          <span style={{
+            background: '#eff6ff', color: '#2563eb',
+            padding: '6px 16px', borderRadius: 20,
+            fontSize: 13, fontWeight: 700,
+          }}>
+            {pendingCount}건 미답변
+          </span>
+        )}
+      </div>
+
+      {/* ── KPI 카드 ── */}
+      <div className={common.card}>
+        <div className={common.statGrid}>
+          <div
+            className={`${common.statCard} ${common.statTotal} ${common.statCardInteractive} ${statusFilter === '' ? common.statActive : ''}`}
+            onClick={() => handleStatClick('')}
+          >
+            <div className={common.statLabel}>전체</div>
+            <div className={common.statValue}>{totalCount}</div>
+          </div>
+          <div
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
+            onClick={() => handleStatClick('PENDING')}
+          >
+            <div className={common.statLabel}>대기중</div>
+            <div className={`${common.statValue} ${common.textPurple}`}>{pendingCount}</div>
+          </div>
+          <div
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'ANSWERED' ? common.statActive : ''}`}
+            onClick={() => handleStatClick('ANSWERED')}
+          >
+            <div className={common.statLabel}>답변완료</div>
+            <div className={`${common.statValue} ${common.textGreen}`}>{answeredCount}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 필터 바 ── */}
+      <div className={common.filterBar}>
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={statusFilter}
+            onChange={(e) => setStatusFilterAndReset(e.target.value)}
+          >
+            <option value="">전체 상태</option>
+            <option value="PENDING">대기중</option>
+            <option value="ANSWERED">답변완료</option>
+          </select>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={localSearchType}
+            onChange={(e) => setLocalSearchType(e.target.value)}
+          >
+            <option value="ALL">전체 검색</option>
+            <option value="TITLE">제목</option>
+            <option value="AUTHOR">작성자</option>
+            <option value="CONTENT">문의 내용</option>
+          </select>
+          <input
+            type="text"
+            className={common.searchInput}
+            style={{ width: 240 }}
+            placeholder="검색어를 입력하세요"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          <button type="button" className={common.searchBtn} onClick={onSearchSubmit}>
+            검색
+          </button>
+        </div>
+      </div>
+
+      {/* ── 테이블 ── */}
+      <div className={common.tableCard}>
+        {loading ? (
+          <div style={{ textAlign: 'center', padding: 60 }}>
+            <span className={common.spinner} /> 불러오는 중...
+          </div>
+        ) : (
+          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '60px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '110px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '100px' }} />
+              <col style={{ width: '110px' }} />
+            </colgroup>
+            <thead>
+              <tr className={common.tableHeaderRow}>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>제목</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>작성자</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>작성일</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inquiries.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className={common.emptyRow}>
+                    문의 내역이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                inquiries.map((inquiry, idx) => (
+                  <tr
+                    key={inquiry.id}
+                    className={`${common.tableRow} ${common.tableRowHover}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedInquiry(inquiry)}
+                  >
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(currentPage - 1) * 10 + idx + 1}
+                    </td>
+                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                      {inquiry.title}
+                    </td>
+                    <td className={common.tableCell}>
+                      {inquiry.authorNickname}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {inquiry.createdAt?.slice(0, 10)}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${common[STATUS_MAP[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                        {STATUS_MAP[inquiry.status]?.label || inquiry.status}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <button
+                        className={inquiry.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
+                      >
+                        {inquiry.status === 'PENDING' ? '답변' : '보기'}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        )}
+
+        {/* ── 페이지네이션 ── */}
+        {!loading && (
+          <div className={common.pagination}>
+            <button
+              className={common.pageBtn}
+              disabled={currentPage <= 1}
+              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
+            >
+              ← 이전
+            </button>
+            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
+            <button
+              className={common.pageBtn}
+              disabled={currentPage >= totalPages}
+              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
+            >
+              다음 →
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* ── 상세 모달 ── */}
+      {selectedInquiry && (
+        <InquiryDetailModal
+          inquiry={selectedInquiry}
+          onClose={() => setSelectedInquiry(null)}
+          onAnswered={() => {
+            setSelectedInquiry(null);
+            setToastMessage('답변이 등록되었습니다.');
+            setTimeout(() => setToastMessage(''), 3000);
+            fetchInquiries();
+          }}
+        />
+      )}
+
+      {/* ── Toast 메시지 ── */}
+      {toastMessage && (
+        <div style={{
+          position: 'fixed', bottom: 40, left: '50%', transform: 'translateX(-50%)',
+          background: '#334155', color: '#fff', padding: '12px 24px',
+          borderRadius: 8, fontSize: 14, fontWeight: 500,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 9999,
+          animation: 'fadeInOut 3s forwards'
+        }}>
+          ✅ {toastMessage}
+        </div>
+      )}
+    </div>
+  );
+}
