@@ -49,25 +49,20 @@ export default function LoginForm() {
     try {
       setIsLoading(true);
       
-      // 방금 완성한 백엔드 API 호출!
+      // Next.js (iron-session) API 호출
       const response = await axios.post('/api/auth/login', {
         email,
         password
       });
 
-      if (response.data.status === 'SUCCESS') {
-        const { accessToken } = response.data.data;
-        
-        // 간단한 스토리지 저장 (실무에선 Context, Zustand 등 활용)
-        localStorage.setItem('accessToken', accessToken);
-        
+      if (response.status === 200) {
         if (saveId) {
           localStorage.setItem('savedEmail', email);
         } else {
           localStorage.removeItem('savedEmail');
         }
 
-        router.push('/');
+        window.location.href = '/';
       } else {
         setGlobalError(response.data.message || '로그인에 실패했습니다.');
       }
