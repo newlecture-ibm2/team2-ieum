@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>화면 설계서 - 관리자 자체기획 축제</title>
+  <title>화면 설계서 - 관리자 축제 관리</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 
@@ -381,7 +381,7 @@
     <div class="meta-header">
       <div class="meta-left">
         <div class="meta-label">Page Title.</div>
-        <div class="meta-value">관리자 - 자체 기획 축제</div>
+        <div class="meta-value">관리자 - 축제 관리</div>
         <div class="meta-label">Screen ID</div>
         <div class="meta-value">UI-ADM-003</div>
       </div>
@@ -394,7 +394,7 @@
     </div>
     <div class="meta-row2">
       <div class="meta-label">Screen Path</div>
-      <div class="meta-value">관리자 &gt; 사이드바 &gt; 자체 기획 축제</div>
+      <div class="meta-value">관리자 &gt; 사이드바 &gt; 축제 관리</div>
     </div>
 
     <div class="main-content">
@@ -411,7 +411,7 @@
             <ul class="sidebar-menu">
               <li>🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
-              <li class="active">🎪 자체기획 축제</li>
+              <li class="active">🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
               <li>💬 문의 관리</li>
@@ -423,8 +423,8 @@
           <div class="content-area">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 자체
-                  기획 축제 관리</h1>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 축제
+                  등록 관리</h1>
                 <p style="font-size: 12px; color: #94a3b8;">직접 기획한 축제를 등록하고 관리합니다</p>
               </div>
               <button
@@ -571,7 +571,7 @@
             <td class="num">1</td>
             <td class="desc-text">
               <strong>관리자 사이드바 네비게이션</strong><br>
-              · 현재 메뉴(자체기획 축제)는 파란색 활성 표시<br>
+              · 현재 메뉴(축제 등록)는 파란색 활성 표시<br>
               · 다른 관리 메뉴 클릭 시 해당 화면으로 전환
             </td>
           </tr>
@@ -579,7 +579,7 @@
             <td class="num">2</td>
             <td class="desc-text">
               <strong>페이지 타이틀 + 서브텍스트</strong><br>
-              · "🎪 자체 기획 축제 관리" 제목<br>
+              · "🎪 축제 관리" 제목<br>
               · 관리자(ADMIN) 권한 전용
             </td>
           </tr>
@@ -594,7 +594,7 @@
           <tr>
             <td class="num">4</td>
             <td class="desc-text">
-              <strong>자체 기획 축제 목록 테이블</strong><br>
+              <strong>축제 관리 목록 테이블</strong><br>
               <strong>API: <code>GET /api/admin/festivals/custom</code></strong> (API_ADM_0040)<br>
               · 컬럼: 축제명, 지역, 날짜, 카테고리, 상태, 관리<br>
               · 축제명 클릭 → 상세 / 수정 모드 진입<br>
@@ -693,7 +693,7 @@
             <td>API_ADM_0040</td>
             <td><span class="method get">GET</span></td>
             <td class="endpoint">/api/admin/festivals/custom</td>
-            <td>자체 기획 목록 조회</td>
+            <td>축제 관리 목록 조회</td>
             <td>page, size</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
@@ -701,7 +701,7 @@
             <td>API_ADM_0041</td>
             <td><span class="method post">POST</span></td>
             <td class="endpoint">/api/admin/festivals/custom</td>
-            <td>자체 기획 신규 등록</td>
+            <td>축제 관리 신규 등록</td>
             <td>title, content, img (body)</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
@@ -709,7 +709,7 @@
             <td>API_ADM_0042</td>
             <td><span class="method put">PUT</span></td>
             <td class="endpoint">/api/admin/festivals/custom/{festivalId}</td>
-            <td>자체 기획 정보 수정</td>
+            <td>축제 관리 정보 수정</td>
             <td>title, content, img (body)</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
@@ -717,7 +717,7 @@
             <td>API_ADM_0043</td>
             <td><span class="method delete">DELETE</span></td>
             <td class="endpoint">/api/admin/festivals/custom/{festivalId}</td>
-            <td>자체 기획 삭제</td>
+            <td>축제 관리 삭제</td>
             <td>—</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
