@@ -1,10 +1,12 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, User } from "lucide-react";
 import api from "@/lib/api";
+import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -24,6 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -85,17 +88,25 @@ export default function Header() {
             🔄 상태 최신화
           </button>
 
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 목록 / 비회원은 로그인 유도 */}
-          <Link
-            href={isLoggedIn ? "/notifications" : "/auth/login"}
-            className={styles.bellBtn}
-            aria-label="알림"
-          >
-            <Bell strokeWidth={1.8} />
-            {isLoggedIn && hasUnreadNotifications && (
-              <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
+          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+          <div className={styles.bellWrapper}>
+            <button
+              type="button"
+              className={styles.bellBtn}
+              aria-label="알림"
+              onClick={() => setIsNotiOpen((prev) => !prev)}
+            >
+              <Bell strokeWidth={1.8} />
+              {hasUnreadNotifications && (
+                <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
+              )}
+            </button>
+
+            {/* 알림 드롭다운 */}
+            {isNotiOpen && (
+              <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
             )}
-          </Link>
+          </div>
 
           {/* ④ 마이페이지 / 로그인 — E4 */}
           {isLoggedIn ? (
@@ -116,4 +127,3 @@ export default function Header() {
     </header>
   );
 }
-
