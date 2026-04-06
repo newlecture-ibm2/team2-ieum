@@ -3,13 +3,13 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
-import { useAdminList } from '@/app/admin/_hooks/useAdminList';
-import { useFestivalOptions } from '@/app/admin/_hooks/useFestivalOptions';
-import { formatDateRange } from '@/app/admin/_utils/format';
+import { useAdminList } from '@/app/admin/festivals/useAdminList';
+import { useFestivalOptions } from '@/app/admin/festivals/useFestivalOptions';
+import { formatDateRange } from '@/app/admin/festivals/format';
 import c from '@/app/admin/_styles/admin-common.module.css';
 import s from './CustomFestivalListPage.module.css';
 import CustomFestivalFormModal from '../CustomFestivalFormModal';
-import AdminListSummary from '@/app/admin/_components/AdminListSummary';
+import AdminListSummary from '@/app/admin/festivals/_components/AdminListSummary';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
