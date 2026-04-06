@@ -42,6 +42,10 @@ interface UseCalendarViewReturn {
   goToPrevMonth: () => void;
   /** 다음 월로 이동 */
   goToNextMonth: () => void;
+  /** 연도 직접 설정 */
+  setYear: (y: number) => void;
+  /** 월 직접 설정 */
+  setMonth: (m: number) => void;
   /** 날짜 선택 */
   selectDay: (day: number) => void;
   /** 축제 리스트 닫기 */
@@ -145,6 +149,18 @@ export default function useCalendarView(): UseCalendarViewReturn {
     setSelectedFestivals([]);
   }, []);
 
+  const changeYear = useCallback((y: number) => {
+    setSelectedDay(null);
+    setSelectedFestivals([]);
+    setYear(y);
+  }, []);
+
+  const changeMonth = useCallback((m: number) => {
+    setSelectedDay(null);
+    setSelectedFestivals([]);
+    setMonth(m);
+  }, []);
+
   return {
     year,
     month,
@@ -155,6 +171,8 @@ export default function useCalendarView(): UseCalendarViewReturn {
     isFestivalsLoading,
     goToPrevMonth,
     goToNextMonth,
+    setYear: changeYear,
+    setMonth: changeMonth,
     selectDay,
     closeExpand,
   };

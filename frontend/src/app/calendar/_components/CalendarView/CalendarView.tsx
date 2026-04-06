@@ -32,6 +32,8 @@ export default function CalendarView() {
     isFestivalsLoading,
     goToPrevMonth,
     goToNextMonth,
+    setYear: changeYear,
+    setMonth: changeMonth,
     selectDay,
     closeExpand,
   } = useCalendarView();
@@ -80,6 +82,10 @@ export default function CalendarView() {
     return result;
   }, [firstDay, daysInMonth]);
 
+  /** 연도 옵션 (현재 기준 ±3년) */
+  const currentYear = today.getFullYear();
+  const yearOptions = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i);
+
   /** 축제 카드 렌더링 */
   const renderFestivalCard = (festival: CalendarFestival, index: number) => (
     <article className={styles.festCard} key={festival.id}>
@@ -117,10 +123,32 @@ export default function CalendarView() {
 
       {/* 연월 네비게이션 */}
       <div className={styles.monthNav}>
-        <span className={styles.yearMonth}>
-          {year}년 {month}월
-        </span>
-        <div className={styles.navArrows}>
+        {/* 좌측: 년/월 드롭다운 */}
+        <div className={styles.dropdowns}>
+          <select
+            className={styles.yearSelect}
+            value={year}
+            onChange={(e) => changeYear(Number(e.target.value))}
+            aria-label="연도 선택"
+          >
+            {yearOptions.map((y) => (
+              <option key={y} value={y}>{y}년</option>
+            ))}
+          </select>
+          <select
+            className={styles.monthSelect}
+            value={month}
+            onChange={(e) => changeMonth(Number(e.target.value))}
+            aria-label="월 선택"
+          >
+            {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
+              <option key={m} value={m}>{m}월</option>
+            ))}
+          </select>
+        </div>
+
+        {/* 중앙: 이전/현재월/다음 네비게이션 */}
+        <div className={styles.centerNav}>
           <button
             type="button"
             className={styles.arrowBtn}
@@ -129,6 +157,9 @@ export default function CalendarView() {
           >
             <ChevronLeft size={18} />
           </button>
+          <span className={styles.yearMonth}>
+            {year}년 {month}월
+          </span>
           <button
             type="button"
             className={styles.arrowBtn}
@@ -138,6 +169,9 @@ export default function CalendarView() {
             <ChevronRight size={18} />
           </button>
         </div>
+
+        {/* 우측 여백 (좌우 대칭용) */}
+        <div className={styles.navSpacer} />
       </div>
 
       {/* 캘린더 그리드 */}
