@@ -1,0 +1,16 @@
+.page {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px var(--spacing-lg) 80px;
+  min-height: 70vh;
+}
+
+.pageTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-gray-900);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

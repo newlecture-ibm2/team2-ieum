@@ -1,0 +1,151 @@
+.container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 40px var(--spacing-lg) 80px;
+  min-height: 70vh;
+}
+
+.breadcrumb {
+  font-size: 13px;
+  color: var(--color-gray-400);
+  margin-bottom: 16px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb a {
+  color: var(--color-gray-500);
+  text-decoration: none;
+  transition: color 0.15s;
+}
+
+.breadcrumb a:hover {
+  color: var(--color-primary);
+}
+
+.detailHeader {
+  border-top: 2px solid var(--color-gray-800);
+  border-bottom: 1px solid var(--color-gray-200);
+  padding: 20px 0;
+}
+
+.detailTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 1.4;
+}
+
+.pinIcon {
+  font-size: 18px;
+  flex-shrink: 0;
+}
+
+.detailMeta {
+  display: flex;
+  gap: 20px;
+  font-size: 13px;
+  color: var(--color-gray-400);
+}
+
+.detailMeta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.detailBody {
+  padding: 28px 0;
+  min-height: 200px;
+  font-size: 15px;
+  line-height: 1.9;
+  color: var(--color-gray-700);
+  border-bottom: 1px solid var(--color-gray-200);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.detailNav {
+  display: flex;
+  justify-content: space-between;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.navLink {
+  font-size: 13px;
+  color: var(--color-primary);
+  cursor: pointer;
+  transition: opacity 0.15s;
+  background: none;
+  border: none;
+  font-family: inherit;
+  padding: 4px 0;
+}
+
+.navLink:hover {
+  opacity: 0.7;
+  text-decoration: underline;
+}
+
+.navDisabled {
+  color: var(--color-gray-300);
+  cursor: default;
+}
+
+.navDisabled:hover {
+  opacity: 1;
+  text-decoration: none;
+}
+
+.backBtnWrap {
+  text-align: center;
+  margin-top: 24px;
+}
+
+.backBtn {
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  padding: 10px 32px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: opacity 0.2s;
+}
+
+.backBtn:hover {
+  opacity: 0.9;
+}
+
+.loadingState {
+  text-align: center;
+  padding: 80px 20px;
+  color: var(--color-gray-400);
+  font-size: 14px;
+}
+
+.errorState {
+  text-align: center;
+  padding: 80px 20px;
+}
+
+.errorState h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  margin-top: 12px;
+}
+
+.errorState p {
+  font-size: 14px;
+  color: var(--color-gray-400);
+  margin-top: 6px;
+}
