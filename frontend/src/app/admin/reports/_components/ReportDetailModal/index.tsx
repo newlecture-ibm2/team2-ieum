@@ -5,6 +5,9 @@ import common from '@/app/admin/_styles/admin-common.module.css';
 import s from './ReportDetailModal.module.css';
 import adminApi from '@/lib/adminApi';
 import type { ReportItem } from '@/types/admin-report';
+import { Modal } from '@/_component/common/Modal';
+import ConfirmModal from '@/_component/common/Modal/ConfirmModal';
+import { useToast } from '@/_component/common/Toast';
 
 /* ── 매핑 상수 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
@@ -48,6 +51,9 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
   const isPending = report.status === 'PENDING';
   const targetLabel = TARGET_TYPE_MAP[report.targetType] || report.targetType;
 
+  const { toast } = useToast();
+  const [confirmTarget, setConfirmTarget] = useState<'DISMISS' | 'DELETE' | null>(null);
+
   /* ── 답변 상태 ── */
   const [message, setMessage] = useState('');
   const [messageError, setMessageError] = useState('');
@@ -58,11 +64,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
   const [originalLoading, setOriginalLoading] = useState(true);
   const [originalDeleted, setOriginalDeleted] = useState(false);
 
-  /* ── 스크롤 방지 ── */
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, []);
+  /* ── 스크롤 방지 제거 ── */
 
   /* ── 원문 조회 시도 ── */
   useEffect(() => {
@@ -83,8 +85,8 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
     fetchOriginal();
   }, [report.id]);
 
-  /* ── 처리 ── */
-  const handleProcess = async (actionType: 'DISMISS' | 'DELETE') => {
+  /* ── 처리 로직 ── */
+  const executeProcess = async (actionType: 'DISMISS' | 'DELETE') => {
     if (!isPending) return;
 
     const trimmed = message.trim();
@@ -97,23 +99,36 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
       return;
     }
 
-    if (actionType === 'DELETE') {
-      if (!confirm(`신고 대상 ${targetLabel}을(를) 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) return;
-    }
-
     setProcessing(true);
     try {
-      await adminApi.patch(`/reports/${report.id}/process`, {
+      const res = await adminApi.patch(`/reports/${report.id}/process`, {
         actionType,
         message: trimmed,
       });
-      onProcessed();
+      if (res.data.success) {
+        toast('신고 처리가 완료되었습니다.', 'success');
+        onProcessed();
+      }
     } catch (err) {
       console.error('신고 처리 실패:', err);
-      alert('처리 중 오류가 발생했습니다.');
+      toast('처리 중 오류가 발생했습니다.', 'error');
     } finally {
       setProcessing(false);
+      setConfirmTarget(null);
     }
+  };
+
+  const handleProcessClick = (actionType: 'DISMISS' | 'DELETE') => {
+    const trimmed = message.trim();
+    if (!trimmed) {
+      setMessageError('처리 답변을 입력해주세요.');
+      return;
+    }
+    if (trimmed.length < 10) {
+      setMessageError('답변은 최소 10자 이상 작성해주세요.');
+      return;
+    }
+    setConfirmTarget(actionType);
   };
 
   /* ── 템플릿 적용 ── */
@@ -123,20 +138,10 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
   };
 
   return (
-    <div className={common.modalOverlay} onClick={onClose}>
-      <div
-        className={`${common.modalContent} ${s.modalWrap}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── 헤더 ── */}
-        <div className={common.modalHeader}>
-          <div className={common.modalTitle}>
-            🔍 신고 내용 확인 {!isPending && '(처리 완료)'}
-          </div>
-          <button className={common.modalCloseBtn} onClick={onClose}>✕</button>
-        </div>
-
-        <div className={s.modalBody}>
+    <>
+      <div className={s.modalWrap}>
+        <Modal title={`🔍 신고 내용 확인 ${!isPending ? '(처리 완료)' : ''}`} size="large" onClose={onClose} closeOnOverlay={false}>
+          <div className={s.modalBody}>
           {/* ── ① 신고 기본 정보 ── */}
           <div className={s.section}>
             <div className={s.sectionTitle}>
@@ -281,7 +286,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
                   color: '#0284c7',
                   opacity: message.trim().length < 10 ? 0.5 : 1,
                 }}
-                onClick={() => handleProcess('DISMISS')}
+                onClick={() => handleProcessClick('DISMISS')}
                 disabled={processing || message.trim().length < 10}
               >
                 {processing ? '처리 중...' : '신고 반려'}
@@ -289,7 +294,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
               <button
                 className={common.btnDanger}
                 style={{ opacity: message.trim().length < 10 ? 0.5 : 1 }}
-                onClick={() => handleProcess('DELETE')}
+                onClick={() => handleProcessClick('DELETE')}
                 disabled={processing || message.trim().length < 10}
               >
                 {processing ? '처리 중...' : `신고 대상 ${targetLabel} 삭제`}
@@ -297,7 +302,23 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
             </>
           )}
         </div>
+        </Modal>
       </div>
-    </div>
+
+      {confirmTarget && (
+        <ConfirmModal
+          title="신고 처리 확인"
+          message={
+            confirmTarget === 'DELETE'
+              ? `신고 대상 ${targetLabel}을(를) 정말 삭제하시겠습니까?\n(삭제 후에는 복구가 불가합니다.)`
+              : '신고를 반려 처리하시겠습니까?'
+          }
+          confirmText={confirmTarget === 'DELETE' ? '삭제' : '반려'}
+          danger={confirmTarget === 'DELETE'}
+          onConfirm={() => executeProcess(confirmTarget)}
+          onCancel={() => setConfirmTarget(null)}
+        />
+      )}
+    </>
   );
 }

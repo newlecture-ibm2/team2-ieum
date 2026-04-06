@@ -115,14 +115,7 @@ public class SecurityConfig {
                                                 // ✅ 관리자 인증 API (Refresh 등)
                                                 .requestMatchers("/api/admin/auth/**").permitAll()
 
-                                                // 🔒 관리자 전용 — 축제 관리
-                                                .requestMatchers("/api/admin/festivals/**", "/api/admin/festivals")
-                                                .hasRole("ADMIN")
-                                                .requestMatchers("/api/admin/managedFestivals/**",
-                                                                "/api/admin/managedFestivals")
-                                                .hasRole("ADMIN")
-
-                                                // 🔐 관리자 전용
+                                                // 🔐 관리자 전용 (모든 관리자 API 일괄 적용)
                                                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                                                 // 🔒 그 외 인증 필요

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   신고 상세 모달 스타일
+   문의 상세 모달 스타일
    ========================================================================== */
 
 /* ── 모달 사이즈 오버라이드 ── */
@@ -59,71 +59,18 @@
   grid-column: 1 / -1;
 }
 
-/* ── 원문 카드 ── */
-.originalCard {
+/* ── 문의 내용 카드 ── */
+.contentCard {
   background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 8px;
-  padding: 10px 14px;
-}
-
-.originalMeta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
-.originalAuthor {
-  font-weight: 600;
+  padding: 14px;
+  font-size: 13px;
+  line-height: 1.6;
   color: #334155;
-}
-
-.originalContent {
-  font-size: 12px;
-  line-height: 1.5;
-  color: #475569;
-  display: -webkit-box;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
   white-space: pre-wrap;
-}
-
-.deletedContent {
-  font-size: 12px;
-  color: #94a3b8;
-  font-style: italic;
-  padding: 8px 0;
-  text-align: center;
-}
-
-/* ── 통계 뱃지 ── */
-.statRow {
-  display: flex;
-  gap: 10px;
-}
-
-.statChip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  color: #475569;
-}
-
-.statChipWarn {
-  background: #fef2f2;
-  border-color: #fecdd3;
-  color: #dc2626;
+  max-height: 150px;
+  overflow-y: auto;
 }
 
 /* ── 구분선 ── */
@@ -140,7 +87,7 @@
 
 .responseTextarea {
   width: 100%;
-  min-height: 72px;
+  min-height: 90px;
   padding: 10px 14px;
   border: 1px solid #cbd5e1;
   border-radius: 8px;
@@ -195,58 +142,12 @@
   display: block;
 }
 
-/* ── 템플릿 버튼 ── */
-.templateRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 5px;
-  margin-bottom: 8px;
-}
-
-.templateBtn {
-  padding: 4px 10px;
-  border: 1px solid #e2e8f0;
-  border-radius: 5px;
-  font-size: 11px;
-  font-weight: 500;
-  color: #475569;
-  background: #f8fafc;
-  cursor: pointer;
-  transition: all 0.15s;
-  white-space: nowrap;
-}
-
-.templateBtn:hover {
-  background: #e2e8f0;
-  border-color: #cbd5e1;
-  color: #1e293b;
-}
-
-/* ── 안내 문구 ── */
-.notice {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 14px;
-  background: #eff6ff;
-  border: 1px solid #bfdbfe;
-  border-radius: 8px;
-  font-size: 12px;
-  color: #1d4ed8;
-  font-weight: 500;
-}
-
-/* ── 처리 이력 (readonly) ── */
+/* ── 답변 이력 (readonly) ── */
 .historyCard {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
   border-radius: 10px;
   padding: 16px;
-}
-
-.historyCardRejected {
-  background: #eff6ff;
-  border-color: #bfdbfe;
 }
 
 .historyMeta {
@@ -260,14 +161,7 @@
 
 .historyStatus {
   font-weight: 700;
-}
-
-.historyStatusResolved {
   color: #16a34a;
-}
-
-.historyStatusRejected {
-  color: #0284c7;
 }
 
 .historyMessage {

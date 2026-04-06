@@ -263,9 +263,9 @@ export default function CustomFestivalListPage() {
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>축제명</th>
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>카테고리</th>
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>지역</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>날짜</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>상태</th>
-              <th className={`${c.tableHeaderCell} ${c.textRight}`}>관리 (노출/동작)</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>날짜</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>상태</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>관리 (노출/동작)</th>
             </tr>
           </thead>
           <tbody>
