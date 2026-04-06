@@ -25,9 +25,9 @@ const tables = [
     { n: 'end_date', t: 'date' }, { n: 'status', t: 'varchar(10)' },
     { n: 'image_url', t: 'varchar(500)' }, { n: 'latitude', t: 'decimal(10,7)' },
     { n: 'longitude', t: 'decimal(10,7)' }, { n: 'tel', t: 'varchar(50)' },
-    { n: 'homepage', t: 'varchar(500)' }, { n: 'category', t: 'varchar(10)' },
+    { n: 'homepage', t: 'varchar(500)' }, { n: 'category', t: 'varchar(10)', k: 'fk' },
     { n: 'category_mid', t: 'varchar(10)' }, { n: 'category_sub', t: 'varchar(10)' },
-    { n: 'area_code', t: 'varchar(10)' }, { n: 'sigungu_code', t: 'varchar(5)' },
+    { n: 'area_code', t: 'varchar(10)', k: 'fk' }, { n: 'sigungu_code', t: 'varchar(5)', k: 'fk' },
     { n: 'ldong_code', t: 'varchar(20)' }, { n: 'event_place', t: 'varchar(200)' },
     { n: 'play_time', t: 'varchar(200)' }, { n: 'program', t: 'text' },
     { n: 'use_fee', t: 'varchar(200)' }, { n: 'sponsor', t: 'varchar(100)' },
@@ -121,6 +121,21 @@ const tables = [
     { n: 'error_message', t: 'text' }, { n: 'error_detail', t: 'text' },
     { n: 'created_at', t: 'timestamp' },
   ]},
+  { id: 1700, name: 'region_master', label: '지역 마스터', type: 'support', x: 40, y: 1150, w: W, cols: [
+    { n: 'region_code', t: 'varchar(20)', k: 'pk' }, { n: 'name', t: 'varchar(50)' },
+    { n: 'type', t: 'varchar(20)' }, { n: 'is_active', t: 'boolean' },
+    { n: 'updated_at', t: 'timestamp' },
+  ]},
+  { id: 1800, name: 'sigungu_master', label: '시군구 마스터', type: 'support', x: 40, y: 1350, w: W, cols: [
+    { n: 'id', t: 'bigint', k: 'pk' }, { n: 'region_code', t: 'varchar(20)', k: 'fk' },
+    { n: 'sigungu_code', t: 'varchar(20)' }, { n: 'name', t: 'varchar(50)' },
+    { n: 'is_active', t: 'boolean' }, { n: 'updated_at', t: 'timestamp' },
+  ]},
+  { id: 1900, name: 'category_master', label: '카테고리 마스터', type: 'support', x: 400, y: 1150, w: W, cols: [
+    { n: 'category_code', t: 'varchar(20)', k: 'pk' }, { n: 'name', t: 'varchar(50)' },
+    { n: 'type', t: 'varchar(20)' }, { n: 'is_active', t: 'boolean' },
+    { n: 'updated_at', t: 'timestamp' },
+  ]},
 ];
 
 // Relationships: [sourceTableId, sourceColIdx, targetTableId, targetColIdx, cardinality]
@@ -143,6 +158,9 @@ const edges = [
   [100, 0, 1400, 1, '1:1'],  // users → notification_settings
   [1500, 0, 500, 2, '1:N'],  // categories → posts
   [100, 0, 1600, 4, '1:N'],  // users → batch_log
+  [1700, 0, 1800, 1, '1:N'], // region_master → sigungu_master
+  [1700, 0, 200, 18, '1:N'], // region_master → festivals
+  [1900, 0, 200, 15, '1:N'], // category_master → festivals
 ];
 
 function escXml(s) { return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }

@@ -410,7 +410,7 @@
             <ul class="sidebar-menu">
               <li>🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
-              <li>🎪 자체기획 축제</li>
+              <li>🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li class="active">📢 공지/팝업</li>
               <li>💬 문의 관리</li>
@@ -420,7 +420,8 @@
           <div class="content-area">
             <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">📢 공지사항 관리</h1>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">📢
+                  공지사항 관리</h1>
                 <p style="font-size: 12px; color: #94a3b8;">공지사항을 등록·수정·삭제하고 팝업을 설정합니다</p>
               </div>
               <div style="display: flex; gap: 8px;" data-marker="3">
@@ -489,7 +490,8 @@
 
             <!-- 공지 작성/수정 폼 -->
             <div style="background: #fff; border-radius: 12px; padding: 20px; border: 2px dashed #d8b4fe;">
-              <div style="font-weight: 700; font-size: 14px; color: #6c5ce7; margin-bottom: 14px;" data-marker="5">📝 공지 작성 / 수정</div>
+              <div style="font-weight: 700; font-size: 14px; color: #6c5ce7; margin-bottom: 14px;" data-marker="5">📝 공지
+                작성 / 수정</div>
               <div style="margin-bottom: 10px;">
                 <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">제목</label>
                 <div
@@ -608,14 +610,39 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>공지 작성 (Create)</strong><br>· 트리거: [+ 공지 작성] 버튼 클릭 → 폼 작성 → [등록]<br>· 동작: 제목/내용/첨부파일 전송<br>· API: <code>POST /api/admin/notices</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>공지 수정 (Update)</strong><br>· 트리거: ✏️ 버튼 클릭 → 폼에 기존 데이터 pre-fill → [등록]<br>· 동작: 공지 정보 수정<br>· API: <code>PUT /api/admin/notices/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>공지 삭제 (Delete)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → 공지 + 첨부파일 삭제<br>· API: <code>DELETE /api/admin/notices/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>팝업 설정 토글 (Toggle Popup)</strong><br>· 트리거: 팝업 ON/OFF 토글 클릭<br>· 동작: isPopup 필드 변경 → 메인 페이지 팝업 노출 여부 제어<br>· 복수 팝업 시 최신 1개만 노출</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>팝업 설정 모달 (Popup Config)</strong><br>· 트리거: [⚙ 팝업 설정] 버튼 클릭<br>· 동작: 팝업 표시 공지 선택 모달 표시</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E6</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>공지 작성 (Create)</strong><br>· 트리거: [+ 공지 작성] 버튼 클릭 → 폼 작성 → [등록]<br>· 동작:
+              제목/내용/첨부파일 전송<br>· API: <code>POST /api/admin/notices</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>공지 수정 (Update)</strong><br>· 트리거: ✏️ 버튼 클릭 → 폼에 기존 데이터 pre-fill → [등록]<br>·
+              동작: 공지 정보 수정<br>· API: <code>PUT /api/admin/notices/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>공지 삭제 (Delete)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → 공지 + 첨부파일 삭제<br>·
+              API: <code>DELETE /api/admin/notices/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>팝업 설정 토글 (Toggle Popup)</strong><br>· 트리거: 팝업 ON/OFF 토글 클릭<br>· 동작: isPopup 필드
+              변경 → 메인 페이지 팝업 노출 여부 제어<br>· 복수 팝업 시 최신 1개만 노출</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>팝업 설정 모달 (Popup Config)</strong><br>· 트리거: [⚙ 팝업 설정] 버튼 클릭<br>· 동작: 팝업 표시 공지
+              선택 모달 표시</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -684,33 +711,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

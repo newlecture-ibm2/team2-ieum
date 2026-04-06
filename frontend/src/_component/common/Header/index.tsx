@@ -25,6 +25,9 @@ const NAV_ITEMS: NavItem[] = [
 export default function Header() {
   const pathname = usePathname();
 
+  if (pathname.startsWith("/admin")) return null;
+
+
   // TODO: 실제 인증 상태는 zustand store 또는 iron-session에서 가져옴
   const isLoggedIn = false;
   const hasUnreadNotifications = true;
