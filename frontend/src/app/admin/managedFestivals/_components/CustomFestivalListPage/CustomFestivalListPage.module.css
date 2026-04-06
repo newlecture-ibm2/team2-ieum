@@ -1,0 +1,378 @@
+/* ======================================================
+   관리자 > 축제 관리 리스트 — 페이지 고유 스타일
+   공통 스타일은 admin-common.module.css 사용
+   ====================================================== */
+
+/* ── 테이블 컬럼 너비 (축제 관리 전용) ── */
+.festivalNameCol {
+  width: auto;
+}
+
+.categoryCol {
+  width: 130px;
+}
+
+.regionCol {
+  width: 120px;
+}
+
+.dateCol {
+  width: 180px;
+}
+
+.statusCol {
+  width: 70px;
+}
+
+.actionCol {
+  width: 160px;
+}
+
+/* ── 폼 모달 레이아웃 ── */
+.formGrid {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  width: 100%;
+}
+
+.layoutLeft {
+  flex: 1.2;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.layoutRight {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.formSection {
+  background: white;
+  border-radius: 12px;
+  padding: 14px 16px;
+  border: 1px solid #e2e8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ── 폼 필드 ── */
+.formGroup {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.formGroupColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.formLabel {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+  width: 76px;
+  flex-shrink: 0;
+  text-align: right;
+  line-height: 1.2;
+}
+
+.formLabelColumn {
+  font-size: 13px;
+  color: #475569;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.formInput,
+.formSelect {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+  background: #f8fafc;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  border-color: #6c5ce7;
+  background: #fff;
+}
+
+.formRowAligned {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.requiredStar {
+  color: #ef4444;
+  margin-right: 4px;
+}
+
+.disabledField {
+  opacity: 0.7;
+  background-color: #f1f5f9;
+  cursor: not-allowed;
+  color: #94a3b8;
+}
+
+/* ── 유효성 검사 ── */
+.errorInput {
+  border-color: #ef4444 !important;
+  background-color: #fef2f2 !important;
+}
+
+.errorInput:focus {
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15) !important;
+}
+
+.errorText {
+  color: #ef4444;
+  font-size: 11px;
+  font-weight: 500;
+  flex-basis: 100%;
+  margin-left: 116px;
+  margin-top: -6px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── 이미지 업로드 ── */
+.imageUploadBox {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  min-height: 100px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s;
+  overflow: hidden;
+}
+
+.imageUploadBox:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.imageUploadBoxMini {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: #f8fafc;
+  transition: all 0.2s;
+}
+
+.imageUploadBoxMini:hover {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.uploadIcon {
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.imagePreviewGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.galleryPreviewItem {
+  position: relative;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.galleryImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.removeBtn {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+}
+
+.removeBtn:hover {
+  background: #ef4444;
+}
+
+/* ── 상세 내용 textarea ── */
+.contentArea {
+  width: 100%;
+  flex: 1;
+  min-height: 120px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px;
+  font-size: 13px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.contentArea:focus {
+  outline: none;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+/* ── 하단 토글 + 액션 바 ── */
+.formBottomBar {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.settingsSection {
+  display: flex;
+  align-items: center;
+}
+
+.toggleWrapperSettings {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.toggleSlot {
+  width: 44px;
+  height: 24px;
+  background: #cbd5e1;
+  border-radius: 12px;
+  position: relative;
+  transition: background 0.2s;
+}
+
+.activeSlot {
+  background: #6366f1;
+}
+
+.toggleKnob {
+  width: 20px;
+  height: 20px;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.activeSlot .toggleKnob {
+  transform: translateX(20px);
+}
+
+.blueText {
+  color: #6366f1;
+}
+
+.grayText {
+  color: #64748b;
+}
+
+/* ── 이미지 뷰어 ── */
+.imageViewerOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  cursor: zoom-out;
+}
+
+.imageViewerContent {
+  position: relative;
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.imageViewerImg {
+  max-width: 100%;
+  max-height: 90vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.imageViewerCloseBtn {
+  position: absolute;
+  top: -40px;
+  right: 0;
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  transition: color 0.2s;
+}
+
+.imageViewerCloseBtn:hover {
+  color: #fbbf24;
+}
+
+/* ── 주소 검색 버튼 ── */
+.addressSearchBtn {
+  padding: 0 16px;
+  background: #1e293b;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}

@@ -20,8 +20,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - 회원 전용 API hasRole("USER")
  * - 관리자 API hasRole("ADMIN")
  * - 나머지 인증 필요
- *
- * TODO: JWT 필터 완성 후 addFilterBefore() 추가
  */
 @Configuration
 @EnableWebSecurity
@@ -101,9 +99,23 @@ public class SecurityConfig {
                         // ✅ 달력(캘린더) 조회 — 비회원 허용
                         .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
 
+                        // ✅ 첨부파일(이미지 등) 다운로드 허용
+                        // [로컬 개발 환경 전용 설정] 실서버에서는 Nginx가 처리하므로 이 필터를 거치지 않습니다.
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+
+                        // ✅ 에러 페이지 경로 허용 (404 등이 401로 마스킹되는 것 방지)
+                        .requestMatchers("/error").permitAll()
+
+                        // ✅ 관리자 인증 API (Refresh 등)
+                        .requestMatchers("/api/admin/auth/**").permitAll()
+
+                        // 🔒 관리자 전용 — 축제 관리
+                        .requestMatchers("/api/admin/festivals/**", "/api/admin/festivals").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/managedFestivals/**", "/api/admin/managedFestivals").hasRole("ADMIN")
 
                         // 🔐 관리자 전용
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
 
                         // 🔒 그 외 인증 필요
                         .anyRequest().authenticated()
