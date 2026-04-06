@@ -132,12 +132,12 @@ export default function Header() {
       {/* 팝업 모달 */}
       {popupConfig && (
         <div className={styles.modalOverlay}>
-          <dialog open className={styles.modalBox} style={{ border: 'none' }}>
+          <div className={styles.modalBox}>
             <p className={styles.modalText}>{popupConfig.msg}</p>
             <button className={styles.modalBtn} onClick={closePopup}>
               확인
             </button>
-          </dialog>
+          </div>
         </div>
       )}
     </header>
