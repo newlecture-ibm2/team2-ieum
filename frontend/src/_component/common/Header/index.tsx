@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -24,6 +25,15 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
+  const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
+
+  const closePopup = () => {
+    const shouldReload = popupConfig?.reload;
+    setPopupConfig(null);
+    if (shouldReload) {
+      window.location.reload();
+    }
+  };
 
   // TODO: 실제 인증 상태는 zustand store 또는 iron-session에서 가져옴
   const isLoggedIn = false;
@@ -71,10 +81,15 @@ export default function Header() {
               try {
                 const res = await api.patch('/api/festivals/refresh-status');
                 const data = res.data;
-                alert(`✅ ${data.message} (${data.updatedCount}건 변경)`);
-                window.location.reload();
+                setPopupConfig({
+                  msg: `✅ ${data.message} (${data.updatedCount}건 변경)`,
+                  reload: true,
+                });
               } catch (err) {
-                alert('❌ 상태 최신화 실패: ' + err);
+                setPopupConfig({
+                  msg: '❌ 상태 최신화 실패: ' + err,
+                  reload: false,
+                });
               }
             }}
             title="[DEV] 축제 status DB 일괄 갱신"
@@ -110,6 +125,18 @@ export default function Header() {
           )}
         </div>
       </div>
+
+      {/* 팝업 모달 */}
+      {popupConfig && (
+        <div className={styles.modalOverlay}>
+          <dialog open className={styles.modalBox} style={{ border: 'none' }}>
+            <p className={styles.modalText}>{popupConfig.msg}</p>
+            <button className={styles.modalBtn} onClick={closePopup}>
+              확인
+            </button>
+          </dialog>
+        </div>
+      )}
     </header>
   );
 }
