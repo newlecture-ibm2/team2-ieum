@@ -15,6 +15,8 @@ import { formatDateRange } from '../../format';
 import c from '@/app/admin/_styles/admin-common.module.css';
 import s from './FestivalListPage.module.css';
 import AdminListSummary from '../AdminListSummary';
+import { ConfirmModal } from '@/_component/common/Modal';
+import { useToast } from '@/_component/common/Toast';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
@@ -57,6 +59,7 @@ export default function FestivalListPage() {
   // ── 공통 목록 hook ──
   const list = useAdminList({ extraFilterKeys: ['categoryCode', 'areaCode'] });
   const { regionOptions, categoryOptions } = useFestivalOptions();
+  const { toast } = useToast();
 
   // ── 페이지 고유 상태 ──
   const [festivals, setFestivals] = useState<FestivalListItem[]>([]);
@@ -65,6 +68,9 @@ export default function FestivalListPage() {
   const [syncMenuOpen, setSyncMenuOpen] = useState(false);
   const [lastSyncTime, setLastSyncTime] = useState('기록 없음');
   const menuRef = useRef<HTMLDivElement>(null);
+
+  // ── 확인 모달 상태 ──
+  const [confirmTarget, setConfirmTarget] = useState<{ id: number; visible: boolean } | null>(null);
 
   // ── Outside Click 감지 ──
   useEffect(() => {
@@ -127,30 +133,37 @@ export default function FestivalListPage() {
         if (details) {
           msg += `\n- 지역: ${details.region}건\n- 시군구: ${details.sigungu}건\n- 카테고리: ${details.category}건\n- 축제: ${details.festival}건\n- 상태: ${details.status}건`;
         }
-        alert(msg);
+        toast(msg, 'success');
         fetchFestivals();
         if (actionName === 'ALL' || actionName === 'REGION' || actionName === 'CATEGORY') {
             // Options refresh could be triggered here if we add that to hook
         }
       }
     } catch (error: any) {
-      alert(error.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.');
+      toast(error.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.', 'error');
     } finally {
       setSyncingAction(null);
     }
   }, [syncingAction, fetchFestivals]);
 
   // ── 노출 토글 ──
-  const handleToggleVisibility = async (festivalId: number, currentVisible: boolean) => {
-    if (!confirm(`해당 축제를 ${currentVisible ? '숨김' : '공개'} 처리하시겠습니까?`)) return;
+  const handleToggleVisibility = (festivalId: number, currentVisible: boolean) => {
+    setConfirmTarget({ id: festivalId, visible: currentVisible });
+  };
+
+  const executeToggle = async () => {
+    if (!confirmTarget) return;
+    const { id, visible } = confirmTarget;
+    setConfirmTarget(null);
     try {
-      const res = await adminApi.patch(`/festivals/${festivalId}/visibility`, { isVisible: !currentVisible });
+      const res = await adminApi.patch(`/festivals/${id}/visibility`, { isVisible: !visible });
       if (res.data.success) {
-        setFestivals(prev => prev.map(f => (f.id === festivalId ? { ...f, isVisible: !currentVisible } : f)));
+        setFestivals(prev => prev.map(f => (f.id === id ? { ...f, isVisible: !visible } : f)));
+        toast(`축제가 ${!visible ? '공개' : '숨김'} 처리되었습니다.`, 'success');
       } else {
-        alert(res.data.error?.message || '상태 변경에 실패했습니다.');
+        toast(res.data.error?.message || '상태 변경에 실패했습니다.', 'error');
       }
-    } catch { alert('오류가 발생했습니다.'); }
+    } catch { toast('오류가 발생했습니다.', 'error'); }
   };
 
   return (
@@ -237,9 +250,9 @@ export default function FestivalListPage() {
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>축제명</th>
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>카테고리</th>
               <th className={`${c.tableHeaderCell} ${c.textLeft}`}>지역</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>날짜</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>상태</th>
-              <th className={`${c.tableHeaderCell} ${c.textRight}`}>관리 (노출/숨김)</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>날짜</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>상태</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>관리 (노출/숨김)</th>
             </tr>
           </thead>
           <tbody>
@@ -284,6 +297,17 @@ export default function FestivalListPage() {
           <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
         </div>
       </section>
+
+      {/* ── 확인 모달 ── */}
+      {confirmTarget && (
+        <ConfirmModal
+          title="노출 상태 변경"
+          message={`해당 축제를 ${confirmTarget.visible ? '숨김' : '공개'} 처리하시겠습니까?`}
+          confirmText={confirmTarget.visible ? '숨김 처리' : '공개 처리'}
+          onConfirm={executeToggle}
+          onCancel={() => setConfirmTarget(null)}
+        />
+      )}
     </div>
   );
 }

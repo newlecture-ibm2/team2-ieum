@@ -1,0 +1,146 @@
+/* ===== 오버레이 ===== */
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ===== 모달 박스 ===== */
+.modal {
+  position: relative;
+  background: #fff;
+  border-radius: var(--radius-xl);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+  max-height: 90vh;
+  overflow-y: auto;
+  animation: slideUp 0.2s ease-out;
+  padding: 28px 36px;
+}
+
+/* 사이즈 변형 */
+.sizeSmall  { width: 380px; }
+.sizeMedium { width: 480px; }
+.sizeLarge  { width: 600px; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== 헤더 ===== */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 0 16px;
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-full);
+  color: var(--color-gray-400);
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.closeBtn:hover {
+  background: var(--color-gray-100);
+  color: var(--color-gray-700);
+}
+
+/* ===== 본문 ===== */
+.body {
+  padding: 8px 0;
+}
+
+/* ===== 푸터 (ConfirmModal용) ===== */
+.footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding: 20px 0 0;
+}
+
+.btnCancel {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  color: var(--color-gray-600);
+  background: var(--color-gray-100);
+  transition: background var(--transition-fast);
+}
+
+.btnCancel:hover {
+  background: var(--color-gray-200);
+}
+
+.btnConfirm {
+  padding: 9px 20px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  color: #fff;
+  background: var(--color-primary-500);
+  transition: background var(--transition-fast);
+}
+
+.btnConfirm:hover {
+  background: var(--color-primary-600);
+}
+
+/* 위험 액션용 (삭제 등) */
+.btnDanger {
+  background: var(--color-error);
+}
+
+.btnDanger:hover {
+  background: #e63956;
+}
+
+/* ===== Confirm 메시지 ===== */
+.confirmMessage {
+  font-size: 14px;
+  color: var(--color-gray-600);
+  line-height: 1.7;
+  text-align: center;
+  padding: 8px 0;
+}
+
+/* ===== 스크롤바 ===== */
+.modal::-webkit-scrollbar {
+  width: 4px;
+}
+
+.modal::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 4px;
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 520px) {
+  .sizeSmall,
+  .sizeMedium,
+  .sizeLarge {
+    width: calc(100vw - 32px);
+  }
+}
