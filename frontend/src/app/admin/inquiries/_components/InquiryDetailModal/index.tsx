@@ -5,6 +5,8 @@ import common from '@/app/admin/_styles/admin-common.module.css';
 import s from './InquiryDetailModal.module.css';
 import adminApi from '@/lib/adminApi';
 import type { InquiryItem } from '@/types/admin-inquiry';
+import { Modal } from '@/_component/common/Modal';
+import { useToast } from '@/_component/common/Toast';
 
 /* ── Props ── */
 interface Props {
@@ -20,16 +22,12 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
 
   const isPending = detail.status === 'PENDING';
 
+  const { toast } = useToast();
+
   /* ── 답변 상태 ── */
   const [answer, setAnswer] = useState('');
   const [answerError, setAnswerError] = useState('');
   const [processing, setProcessing] = useState(false);
-
-  /* ── 스크롤 방지 ── */
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, []);
 
   /* ── 상세 API로 최신 데이터 조회 ── */
   useEffect(() => {
@@ -67,18 +65,19 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
       await adminApi.post(`/inquiries/${inquiry.id}/answer`, {
         answer: trimmed,
       });
+      toast('답변이 성공적으로 등록되었습니다.', 'success');
       onAnswered();
     } catch (err: any) {
       const errorCode = err?.response?.data?.error?.code;
       if (errorCode === 'ALREADY_ANSWERED') {
-        alert('이미 답변이 등록된 문의입니다. 목록을 새로고침합니다.');
+        toast('이미 답변이 등록된 문의입니다. 목록을 새로고침합니다.', 'error');
         onAnswered();
       } else if (errorCode === 'INQUIRY_NOT_FOUND') {
-        alert('해당 문의를 찾을 수 없습니다.');
+        toast('해당 문의를 찾을 수 없습니다.', 'error');
         onClose();
       } else {
         console.error('답변 등록 실패:', err);
-        alert('답변 등록 중 오류가 발생했습니다.');
+        toast('답변 등록 중 오류가 발생했습니다.', 'error');
       }
     } finally {
       setProcessing(false);
@@ -86,19 +85,8 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
   };
 
   return (
-    <div className={common.modalOverlay} onClick={onClose}>
-      <div
-        className={`${common.modalContent} ${s.modalWrap}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* ── 헤더 ── */}
-        <div className={common.modalHeader}>
-          <div className={common.modalTitle}>
-            📩 문의 상세 {!isPending && '(답변 완료)'}
-          </div>
-          <button className={common.modalCloseBtn} onClick={onClose}>✕</button>
-        </div>
-
+    <div className={s.modalWrap}>
+      <Modal title={`📩 문의 상세 ${!isPending ? '(답변 완료)' : ''}`} size="large" onClose={onClose} closeOnOverlay={false}>
         {detailLoading ? (
           <div style={{ textAlign: 'center', padding: 40 }}>
             <span className={common.spinner} /> 불러오는 중...
@@ -202,7 +190,7 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
             </button>
           )}
         </div>
-      </div>
+      </Modal>
     </div>
   );
 }
