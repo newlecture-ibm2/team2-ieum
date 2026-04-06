@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import common from '@/app/admin/_styles/admin-common.module.css';
-import styles from './ReportListPage.module.css';
-import { useAdminList } from '@/app/admin/_hooks/useAdminList';
+import { useAdminList } from '@/app/admin/festivals/useAdminList';
 import adminApi from '@/lib/adminApi';
 import type { ReportItem, ReportListResponse } from '@/types/admin-report';
+import ReportDetailModal from '../ReportDetailModal';
+import s from './ReportListPage.module.css';
 
 /* ── 상태 배지 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -31,12 +32,13 @@ const REASON_MAP: Record<string, string> = {
 };
 
 export default function ReportListPage() {
-  const list = useAdminList({ extraFilterKeys: ['targetType'] });
+  const list = useAdminList({ extraFilterKeys: ['targetType', 'searchType'] });
   const {
     currentPage, setCurrentPage, totalPages, setTotalPages,
     statusFilter, setStatusFilterAndReset,
     extraFilters, setExtraFilter,
     loading, setLoading,
+    keyword, searchTerm, setSearchTerm, handleKeyDown, submitSearch
   } = list;
 
   const [reports, setReports] = useState<ReportItem[]>([]);
@@ -45,9 +47,22 @@ export default function ReportListPage() {
   const [rejectedCount, setRejectedCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
 
-  /* ── 상세 패널 ── */
+  /* ── 모달/토스트 상태 ── */
   const [selectedReport, setSelectedReport] = useState<ReportItem | null>(null);
-  const [processing, setProcessing] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
+
+  const onSearchSubmit = () => {
+    setExtraFilter('searchType', localSearchType);
+    submitSearch();
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit();
+    }
+  };
 
   /* ── 데이터 로드 ── */
   const fetchReports = useCallback(async () => {
@@ -59,6 +74,8 @@ export default function ReportListPage() {
       };
       if (statusFilter) params.status = statusFilter;
       if (extraFilters.targetType) params.targetType = extraFilters.targetType;
+      if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
+      if (keyword) params.keyword = keyword;
 
       const { data } = await adminApi.get<{ data: ReportListResponse }>('/reports', { params });
       const result = data.data;
@@ -75,31 +92,11 @@ export default function ReportListPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, statusFilter, extraFilters.targetType, setLoading, setTotalPages]);
+  }, [currentPage, statusFilter, extraFilters.targetType, extraFilters.searchType, keyword, setLoading, setTotalPages]);
 
   useEffect(() => {
     fetchReports();
   }, [fetchReports]);
-
-  /* ── 신고 처리 ── */
-  const handleProcess = async (reportId: number, action: string) => {
-    const confirmMsg = action === 'DELETE'
-      ? '해당 콘텐츠를 삭제하고 신고를 처리하시겠습니까?'
-      : '이 신고를 반려(기각) 하시겠습니까?';
-    if (!confirm(confirmMsg)) return;
-
-    setProcessing(true);
-    try {
-      await adminApi.patch(`/reports/${reportId}`, { action });
-      setSelectedReport(null);
-      await fetchReports();
-    } catch (err) {
-      console.error('신고 처리 실패:', err);
-      alert('처리 중 오류가 발생했습니다.');
-    } finally {
-      setProcessing(false);
-    }
-  };
 
   /* ── KPI 카드 클릭 ── */
   const handleStatClick = (status: string) => {
@@ -112,7 +109,7 @@ export default function ReportListPage() {
       <div className={common.pageHeader}>
         <div>
           <h1 className={common.pageTitle}>🚨 사용자 신고 관리</h1>
-          <p className={common.pageSubtitle}>신고된 콘텐츠를 검토하고 처리합니다</p>
+          <p className={common.pageSubtitle}>신고된 콘텐츠를 확인하고 처리합니다</p>
         </div>
         {pendingCount > 0 && (
           <span style={{
@@ -164,6 +161,7 @@ export default function ReportListPage() {
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <select
             className={common.filterSelect}
+            style={{ minWidth: 130 }}
             value={statusFilter}
             onChange={(e) => setStatusFilterAndReset(e.target.value)}
           >
@@ -175,6 +173,7 @@ export default function ReportListPage() {
 
           <select
             className={common.filterSelect}
+            style={{ minWidth: 130 }}
             value={extraFilters.targetType || ''}
             onChange={(e) => setExtraFilter('targetType', e.target.value)}
           >
@@ -183,6 +182,31 @@ export default function ReportListPage() {
             <option value="POST">게시글</option>
             <option value="COMMENT">댓글</option>
           </select>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={localSearchType}
+            onChange={(e) => setLocalSearchType(e.target.value)}
+          >
+            <option value="ALL">전체 검색</option>
+            <option value="REPORTER">신고자</option>
+            <option value="DESCRIPTION">신고 내용</option>
+            <option value="REASON">신고 사유</option>
+          </select>
+          <input
+            type="text"
+            className={common.searchInput}
+            style={{ width: 240 }}
+            placeholder="검색어를 입력하세요"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            onKeyDown={handleSearchKeyDown}
+          />
+          <button type="button" className={common.searchBtn} onClick={onSearchSubmit}>
+            검색
+          </button>
         </div>
       </div>
 
@@ -193,17 +217,27 @@ export default function ReportListPage() {
             <span className={common.spinner} /> 불러오는 중...
           </div>
         ) : (
-          <table className={common.table}>
+          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '60px' }} />
+              <col style={{ width: '130px' }} />
+              <col style={{ width: '90px' }} />
+              <col style={{ width: '150px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '100px' }} />
+              <col style={{ width: '110px' }} />
+            </colgroup>
             <thead>
               <tr className={common.tableHeaderRow}>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`} style={{ width: '5%' }}>No</th>
-                <th className={`${common.tableHeaderCell}`} style={{ width: '13%' }}>신고자</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`} style={{ width: '10%' }}>유형</th>
-                <th className={`${common.tableHeaderCell}`} style={{ width: '22%' }}>신고 사유</th>
-                <th className={`${common.tableHeaderCell}`} style={{ width: '15%' }}>상세 내용</th>
-                <th className={`${common.tableHeaderCell}`} style={{ width: '12%' }}>신고 날짜</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`} style={{ width: '10%' }}>상태</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`} style={{ width: '13%' }}>관리</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고자</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>유형</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고 사유</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>상세 내용</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>신고 날짜</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
               </tr>
             </thead>
             <tbody>
@@ -217,7 +251,9 @@ export default function ReportListPage() {
                 reports.map((report, idx) => (
                   <tr
                     key={report.id}
-                    className={`${common.tableRow} ${common.tableRowHover} ${selectedReport?.id === report.id ? styles.selectedRow : ''}`}
+                    className={`${common.tableRow} ${common.tableRowHover}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedReport(report)}
                   >
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
@@ -233,10 +269,10 @@ export default function ReportListPage() {
                     <td className={common.tableCell}>
                       {REASON_MAP[report.reason] || report.reason}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellEllipsis}`}>
+                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
                       {report.description || '-'}
                     </td>
-                    <td className={common.tableCell}>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
                       {report.createdAt?.slice(0, 10)}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
@@ -245,29 +281,13 @@ export default function ReportListPage() {
                       </span>
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      {report.status === 'PENDING' ? (
-                        <div className={common.actionGroup} style={{ justifyContent: 'center' }}>
-                          <button
-                            className={common.btnPrimary}
-                            style={{ padding: '4px 12px', fontSize: 11 }}
-                            onClick={() => setSelectedReport(
-                              selectedReport?.id === report.id ? null : report
-                            )}
-                          >
-                            검토
-                          </button>
-                          <button
-                            className={common.btnDanger}
-                            style={{ padding: '4px 12px', fontSize: 11 }}
-                            onClick={() => handleProcess(report.id, 'DELETE')}
-                            disabled={processing}
-                          >
-                            제재
-                          </button>
-                        </div>
-                      ) : (
-                        <span style={{ color: '#16a34a', fontSize: 18 }}>✅</span>
-                      )}
+                      <button
+                        className={report.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                      >
+                        {report.status === 'PENDING' ? '처리하기' : '이력 보기'}
+                      </button>
                     </td>
                   </tr>
                 ))
@@ -298,80 +318,30 @@ export default function ReportListPage() {
         )}
       </div>
 
-      {/* ── 상세 검토 패널 ── */}
+      {/* ── 상세 모달 ── */}
       {selectedReport && (
+        <ReportDetailModal
+          report={selectedReport}
+          onClose={() => setSelectedReport(null)}
+          onProcessed={() => {
+            setSelectedReport(null);
+            setToastMessage('처리가 완료되었습니다.');
+            setTimeout(() => setToastMessage(''), 3000);
+            fetchReports();
+          }}
+        />
+      )}
+
+      {/* ── Toast 메시지 ── */}
+      {toastMessage && (
         <div style={{
-          background: '#fff',
-          borderRadius: 12,
-          padding: 24,
-          marginTop: 16,
-          border: '2px dashed #fca5a5',
+          position: 'fixed', bottom: 40, left: '50%', transform: 'translateX(-50%)',
+          background: '#334155', color: '#fff', padding: '12px 24px',
+          borderRadius: 8, fontSize: 14, fontWeight: 500,
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)', zIndex: 9999,
+          animation: 'fadeInOut 3s forwards'
         }}>
-          <div style={{ fontWeight: 700, fontSize: 15, color: '#dc2626', marginBottom: 16 }}>
-            🔍 신고 상세 검토
-          </div>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'auto 1fr',
-            gap: '10px 20px',
-            fontSize: 13,
-            lineHeight: 1.7,
-          }}>
-            <span style={{ color: '#64748b', fontWeight: 600 }}>신고 대상:</span>
-            <span style={{ color: '#1e293b' }}>
-              {TARGET_TYPE_MAP[selectedReport.targetType] || selectedReport.targetType} #{selectedReport.targetId}
-            </span>
-
-            <span style={{ color: '#64748b', fontWeight: 600 }}>신고자:</span>
-            <span style={{ color: '#1e293b' }}>{selectedReport.reporterNickname}</span>
-
-            <span style={{ color: '#64748b', fontWeight: 600 }}>신고 사유:</span>
-            <span style={{ color: '#1e293b' }}>
-              {REASON_MAP[selectedReport.reason] || selectedReport.reason}
-            </span>
-
-            <span style={{ color: '#64748b', fontWeight: 600 }}>상세 내용:</span>
-            <span style={{ color: '#1e293b' }}>
-              {selectedReport.description || '(상세 내용 없음)'}
-            </span>
-
-            <span style={{ color: '#64748b', fontWeight: 600 }}>신고 일시:</span>
-            <span style={{ color: '#1e293b' }}>
-              {selectedReport.createdAt?.replace('T', ' ').slice(0, 19)}
-            </span>
-          </div>
-
-          <div style={{
-            display: 'flex',
-            gap: 10,
-            justifyContent: 'flex-end',
-            marginTop: 20,
-            paddingTop: 16,
-            borderTop: '1px solid #e2e8f0',
-          }}>
-            <button
-              className={common.btnCancel}
-              onClick={() => setSelectedReport(null)}
-            >
-              닫기
-            </button>
-            <button
-              className={common.btnCancel}
-              style={{ borderColor: '#0284c7', color: '#0284c7' }}
-              onClick={() => handleProcess(selectedReport.id, 'DISMISS')}
-              disabled={processing}
-            >
-              반려 (DISMISS)
-            </button>
-            <button
-              className={common.btnDanger}
-              onClick={() => handleProcess(selectedReport.id, 'DELETE')}
-              disabled={processing}
-            >
-              {processing ? '처리 중...' : '삭제 처리 (DELETE)'}
-            </button>
-          </div>
+          ✅ {toastMessage}
         </div>
       )}
     </div>

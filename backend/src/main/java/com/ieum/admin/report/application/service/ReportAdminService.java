@@ -25,8 +25,8 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
     private final ReportPort reportPort;
 
     @Override
-    public ReportListResult getReports(int page, int size, String status, String targetType) {
-        Page<Report> reports = reportPort.findAll(status, targetType, PageRequest.of(page - 1, size));
+    public ReportListResult getReports(int page, int size, String status, String targetType, String searchType, String keyword) {
+        Page<Report> reports = reportPort.findAll(status, targetType, searchType, keyword, PageRequest.of(page - 1, size));
 
         return ReportListResult.builder()
                 .content(reports.getContent().stream().map(this::toItem).toList())
@@ -40,9 +40,11 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
 
     @Override
     @Transactional
-    public void processReport(Long reportId, String action, String adminNote) {
+    public void processReport(Long reportId, String action, String message) {
         String newStatus = "DISMISS".equalsIgnoreCase(action) ? "REJECTED" : "RESOLVED";
-        reportPort.updateStatus(reportId, newStatus, action, adminNote);
+        reportPort.updateStatus(reportId, newStatus, action, message);
+        // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
+        reportPort.saveResponse(reportId, null, action, message);
     }
 
     private ReportItem toItem(Report r) {
@@ -53,8 +55,11 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
                 .reason(r.getReason())
                 .description(r.getDescription())
                 .status(r.getStatus())
+                .action(r.getAction())
+                .adminNote(r.getAdminNote())
                 .reporterNickname(r.getReporterNickname())
                 .createdAt(r.getCreatedAt())
+                .processedAt(r.getProcessedAt())
                 .build();
     }
 }

@@ -13,21 +13,23 @@ import org.springframework.data.repository.query.Param;
  */
 public interface ReportAdminRepository extends JpaRepository<ReportEntity, Long> {
 
-    /* ── 전체 조회 (닉네임 포함) ── */
-    @Query("SELECT r, u.nickname FROM ReportEntity r LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = r.reporterId ORDER BY r.createdAt DESC")
-    Page<Object[]> findAllWithNickname(Pageable pageable);
-
-    /* ── 상태 필터 ── */
-    @Query("SELECT r, u.nickname FROM ReportEntity r LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = r.reporterId WHERE r.status = :status ORDER BY r.createdAt DESC")
-    Page<Object[]> findByStatusWithNickname(@Param("status") String status, Pageable pageable);
-
-    /* ── 대상 타입 필터 ── */
-    @Query("SELECT r, u.nickname FROM ReportEntity r LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = r.reporterId WHERE r.targetType = :targetType ORDER BY r.createdAt DESC")
-    Page<Object[]> findByTargetTypeWithNickname(@Param("targetType") String targetType, Pageable pageable);
-
-    /* ── 상태 + 대상 타입 필터 ── */
-    @Query("SELECT r, u.nickname FROM ReportEntity r LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = r.reporterId WHERE r.status = :status AND r.targetType = :targetType ORDER BY r.createdAt DESC")
-    Page<Object[]> findByStatusAndTargetTypeWithNickname(@Param("status") String status, @Param("targetType") String targetType, Pageable pageable);
+    /* ── 동적 검색 쿼리 ── */
+    @Query("SELECT r, u.nickname FROM ReportEntity r " +
+           "LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = r.reporterId " +
+           "WHERE (:status IS NULL OR :status = '' OR r.status = :status) " +
+           "AND (:targetType IS NULL OR :targetType = '' OR r.targetType = :targetType) " +
+           "AND (:keyword IS NULL OR :keyword = '' OR " +
+           "  ((:searchType IS NULL OR :searchType = 'ALL' OR :searchType = '') AND (r.description LIKE %:keyword% OR u.nickname LIKE %:keyword% OR r.reason LIKE %:keyword%)) OR " +
+           "  (:searchType = 'REPORTER' AND u.nickname LIKE %:keyword%) OR " +
+           "  (:searchType = 'DESCRIPTION' AND r.description LIKE %:keyword%) OR " +
+           "  (:searchType = 'REASON' AND r.reason LIKE %:keyword%)" +
+           ") " +
+           "ORDER BY r.createdAt DESC")
+    Page<Object[]> findReportsByConditions(@Param("status") String status,
+                                           @Param("targetType") String targetType,
+                                           @Param("searchType") String searchType,
+                                           @Param("keyword") String keyword,
+                                           Pageable pageable);
 
     long countByStatus(String status);
 }

@@ -1,7 +1,9 @@
 package com.ieum.admin.report.adapter.out.persistence;
 
 import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
+import com.ieum.admin.report.adapter.out.persistence.entity.ReportResponseEntity;
 import com.ieum.admin.report.adapter.out.persistence.repository.ReportAdminRepository;
+import com.ieum.admin.report.adapter.out.persistence.repository.ReportResponseRepository;
 import com.ieum.admin.report.application.port.out.ReportPort;
 import com.ieum.admin.report.domain.model.Report;
 import lombok.RequiredArgsConstructor;
@@ -21,20 +23,11 @@ import java.util.Optional;
 public class ReportPersistenceAdapter implements ReportPort {
 
     private final ReportAdminRepository repository;
+    private final ReportResponseRepository responseRepository;
 
     @Override
-    public Page<Report> findAll(String status, String targetType, Pageable pageable) {
-        Page<Object[]> page;
-
-        if (status != null && targetType != null) {
-            page = repository.findByStatusAndTargetTypeWithNickname(status, targetType, pageable);
-        } else if (status != null) {
-            page = repository.findByStatusWithNickname(status, pageable);
-        } else if (targetType != null) {
-            page = repository.findByTargetTypeWithNickname(targetType, pageable);
-        } else {
-            page = repository.findAllWithNickname(pageable);
-        }
+    public Page<Report> findAll(String status, String targetType, String searchType, String keyword, Pageable pageable) {
+        Page<Object[]> page = repository.findReportsByConditions(status, targetType, searchType, keyword, pageable);
 
         var reports = page.getContent().stream().map(row -> {
             ReportEntity entity = (ReportEntity) row[0];
@@ -63,6 +56,17 @@ public class ReportPersistenceAdapter implements ReportPort {
             entity.setProcessedAt(LocalDateTime.now());
             repository.save(entity);
         });
+    }
+
+    @Override
+    public void saveResponse(Long reportId, Long adminId, String actionType, String message) {
+        ReportResponseEntity response = ReportResponseEntity.builder()
+                .reportId(reportId)
+                .adminId(adminId)
+                .actionType(actionType)
+                .message(message)
+                .build();
+        responseRepository.save(response);
     }
 
     @Override

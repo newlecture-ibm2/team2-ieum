@@ -17,6 +17,9 @@ public class ReportItem {
     private String reason;
     private String description;
     private String status;
+    private String action;
+    private String adminNote;
     private String reporterNickname;
     private LocalDateTime createdAt;
+    private LocalDateTime processedAt;
 }
