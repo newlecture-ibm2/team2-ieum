@@ -86,7 +86,16 @@ public class FestivalController {
     /**
      * 축제 상세 조회
      */
-    @Operation(summary = "축제 상세 조회", description = "축제 ID로 상세 정보를 조회합니다. (최초 1회 공공 API 연동 후 DB 자동 캐싱)")
+    @Operation(
+            summary = "축제 상세 조회", 
+            description = "축제 ID로 상세 정보를 조회합니다. (최초 1회 한국관광공사 TourAPI 연동 후 DB 자동 캐싱)\n\n" +
+                          "**[공공데이터 연동 상세 항목 (TourAPI)]**\n" +
+                          "- `overview` (개요): 축제에 대한 상세 설명 및 텍스트 묘사\n" +
+                          "- `tel` (전화번호): 행사 문의 및 안내 전화번호\n" +
+                          "- `useFee` / `fee` (이용요금): 티켓 가격 및 이용 요금 정보\n" +
+                          "- `extraImages` (추가 사진): 축제 전경 및 포스터 등 세부 투어 이미지 배열\n" +
+                          "- `homepage`, `sponsor`, `playTime` 등 부가 정보"
+    )
     @GetMapping("/{festivalId}")
     public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
         Map<String, Object> detail = loadFestivalDetailUseCase.loadDetail(festivalId);
