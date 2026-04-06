@@ -9,12 +9,12 @@ import type {
   FestivalSyncData,
 } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
-import { useAdminList } from '@/app/admin/_hooks/useAdminList';
-import { useFestivalOptions } from '@/app/admin/_hooks/useFestivalOptions';
-import { formatDateRange } from '@/app/admin/_utils/format';
+import { useAdminList } from '../../useAdminList';
+import { useFestivalOptions } from '../../useFestivalOptions';
+import { formatDateRange } from '../../format';
 import c from '@/app/admin/_styles/admin-common.module.css';
 import s from './FestivalListPage.module.css';
-import AdminListSummary from '@/app/admin/_components/AdminListSummary';
+import AdminListSummary from '../AdminListSummary';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
