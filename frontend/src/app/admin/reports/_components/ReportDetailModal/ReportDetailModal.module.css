@@ -3,7 +3,7 @@
    ========================================================================== */
 
 /* ── 모달 사이즈 오버라이드 ── */
-.modalWrap {
+.modalWrap [role="dialog"] {
   max-width: 640px;
   max-height: 88vh;
   display: flex;
