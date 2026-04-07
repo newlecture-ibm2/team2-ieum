@@ -21,11 +21,3 @@ export default function NoticesPage() {
     </div>
   );
 }
-
-export default function NoticesPage() {
-  return (
-    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>공지사항을 불러오는 중...</div>}>
-      <NoticesContent />
-    </Suspense>
-  );
-}
