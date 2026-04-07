@@ -1,8 +1,9 @@
 'use client';
 
-import { useState } from 'react';
-import { User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { User, Trash2 } from 'lucide-react';
 import Link from 'next/link';
+import axios from 'axios';
 import api from '@/lib/api';
 import styles from './ReviewSection.module.css';
 
@@ -25,6 +26,17 @@ export default function ReviewSection({
   const [hoverRating, setHoverRating] = useState<number>(0);
   const [reviewContent, setReviewContent] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then(res => res.json())
+      .then(data => {
+        if (data.isLoggedIn) setCurrentUser(data.user);
+      })
+      .catch(console.error);
+  }, []);
 
   const handleSubmitReview = async () => {
     if (rating === 0) return onPopup('별점을 먼저 선택해주세요.');
@@ -32,7 +44,7 @@ export default function ReviewSection({
 
     setIsSubmitting(true);
     try {
-      await api.post(`/api/reviews`, {
+      await axios.post(`/api/reviews`, {
         festivalId,
         rating,
         content: reviewContent,
@@ -45,6 +57,21 @@ export default function ReviewSection({
       onPopup(err.response?.data?.message || '리뷰 등록에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleDeleteReview = async (reviewId: number) => {
+    if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+    
+    setDeletingId(reviewId);
+    try {
+      await axios.delete(`/api/reviews/${reviewId}`);
+      onPopup('리뷰가 삭제되었습니다.');
+      onReviewSubmitted(); // 목록 새로고침
+    } catch (err: any) {
+      onPopup(err.response?.data?.message || '리뷰 삭제에 실패했습니다.');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -115,10 +142,23 @@ export default function ReviewSection({
               <div className={styles.rcContent}>
                 <div className={styles.rcTop}>
                   <div className={styles.rcName}>
-                    익명 사용자
+                    {review.nickname || '익명 사용자'}
                     <span className={styles.rcStars}>{renderStars(review.rating)}</span>
                   </div>
-                  <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                  <div className={styles.rcDateWrapper}>
+                    <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
+                    {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
+                    {(currentUser && (currentUser.id === review.userId || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+                      <button 
+                        className={styles.deleteReviewBtn} 
+                        onClick={() => handleDeleteReview(review.id)}
+                        disabled={deletingId === review.id}
+                        title="리뷰 삭제"
+                      >
+                        <Trash2 size={16} color={deletingId === review.id ? "#cbd5e1" : "#e53e3e"} />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <div className={styles.rcText}>{review.content}</div>
               </div>

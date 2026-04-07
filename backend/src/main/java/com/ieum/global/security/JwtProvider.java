@@ -43,10 +43,11 @@ public class JwtProvider {
     /**
      * Access Token 생성
      */
-    public String generateAccessToken(String loginId, String role) {
+    public String generateAccessToken(Long userId, String nickname, String role) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .subject(loginId)
+                .subject(String.valueOf(userId))
+                .claim("nickname", nickname)
                 .claim("auth", role) // 예: "ROLE_USER"
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + accessTokenExpiration))
@@ -57,10 +58,10 @@ public class JwtProvider {
     /**
      * Refresh Token 생성
      */
-    public String generateRefreshToken(String loginId) {
+    public String generateRefreshToken(Long userId) {
         long now = System.currentTimeMillis();
         return Jwts.builder()
-                .subject(loginId)
+                .subject(String.valueOf(userId))
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + refreshTokenExpiration))
                 .signWith(key)
@@ -82,14 +83,16 @@ public class JwtProvider {
                         .map(SimpleGrantedAuthority::new)
                         .collect(Collectors.toList());
 
-        // UsernamePasswordAuthenticationToken의 principal에 loginId(subject) 저장
-        return new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+        // UsernamePasswordAuthenticationToken의 principal에 userId(subject) 저장
+        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(claims.getSubject(), "", authorities);
+        auth.setDetails(claims.get("nickname"));
+        return auth;
     }
 
     /**
-     * 토큰에서 아이디(subject) 추출
+     * 토큰에서 Subject(userId) 추출
      */
-    public String getLoginIdFromToken(String token) {
+    public String getSubjectFromToken(String token) {
         return parseClaims(token).getSubject();
     }
 

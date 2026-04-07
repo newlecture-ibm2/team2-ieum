@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, User, LogOut } from "lucide-react";
+import { Bell, User, LogOut, Shield } from "lucide-react";
 import api from "@/lib/api";
 import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
@@ -40,6 +40,7 @@ export default function Header() {
   /* ===== 인증 상태 (iron-session 기반) ===== */
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
   const [hasUnread, setHasUnread] = useState(false);
@@ -51,6 +52,7 @@ export default function Header() {
       .then((data) => {
         setIsLoggedIn(data.isLoggedIn);
         setUserNickname(data.user?.nickname ?? null);
+        setUserRole(data.user?.role ?? null);
 
         // 2) 로그인 상태면 읽지 않은 알림 확인
         if (data.isLoggedIn) {
@@ -148,7 +150,18 @@ export default function Header() {
             </div>
           )}
 
-          {/* ④ 마이페이지 / 로그아웃 / 로그인 — E4 */}
+          {/* ④-1 관리자 버튼 — role이 ADMIN일 때만 표시 */}
+          {isLoggedIn && userRole === "ADMIN" && (
+            <Link
+              href="/admin"
+              className={styles.adminBtn}
+              aria-label="관리자 페이지"
+            >
+              <Shield size={18} strokeWidth={2} />
+            </Link>
+          )}
+
+          {/* ④-2 마이페이지 / 로그인 — E4 */}
           {isLoggedIn ? (
             <>
               <Link
@@ -182,7 +195,7 @@ export default function Header() {
       {popupConfig && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalBox}>
-            <p className={styles.modalText}>{popupConfig.msg}</p>
+            <p className={styles.modalText}>{popupConfig?.msg}</p>
             <button className={styles.modalBtn} onClick={closePopup}>
               확인
             </button>
