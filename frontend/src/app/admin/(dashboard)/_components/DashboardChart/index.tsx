@@ -7,34 +7,46 @@ interface Props {
   initialTrend: DashboardTrendItem[];
 }
 
-type PeriodType = '7D' | '30D';
+type PeriodType = '7D' | '30D' | 'CUSTOM';
 
 export default function DashboardChart({ initialTrend }: Props) {
   const [trend, setTrend] = useState<DashboardTrendItem[]>(initialTrend);
   const [period, setPeriod] = useState<PeriodType>('7D');
   const [loading, setLoading] = useState(false);
 
+  // 직접 입력 기본값: 오늘 ~ 한달 전
+  const [customStart, setCustomStart] = useState(() => {
+    const d = new Date();
+    d.setMonth(d.getMonth() - 1);
+    return d.toISOString().split('T')[0];
+  });
+  const [customEnd, setCustomEnd] = useState(() => {
+    return new Date().toISOString().split('T')[0];
+  });
+
   useEffect(() => {
-    // 7D는 초기 데이터와 동일하지만 일단 API로도 대응 가능
     if (period === '7D') {
       setTrend(initialTrend);
       return;
     }
 
-    // 다른 기간 데이터 페칭
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const endDate = new Date();
-        const startDate = new Date();
-        
-        if (period === '30D') {
-          startDate.setDate(endDate.getDate() - 29);
-        }
+        let startStr = '';
+        let endStr = '';
 
-        const startStr = startDate.toISOString().split('T')[0];
-        const endStr = endDate.toISOString().split('T')[0];
+        if (period === '30D') {
+          const endDate = new Date();
+          const startDate = new Date();
+          startDate.setDate(endDate.getDate() - 29);
+          startStr = startDate.toISOString().split('T')[0];
+          endStr = endDate.toISOString().split('T')[0];
+        } else if (period === 'CUSTOM') {
+          startStr = customStart;
+          endStr = customEnd;
+        }
         
         const newTrend = await fetchDashboardTrend(startStr, endStr);
         if (!cancelled) setTrend(newTrend);
@@ -45,7 +57,7 @@ export default function DashboardChart({ initialTrend }: Props) {
       }
     })();
     return () => { cancelled = true; };
-  }, [period, initialTrend]);
+  }, [period, initialTrend, customStart, customEnd]);
 
   const maxReport = Math.max(...trend.map(d => d.reports), 0);
   const maxInquiry = Math.max(...trend.map(d => d.inquiries), 0);
@@ -61,32 +73,66 @@ export default function DashboardChart({ initialTrend }: Props) {
           <div className={s.chartSubtitle}>신고(막대) · 문의(선) 등록 추이</div>
         </div>
 
-        {/* ── 기간 선택 탭 ── */}
-        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
-          <button
-            onClick={() => setPeriod('7D')}
-            style={{
-              padding: '6px 12px', fontSize: '12px', fontWeight: period === '7D' ? 600 : 500,
-              background: period === '7D' ? '#fff' : 'transparent',
-              color: period === '7D' ? '#1e293b' : '#64748b',
-              border: 'none', borderRadius: '6px', cursor: 'pointer',
-              boxShadow: period === '7D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-            }}
-          >
-            최근 7일
-          </button>
-          <button
-            onClick={() => setPeriod('30D')}
-            style={{
-              padding: '6px 12px', fontSize: '12px', fontWeight: period === '30D' ? 600 : 500,
-              background: period === '30D' ? '#fff' : 'transparent',
-              color: period === '30D' ? '#1e293b' : '#64748b',
-              border: 'none', borderRadius: '6px', cursor: 'pointer',
-              boxShadow: period === '30D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
-            }}
-          >
-            최근 30일
-          </button>
+        {/* ── 우측 조작부 (달력 + 탭) ── */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          {/* 직접 입력 선택 시 노출되는 달력 폼 (탭의 좌측에 인라인으로 렌더링) */}
+          {period === 'CUSTOM' && (
+            <div style={{ display: 'flex', alignItems: 'center', height: '28px' }}>
+              <input 
+                type="date" 
+                value={customStart} 
+                onChange={(e) => setCustomStart(e.target.value)}
+                style={{ width: '130px', height: '100%', padding: '0 6px', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', outline: 'none', color: '#475569', boxSizing: 'border-box' }}
+              />
+              <span style={{ fontSize: '12px', color: '#94a3b8', margin: '0 6px' }}>~</span>
+              <input 
+                type="date" 
+                value={customEnd} 
+                onChange={(e) => setCustomEnd(e.target.value)}
+                style={{ width: '130px', height: '100%', padding: '0 6px', fontSize: '12px', border: '1px solid #e2e8f0', borderRadius: '6px', outline: 'none', color: '#475569', boxSizing: 'border-box' }}
+              />
+            </div>
+          )}
+
+          {/* ── 기간 선택 탭 ── */}
+          <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+            <button
+              onClick={() => setPeriod('7D')}
+              style={{
+                padding: '6px 12px', fontSize: '12px', fontWeight: period === '7D' ? 600 : 500,
+                background: period === '7D' ? '#fff' : 'transparent',
+                color: period === '7D' ? '#1e293b' : '#64748b',
+                border: 'none', borderRadius: '6px', cursor: 'pointer',
+                boxShadow: period === '7D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              최근 7일
+            </button>
+            <button
+              onClick={() => setPeriod('30D')}
+              style={{
+                padding: '6px 12px', fontSize: '12px', fontWeight: period === '30D' ? 600 : 500,
+                background: period === '30D' ? '#fff' : 'transparent',
+                color: period === '30D' ? '#1e293b' : '#64748b',
+                border: 'none', borderRadius: '6px', cursor: 'pointer',
+                boxShadow: period === '30D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              최근 30일
+            </button>
+            <button
+              onClick={() => setPeriod('CUSTOM')}
+              style={{
+                padding: '6px 12px', fontSize: '12px', fontWeight: period === 'CUSTOM' ? 600 : 500,
+                background: period === 'CUSTOM' ? '#fff' : 'transparent',
+                color: period === 'CUSTOM' ? '#1e293b' : '#64748b',
+                border: 'none', borderRadius: '6px', cursor: 'pointer',
+                boxShadow: period === 'CUSTOM' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              }}
+            >
+              직접 입력
+            </button>
+          </div>
         </div>
       </div>
 
@@ -118,21 +164,21 @@ export default function DashboardChart({ initialTrend }: Props) {
               const inqPct = (d.inquiries / maxValue) * 100;
               const isOverlap = Math.abs(repPct - inqPct) < 15;
               
-              // 30일일 경우 텍스트 라벨이 너무 많아지므로 0보다 클 때만, 혹은 일정 간격으로만 텍스트 표시
-              const showText = period === '7D' || (d.reports > 0 || d.inquiries > 0);
+              const isCompact = trend.length > 14;
+              const showText = !isCompact || (d.reports > 0 || d.inquiries > 0);
 
               return (
                 <div key={i} style={{ flex: 1, position: 'relative' }}>
                   {d.reports > 0 && (
                     <>
-                      <div className={s.bar} style={{ height: `${repPct}%`, width: period === '30D' ? '8px' : '24px' }} />
+                      <div className={s.bar} style={{ height: `${repPct}%`, width: isCompact ? '8px' : '24px' }} />
                       {showText && (
                         <div 
                           className={s.reportLineValue} 
                           style={{ 
                             bottom: `${repPct}%`,
                             transform: isOverlap ? 'translate(-120%, -10px)' : 'translate(-50%, -6px)',
-                            fontSize: period === '30D' ? '9px' : '11px'
+                            fontSize: isCompact ? '9px' : '11px'
                           }}
                         >
                           {d.reports}
@@ -142,14 +188,14 @@ export default function DashboardChart({ initialTrend }: Props) {
                   )}
                   {d.inquiries > 0 && (
                     <>
-                      <div className={s.lineDot} style={{ bottom: `${inqPct}%`, left: '50%', width: period === '30D' ? '4px' : '8px', height: period === '30D' ? '4px' : '8px' }} />
+                      <div className={s.lineDot} style={{ bottom: `${inqPct}%`, left: '50%', width: isCompact ? '4px' : '8px', height: isCompact ? '4px' : '8px' }} />
                       {showText && (
                         <div 
                           className={s.lineValue} 
                           style={{ 
                             bottom: `${inqPct}%`, left: '50%',
                             transform: isOverlap ? 'translate(20%, -14px)' : 'translate(-50%, -14px)',
-                            fontSize: period === '30D' ? '9px' : '11px'
+                            fontSize: isCompact ? '9px' : '11px'
                           }}
                         >
                           {d.inquiries}
@@ -166,8 +212,13 @@ export default function DashboardChart({ initialTrend }: Props) {
         {/* X축 날짜 라벨 */}
         <div style={{ display: 'flex', marginTop: '16px' }}>
           {trend.map((d, i) => {
-            // 30일 뷰에서는 날짜 라벨을 5일에 한 번 꼴로 줄임 (가독성 목적)
-            const showLabel = period === '7D' || (i % 5 === 0) || i === trend.length - 1;
+            const isCompact = trend.length > 14;
+            let showLabel = true;
+            if (isCompact) {
+              // 라벨이 너무 촘촘해지면 간격을 두고 보여줌 
+              const intervalDays = Math.ceil(trend.length / 6);
+              showLabel = (i % intervalDays === 0) || i === trend.length - 1;
+            }
             return (
               <div key={i} style={{ flex: 1, textAlign: 'center', fontSize: '10px', color: '#64748b' }}>
                 {showLabel ? d.date : ''}

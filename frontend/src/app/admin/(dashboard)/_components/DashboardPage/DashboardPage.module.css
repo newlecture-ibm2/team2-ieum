@@ -313,3 +313,25 @@
   color: #94a3b8;
   padding-top: 4px;
 }
+
+/* ── 실시간 인디케이터 ── */
+.liveIndicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: #10b981;
+  font-weight: 700;
+  background: #ecfdf5;
+  padding: 4px 8px;
+  border-radius: 6px;
+  margin-left: 12px;
+}
+
+.liveDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  animation: dotBlink 1.5s ease-in-out infinite;
+}

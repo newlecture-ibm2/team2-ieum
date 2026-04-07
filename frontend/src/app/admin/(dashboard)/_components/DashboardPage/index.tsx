@@ -15,18 +15,31 @@ export default function DashboardPage() {
 
   useEffect(() => {
     let cancelled = false;
-    (async () => {
-      setLoading(true);
+
+    const loadData = async (isInitial = false) => {
+      if (isInitial) setLoading(true);
       try {
         const result = await fetchDashboardData();
         if (!cancelled) setData(result);
       } catch (err) {
         console.error('대시보드 데이터 로드 실패:', err);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && isInitial) setLoading(false);
       }
-    })();
-    return () => { cancelled = true; };
+    };
+
+    // 초기 마운트 시 데이터 페칭
+    loadData(true);
+
+    // 30초마다 백그라운드 데이터 갱신 (실시간 폴링)
+    const intervalId = setInterval(() => {
+      loadData(false);
+    }, 30000);
+
+    return () => { 
+      cancelled = true; 
+      clearInterval(intervalId);
+    };
   }, []);
 
   return (
@@ -34,8 +47,14 @@ export default function DashboardPage() {
       {/* ── 페이지 헤더 ── */}
       <div className={common.pageHeader}>
         <div>
-          <h1 className={common.pageTitle}>운영 현황 대시보드</h1>
-          <p className={common.pageSubtitle}>축제 플랫폼 전반의 운영 현황을 한눈에 확인합니다</p>
+          <div style={{ display: 'flex', alignItems: 'center' }}>
+            <h1 className={common.pageTitle}>운영 현황 대시보드</h1>
+            <span className={s.liveIndicator}>
+              <span className={s.liveDot} />
+              LIVE
+            </span>
+          </div>
+          <p className={common.pageSubtitle}>축제 플랫폼 전반의 운영 현황을 실시간(30초 간격)으로 확인합니다</p>
         </div>
       </div>
 

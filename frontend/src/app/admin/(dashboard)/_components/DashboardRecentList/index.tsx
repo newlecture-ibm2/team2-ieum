@@ -13,6 +13,7 @@ const STATUS_LABEL: Record<string, { label: string; className: string }> = {
   PENDING:  { label: '대기중',   className: 'badgePending' },
   RESOLVED: { label: '처리완료', className: 'badgeOngoing' },
   ANSWERED: { label: '답변완료', className: 'badgeOngoing' },
+  REJECTED: { label: '반려',     className: 'badgeDismissed' },
 };
 
 interface Props {
@@ -60,8 +61,8 @@ export default function DashboardRecentList({ type, title, items }: Props) {
             {items.map((item) => {
               const badge = STATUS_LABEL[item.status] || STATUS_LABEL.PENDING;
               
-              // 완료 상태는 너무 튀지 않게 투명도 조절 (UX 가이드)
-              const isResolved = item.status === 'RESOLVED' || item.status === 'ANSWERED';
+              // 완료/반려 상태는 너무 튀지 않게 투명도 조절 (UX 가이드)
+              const isResolved = item.status === 'RESOLVED' || item.status === 'ANSWERED' || item.status === 'REJECTED';
               
               return (
                 <tr key={`${item.type}-${item.id}`}>
