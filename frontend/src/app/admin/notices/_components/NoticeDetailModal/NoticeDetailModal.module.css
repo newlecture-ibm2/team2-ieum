@@ -1,0 +1,147 @@
+/* ==========================================================================
+   공지사항 상세보기 모달 스타일
+   ========================================================================== */
+
+.detailBody {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── 메타 정보 ── */
+.metaRow {
+  display: flex;
+  gap: 20px;
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* ── 배지 ── */
+.badgeRow {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── 제목 ── */
+.detailTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── 요약 ── */
+.detailSummary {
+  font-size: 14px;
+  color: #64748b;
+  background: #f8fafc;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border-left: 3px solid #6c5ce7;
+  margin: 0;
+}
+
+/* ── 본문 ── */
+.detailContent {
+  font-size: 14px;
+  line-height: 1.8;
+  color: #334155;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 8px;
+  min-height: 120px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.detailContent p {
+  margin: 0 0 4px;
+}
+
+/* ── 하단 버튼 ── */
+.detailFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 16px;
+  border-top: 1px solid #e2e8f0;
+  margin-top: 8px;
+}
+
+/* ── 첨부파일 ── */
+.attachmentSection {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 14px;
+}
+
+.imagePreviewArea {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.imagePreviewWrap {
+  display: flex;
+  justify-content: center;
+}
+
+.imagePreview {
+  max-width: 100%;
+  max-height: 400px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  object-fit: contain;
+}
+
+.attachmentTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #334155;
+  margin: 0 0 8px;
+}
+
+.attachmentList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attachmentItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.attachmentName {
+  flex: 1;
+  color: #6c5ce7;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachmentName:hover {
+  text-decoration: underline;
+}
+
+.attachmentSize {
+  color: #94a3b8;
+  font-size: 11px;
+  flex-shrink: 0;
+}

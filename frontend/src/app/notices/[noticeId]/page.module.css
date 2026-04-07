@@ -149,3 +149,87 @@
   color: var(--color-gray-400);
   margin-top: 6px;
 }
+
+/* ── 첨부파일 섹션 ── */
+.attachSection {
+  padding: 20px 0;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.imagePreviewArea {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.imagePreviewWrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.imagePreview {
+  max-width: 100%;
+  max-height: 500px;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
+  object-fit: contain;
+}
+
+.imageCaption {
+  font-size: 12px;
+  color: var(--color-gray-400);
+}
+
+.fileSection {
+  background: var(--color-gray-50, #f8fafc);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+.fileSectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+}
+
+.fileList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileItem {
+  font-size: 13px;
+}
+
+.fileLink {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--color-primary);
+  text-decoration: none;
+  padding: 6px 8px;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+
+.fileLink:hover {
+  background: rgba(108, 92, 231, 0.06);
+  text-decoration: underline;
+}
+
+.fileSizeText {
+  color: var(--color-gray-400);
+  font-size: 11px;
+  margin-left: auto;
+}

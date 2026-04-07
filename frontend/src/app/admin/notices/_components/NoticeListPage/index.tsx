@@ -8,6 +8,7 @@ import type { AdminNoticeItem, AdminNoticeListResponse } from '@/types/admin-not
 import { Modal } from '@/_component/common/Modal';
 import ConfirmModal from '@/_component/common/Modal/ConfirmModal';
 import NoticeFormModal from '../NoticeFormModal';
+import NoticeDetailModal from '../NoticeDetailModal';
 import { useToast } from '@/_component/common/Toast';
 import s from './NoticeListPage.module.css';
 
@@ -30,6 +31,7 @@ export default function NoticeListPage() {
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
   const [editTarget, setEditTarget] = useState<AdminNoticeItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminNoticeItem | null>(null);
+  const [detailTarget, setDetailTarget] = useState<AdminNoticeItem | null>(null);
 
   /* ── 데이터 로드 ── */
   const fetchNotices = useCallback(async () => {
@@ -179,7 +181,10 @@ export default function NoticeListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {totalElements - ((currentPage - 1) * 10 + idx)}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                    <td
+                      className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell} ${s.clickableTitle}`}
+                      onClick={() => setDetailTarget(notice)}
+                    >
                       {notice.isPinned && <span className={s.pinIcon}>📌</span>}
                       {notice.title}
                     </td>
@@ -273,6 +278,19 @@ export default function NoticeListPage() {
           danger
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* ── 상세보기 모달 ── */}
+      {detailTarget && (
+        <NoticeDetailModal
+          notice={detailTarget}
+          onClose={() => setDetailTarget(null)}
+          onEdit={() => {
+            setDetailTarget(null);
+            setFormMode('edit');
+            setEditTarget(detailTarget);
+          }}
         />
       )}
     </div>

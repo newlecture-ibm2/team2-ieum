@@ -80,6 +80,9 @@ public class SecurityConfig {
                                                 // ✅ 공지사항 조회 — 비회원 허용
                                                 .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
+                                                // ✅ 첨부파일 조회/다운로드 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
+
                                                 // 🔒 회원 전용 — 프로필, 알림, FCM
                                                 .requestMatchers("/api/users/me/**").hasAnyRole("USER", "ADMIN")
 

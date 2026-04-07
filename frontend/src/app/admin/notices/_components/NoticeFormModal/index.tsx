@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
 import common from '@/app/admin/_styles/admin-common.module.css';
@@ -25,6 +25,8 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
   const [sendPush, setSendPush] = useState(false); // 작성/수정 시 푸시 알림 발송 여부
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
@@ -62,6 +64,8 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
       formData.append('isPinned', String(isPinned));
       formData.append('isPopup', String(isPopup));
       formData.append('sendPush', String(sendPush));
+      const fileKey = isEdit ? 'newFiles' : 'files';
+      files.forEach((file) => formData.append(fileKey, file));
 
       if (isEdit) {
         await adminApi.put(`/notices/${notice!.id}`, formData, {
@@ -138,6 +142,48 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             <span className={s.charCount}>{content.length} / 5000</span>
           </div>
           {contentError && <span className={s.errorText}>⚠ {contentError}</span>}
+        </div>
+
+        {/* 첨부파일 */}
+        <div className={s.fieldGroup}>
+          <label className={s.fieldLabel}>📎 첨부파일</label>
+          <div
+            className={s.fileDropZone}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <span className={s.fileDropText}>클릭하여 파일을 선택하세요</span>
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              className={s.fileInputHidden}
+              onChange={(e) => {
+                if (e.target.files) {
+                  setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
+                  e.target.value = '';
+                }
+              }}
+            />
+          </div>
+          {files.length > 0 && (
+            <ul className={s.fileList}>
+              {files.map((file, idx) => (
+                <li key={idx} className={s.fileItem}>
+                  <span className={s.fileName}>📄 {file.name}</span>
+                  <span className={s.fileSize}>
+                    {(file.size / 1024).toFixed(1)} KB
+                  </span>
+                  <button
+                    type="button"
+                    className={s.fileRemoveBtn}
+                    onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {/* 옵션 토글 */}
