@@ -24,6 +24,7 @@ public class ReportAdminController {
 
     private final GetReportListUseCase getReportListUseCase;
     private final ProcessReportUseCase processReportUseCase;
+    private final com.ieum.admin.report.application.port.in.GetReportTargetUseCase getReportTargetUseCase;
 
     @Operation(summary = "신고 목록 조회", description = "관리자용 신고 목록을 조회합니다.")
     @GetMapping
@@ -74,5 +75,15 @@ public class ReportAdminController {
         String adminNote = body.getOrDefault("adminNote", "");
         processReportUseCase.processReport(reportId, action, adminNote.isBlank() ? "관리자 처리" : adminNote);
         return ResponseEntity.ok(ApiResponse.success("신고가 처리되었습니다."));
+    }
+
+    @Operation(summary = "신고 원문 조회", description = "신고 대상의 원문 콘텐츠를 조회합니다.")
+    @GetMapping("/{reportId}/target")
+    public ResponseEntity<?> getReportTarget(@PathVariable Long reportId) {
+        var originalContent = getReportTargetUseCase.getOriginalContent(reportId);
+        if (originalContent == null || originalContent.isEmpty()) {
+            return ResponseEntity.status(404).body(ApiResponse.error(ApiResponse.ErrorResponse.of("NOT_FOUND", 404, "원문을 찾을 수 없습니다.", "해당 식별자로 원문 조회를 실패했습니다.")));
+        }
+        return ResponseEntity.ok(ApiResponse.success(originalContent));
     }
 }

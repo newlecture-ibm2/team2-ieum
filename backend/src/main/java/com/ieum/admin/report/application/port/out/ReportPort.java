@@ -15,4 +15,5 @@ public interface ReportPort {
     void updateStatus(Long id, String status, String action, String adminNote);
     void saveResponse(Long reportId, Long adminId, String actionType, String message);
     long countByStatus(String status);
+    java.util.Map<String, String> findOriginalContent(String targetType, Long targetId);
 }
