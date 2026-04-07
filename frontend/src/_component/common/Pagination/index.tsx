@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams, usePathname } from 'next/navigation';
 import styles from './Pagination.module.css';
@@ -9,7 +10,15 @@ interface PaginationProps {
   totalPages: number;
 }
 
-export default function Pagination({ currentPage, totalPages }: PaginationProps) {
+export default function Pagination(props: PaginationProps) {
+  return (
+    <Suspense fallback={<div style={{ height: 40 }} />}>
+      <PaginationInner {...props} />
+    </Suspense>
+  );
+}
+
+function PaginationInner({ currentPage, totalPages }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 

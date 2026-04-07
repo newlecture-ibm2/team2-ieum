@@ -31,6 +31,7 @@ export default function CommunityDetailPage() {
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [alreadyReported, setAlreadyReported] = useState(false);
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
@@ -170,13 +171,26 @@ export default function CommunityDetailPage() {
         </button>
         <div className={styles.statsInfo}>
           <span>공유하기</span>
-          <span className={styles.reportLink} onClick={() => {
-            if (!isLoggedIn) {
-              setShowLoginModal(true);
-              return;
-            }
-            setIsReportModalOpen(true);
-          }}>신고</span>
+          <span
+            className={`${styles.reportLink} ${alreadyReported ? styles.reportDisabled : ''}`}
+            onClick={async () => {
+              if (alreadyReported) return;
+              if (!isLoggedIn) {
+                setShowLoginModal(true);
+                return;
+              }
+              // 신고 버튼 클릭 시 중복 여부 확인
+              try {
+                const res = await api.get(`/api/reports/check?targetType=POST&targetId=${postId}`);
+                if (res.data?.data === true) {
+                  setAlreadyReported(true);
+                  toast('이미 신고한 게시글입니다.', 'info');
+                  return;
+                }
+              } catch {}
+              setIsReportModalOpen(true);
+            }}
+          >{alreadyReported ? '신고 완료' : '신고'}</span>
         </div>
       </div>
 
@@ -324,9 +338,16 @@ export default function CommunityDetailPage() {
                       description: reportReason === 'OTHER' ? reportDescription : null,
                     });
                     toast('신고가 접수되었습니다.', 'success');
+                    setAlreadyReported(true);
                   } catch (err: any) {
-                    const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
-                    toast(msg, 'error');
+                    const status = err?.response?.status;
+                    if (status === 409) {
+                      toast('이미 신고한 게시글입니다.', 'info');
+                      setAlreadyReported(true);
+                    } else {
+                      const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
+                      toast(msg, 'error');
+                    }
                   } finally {
                     setIsReportModalOpen(false);
                     setReportReason('');
