@@ -1,19 +1,13 @@
-'use client';
-
 import { Suspense } from 'react';
 import { Megaphone } from 'lucide-react';
-import NoticeTable from './_components/NoticeTable/NoticeTable';
-import Pagination from '@/_component/common/Pagination';
-import SearchFilter from '@/_component/common/SearchFilter';
-import { useNoticeList } from './_components/useNoticeList';
+import NoticeListContent from './_components/NoticeList';
 import styles from './page.module.css';
 
-function NoticesContent() {
-  const {
-    notices, totalPages, totalElements, loading,
-    currentPage
-  } = useNoticeList();
-
+/**
+ * 유저 공지사항 페이지 (Server Component)
+ * 라우트: /notices
+ */
+export default function NoticesPage() {
   return (
     <div className={styles.page}>
       <h1 className={styles.pageTitle}>
@@ -21,19 +15,9 @@ function NoticesContent() {
         공지사항
       </h1>
 
-      <SearchFilter variant="search-only" filterType="notice" />
-
-      <NoticeTable
-        notices={notices}
-        totalElements={totalElements}
-        currentPage={currentPage}
-        loading={loading}
-      />
-
-      <Pagination
-        currentPage={currentPage}
-        totalPages={totalPages}
-      />
+      <Suspense>
+        <NoticeListContent />
+      </Suspense>
     </div>
   );
 }
