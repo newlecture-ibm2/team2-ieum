@@ -3,6 +3,13 @@ package com.ieum.global.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+/**
+ * [공통 에러 코드 사전]
+ * 프로젝트 전체에서 발생할 수 있는 에러를 코드(AUTH_001 등) + HTTP 상태 + 사용자 메시지로 미리 정의합니다.
+ * 새로운 에러가 필요하면 이 enum에 한 줄 추가하면 됩니다.
+ *
+ * 사용 예시: throw new BusinessException(ErrorCode.AUTH_001, "상세 원인");
+ */
 @Getter
 public enum ErrorCode {
     AUTH_001(HttpStatus.UNAUTHORIZED, "로그인이 필요한 서비스입니다."),
