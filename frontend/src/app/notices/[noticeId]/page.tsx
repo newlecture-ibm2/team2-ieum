@@ -4,6 +4,8 @@ import { Calendar, Eye, User, FileWarning, Paperclip, Download } from 'lucide-re
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import api from '@/lib/api';
 import { Notice } from '@/types/notice';
 import styles from './page.module.css';
@@ -114,7 +116,11 @@ export default function NoticeDetailPage() {
         </div>
       </div>
 
-      <div className={styles.detailBody} dangerouslySetInnerHTML={{ __html: notice.content }} />
+      <div className={styles.detailBody}>
+        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+          {notice.content}
+        </ReactMarkdown>
+      </div>
 
       {/* 첨부파일 */}
       {attachments.length > 0 && (

@@ -152,19 +152,20 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             onClick={() => fileInputRef.current?.click()}
           >
             <span className={s.fileDropText}>클릭하여 파일을 선택하세요</span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              multiple
-              className={s.fileInputHidden}
-              onChange={(e) => {
-                if (e.target.files) {
-                  setFiles((prev) => [...prev, ...Array.from(e.target.files!)]);
-                  e.target.value = '';
-                }
-              }}
-            />
           </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className={s.fileInputHidden}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                const newFiles = Array.from(e.target.files);
+                setFiles((prev) => [...prev, ...newFiles]);
+                e.target.value = '';
+              }
+            }}
+          />
           {files.length > 0 && (
             <ul className={s.fileList}>
               {files.map((file, idx) => (

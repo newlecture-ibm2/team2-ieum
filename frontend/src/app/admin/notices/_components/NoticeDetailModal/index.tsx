@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import { Modal } from '@/_component/common/Modal';
 import type { AdminNoticeItem } from '@/types/admin-notice';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import common from '@/app/admin/_styles/admin-common.module.css';
 import api from '@/lib/api';
 import s from './NoticeDetailModal.module.css';
@@ -90,9 +92,9 @@ export default function NoticeDetailModal({ notice, onClose, onEdit }: Props) {
 
         {/* 본문 */}
         <div className={s.detailContent}>
-          {notice.content.split('\n').map((line, idx) => (
-            <p key={idx}>{line || '\u00A0'}</p>
-          ))}
+          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+            {notice.content}
+          </ReactMarkdown>
         </div>
 
         {/* 첨부파일 목록 */}
