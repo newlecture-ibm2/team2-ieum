@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import styles from './SearchFilter.module.css';
@@ -11,7 +11,15 @@ interface SearchFilterProps {
   filterType?: 'festival' | 'community' | 'notice';
 }
 
-export default function SearchFilter({ variant = 'with-filter', filterType = 'festival' }: SearchFilterProps) {
+export default function SearchFilter(props: SearchFilterProps) {
+  return (
+    <Suspense fallback={<div style={{ height: 48 }} />}>
+      <SearchFilterInner {...props} />
+    </Suspense>
+  );
+}
+
+function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }: SearchFilterProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();

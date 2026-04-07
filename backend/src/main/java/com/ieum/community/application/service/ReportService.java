@@ -75,4 +75,12 @@ public class ReportService {
         ReportEntity saved = reportRepository.save(entity);
         return ReportResponse.fromEntity(saved);
     }
+
+    /**
+     * 이미 신고했는지 확인
+     */
+    @Transactional(readOnly = true)
+    public boolean isAlreadyReported(Long reporterId, String targetType, Long targetId) {
+        return reportRepository.existsByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId);
+    }
 }

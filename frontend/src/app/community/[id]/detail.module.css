@@ -316,6 +316,12 @@
   color: #ef4444;
 }
 
+.reportDisabled {
+  color: #cbd5e1 !important;
+  cursor: default !important;
+  pointer-events: none;
+}
+
 /* ===== 신고 모달 ===== */
 .reportModal {
   display: flex;
