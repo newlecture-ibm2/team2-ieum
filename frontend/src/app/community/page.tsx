@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
@@ -11,7 +11,7 @@ import PostCard from './_components/PostCard/PostCard';
 import { usePosts } from './_components/PostCard/usePosts';
 import { usePopularPosts } from './_components/PopularPosts/usePopularPosts';
 
-function CommunityContent() {
+export default function CommunityPage() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category') || '';
   const areaCode = searchParams.get('areaCode') || '';
@@ -86,13 +86,5 @@ function CommunityContent() {
         </Link>
       )}
     </main>
-  );
-}
-
-export default function CommunityPage() {
-  return (
-    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>게시글을 불러오는 중...</div>}>
-      <CommunityContent />
-    </Suspense>
   );
 }

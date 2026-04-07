@@ -1,4 +1,3 @@
-import { Suspense } from 'react';
 import { Megaphone } from 'lucide-react';
 import NoticeListContent from './_components/NoticeList';
 import styles from './page.module.css';
@@ -15,9 +14,7 @@ export default function NoticesPage() {
         공지사항
       </h1>
 
-      <Suspense>
-        <NoticeListContent />
-      </Suspense>
+      <NoticeListContent />
     </div>
   );
 }
