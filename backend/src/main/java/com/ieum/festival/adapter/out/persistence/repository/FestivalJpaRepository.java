@@ -66,4 +66,17 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
                      "ORDER BY f.startDate ASC")
        Page<FestivalEntity> findUpcomingFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
                      @Param("month") Integer month, Pageable pageable);
+
+       /**
+        * [종료 탭] 키워드 검색 + 이미 종료된 축제만 (endDate < 오늘)
+        */
+       @Query("SELECT f FROM FestivalEntity f " +
+                     "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+                     "AND f.endDate < CURRENT_DATE " +
+                     "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
+                     "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
+                     "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
+                     "ORDER BY f.endDate DESC")
+       Page<FestivalEntity> findEndedFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
+                     @Param("month") Integer month, Pageable pageable);
 }

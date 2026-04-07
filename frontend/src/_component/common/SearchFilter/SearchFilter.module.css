@@ -4,6 +4,11 @@
   z-index: 20;
 }
 
+.wrapperNotice {
+  margin-top: 10px;
+}
+
+
 .searchBar {
   background: #fff;
   border: 1px solid #eee;
@@ -30,6 +35,24 @@
   align-items: center;
   margin-left: 14px;
 }
+
+.searchTypeSelect {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: #333;
+  background: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.searchTypeSelect:focus, .searchTypeSelect:hover {
+  border-color: #c7d2fe;
+}
+
 
 .sortSelect {
   border: 1px solid #e5e7eb;

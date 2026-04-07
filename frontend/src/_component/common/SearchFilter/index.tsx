@@ -8,7 +8,7 @@ import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES } from '@/constants/filterOp
 
 interface SearchFilterProps {
   variant?: 'search-only' | 'with-filter';
-  filterType?: 'festival' | 'community';
+  filterType?: 'festival' | 'community' | 'notice';
 }
 
 export default function SearchFilter({ variant = 'with-filter', filterType = 'festival' }: SearchFilterProps) {
@@ -24,6 +24,7 @@ export default function SearchFilter({ variant = 'with-filter', filterType = 'fe
   const currentPeriod = searchParams.get('period') || ''; 
   const currentStart = searchParams.get('startDate') || '';
   const currentEnd = searchParams.get('endDate') || '';
+  const currentSearchType = searchParams.get('searchType') || 'all';
 
   const currentSort = searchParams.get('sort') || 'latest';
 
@@ -37,6 +38,7 @@ export default function SearchFilter({ variant = 'with-filter', filterType = 'fe
   const [period, setPeriod] = useState(currentPeriod);
   const [startDate, setStartDate] = useState(currentStart);
   const [endDate, setEndDate] = useState(currentEnd);
+  const [searchType, setSearchType] = useState(currentSearchType);
   
   const [sort, setSort] = useState(currentSort);
 
@@ -58,6 +60,11 @@ export default function SearchFilter({ variant = 'with-filter', filterType = 'fe
     const params = new URLSearchParams(searchParams.toString());
     if (keyword.trim()) params.set('keyword', keyword.trim());
     else params.delete('keyword');
+    
+    if (filterType === 'notice') {
+      if (searchType !== 'all') params.set('searchType', searchType);
+      else params.delete('searchType');
+    }
     
     if (sort !== 'latest') params.set('sort', sort);
     else params.delete('sort');
@@ -123,14 +130,25 @@ export default function SearchFilter({ variant = 'with-filter', filterType = 'fe
   };
 
   return (
-    <div className={styles.wrapper}>
+    <div className={`${styles.wrapper} ${filterType === 'notice' ? styles.wrapperNotice : ''}`}>
       <div className={styles.searchBar}>
         <div className={styles.searchLeft}>
+          {filterType === 'notice' && (
+            <select
+              className={styles.searchTypeSelect}
+              value={searchType}
+              onChange={(e) => setSearchType(e.target.value)}
+            >
+              <option value="all">전체</option>
+              <option value="title">제목</option>
+              <option value="content">내용</option>
+            </select>
+          )}
           <div className={styles.inputWrap}>
             <Search size={14} className={styles.searchIcon} />
             <input 
               type="text" 
-              placeholder={filterType === 'festival' ? "축제명, 지역명으로 검색해보세요" : "게시글 제목이나 내용을 검색해보세요"} 
+              placeholder={filterType === 'festival' ? "축제명, 지역명으로 검색해보세요" : filterType === 'notice' ? "검색어를 입력하세요" : "게시글 제목이나 내용을 검색해보세요"} 
               className={styles.input}
               value={keyword}
               onChange={(e) => setKeyword(e.target.value)}
@@ -273,9 +291,9 @@ export default function SearchFilter({ variant = 'with-filter', filterType = 'fe
             onChange={(e) => handleSortChange(e.target.value)}
           >
             <option value="latest">최신순</option>
-            <option value="popular">인기순</option>
+            {filterType !== 'notice' && <option value="popular">인기순</option>}
             <option value="views">조회순</option>
-            <option value="reviews">리뷰순</option>
+            {filterType !== 'notice' && <option value="reviews">리뷰순</option>}
             {filterType === 'festival' && (
               <option value="distance">거리순</option>
             )}
