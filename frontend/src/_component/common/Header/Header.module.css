@@ -181,6 +181,27 @@
   color: white;
 }
 
+/* 관리자 버튼 */
+.adminBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.adminBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.adminBtn svg {
+  color: white;
+}
+
 /* 비회원용 버튼 */
 .loginBtn {
   padding: 6px 16px;

@@ -52,4 +52,18 @@ public class ReportController {
         ReportResponse response = reportService.createReport(request, getUserId(authentication));
         return ApiResponse.success(response);
     }
+
+    @Operation(summary = "신고 여부 확인", description = "현재 사용자가 해당 대상을 이미 신고했는지 확인합니다.")
+    @GetMapping("/check")
+    public ApiResponse<Boolean> checkAlreadyReported(
+            @RequestParam String targetType,
+            @RequestParam Long targetId,
+            Authentication authentication) {
+        Long userId = getUserId(authentication);
+        if (userId == null) {
+            return ApiResponse.success(false);
+        }
+        boolean reported = reportService.isAlreadyReported(userId, targetType, targetId);
+        return ApiResponse.success(reported);
+    }
 }

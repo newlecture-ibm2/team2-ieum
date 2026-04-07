@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
@@ -10,7 +10,16 @@ import PopularPosts from './_components/PopularPosts/PopularPosts';
 import PostCard from './_components/PostCard/PostCard';
 import { usePosts } from './_components/PostCard/usePosts';
 import { usePopularPosts } from './_components/PopularPosts/usePopularPosts';
+
 export default function CommunityPage() {
+  return (
+    <Suspense fallback={<div className={styles.loadingWrap}>로딩 중...</div>}>
+      <CommunityContent />
+    </Suspense>
+  );
+}
+
+function CommunityContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category') || '';
   const areaCode = searchParams.get('areaCode') || '';
@@ -38,12 +47,14 @@ export default function CommunityPage() {
   return (
     <main className={styles.mainContainer}>
       {/* 히어로 배너 */}
-      <div className={styles.heroBanner}>
-        <div className={styles.heroInner}>
-          <div className={styles.heroTitle}>커뮤니티</div>
-          <div className={styles.heroSub}>다양한 축제 정보를 나누고 질문해보세요! 💬</div>
+      <section className={styles.hero}>
+        <div className={styles.heroContent}>
+          <h1 className={styles.heroTitle}>커뮤니티</h1>
+          <p className={styles.heroSub}>
+            다양한 축제 정보를 나누고 질문해보세요! 💬
+          </p>
         </div>
-      </div>
+      </section>
 
       {/* 검색/필터 + 콘텐츠 */}
       <section className={styles.contentSection}>

@@ -3,61 +3,47 @@
   background: #fff;
 }
 
-/* 히어로 배너 */
-.heroBanner {
-  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
-  padding: 36px 0 28px;
+/* ===== 히어로 배너 (pastFestivals와 동일 구조) ===== */
+.hero {
   position: relative;
+  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
+  padding: 56px 0;
+  text-align: center;
   overflow: hidden;
 }
 
-.heroBanner::before {
+.hero::before {
   content: '';
   position: absolute;
-  top: -40px;
-  right: -40px;
-  width: 160px;
-  height: 160px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 50%;
+  inset: 0;
+  background: url('/images/community_hero.png') center/cover no-repeat;
+  opacity: 0.25;
 }
 
-.heroBanner::after {
-  content: '';
-  position: absolute;
-  bottom: -30px;
-  left: 50px;
-  width: 100px;
-  height: 100px;
-  background: rgba(255, 255, 255, 0.04);
-  border-radius: 50%;
-}
-
-.heroInner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 24px;
+.heroContent {
   position: relative;
   z-index: 1;
 }
 
 .heroTitle {
-  font-size: 24px;
+  font-size: 28px;
   font-weight: 800;
   color: #fff;
-  margin-bottom: 6px;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
 }
 
 .heroSub {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.75);
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 400;
 }
 
 /* 콘텐츠 영역 */
 .contentSection {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 20px 24px 60px;
+  padding: var(--spacing-lg) var(--spacing-lg) 80px;
 }
 
 /* 게시글 리스트 */
