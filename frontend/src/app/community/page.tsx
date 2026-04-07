@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { Suspense, useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { Pencil } from 'lucide-react';
 import Link from 'next/link';
@@ -10,7 +10,8 @@ import PopularPosts from './_components/PopularPosts/PopularPosts';
 import PostCard from './_components/PostCard/PostCard';
 import { usePosts } from './_components/PostCard/usePosts';
 import { usePopularPosts } from './_components/PopularPosts/usePopularPosts';
-export default function CommunityPage() {
+
+function CommunityContent() {
   const searchParams = useSearchParams();
   const category = searchParams.get('category') || '';
   const areaCode = searchParams.get('areaCode') || '';
@@ -21,8 +22,8 @@ export default function CommunityPage() {
 
   useEffect(() => {
     fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => setIsLoggedIn(data.isLoggedIn))
+      .then((res) => res.json())
+      .then((data) => setIsLoggedIn(data.isLoggedIn))
       .catch(() => {});
   }, []);
 
@@ -85,5 +86,13 @@ export default function CommunityPage() {
         </Link>
       )}
     </main>
+  );
+}
+
+export default function CommunityPage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>게시글을 불러오는 중...</div>}>
+      <CommunityContent />
+    </Suspense>
   );
 }

@@ -1,8 +1,5 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Map, ArrowRight } from 'lucide-react';
+import { Map } from 'lucide-react';
 import { FESTIVAL_STATUS_TABS } from '@/constants/filterOptions';
 import styles from './HeroBanner.module.css';
 
@@ -10,56 +7,32 @@ interface HeroBannerProps {
   currentTab: string;
 }
 
-const BANNERS = [
-  {
-    id: 1,
-    title: '전국 추천 축제',
-    subtitle: '밤하늘을 수놓는 화려한 여름 바다 불꽃놀이의 향연 🎆',
-    image: '/images/hero_summer.png',
-  },
-  {
-    id: 2,
-    title: '따뜻한 봄의 시작',
-    subtitle: '여의도 윤중로에서 만나는 로맨틱한 벚꽃 축제 🌸',
-    image: '/images/hero_spring.png',
-  }
-];
+// 고정된 메인 슬라이드 (프로젝트의 핵심 정체성)
+const FIXED_BANNER = {
+  id: 'fixed-1',
+  title: '이음(IEUM) : 축제의 모든 순간에 함께',
+  subtitle: '전국에 숨겨진 다채로운 지역 축제들을 한곳에서 빠르게 만나보세요 ✨',
+  image: '/images/hero_option_b.png',
+};
 
 export default function HeroBanner({ currentTab }: HeroBannerProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
-
-  // Auto carousel effect
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % BANNERS.length);
-    }, 5000);
-    return () => clearInterval(timer);
-  }, []);
-
   const TABS = FESTIVAL_STATUS_TABS;
 
   return (
     <section className={styles.heroSection}>
-      {/* Background Slides */}
-      {BANNERS.map((banner, idx) => (
-        <div
-          key={banner.id}
-          className={`${styles.slide} ${idx === currentIndex ? styles.active : ''}`}
-          style={{ backgroundImage: `url(${banner.image})` }}
-        >
-          <div className={styles.overlay} />
-        </div>
-      ))}
+      {/* Background Image */}
+      <div
+        className={`${styles.slide} ${styles.active}`}
+        style={{ backgroundImage: `url(${FIXED_BANNER.image})` }}
+      >
+        <div className={styles.overlay} />
+      </div>
 
       {/* Content Overlay */}
       <div className={styles.contentWrap}>
         <div className={styles.textContent}>
-          <span className={styles.badge}>이번 주 추천</span>
-          <h2 className={styles.title}>{BANNERS[currentIndex].title}</h2>
-          <p className={styles.subtitle}>{BANNERS[currentIndex].subtitle}</p>
-          <button className={styles.ctaButton}>
-            자세히 보기 <ArrowRight size={16} />
-          </button>
+          <h2 className={styles.title}>{FIXED_BANNER.title}</h2>
+          <p className={styles.subtitle}>{FIXED_BANNER.subtitle}</p>
         </div>
 
         {/* Navigation Tabs (As defined in blueprint) */}
@@ -82,18 +55,6 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
             </Link>
           </div>
         </div>
-      </div>
-
-      {/* Dots Indicator */}
-      <div className={styles.dots}>
-        {BANNERS.map((_, idx) => (
-          <button
-            key={idx}
-            className={`${styles.dot} ${idx === currentIndex ? styles.activeDot : ''}`}
-            onClick={() => setCurrentIndex(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-          />
-        ))}
       </div>
     </section>
   );

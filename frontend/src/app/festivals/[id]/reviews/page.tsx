@@ -21,6 +21,7 @@ export default function ReviewListPage({ params }: { params: Promise<{ id: strin
   const [totalElements, setTotalElements] = useState(0);
   const [sort, setSort] = useState('latest');
   const [loading, setLoading] = useState(true);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
 
   useEffect(() => {
     const fetchFestivalInfo = async () => {
@@ -53,7 +54,7 @@ export default function ReviewListPage({ params }: { params: Promise<{ id: strin
       }
     };
     fetchReviews();
-  }, [fid, page, sort]);
+  }, [fid, page, sort, refreshTrigger]);
 
   const handleSortChange = (newSort: string) => {
     setSort(newSort);
@@ -92,7 +93,11 @@ export default function ReviewListPage({ params }: { params: Promise<{ id: strin
           onSortChange={handleSortChange}
         />
 
-        <ReviewBoard reviews={reviews} loading={loading} />
+        <ReviewBoard
+          reviews={reviews}
+          loading={loading}
+          onRefresh={() => setRefreshTrigger(prev => prev + 1)}
+        />
 
         {/* 페이지네이션 */}
         {totalPages > 0 && (

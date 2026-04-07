@@ -1,5 +1,6 @@
 'use client';
 
+import { Suspense } from 'react';
 import { Megaphone } from 'lucide-react';
 import NoticeTable from './_components/NoticeTable/NoticeTable';
 import Pagination from '@/_component/common/Pagination';
@@ -7,7 +8,7 @@ import SearchFilter from '@/_component/common/SearchFilter';
 import { useNoticeList } from './_components/useNoticeList';
 import styles from './page.module.css';
 
-export default function NoticesPage() {
+function NoticesContent() {
   const {
     notices, totalPages, totalElements, loading,
     currentPage
@@ -34,5 +35,13 @@ export default function NoticesPage() {
         totalPages={totalPages}
       />
     </div>
+  );
+}
+
+export default function NoticesPage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '50px' }}>공지사항을 불러오는 중...</div>}>
+      <NoticesContent />
+    </Suspense>
   );
 }
