@@ -45,9 +45,13 @@ export const REGION_OPTIONS = [
 // ─── 커뮤니티 카테고리 (말머리) ───
 
 export const CATEGORY_CODES = [
-  { code: 'qna', name: 'Q&A' },
-  { code: 'tip', name: '축제 꿀팁' },
-  { code: 'review', name: '먹거리 리뷰' },
+  { code: 'QNA', name: 'Q&A' },
+  { code: 'TIP', name: '축제 꿀팁' },
+  { code: 'FOOD', name: '먹거리 리뷰' },
+  { code: 'REVIEW', name: '축제 후기' },
+  { code: 'COMPANION', name: '동행 구해요' },
+  { code: 'INFO', name: '축제 정보' },
+  { code: 'FREE', name: '자유게시판' },
 ];
 
 /** 말머리 셀렉트 드롭다운용 */

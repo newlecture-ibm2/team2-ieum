@@ -37,6 +37,10 @@ export default function CommunityDetailPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [alreadyReported, setAlreadyReported] = useState(false);
 
+  // 대댓글(답글) 관련 상태
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyContent, setReplyContent] = useState('');
+
 
   // 로그인 상태 확인 및 신고 여부 확인
   useEffect(() => {
@@ -45,7 +49,7 @@ export default function CommunityDetailPage() {
       .then(data => {
         setIsLoggedIn(data.isLoggedIn);
         if (data.isLoggedIn && data.user) {
-          setCurrentUserId(data.user.id);
+          setCurrentUserId(data.user.userId);
 
           // 이미 신고했는지 확인
           api.get(`/api/reports/check?targetType=POST&targetId=${postId}`)
@@ -86,8 +90,7 @@ export default function CommunityDetailPage() {
   };
 
   const handleEditPost = () => {
-    // router.push(`/community/write?edit=${postId}`);
-    toast('수정 페이지는 별도 화면으로 구현 예정입니다!', 'info');
+    router.push(`/community/write?edit=${postId}`);
   };
 
   const handleSubmitComment = async () => {
@@ -109,6 +112,32 @@ export default function CommunityDetailPage() {
     } catch (err) {
       console.error(err);
       toast('댓글 등록에 실패했습니다.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // 대댓글(답글) 등록
+  const handleSubmitReply = async (parentId: number) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    if (submitting || !replyContent.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await api.post(`/api/community/posts/${postId}/comments`, {
+        content: replyContent.trim(),
+        parentId: parentId
+      });
+      if (res.data.success) {
+        setReplyContent('');
+        setReplyingTo(null);
+        fetchDetail(); // 댓글 새로고침
+      }
+    } catch (err) {
+      console.error(err);
+      toast('답글 등록에 실패했습니다.', 'error');
     } finally {
       setSubmitting(false);
     }
@@ -277,7 +306,11 @@ export default function CommunityDetailPage() {
                 </div>
                 <div className={styles.commentText}>{comment.content}</div>
                 <div className={styles.commentActions}>
-                  <span>답글 달기</span>
+                  <span onClick={() => {
+                    if (!isLoggedIn) { setShowLoginModal(true); return; }
+                    setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                    setReplyContent('');
+                  }}>답글 달기</span>
                   {comment.userId === currentUserId && (
                     <>
                       <span> · </span>
@@ -285,6 +318,39 @@ export default function CommunityDetailPage() {
                     </>
                   )}
                 </div>
+
+                {/* 답글 입력 폼 */}
+                {replyingTo === comment.id && (
+                  <div className={styles.replyInputWrap}>
+                    <input
+                      type="text"
+                      className={styles.replyInput}
+                      placeholder={`${comment.userName}님에게 답글 작성...`}
+                      value={replyContent}
+                      onChange={e => setReplyContent(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          e.preventDefault();
+                          handleSubmitReply(comment.id);
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      className={styles.replySubmitBtn}
+                      onClick={() => handleSubmitReply(comment.id)}
+                      disabled={submitting || !replyContent.trim()}
+                    >
+                      등록
+                    </button>
+                    <button
+                      className={styles.replyCancelBtn}
+                      onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -300,10 +366,51 @@ export default function CommunityDetailPage() {
                   </div>
                   <div className={styles.commentText}>{child.content}</div>
                   <div className={styles.commentActions}>
+                    <span onClick={() => {
+                      if (!isLoggedIn) { setShowLoginModal(true); return; }
+                      setReplyingTo(replyingTo === child.id ? null : child.id);
+                      setReplyContent('');
+                    }}>답글 달기</span>
                     {child.userId === currentUserId && (
-                      <span>삭제</span>
+                      <>
+                        <span> · </span>
+                        <span>삭제</span>
+                      </>
                     )}
                   </div>
+
+                  {/* 대댓글에 대한 답글 입력 폼 (parentId는 최상위 부모 댓글로 전달) */}
+                  {replyingTo === child.id && (
+                    <div className={styles.replyInputWrap}>
+                      <input
+                        type="text"
+                        className={styles.replyInput}
+                        placeholder={`${child.userName}님에게 답글 작성...`}
+                        value={replyContent}
+                        onChange={e => setReplyContent(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            e.preventDefault();
+                            handleSubmitReply(comment.id);
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        className={styles.replySubmitBtn}
+                        onClick={() => handleSubmitReply(comment.id)}
+                        disabled={submitting || !replyContent.trim()}
+                      >
+                        등록
+                      </button>
+                      <button
+                        className={styles.replyCancelBtn}
+                        onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
