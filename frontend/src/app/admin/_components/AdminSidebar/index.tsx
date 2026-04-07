@@ -41,12 +41,12 @@ export default function AdminSidebar() {
   }, []);
   return (
     <aside className={styles.sidebar}>
-      <div className={styles.brand}>
+      <Link href="/" className={styles.brand} style={{ textDecoration: 'none', color: 'inherit' }}>
         <span className={styles.pinOuter}>
           <span className={styles.pinInner} />
         </span>
         IEUM 관리자
-      </div>
+      </Link>
 
       <div className={styles.divider}>관리</div>
 
