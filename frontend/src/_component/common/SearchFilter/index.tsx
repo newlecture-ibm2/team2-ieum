@@ -4,27 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X, SlidersHorizontal } from 'lucide-react';
 import styles from './SearchFilter.module.css';
-
-export const REGION_CODES = [
-  { code: '1', name: '서울' }, { code: '2', name: '인천' }, { code: '3', name: '대전' },
-  { code: '4', name: '대구' }, { code: '5', name: '광주' }, { code: '6', name: '부산' },
-  { code: '7', name: '울산' }, { code: '8', name: '세종' }, { code: '31', name: '경기' },
-  { code: '32', name: '강원' }, { code: '33', name: '충북' }, { code: '34', name: '충남' },
-  { code: '35', name: '경북' }, { code: '36', name: '경남' }, { code: '37', name: '전북' },
-  { code: '38', name: '전남' }, { code: '39', name: '제주' },
-];
-
-export const CATEGORY_CODES = [
-  { code: 'qna', name: 'Q&A' },
-  { code: 'tip', name: '축제 꿀팁' },
-  { code: 'review', name: '먹거리 리뷰' },
-];
-
-export const PERIOD_CODES = [
-  { code: 'week', name: '이번 주' },
-  { code: 'month', name: '이번 달' },
-  { code: 'custom', name: '직접 입력' },
-];
+import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES } from '@/constants/filterOptions';
 
 interface SearchFilterProps {
   variant?: 'search-only' | 'with-filter';

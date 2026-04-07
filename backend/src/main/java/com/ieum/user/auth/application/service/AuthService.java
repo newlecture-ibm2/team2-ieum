@@ -33,8 +33,8 @@ public class AuthService implements AuthUseCase {
             throw new BadCredentialsException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole().getKey());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getNickname(), user.getRole().getKey());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getId());
 
         saveUserPort.saveRefreshToken(user.getId(), refreshToken);
 
@@ -74,16 +74,23 @@ public class AuthService implements AuthUseCase {
             throw new IllegalArgumentException("유효하지 않은 Refresh Token입니다.");
         }
         
-        String email = jwtProvider.getAuthentication(tokenString).getName();
-        User user = loadUserPort.loadUserByEmail(email)
+        String subjectId = jwtProvider.getSubjectFromToken(tokenString);
+        Long userId;
+        try {
+            userId = Long.valueOf(subjectId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("유효하지 않은 토큰 정보입니다.");
+        }
+        
+        User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         if (!saveUserPort.validateRefreshToken(user.getId(), tokenString)) {
             throw new IllegalArgumentException("DB에 존재하지 않거나 일치하지 않는 Refresh Token입니다.");
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole().getKey());
-        String newRefreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        String newAccessToken = jwtProvider.generateAccessToken(user.getId(), user.getNickname(), user.getRole().getKey());
+        String newRefreshToken = jwtProvider.generateRefreshToken(user.getId());
 
         saveUserPort.saveRefreshToken(user.getId(), newRefreshToken);
 
