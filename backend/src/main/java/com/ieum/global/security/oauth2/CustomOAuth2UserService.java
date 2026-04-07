@@ -2,7 +2,6 @@ package com.ieum.global.security.oauth2;
 
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
-import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,8 +16,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
-import java.util.Map;
 import java.util.Optional;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -45,51 +44,43 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = saveOrUpdate(attributes);
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
     }
 
     private User saveOrUpdate(OAuth2Attributes attributes) {
-        String socialId = attributes.getId();
+        String loginId = attributes.getLoginId();
 
-        if (socialId == null) {
-            log.error(">>> [OAuth2 Login] FAILED: socialId is null. Attributes: {}", attributes.getAttributes());
-            throw new OAuth2AuthenticationException("소셜 로그인 ID를 가져올 수 없습니다.");
+        if (loginId == null) {
+            log.error(">>> [OAuth2 Login] FAILED: loginId is null. Attributes: {}", attributes.getAttributes());
+            throw new OAuth2AuthenticationException("소셜 로그인 식별자를 가져올 수 없습니다.");
         }
 
-        log.info(">>> [OAuth2 Attributes] Provider ID: {}", socialId);
+        log.info(">>> [OAuth2 Attributes] LoginID: {}", loginId);
 
-        // 가상 아이디 및 닉네임 생성 (예: user_12345)
-        String virtualId = String.valueOf(socialId);
-        String virtualLoginId = "user_" + virtualId;
-        
-        // 닉네임 중복 방지: 'u_' + ID (최대 20자 제한)
-        String suffix = virtualId.length() > 18 ? virtualId.substring(virtualId.length() - 18) : virtualId;
-        String virtualNickname = "u_" + suffix;
-
-        log.info(">>> [OAuth2 Login] Props - ID: {}, Nickname: {}", virtualLoginId, virtualNickname);
-
-        Optional<User> optionalUser = loadUserPort.loadUserByLoginId(virtualLoginId);
+        Optional<User> optionalUser = loadUserPort.loadByLoginId(loginId);
 
         if (optionalUser.isPresent()) {
-            log.info(">>> [OAuth2 Login] Existing user found: {}", virtualLoginId);
+            log.info(">>> [OAuth2 Login] Existing user found: {}", loginId);
             return optionalUser.get();
         }
 
-        log.info(">>> [OAuth2 Login] Registering NEW user: {}", virtualLoginId);
+        log.info(">>> [OAuth2 Login] Registering NEW social user: {}", loginId);
         
-        // 새 회원 가입 처리 (가상 데이터 사용 / DB NOT NULL 제약 통과를 위해 무작위 비번 주입)
-        User newUser = new User(
-                null,
-                virtualLoginId,
-                java.util.UUID.randomUUID().toString(),
-                virtualNickname,
-                "",
-                Role.USER,
-                false
-        );
+        // 새 회원 가입 처리 (설계도 필수 스펙 준수)
+        User newUser = User.builder()
+                .loginId(loginId)
+                .password(UUID.randomUUID().toString()) // 소셜 유저는 비번 사용 안 함 (NOT NULL 충족용 난수)
+                .name(attributes.getName())
+                .nickname(attributes.getNickname())
+                .profileImage(attributes.getProfileImage())
+                .role("USER")
+                .termsAgreed(true) // 소셜 로그인은 기본적으로 제공처에서 동의됨
+                .marketingAgreed(false)
+                .status("ACTIVE")
+                .build();
 
         return saveUserPort.saveUser(newUser);
     }

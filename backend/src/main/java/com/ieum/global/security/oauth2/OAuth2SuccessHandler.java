@@ -32,20 +32,18 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
-        // 🔍 CustomOAuth2UserService와 동일한 가상 아이디 생성 로직 적용
-        // oAuth2User.getName()은 CustomOAuth2UserService에서 설정한 'id' 속성값을 반환합니다.
-        String virtualId = oAuth2User.getName();
-        String virtualLoginId = "user_" + virtualId;
+        // 🔍 attributes에서 loginId 추출 (OAuth2Attributes에서 넣어줌)
+        String loginId = (String) oAuth2User.getAttributes().get("loginId");
 
-        User user = loadUserPort.loadUserByLoginId(virtualLoginId)
-                .orElseThrow(() -> new IllegalArgumentException("가입된 유저를 찾을 수 없습니다. (ID: " + virtualLoginId + ")"));
+        User user = loadUserPort.loadByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("가입된 유저를 찾을 수 없습니다. (ID: " + loginId + ")"));
 
-        // 토큰 발급 (loginId 기반으로 전환)
-        String accessToken = jwtProvider.generateAccessToken(user.getId(), user.getNickname(), user.getRole().getKey());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getId());
+        // 토큰 발급 (userId(Long) 기반으로 전환)
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
         // Refresh Token DB 저장
-        saveUserPort.saveRefreshToken(user.getId(), refreshToken);
+        saveUserPort.saveRefreshToken(user.getUserId(), refreshToken);
         
         // 프론트엔드의 콜백 라우트로 리다이렉트 (쿼리 파라미터로 토큰 전달)
         String targetUrl = frontendUrl + "/api/auth/oauth-callback" +

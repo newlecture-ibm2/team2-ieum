@@ -6,8 +6,8 @@ export interface SessionData {
   accessToken?: string;
   refreshToken?: string;
   user?: {
-    id: number;
-    email: string;
+    userId: number;
+    id: string; // loginId
     nickname: string;
     role: "USER" | "ADMIN";
   };

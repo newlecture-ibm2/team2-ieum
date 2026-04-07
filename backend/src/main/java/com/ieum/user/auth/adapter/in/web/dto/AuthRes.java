@@ -21,22 +21,24 @@ public class AuthRes {
     @Getter
     @Builder
     public static class UserDto {
-        private Long id;
-        private String loginId;
+        private Long userId;
+        private String id;
+        private String name;
         private String nickname;
         private String role;
-        private boolean isMarketingAgreed;
+        private boolean marketingAgreed;
 
         /**
          * 도메인 User 객체를 응답용 DTO로 변환
          */
         public static UserDto from(User user) {
             return UserDto.builder()
-                    .id(user.getId())
-                    .loginId(user.getLoginId())
+                    .userId(user.getUserId())
+                    .id(user.getLoginId())
+                    .name(user.getName())
                     .nickname(user.getNickname())
-                    .role(user.getRole().getKey())
-                    .isMarketingAgreed(user.isMarketingAgreed())
+                    .role(user.getRole())
+                    .marketingAgreed(user.isMarketingAgreed())
                     .build();
         }
     }

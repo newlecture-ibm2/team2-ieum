@@ -11,9 +11,11 @@ import java.util.Map;
 public class OAuth2Attributes {
     private Map<String, Object> attributes;
     private String nameAttributeKey;
-    private String id;
+    private String socialId;
     private String nickname;
-    private String email;
+    private String loginId;
+    private String name;
+    private String profileImage;
 
     public static OAuth2Attributes of(String registrationId, String userNameAttributeName, Map<String, Object> attributes) {
         if ("kakao".equals(registrationId)) {
@@ -26,10 +28,7 @@ public class OAuth2Attributes {
     }
 
     private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
-        // 🛡️ 방어적 복사(Defensive Copy): 원본 불변 맵을 수정하지 않기 위해 새 맵 생성
         Map<String, Object> mutableAttributes = new HashMap<>(attributes);
-        
-        // 네이버는 "response"라는 키 안에 실제 정보가 들어있습니다.
         Map<String, Object> response = (Map<String, Object>) mutableAttributes.get("response");
         
         if (response == null) {
@@ -37,16 +36,22 @@ public class OAuth2Attributes {
         }
 
         String id = (String) response.get("id");
+        String loginId = "naver_" + id;
+        String nickname = (String) response.get("nickname");
+        String name = (String) response.get("name");
+        String profileImage = (String) response.get("profile_image");
 
-        // 🛡️ 평탄화(Flatten): 가변형 속성 맵에 id를 추가하여 호환성 확보
         mutableAttributes.put("id", id);
+        mutableAttributes.put("loginId", loginId);
 
         return OAuth2Attributes.builder()
                 .attributes(mutableAttributes)
                 .nameAttributeKey("id")
-                .id(id)
-                .email("user_" + id + "@ieum.com")
-                .nickname("u_" + id)
+                .socialId(id)
+                .loginId(loginId)
+                .nickname(nickname != null ? nickname : "u_" + id)
+                .name(name != null ? name : "NaverUser")
+                .profileImage(profileImage)
                 .build();
     }
 
@@ -55,12 +60,22 @@ public class OAuth2Attributes {
         Object idValue = mutableAttributes.get("id");
         String id = String.valueOf(idValue);
 
+        Map<String, Object> kakaoAccount = (Map<String, Object>) attributes.get("kakao_account");
+        Map<String, Object> profile = kakaoAccount != null ? (Map<String, Object>) kakaoAccount.get("profile") : null;
+
+        String loginId = "kakao_" + id;
+        mutableAttributes.put("loginId", loginId);
+        String nickname = profile != null ? (String) profile.get("nickname") : null;
+        String profileImage = profile != null ? (String) profile.get("profile_image_url") : null;
+
         return OAuth2Attributes.builder()
                 .attributes(mutableAttributes)
                 .nameAttributeKey(userNameAttributeName)
-                .id(id)
-                .email("user_" + id + "@ieum.com")
-                .nickname("u_" + id)
+                .socialId(id)
+                .loginId(loginId)
+                .nickname(nickname != null ? nickname : "u_" + id)
+                .name("KakaoUser") // 카카오는 이름 권한이 따로 필요하므로 기본값 설정
+                .profileImage(profileImage)
                 .build();
     }
 }

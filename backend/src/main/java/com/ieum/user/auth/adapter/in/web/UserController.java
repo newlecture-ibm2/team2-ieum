@@ -29,8 +29,8 @@ public class UserController {
     })
     @GetMapping("/me")
     public ResponseEntity<AuthRes.UserDto> getMyInfo() {
-        String email = SecurityContextHolder.getContext().getAuthentication().getName();
-        AuthRes.UserDto profile = authUseCase.getMyProfile(email);
+        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
+        AuthRes.UserDto profile = authUseCase.getMyProfile(Long.valueOf(userIdStr));
         return ResponseEntity.ok(profile);
     }
 

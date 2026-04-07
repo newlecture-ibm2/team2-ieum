@@ -31,16 +31,16 @@ public class ReportDummyDataInitializer implements CommandLineRunner {
         // 사용자 ID 가져오기 — 없으면 테스트 유저 생성
         Long userId;
         try {
-            userId = jdbc.queryForObject("SELECT id FROM users LIMIT 1", Long.class);
+            userId = jdbc.queryForObject("SELECT user_id FROM users LIMIT 1", Long.class);
         } catch (Exception e) {
             log.info("========== users 테이블 비어있음, 테스트 유저 생성 ==========");
-            jdbc.update("INSERT INTO users (email, password, nickname, role) VALUES (?, ?, ?, 'USER'::user_role) ON CONFLICT (email) DO NOTHING",
-                    "test1@ieum.com", "$2a$10$dummyHashedPassword000000000000000000000000", "축제매니아");
-            jdbc.update("INSERT INTO users (email, password, nickname, role) VALUES (?, ?, ?, 'USER'::user_role) ON CONFLICT (email) DO NOTHING",
-                    "test2@ieum.com", "$2a$10$dummyHashedPassword000000000000000000000000", "여행가");
-            jdbc.update("INSERT INTO users (email, password, nickname, role) VALUES (?, ?, ?, 'USER'::user_role) ON CONFLICT (email) DO NOTHING",
-                    "test3@ieum.com", "$2a$10$dummyHashedPassword000000000000000000000000", "먹방킹");
-            userId = jdbc.queryForObject("SELECT id FROM users LIMIT 1", Long.class);
+            jdbc.update("INSERT INTO users (login_id, password, nickname, role) VALUES (?, ?, ?, 'USER') ON CONFLICT (login_id) DO NOTHING",
+                    "user01", "$2a$10$dummyHashedPassword000000000000000000000000", "축제매니아");
+            jdbc.update("INSERT INTO users (login_id, password, nickname, role) VALUES (?, ?, ?, 'USER') ON CONFLICT (login_id) DO NOTHING",
+                    "user02", "$2a$10$dummyHashedPassword000000000000000000000000", "여행가");
+            jdbc.update("INSERT INTO users (login_id, password, nickname, role) VALUES (?, ?, ?, 'USER') ON CONFLICT (login_id) DO NOTHING",
+                    "user03", "$2a$10$dummyHashedPassword000000000000000000000000", "먹방킹");
+            userId = jdbc.queryForObject("SELECT user_id FROM users LIMIT 1", Long.class);
         }
 
         log.info("========== 신고 더미 데이터 삽입 시작 (reporter_id={}) ==========", userId);

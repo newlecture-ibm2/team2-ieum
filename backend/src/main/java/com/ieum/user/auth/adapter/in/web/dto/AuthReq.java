@@ -20,9 +20,11 @@ public class AuthReq {
     public static class Register {
         private String id;
         private String password;
+        private String name;
         private String nickname;
         private String phone;
-        private boolean isMarketingAgreed;
+        private boolean termsAgreed;
+        private boolean marketingAgreed;
     }
 
     @Getter
@@ -31,7 +33,7 @@ public class AuthReq {
         private String refreshToken;
     }
 
-    /** 비밀번호 찾기: 1단계 아이디 입력 */
+    /** 비밀번호 찾기: 1단계 이메일 입력 */
     @Getter
     @Setter
     public static class PasswordRecoveryRequest {

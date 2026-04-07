@@ -61,10 +61,10 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewEntity createReview(Long festivalId, String email, Integer rating, String content) {
-        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
+    public ReviewEntity createReview(Long festivalId, String loginId, Integer rating, String content) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        Long userId = user.getId();
+        Long userId = userEntity.getUserId();
         
         if (repository.existsByFestivalIdAndUserId(festivalId, userId)) {
             throw new IllegalArgumentException("이미 해당 축제에 리뷰를 작성하셨습니다.");
@@ -81,14 +81,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewEntity updateReview(Long reviewId, String email, Integer rating, String content) {
-        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
+    public ReviewEntity updateReview(Long reviewId, String loginId, Integer rating, String content) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
                 
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
                 
-        if (!review.getUserId().equals(user.getId()) && !user.getRole().name().contains("ADMIN")) {
+        if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 수정할 수 있습니다.");
         }
         
@@ -102,14 +102,14 @@ public class ReviewService {
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, String email) {
-        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
+    public void deleteReview(Long reviewId, String loginId) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
                 
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
                 
-        if (!review.getUserId().equals(user.getId()) && !user.getRole().name().contains("ADMIN")) {
+        if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
         }
         repository.delete(review);

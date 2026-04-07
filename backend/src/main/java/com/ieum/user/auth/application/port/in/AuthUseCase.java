@@ -17,5 +17,5 @@ public interface AuthUseCase {
     void resetPassword(AuthReq.PasswordReset request);
 
     /** 내 정보 조회 */
-    AuthRes.UserDto getMyProfile(String loginId);
+    AuthRes.UserDto getMyProfile(Long userId);
 }
