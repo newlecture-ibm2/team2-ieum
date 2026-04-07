@@ -9,6 +9,8 @@ export interface Post {
   title: string;
   content: string;
   areaCode: string;
+  festivalId?: string;
+  festivalName?: string;
   authorId: number;
   authorName: string;
   viewCount: number;
@@ -16,6 +18,7 @@ export interface Post {
   commentCount?: number;
   createdAt: string;
   updatedAt: string;
+  thumbnailId?: number;
 }
 
 interface UsePostsOptions {
@@ -52,7 +55,21 @@ export function usePosts(options: UsePostsOptions = {}) {
 
       if (res.data && res.data.success && res.data.data) {
         const newPosts: Post[] = res.data.data.content || [];
-        setPosts(prev => reset ? newPosts : [...prev, ...newPosts]);
+        
+        // 썸네일(첫 번째 첨부파일) 정보 추가 병렬 조회
+        const postsWithThumbnails = await Promise.all(
+          newPosts.map(async (p) => {
+            try {
+              const attachRes = await api.get(`/api/attachments?targetType=POST&targetId=${p.id}`);
+              if (attachRes.data?.data && attachRes.data.data.length > 0) {
+                return { ...p, thumbnailId: attachRes.data.data[0].id };
+              }
+            } catch (ignored) {}
+            return p;
+          })
+        );
+
+        setPosts(prev => reset ? postsWithThumbnails : [...prev, ...postsWithThumbnails]);
         setHasMore(!res.data.data.last);
         setPage(pageNum);
       }

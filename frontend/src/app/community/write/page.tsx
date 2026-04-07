@@ -33,6 +33,7 @@ export default function CommunityWritePage() {
 
   const [category, setCategory] = useState('');
   const [areaCode, setAreaCode] = useState('');
+  const [festivalName, setFestivalName] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [images, setImages] = useState<File[]>([]);
@@ -68,16 +69,35 @@ export default function CommunityWritePage() {
 
     setSubmitting(true);
     try {
-      const body = {
-        category,
-        title: title.trim(),
-        content: content.trim(),
-        areaCode: areaCode || null,
+      const payload = { 
+        category, 
+        areaCode: areaCode || null, 
+        festivalName: festivalName.trim() || null, 
+        title: title.trim(), 
+        content: content.trim() 
       };
-
-      const res = await api.post('/api/community/posts', body);
+      const res = await api.post('/api/community/posts', payload);
 
       if (res.data && res.data.success) {
+        const postId = res.data.data.id;
+
+        // 이미지 업로드 로직 추가
+        if (images.length > 0) {
+          const formData = new FormData();
+          images.forEach(file => formData.append('files', file));
+          
+          try {
+            await api.post(`/api/attachments/batch?targetType=POST&targetId=${postId}`, formData, {
+              headers: { 'Content-Type': 'multipart/form-data' },
+            });
+          } catch (uploadErr) {
+            console.error('이미지 업로드 실패:', uploadErr);
+            toast('게시글은 등록되었으나 일부 사진을 올리지 못했습니다.', 'warning');
+            router.push('/community');
+            return;
+          }
+        }
+
         toast('게시글이 등록되었습니다!', 'success');
         router.push('/community');
       } else {
@@ -155,6 +175,19 @@ export default function CommunityWritePage() {
               ))}
             </select>
           </div>
+        </div>
+
+        {/* 연관 축제 */}
+        <div className={styles.formRow}>
+          <label className={styles.formLabel}>연관 축제명</label>
+          <input
+            type="text"
+            className={styles.formInput}
+            placeholder="어떤 축제와 관련된 글인가요? (예: 진해군항제)"
+            value={festivalName}
+            onChange={e => setFestivalName(e.target.value)}
+            maxLength={100}
+          />
         </div>
 
         {/* 제목 */}

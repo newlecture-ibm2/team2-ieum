@@ -109,6 +109,7 @@ public class SecurityConfig {
                                                 // ✅ 첨부파일(이미지 등) 다운로드 허용
                                                 // [로컬 개발 환경 전용 설정] 실서버에서는 Nginx가 처리하므로 이 필터를 거치지 않습니다.
                                                 .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
 
                                                 // ✅ 에러 페이지 경로 허용 (404 등이 401로 마스킹되는 것 방지)
                                                 .requestMatchers("/error").permitAll()

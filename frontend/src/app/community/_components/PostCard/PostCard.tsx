@@ -1,7 +1,7 @@
 'use client';
 
 import styles from './PostCard.module.css';
-import { Heart, MessageCircle } from 'lucide-react';
+import { Heart, MessageCircle, Eye } from 'lucide-react';
 import Link from 'next/link';
 import type { Post } from './usePosts';
 
@@ -32,10 +32,27 @@ export default function PostCard({ post }: PostCardProps) {
 
   return (
     <Link href={`/community/${post.id}`} className={styles.item}>
+      {post.thumbnailId && (
+        <div className={styles.thumbnailWrap}>
+          <img 
+            src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${post.thumbnailId}/download`} 
+            alt="게시글 이미지" 
+            className={styles.thumbnailImg} 
+          />
+        </div>
+      )}
+      
       <div className={styles.info}>
-        <span className={`${styles.category} ${styles[cat.className] || ''}`}>
-          {cat.label}
-        </span>
+        <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+          <span className={`${styles.category} ${styles[cat.className] || ''}`}>
+            {cat.label}
+          </span>
+          {post.festivalName && (
+            <span style={{ fontSize: '11px', color: 'var(--ieum-primary)', background: '#F3E8FF', padding: '2px 8px', borderRadius: '12px', fontWeight: 600 }}>
+              🎉 {post.festivalName}
+            </span>
+          )}
+        </div>
         <div className={styles.title}>{post.title}</div>
         <div className={styles.desc}>{post.content}</div>
         <div className={styles.meta}>
@@ -43,6 +60,10 @@ export default function PostCard({ post }: PostCardProps) {
           <span>·</span>
           <span>{post.authorName}</span>
           <div className={styles.metaRight}>
+            <div className={styles.metaItem}>
+              <Eye size={14} />
+              {post.viewCount ?? 0}
+            </div>
             <div className={styles.metaItem}>
               <Heart size={13} />
               {post.likeCount ?? 0}

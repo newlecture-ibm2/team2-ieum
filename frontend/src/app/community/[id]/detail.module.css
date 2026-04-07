@@ -129,6 +129,19 @@
   white-space: pre-wrap;
 }
 
+.postImages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.postImageItem {
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
 .postFooterActions {
   display: flex;
   justify-content: space-between;
