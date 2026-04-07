@@ -59,7 +59,7 @@ Authorization: Bearer {adminAccessToken}
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `POST /api/admin/festivals/custom` |
+| **URL** | `POST /api/admin/managedFestivals` |
 | **권한** | ADMIN |
 
 #### Request Body
@@ -96,7 +96,7 @@ Authorization: Bearer {adminAccessToken}
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `PUT /api/admin/festivals/custom/{festivalId}` |
+| **URL** | `PUT /api/admin/managedFestivals/{festivalId}` |
 | **권한** | ADMIN |
 
 > Request Body는 2-1 축제 등록과 동일
@@ -114,7 +114,7 @@ Authorization: Bearer {adminAccessToken}
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `DELETE /api/admin/festivals/custom/{festivalId}` |
+| **URL** | `DELETE /api/admin/managedFestivals/{festivalId}` |
 | **권한** | ADMIN |
 
 #### Response (204 No Content)
@@ -125,7 +125,7 @@ Authorization: Bearer {adminAccessToken}
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `GET /api/admin/festivals/custom` |
+| **URL** | `GET /api/admin/managedFestivals` |
 | **권한** | ADMIN |
 
 #### Query Parameters
