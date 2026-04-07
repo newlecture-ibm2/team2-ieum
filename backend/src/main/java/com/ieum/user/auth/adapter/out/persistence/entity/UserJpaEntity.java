@@ -1,15 +1,13 @@
 package com.ieum.user.auth.adapter.out.persistence.entity;
 
-import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
 
@@ -21,13 +19,17 @@ public class UserJpaEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "user_id")
+    private Long userId;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(name = "login_id", nullable = false, length = 100, unique = true)
+    private String loginId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
+
+    @Column(nullable = false, length = 50)
+    private String name;
 
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;
@@ -35,13 +37,20 @@ public class UserJpaEntity {
     @Column(length = 20)
     private String phone;
 
-    @Enumerated(EnumType.STRING)
-    @JdbcTypeCode(SqlTypes.NAMED_ENUM)
-    @Column(name = "role", nullable = false, columnDefinition = "user_role")
-    private Role role;
+    @Column(name = "profile_image", length = 500)
+    private String profileImage;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive = true;
+    @Column(nullable = false, length = 10)
+    private String role = "USER";
+
+    @Column(name = "terms_agreed", nullable = false)
+    private boolean termsAgreed;
+
+    @Column(name = "marketing_agreed", nullable = false)
+    private boolean marketingAgreed;
+
+    @Column(nullable = false, length = 10)
+    private String status = "ACTIVE";
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -51,23 +60,56 @@ public class UserJpaEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserJpaEntity(String email, String password, String nickname, String phone, Role role) {
-        this.email = email;
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @Builder
+    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status) {
+        this.userId = userId;
+        this.loginId = loginId;
         this.password = password;
+        this.name = name;
         this.nickname = nickname;
         this.phone = phone;
-        this.role = role != null ? role : Role.USER;
+        this.profileImage = profileImage;
+        this.role = role != null ? role : "USER";
+        this.termsAgreed = termsAgreed;
+        this.marketingAgreed = marketingAgreed;
+        this.status = status != null ? status : "ACTIVE";
     }
 
     public User toDomain() {
-        return new User(id, email, password, nickname, phone, role);
+        return User.builder()
+                .userId(this.userId)
+                .loginId(this.loginId)
+                .password(this.password)
+                .name(this.name)
+                .nickname(this.nickname)
+                .phone(this.phone)
+                .profileImage(this.profileImage)
+                .role(this.role)
+                .termsAgreed(this.termsAgreed)
+                .marketingAgreed(this.marketingAgreed)
+                .status(this.status)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
+                .deletedAt(this.deletedAt)
+                .build();
     }
 
     public static UserJpaEntity fromDomain(User user) {
-        UserJpaEntity entity = new UserJpaEntity(user.getEmail(), user.getPassword(), user.getNickname(), user.getPhone(), user.getRole());
-        if (user.getId() != null) {
-            entity.id = user.getId();
-        }
-        return entity;
+        return UserJpaEntity.builder()
+                .userId(user.getUserId())
+                .loginId(user.getLoginId())
+                .password(user.getPassword())
+                .name(user.getName())
+                .nickname(user.getNickname())
+                .phone(user.getPhone())
+                .profileImage(user.getProfileImage())
+                .role(user.getRole())
+                .termsAgreed(user.isTermsAgreed())
+                .marketingAgreed(user.isMarketingAgreed())
+                .status(user.getStatus())
+                .build();
     }
 }

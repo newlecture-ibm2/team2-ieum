@@ -13,6 +13,8 @@ import lombok.Getter;
 @Getter
 public class UserRef {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "user_id")
     private Long id;
 
     @Column(nullable = false)
