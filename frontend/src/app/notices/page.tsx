@@ -1,10 +1,10 @@
 'use client';
 
 import { Megaphone } from 'lucide-react';
-import NoticeTable from './_components/NoticeTable/NoticeTable';
+import NoticeTable from './_components/NoticeList/NoticeTable';
 import Pagination from '@/_component/common/Pagination';
 import SearchFilter from '@/_component/common/SearchFilter';
-import { useNoticeList } from './_components/useNoticeList';
+import { useNoticeList } from './_components/NoticeList/useNoticeList';
 import styles from './page.module.css';
 
 export default function NoticesPage() {
