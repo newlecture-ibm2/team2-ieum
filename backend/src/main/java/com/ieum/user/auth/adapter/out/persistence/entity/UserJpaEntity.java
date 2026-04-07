@@ -64,7 +64,7 @@ public class UserJpaEntity {
     private LocalDateTime deletedAt;
 
     @Builder
-    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status) {
+    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status, LocalDateTime deletedAt) {
         this.userId = userId;
         this.loginId = loginId;
         this.password = password;
@@ -76,6 +76,7 @@ public class UserJpaEntity {
         this.termsAgreed = termsAgreed;
         this.marketingAgreed = marketingAgreed;
         this.status = status != null ? status : "ACTIVE";
+        this.deletedAt = deletedAt;
     }
 
     public User toDomain() {
@@ -110,6 +111,7 @@ public class UserJpaEntity {
                 .termsAgreed(user.isTermsAgreed())
                 .marketingAgreed(user.isMarketingAgreed())
                 .status(user.getStatus())
+                .deletedAt(user.getDeletedAt())
                 .build();
     }
 }
