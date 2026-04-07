@@ -39,7 +39,8 @@ function validateForm(
     errors.tel = '올바른 전화번호 형식이 아닙니다.';
   if (form.homepage && !/^https?:\/\/.+/.test(form.homepage))
     errors.homepage = 'http:// 또는 https:// 로 시작해야 합니다.';
-  if (!hasImage) errors.img = '대표 이미지는 필수입니다.';
+  // 대표 이미지 필수 검증 해제
+  // if (!hasImage) errors.img = '대표 이미지는 필수입니다.';
   return errors;
 }
 
@@ -168,7 +169,11 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
   // ── 제출 ──
   const handleSubmit = async () => {
     const validationErrors = validateForm(formData, !!(file || mainPreview));
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) { 
+      setErrors(validationErrors); 
+      toast('필수 입력 항목을 모두 작성해주세요.', 'error');
+      return; 
+    }
 
     try {
       const data = buildSubmitData(formData, isFree, file, extraFiles);
@@ -342,7 +347,7 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
             <div className={s.layoutRight}>
               <div className={s.formSection} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div className={s.formGroupColumn}>
-                  <label className={s.formLabelColumn}><span className={s.requiredStar}>*</span> 대표 이미지</label>
+                  <label className={s.formLabelColumn}>대표 이미지</label>
                   <label className={s.imageUploadBox}
                     onDragOver={e => e.preventDefault()}
                     onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleMainImageChange(f); }}>

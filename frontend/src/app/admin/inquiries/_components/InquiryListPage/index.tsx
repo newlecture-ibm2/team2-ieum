@@ -76,6 +76,10 @@ export default function InquiryListPage() {
 
   useEffect(() => {
     fetchInquiries();
+
+    // 30초마다 목록 실시간 갱신 (폴링)
+    const intervalId = setInterval(fetchInquiries, 30000);
+    return () => clearInterval(intervalId);
   }, [fetchInquiries]);
 
   /* ── KPI 카드 클릭 ── */

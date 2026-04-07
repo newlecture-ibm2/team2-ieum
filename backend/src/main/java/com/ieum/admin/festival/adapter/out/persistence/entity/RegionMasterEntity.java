@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "master_region")
+@Table(name = "festival_master_region")
 @Getter
 @Setter
 @NoArgsConstructor

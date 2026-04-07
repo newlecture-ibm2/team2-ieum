@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "master_sigungu")
+@Table(name = "festival_master_sigungu")
 @IdClass(SigunguMasterId.class)
 @Getter
 @Setter

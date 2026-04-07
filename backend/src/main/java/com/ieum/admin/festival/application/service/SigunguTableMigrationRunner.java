@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
  * - 기존: sigungu_code 단일 PK → 지역 간 코드 충돌 발생
  * - 변경: (region_code, sigungu_code) 복합 PK
  * - 서버 기동 시 자동으로 기존 테이블 drop → 복합 PK로 재생성
+ * (Note: table renamed to festival_master_sigungu)
  */
 @Slf4j
 @Component
@@ -29,14 +30,14 @@ public class SigunguTableMigrationRunner implements CommandLineRunner {
                 "SELECT COUNT(*) FROM information_schema.key_column_usage kcu " +
                 "JOIN information_schema.table_constraints tc " +
                 "ON kcu.constraint_name = tc.constraint_name " +
-                "WHERE tc.table_name = 'master_sigungu' AND tc.constraint_type = 'PRIMARY KEY'",
+                "WHERE tc.table_name = 'festival_master_sigungu' AND tc.constraint_type = 'PRIMARY KEY'",
                 Integer.class);
 
             if (pkCount != null && pkCount < 2) {
                 log.info("========== master_sigungu PK 마이그레이션: 단일 PK({})개 → 복합 PK ==========", pkCount);
-                jdbcTemplate.execute("DROP TABLE IF EXISTS master_sigungu CASCADE");
+                jdbcTemplate.execute("DROP TABLE IF EXISTS festival_master_sigungu CASCADE");
                 jdbcTemplate.execute(
-                    "CREATE TABLE master_sigungu (" +
+                    "CREATE TABLE festival_master_sigungu (" +
                     "  region_code VARCHAR(10) NOT NULL, " +
                     "  sigungu_code VARCHAR(10) NOT NULL, " +
                     "  name VARCHAR(50) NOT NULL, " +
@@ -52,9 +53,9 @@ public class SigunguTableMigrationRunner implements CommandLineRunner {
             // 테이블이 존재하지 않는 경우 — 신규 생성 (Hibernate가 처리)
             log.info("master_sigungu 확인 중 예외 — Hibernate가 신규 생성합니다: {}", e.getMessage());
             try {
-                jdbcTemplate.execute("DROP TABLE IF EXISTS master_sigungu CASCADE");
+                jdbcTemplate.execute("DROP TABLE IF EXISTS festival_master_sigungu CASCADE");
                 jdbcTemplate.execute(
-                    "CREATE TABLE master_sigungu (" +
+                    "CREATE TABLE festival_master_sigungu (" +
                     "  region_code VARCHAR(10) NOT NULL, " +
                     "  sigungu_code VARCHAR(10) NOT NULL, " +
                     "  name VARCHAR(50) NOT NULL, " +

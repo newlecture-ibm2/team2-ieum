@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "master_category")
+@Table(name = "festival_master_category")
 @Getter
 @Setter
 @NoArgsConstructor
