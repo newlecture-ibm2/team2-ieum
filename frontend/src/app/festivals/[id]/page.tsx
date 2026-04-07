@@ -139,12 +139,12 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       {/* 팝업 모달 */}
       {popupMsg && (
         <div className={styles.modalOverlay}>
-          <dialog open className={styles.modalBox} style={{ border: 'none' }}>
+          <div className={styles.modalBox} style={{ border: 'none' }}>
             <p className={styles.modalText}>{popupMsg}</p>
             <button className={styles.modalBtn} onClick={closePopup}>
               확인
             </button>
-          </dialog>
+          </div>
         </div>
       )}
     </main>
