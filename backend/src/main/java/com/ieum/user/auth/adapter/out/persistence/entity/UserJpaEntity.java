@@ -23,10 +23,10 @@ public class UserJpaEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(name = "login_id", nullable = false, unique = true)
+    private String loginId;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String password;
 
     @Column(nullable = false, length = 20, unique = true)
@@ -43,6 +43,9 @@ public class UserJpaEntity {
     @Column(name = "is_active", nullable = false)
     private boolean isActive = true;
 
+    @Column(name = "is_marketing_agreed", nullable = false)
+    private boolean isMarketingAgreed;
+
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
@@ -51,20 +54,21 @@ public class UserJpaEntity {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    public UserJpaEntity(String email, String password, String nickname, String phone, Role role) {
-        this.email = email;
+    public UserJpaEntity(String loginId, String password, String nickname, String phone, Role role, boolean isMarketingAgreed) {
+        this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
         this.phone = phone;
         this.role = role != null ? role : Role.USER;
+        this.isMarketingAgreed = isMarketingAgreed;
     }
 
     public User toDomain() {
-        return new User(id, email, password, nickname, phone, role);
+        return new User(id, loginId, password, nickname, phone, role, isMarketingAgreed);
     }
 
     public static UserJpaEntity fromDomain(User user) {
-        UserJpaEntity entity = new UserJpaEntity(user.getEmail(), user.getPassword(), user.getNickname(), user.getPhone(), user.getRole());
+        UserJpaEntity entity = new UserJpaEntity(user.getLoginId(), user.getPassword(), user.getNickname(), user.getPhone(), user.getRole(), user.isMarketingAgreed());
         if (user.getId() != null) {
             entity.id = user.getId();
         }

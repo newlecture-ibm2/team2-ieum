@@ -197,6 +197,34 @@
   transform: translateY(-1px);
 }
 
+/* 로그아웃 버튼 */
+.logoutBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-gray-100);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--color-error);
+  transform: scale(1.08);
+}
+
+.logoutBtn svg {
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.logoutBtn:hover svg {
+  color: white;
+}
+
 /* ===== [DEV] 상태 최신화 버튼 — 개발 완료 후 제거 ===== */
 .devRefreshBtn {
   padding: 5px 12px;

@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    const { email, password, nickname, phone } = await req.json();
-
+    const { email, password, nickname, phone, isMarketingAgreed } = await req.json();
+ 
     // 백엔드에 회원가입(register) 요청 전달
     const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password, nickname, phone }),
+      body: JSON.stringify({ email, password, nickname, phone, isMarketingAgreed }),
     });
 
     if (!backendRes.ok) {

@@ -86,6 +86,7 @@ CREATE TABLE IF NOT EXISTS users (
     profile_image   VARCHAR(500),
     role            user_role       NOT NULL DEFAULT 'USER',
     is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
+    is_marketing_agreed BOOLEAN      NOT NULL DEFAULT FALSE,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP
 );

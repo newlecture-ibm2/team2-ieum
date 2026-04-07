@@ -10,19 +10,21 @@ import lombok.Getter;
 public class User {
 
     private final Long id;
-    private final String email;
+    private final String loginId;
     private final String password;
     private final String nickname;
     private final String phone;
     private final Role role;
+    private final boolean isMarketingAgreed;
 
-    public User(Long id, String email, String password, String nickname, String phone, Role role) {
+    public User(Long id, String loginId, String password, String nickname, String phone, Role role, boolean isMarketingAgreed) {
         this.id = id;
-        this.email = email;
+        this.loginId = loginId;
         this.password = password;
         this.nickname = nickname;
         this.phone = phone;
         this.role = role != null ? role : Role.USER;
+        this.isMarketingAgreed = isMarketingAgreed;
     }
 
     /**
@@ -30,5 +32,12 @@ public class User {
      */
     public boolean checkPassword(String plainPassword, org.springframework.security.crypto.password.PasswordEncoder encoder) {
         return encoder.matches(plainPassword, this.password);
+    }
+
+    /**
+     * 비밀번호가 변경된 새로운 도메인 객체 반환
+     */
+    public User withPassword(String encodedPassword) {
+        return new User(id, loginId, encodedPassword, nickname, phone, role, isMarketingAgreed);
     }
 }

@@ -10,4 +10,12 @@ public interface AuthUseCase {
     AuthRes.TokenDto login(AuthReq.Login request);
     void register(AuthReq.Register request);
     AuthRes.TokenDto refresh(AuthReq.Refresh request);
+
+    /** 비밀번호 찾기 */
+    void requestRecovery(AuthReq.PasswordRecoveryRequest request);
+    void verifyCode(AuthReq.PasswordRecoveryVerify request);
+    void resetPassword(AuthReq.PasswordReset request);
+
+    /** 내 정보 조회 */
+    AuthRes.UserDto getMyProfile(String loginId);
 }

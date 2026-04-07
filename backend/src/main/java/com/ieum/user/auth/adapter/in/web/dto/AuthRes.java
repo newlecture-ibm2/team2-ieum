@@ -22,9 +22,10 @@ public class AuthRes {
     @Builder
     public static class UserDto {
         private Long id;
-        private String email;
+        private String loginId;
         private String nickname;
         private String role;
+        private boolean isMarketingAgreed;
 
         /**
          * 도메인 User 객체를 응답용 DTO로 변환
@@ -32,9 +33,10 @@ public class AuthRes {
         public static UserDto from(User user) {
             return UserDto.builder()
                     .id(user.getId())
-                    .email(user.getEmail())
+                    .loginId(user.getLoginId())
                     .nickname(user.getNickname())
                     .role(user.getRole().getKey())
+                    .isMarketingAgreed(user.isMarketingAgreed())
                     .build();
         }
     }
