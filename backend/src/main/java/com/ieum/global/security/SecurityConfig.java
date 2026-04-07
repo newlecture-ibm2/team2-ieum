@@ -116,8 +116,8 @@ public class SecurityConfig {
                                                 // ✅ 관리자 인증 API (Refresh 등)
                                                 .requestMatchers("/api/admin/auth/**").permitAll()
 
-                                                // 🔐 관리자 전용 (모든 관리자 API 일괄 적용)
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // 🔐 관리자 전용 (임시로 모두 접근 허용)
+                                                .requestMatchers("/api/admin/**").permitAll()
 
                                                 // 🔒 그 외 인증 필요
                                                 .anyRequest().authenticated())

@@ -8,6 +8,7 @@ import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.attachment.application.port.in.DeleteAttachmentUseCase;
 import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
+import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -31,10 +32,11 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
     private final AdminNoticePort adminNoticePort;
     private final UploadAttachmentUseCase uploadAttachmentUseCase;
     private final DeleteAttachmentUseCase deleteAttachmentUseCase;
+    private final SystemNotificationUseCase systemNotificationUseCase;
 
     @Override
     public AdminNotice create(String title, String content, String summary,
-                         Boolean isPinned, Boolean isPopup,
+                         Boolean isPinned, Boolean isPopup, Boolean sendPush,
                          List<MultipartFile> files) {
 
         AdminNotice notice = AdminNotice.builder()
@@ -52,12 +54,17 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
             uploadAttachmentUseCase.uploadAll("NOTICE", saved.getId(), files);
         }
 
+        // 푸시 알림 발송
+        if (Boolean.TRUE.equals(sendPush)) {
+            systemNotificationUseCase.sendNoticeNotification(saved.getId(), saved.getTitle(), saved.getSummary());
+        }
+
         return saved;
     }
 
     @Override
     public AdminNotice update(Long noticeId, String title, String content, String summary,
-                         Boolean isPinned, Boolean isPopup,
+                         Boolean isPinned, Boolean isPopup, Boolean sendPush,
                          List<MultipartFile> newFiles, List<Long> deleteFileIds) {
 
         AdminNotice notice = adminNoticePort.findById(noticeId)
@@ -86,7 +93,14 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
             uploadAttachmentUseCase.uploadAll("NOTICE", noticeId, newFiles);
         }
 
-        return adminNoticePort.save(updated);
+        AdminNotice saved = adminNoticePort.save(updated);
+
+        // 푸시 알림 발송
+        if (Boolean.TRUE.equals(sendPush)) {
+            systemNotificationUseCase.sendNoticeNotification(saved.getId(), saved.getTitle(), saved.getSummary());
+        }
+
+        return saved;
     }
 
     @Override

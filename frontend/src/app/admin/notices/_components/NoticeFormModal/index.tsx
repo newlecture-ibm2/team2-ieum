@@ -24,6 +24,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
+  const [sendPush, setSendPush] = useState(false); // 작성/수정 시 푸시 알림 발송 여부
 
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
@@ -60,6 +61,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
       if (summary.trim()) formData.append('summary', summary.trim());
       formData.append('isPinned', String(isPinned));
       formData.append('isPopup', String(isPopup));
+      formData.append('sendPush', String(sendPush));
 
       if (isEdit) {
         await adminApi.put(`/notices/${notice!.id}`, formData, {
@@ -151,7 +153,14 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             <div className={`${common.toggleTrack} ${isPopup ? common.toggleTrackOn : ''}`}>
               <div className={`${common.toggleThumb} ${isPopup ? common.toggleThumbOn : ''}`} />
             </div>
-            <span className={s.toggleLabel}>🔔 팝업 공지</span>
+            <span className={s.toggleLabel}>📢 메인 팝업</span>
+          </label>
+
+          <label className={s.toggleWrap} onClick={() => setSendPush(!sendPush)}>
+            <div className={`${common.toggleTrack} ${sendPush ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${sendPush ? common.toggleThumbOn : ''}`} />
+            </div>
+            <span className={s.toggleLabel}>🔔 푸시 알림 발송</span>
           </label>
         </div>
       </div>

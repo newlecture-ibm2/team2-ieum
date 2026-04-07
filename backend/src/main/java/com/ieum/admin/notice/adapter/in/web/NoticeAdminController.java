@@ -62,10 +62,11 @@ public class NoticeAdminController {
             @RequestParam(required = false) String summary,
             @RequestParam(required = false) Boolean isPinned,
             @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean sendPush,
             @RequestParam(required = false) List<MultipartFile> files) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup, files)));
+                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup, sendPush, files)));
     }
 
     /**
@@ -85,10 +86,11 @@ public class NoticeAdminController {
             @RequestParam(required = false) String summary,
             @RequestParam(required = false) Boolean isPinned,
             @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean sendPush,
             @RequestParam(required = false) List<MultipartFile> newFiles,
             @RequestParam(required = false) List<Long> deleteFileIds) {
         return ResponseEntity.ok(ApiResponse.success(
-                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup, newFiles, deleteFileIds)));
+                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup, sendPush, newFiles, deleteFileIds)));
     }
 
     /**
