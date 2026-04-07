@@ -67,6 +67,7 @@ export default function CustomFestivalListPage() {
   // ── 동기화 상태 ──
   const [syncingAction, setSyncingAction] = useState<string | null>(null);
   const [syncMenuOpen, setSyncMenuOpen] = useState(false);
+  const [lastRefreshTime, setLastRefreshTime] = useState<string>('-');
   const menuRef = useRef<HTMLDivElement>(null);
 
   // ── 확인 모달 상태 ──
@@ -109,6 +110,15 @@ export default function CustomFestivalListPage() {
         if (res.data.data.statusCounts) setStatusCounts(res.data.data.statusCounts);
         list.setTotalPages(Math.ceil(res.data.data.totalElements / 10) || 1);
         list.setTotalElements(res.data.data.totalElements || 0);
+
+        // 로컬 갱신 시간 기록
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const dd = String(now.getDate()).padStart(2, '0');
+        const hh = String(now.getHours()).padStart(2, '0');
+        const min = String(now.getMinutes()).padStart(2, '0');
+        setLastRefreshTime(`${yyyy}.${mm}.${dd} ${hh}:${min}`);
       }
     } catch (error) {
       console.error('Failed to fetch custom festivals:', error);
@@ -185,7 +195,7 @@ export default function CustomFestivalListPage() {
         <div className={c.cardHeader}>
           <div>
             <div className={c.cardTitle}>축제 현황 및 관리</div>
-            <div className={c.cardSubtitle}>등록 축제들의 상태 통계입니다.</div>
+            <div className={c.cardSubtitle}>최근 갱신: {lastRefreshTime}</div>
           </div>
           <div style={{ display: 'flex', gap: '8px' }}>
             <div className={c.dropdownContainer} ref={menuRef}>

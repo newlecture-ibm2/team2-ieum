@@ -25,13 +25,7 @@ public interface AdminFestivalRepository extends JpaRepository<AdminFestivalEnti
            "  WHEN f.startDate > CURRENT_DATE THEN 2 " +
            "  ELSE 3 " +
            "END ASC, " +
-           "CASE " +
-           "  WHEN CURRENT_DATE BETWEEN f.startDate AND f.endDate THEN f.endDate " +
-           "  WHEN f.startDate > CURRENT_DATE THEN f.startDate " +
-           "  ELSE NULL " +
-           "END ASC, " +
-           "f.endDate DESC NULLS LAST, " +
-           "f.id ASC")
+           "f.id DESC")
     Page<AdminFestivalEntity> searchAdminFestivals(
             @Param("keyword") String keyword,
             @Param("status") String status,
@@ -61,13 +55,7 @@ public interface AdminFestivalRepository extends JpaRepository<AdminFestivalEnti
            "  WHEN f.startDate > CURRENT_DATE THEN 2 " +
            "  ELSE 3 " +
            "END ASC, " +
-           "CASE " +
-           "  WHEN CURRENT_DATE BETWEEN f.startDate AND f.endDate THEN f.endDate " +
-           "  WHEN f.startDate > CURRENT_DATE THEN f.startDate " +
-           "  ELSE NULL " +
-           "END ASC, " +
-           "f.endDate DESC NULLS LAST, " +
-           "f.id ASC")
+           "f.id DESC")
     Page<AdminFestivalEntity> searchCustomFestivals(
             @Param("keyword") String keyword,
             @Param("status") String status,
@@ -85,13 +73,7 @@ public interface AdminFestivalRepository extends JpaRepository<AdminFestivalEnti
            "  WHEN f.startDate > CURRENT_DATE THEN 2 " +
            "  ELSE 3 " +
            "END ASC, " +
-           "CASE " +
-           "  WHEN CURRENT_DATE BETWEEN f.startDate AND f.endDate THEN f.endDate " +
-           "  WHEN f.startDate > CURRENT_DATE THEN f.startDate " +
-           "  ELSE NULL " +
-           "END ASC, " +
-           "f.endDate DESC NULLS LAST, " +
-           "f.id ASC")
+           "f.id DESC")
     Page<AdminFestivalEntity> searchVisibleCustomFestivals(
             @Param("keyword") String keyword,
             @Param("status") String status,

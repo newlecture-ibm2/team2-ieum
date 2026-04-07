@@ -414,136 +414,139 @@
               <li class="active">🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
-              <li>💬 문의 관리</li>
+              <li>💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
 
           </div>
 
           <!-- 메인 콘텐츠 -->
           <div class="content-area">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 축제
-                  등록 관리</h1>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🎪 축제 등록 관리</h1>
                 <p style="font-size: 12px; color: #94a3b8;">직접 기획한 축제를 등록하고 관리합니다</p>
+                <div style="font-size: 11px; color: #64748b; margin-top: 8px;">최근 갱신: 2026.04.07 15:20</div>
               </div>
-              <button
-                style="background: #6c5ce7; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;"
-                data-marker="3">+
-                축제 등록</button>
+              <button style="background: #6c5ce7; color: #fff; border: none; padding: 10px 20px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;" data-marker="3">+ 축제 등록</button>
+            </div>
+
+            <!-- 검색 및 필터 -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px;">
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>전체 상태</option>
+                  <option>진행중</option>
+                  <option>진행예정</option>
+                  <option>종료</option>
+                </select>
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>지역 선택 (전체)</option>
+                  <option>서울</option>
+                  <option>부산</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="checkbox" id="excludeHidden" /> <label for="excludeHidden" style="font-size:12px; margin-top:6px;">숨김 축제 제외</label>
+                <input type="text" placeholder="축제명 검색..." style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 220px;">
+                <button style="background: #1e293b; color: white; border: none; border-radius: 6px; padding: 0 16px; font-size: 12px; font-weight: 600;">검색</button>
+              </div>
             </div>
 
             <!-- 축제 목록 테이블 -->
-            <div style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
+            <div style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
               <table style="width: 100%; border-collapse: collapse; font-size: 11px;" data-marker="4">
                 <thead>
                   <tr style="border-bottom: 2px solid #e2e8f0;">
                     <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">축제명</th>
                     <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">지역</th>
-                    <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">날짜</th>
+                    <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">기간</th>
                     <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">카테고리</th>
                     <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">상태</th>
+                    <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">노출여부</th>
                     <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">관리</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td
-                      style="padding: 10px 6px; color: #6c5ce7; font-weight: 500; text-decoration: underline; cursor: pointer;">
-                      해변 음악 축제</td>
-                    <td style="padding: 10px 6px; color: #475569;">강릉시</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.07.10 - 07.15</td>
+                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 600;">해변 음악 축제</td>
+                    <td style="padding: 10px 6px; color: #475569;">강원도 강릉시</td>
+                    <td style="padding: 10px 6px; color: #475569;">2026.07.10 ~ 2026.07.15</td>
                     <td style="padding: 10px 6px; color: #475569;">음악/공연</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
-                    </td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span></td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #e2e8f0; color: #475569; padding: 2px 8px; border-radius: 10px; font-size: 10px;">노출</span></td>
                     <td style="padding: 10px 6px; text-align: center;">
-                      <span style="cursor: pointer; font-size: 14px;">✏️</span>
-                      <span style="cursor: pointer; font-size: 14px;">🗑️</span>
+                      <button style="background: #4f46e5; color: white; padding: 4px 8px; border-radius: 4px; border: none; font-size: 10px; margin-right: 4px; cursor: pointer;">수정</button>
+                      <button style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; border: none; font-size: 10px; cursor: pointer;">삭제</button>
                     </td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td
-                      style="padding: 10px 6px; color: #6c5ce7; font-weight: 500; text-decoration: underline; cursor: pointer;">
-                      가을 수확 축제</td>
-                    <td style="padding: 10px 6px; color: #475569;">전주시</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.10.05 - 10.12</td>
+                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 600;">가을 수확 축제</td>
+                    <td style="padding: 10px 6px; color: #475569;">전라북도 전주시</td>
+                    <td style="padding: 10px 6px; color: #475569;">2026.10.05 ~ 2026.10.12</td>
                     <td style="padding: 10px 6px; color: #475569;">음식/먹거리</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
-                    </td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span></td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #fee2e2; color: #ef4444; padding: 2px 8px; border-radius: 10px; font-size: 10px;">숨김</span></td>
                     <td style="padding: 10px 6px; text-align: center;">
-                      <span style="cursor: pointer; font-size: 14px;">✏️</span>
-                      <span style="cursor: pointer; font-size: 14px;">🗑️</span>
-                    </td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td
-                      style="padding: 10px 6px; color: #6c5ce7; font-weight: 500; text-decoration: underline; cursor: pointer;">
-                      불꽃 축제</td>
-                    <td style="padding: 10px 6px; color: #475569;">여의도</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.10.20 - 10.21</td>
-                    <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
-                      <span style="cursor: pointer; font-size: 14px;">✏️</span>
-                      <span style="cursor: pointer; font-size: 14px;">🗑️</span>
+                      <button style="background: #4f46e5; color: white; padding: 4px 8px; border-radius: 4px; border: none; font-size: 10px; margin-right: 4px; cursor: pointer;">수정</button>
+                      <button style="background: #ef4444; color: white; padding: 4px 8px; border-radius: 4px; border: none; font-size: 10px; cursor: pointer;">삭제</button>
                     </td>
                   </tr>
                 </tbody>
               </table>
+
+              <!-- 페이지네이션 가상 -->
+              <div style="display: flex; justify-content: center; margin-top: 16px; gap: 4px;">
+                <button style="padding: 4px 8px; border: 1px solid #cbd5e1; background: white; font-size: 12px;">← 이전</button>
+                <div style="font-size: 12px; margin-top: 4px;">1 / 5</div>
+                <button style="padding: 4px 8px; border: 1px solid #cbd5e1; background: white; font-size: 12px;">다음 →</button>
+              </div>
             </div>
 
-            <!-- 축제 등록 폼 (하단 참고) -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 20px; margin-top: 16px; border: 2px dashed #cbd5e1;">
-              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 14px;" data-marker="5">📝 축제
-                등록/수정 폼</div>
-              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
-                <div>
-                  <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">축제명</label>
-                  <div
-                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #94a3b8;">
-                    축제 이름 입력</div>
+            <!-- 축제 등록 모달 가상 UI -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; justify-content: center; z-index: 100;" data-marker="5">
+              <div style="background: white; border-radius: 12px; width: 500px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #f8fafc;">
+                  <h3 style="font-size: 15px; font-weight: 700; color: #1e293b;">📝 축제 등록</h3>
+                  <div style="font-size: 16px; cursor: pointer; color: #64748b;">✕</div>
                 </div>
-                <div>
-                  <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">지역</label>
-                  <div
-                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #94a3b8;">
-                    지역 선택</div>
+                <div style="padding: 20px;">
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
+                    <div>
+                      <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">축제명</label>
+                      <input type="text" placeholder="축제 이름 입력" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">카테고리</label>
+                      <select style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;">
+                        <option>카테고리 선택</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">시작일</label>
+                      <input type="date" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;" />
+                    </div>
+                    <div>
+                      <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">종료일</label>
+                      <input type="date" style="width: 100%; padding: 8px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px;" />
+                    </div>
+                  </div>
+                  <div style="margin-top: 12px;">
+                    <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">상세 내용</label>
+                    <textarea placeholder="축제 상세 내용을 입력하세요" style="width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; resize: none; height: 100px; font-family: inherit;"></textarea>
+                  </div>
+                  <div style="margin-top: 12px;">
+                    <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">대표 이미지</label>
+                    <div style="background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 6px; padding: 16px; text-align: center; cursor: pointer; color: #64748b; font-size: 12px;">
+                      📸 클릭하여 이미지 업로드
+                    </div>
+                  </div>
+                  <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 20px;">
+                    <button style="padding: 8px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569;">취소</button>
+                    <button style="padding: 8px 16px; background: #6c5ce7; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; color: white;">등록 완료</button>
+                  </div>
                 </div>
-                <div>
-                  <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">시작일</label>
-                  <div
-                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #94a3b8;">
-                    yyyy-mm-dd</div>
-                </div>
-                <div>
-                  <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">종료일</label>
-                  <div
-                    style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #94a3b8;">
-                    yyyy-mm-dd</div>
-                </div>
-              </div>
-              <div style="margin-top: 12px;">
-                <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">상세 내용</label>
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px; color: #94a3b8; min-height: 60px;">
-                  축제 상세 내용을 입력하세요</div>
-              </div>
-              <div style="margin-top: 12px;">
-                <label style="font-size: 11px; color: #64748b; display: block; margin-bottom: 4px;">대표 이미지</label>
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 12px; font-size: 12px; color: #94a3b8;">
-                  📎 파일 선택</div>
-              </div>
-              <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
-                <button
-                  style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 20px; border-radius: 6px; font-size: 12px; cursor: pointer;">취소</button>
-                <button
-                  style="background: #6c5ce7; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">등록</button>
               </div>
             </div>
           </div>

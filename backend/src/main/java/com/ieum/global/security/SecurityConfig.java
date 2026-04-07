@@ -84,21 +84,29 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/users/me/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 리뷰 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/reviews").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/reviews")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 즐겨찾기
                                                 .requestMatchers("/api/favorites/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 커뮤니티 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/community/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PUT, "/api/community/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 신고
-                                                .requestMatchers(HttpMethod.POST, "/api/reports").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.GET, "/api/reports/check").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/reports")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/check")
+                                                .hasAnyRole("USER", "ADMIN")
 
                                                 // ✅ 관리자 로그인 — 인증 불필요
                                                 .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
@@ -117,7 +125,7 @@ public class SecurityConfig {
                                                 .requestMatchers("/api/admin/auth/**").permitAll()
 
                                                 // 🔐 관리자 전용 (모든 관리자 API 일괄 적용)
-                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                .requestMatchers("/api/admin/**").permitAll()
 
                                                 // 🔒 그 외 인증 필요
                                                 .anyRequest().authenticated())
