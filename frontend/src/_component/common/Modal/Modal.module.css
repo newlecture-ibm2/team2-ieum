@@ -27,7 +27,7 @@
 }
 
 /* 사이즈 변형 */
-.sizeSmall  { width: 380px; }
+.sizeSmall  { width: 340px; }
 .sizeMedium { width: 480px; }
 .sizeLarge  { width: 600px; }
 
@@ -41,7 +41,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 20px 24px 0;
+  padding: 16px 20px 0;
 }
 
 .title {
@@ -68,15 +68,15 @@
 
 /* ===== 본문 ===== */
 .body {
-  padding: 16px 24px 24px;
+  padding: 12px 20px 20px;
 }
 
 /* ===== 푸터 (ConfirmModal용) ===== */
 .footer {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-  padding: 0 24px 20px;
+  gap: 8px;
+  padding: 8px 0 0;
 }
 
 .btnCancel {
@@ -118,11 +118,12 @@
 
 /* ===== Confirm 메시지 ===== */
 .confirmMessage {
-  font-size: 14px;
-  color: var(--color-gray-600);
-  line-height: 1.7;
-  text-align: center;
-  padding: 8px 0;
+  font-size: 14.5px;
+  color: var(--color-gray-700);
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre-line;
+  padding: 12px 0 20px;
 }
 
 /* ===== 스크롤바 ===== */
