@@ -414,7 +414,9 @@
               <li>🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
-              <li>💬 문의 관리</li>
+              <li>💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
 
           </div>
@@ -428,38 +430,53 @@
             </div>
 
             <!-- 공공 API 데이터 갱신 카드 -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
                 <div>
                   <div style="font-weight: 700; font-size: 14px; color: #1e293b;">공공 API 데이터 갱신</div>
-                  <div style="font-size: 11px; color: #94a3b8;">최근 갱신: 2026.03.25 09:30</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 4px;">최근 갱신: 2026.04.07 15:20</div>
                 </div>
-                <button
-                  style="background: #fff; border: 1.5px solid #1e293b; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">🔄
-                  수동 갱신</button>
+                <button style="background: #fff; border: 1.5px solid #1e293b; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">🔄 수동 갱신</button>
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #64748b;">전체 축제</div>
                   <div style="font-size: 22px; font-weight: 800; color: #1e293b;">14</div>
                 </div>
-                <div
-                  style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #16a34a;">진행중</div>
                   <div style="font-size: 22px; font-weight: 800; color: #16a34a;">8</div>
                 </div>
-                <div
-                  style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
-                  <div style="font-size: 10px; color: #6c5ce7;">진행중</div>
+                <div style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
+                  <div style="font-size: 10px; color: #6c5ce7;">진행예정</div>
                   <div style="font-size: 22px; font-weight: 800; color: #6c5ce7;">4</div>
                 </div>
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #64748b;">종료</div>
                   <div style="font-size: 22px; font-weight: 800; color: #64748b;">2</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- 검색 및 필터 -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px;">
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>전체 상태</option>
+                  <option>진행중</option>
+                  <option>진행예정</option>
+                  <option>종료</option>
+                </select>
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>지역 선택 (전체)</option>
+                  <option>서울</option>
+                  <option>부산</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="checkbox" id="excludeHidden" /> <label for="excludeHidden" style="font-size:12px; margin-top:6px;">숨김 축제 제외</label>
+                <input type="text" placeholder="축제명 검색..." style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 220px;">
+                <button style="background: #1e293b; color: white; border: none; border-radius: 6px; padding: 0 16px; font-size: 12px; font-weight: 600;">검색</button>
               </div>
             </div>
 
