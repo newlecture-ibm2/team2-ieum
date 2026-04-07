@@ -10,7 +10,7 @@ import styles from '../login.module.css';
 export default function LoginForm() {
   const router = useRouter();
   
-  const [email, setEmail] = useState('');
+  const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
@@ -18,13 +18,26 @@ export default function LoginForm() {
   const [saveId, setSaveId] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
+  const [isSocialLoading, setIsSocialLoading] = useState(false); // 소셜 로그인 전용 로딩 상태
   const [globalError, setGlobalError] = useState('');
+
+  // 🛡️ 뒤로 가기로 돌아왔을 때 모든 로딩 상태를 강제로 해제합니다 (bfcache 관련)
+  useEffect(() => {
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted) {
+        setIsLoading(false);
+        setIsSocialLoading(false);
+      }
+    };
+    window.addEventListener('pageshow', handlePageShow);
+    return () => window.removeEventListener('pageshow', handlePageShow);
+  }, []);
 
   // 아이디 저장된 값 로드
   useEffect(() => {
-    const savedEmail = localStorage.getItem('savedEmail');
-    if (savedEmail) {
-      setEmail(savedEmail);
+    const savedId = localStorage.getItem('savedId');
+    if (savedId) {
+      setId(savedId);
       setSaveId(true);
     }
   }, []);
@@ -33,33 +46,24 @@ export default function LoginForm() {
     e.preventDefault();
     setGlobalError('');
     
-    // 이메일 정규식 및 단순 검증
-    if (!email || !password) {
-      setGlobalError('이메일과 비밀번호를 모두 입력해주세요.');
-      return;
-    }
-    
-    // eslint-disable-next-line
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      setGlobalError('올바른 이메일 형식을 입력해 주세요.');
+    if (!id || !password) {
+      setGlobalError('아이디와 비밀번호를 모두 입력해주세요.');
       return;
     }
 
     try {
       setIsLoading(true);
       
-      // Next.js (iron-session) API 호출
       const response = await axios.post('/api/auth/login', {
-        email,
+        id,
         password
       });
 
       if (response.status === 200) {
         if (saveId) {
-          localStorage.setItem('savedEmail', email);
+          localStorage.setItem('savedId', id);
         } else {
-          localStorage.removeItem('savedEmail');
+          localStorage.removeItem('savedId');
         }
 
         window.location.href = '/';
@@ -67,9 +71,8 @@ export default function LoginForm() {
         setGlobalError(response.data.message || '로그인에 실패했습니다.');
       }
     } catch (error: any) {
-      // 401 Unauthorized 에러 캐치
       if (error.response?.status === 401) {
-        setGlobalError('이메일 또는 비밀번호가 일치하지 않습니다.');
+        setGlobalError('아이디 또는 비밀번호가 일치하지 않습니다.');
       } else {
         setGlobalError('서버와의 통신에 실패했습니다.');
       }
@@ -77,6 +80,13 @@ export default function LoginForm() {
       setIsLoading(false);
     }
   };
+
+  // 소셜 로그인 클릭 시 로딩 표시
+  const handleSocialClick = () => {
+    setIsSocialLoading(true);
+  };
+
+  const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
 
   return (
     <div className={styles.card}>
@@ -87,16 +97,16 @@ export default function LoginForm() {
 
       <form className={styles.form} onSubmit={handleLogin}>
         <div className={styles.inputGroup}>
-          <label htmlFor="email" className={styles.inputLabel}>이메일</label>
+          <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
             <Mail className={styles.inputIcon} />
             <input 
-              id="email"
-              type="email" 
-              className={`${styles.input} ${globalError.includes('이메일') ? styles.inputError : ''}`} 
-              placeholder="example@ieum.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="id"
+              type="text" 
+              className={`${styles.input} ${globalError.includes('아이디') ? styles.inputError : ''}`} 
+              placeholder="아이디를 입력하세요"
+              value={id}
+              onChange={(e) => setId(e.target.value)}
             />
           </div>
         </div>
@@ -109,7 +119,7 @@ export default function LoginForm() {
               id="password"
               type={showPassword ? "text" : "password"} 
               className={`${styles.input} ${globalError.includes('일치하지') ? styles.inputError : ''}`} 
-              placeholder="8자 이상 영문/숫자 조합"
+              placeholder="비밀번호를 입력하세요"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -150,12 +160,12 @@ export default function LoginForm() {
               아이디 저장
             </label>
           </div>
-          <Link href="/auth/forgot" className={styles.forgotLink}>
+          <Link href="/find-password" className={styles.forgotLink}>
             비밀번호 찾기
           </Link>
         </div>
 
-        <button type="submit" className={styles.submitBtn} disabled={isLoading}>
+        <button type="submit" className={styles.submitBtn} disabled={isLoading || isSocialLoading}>
           {isLoading ? '인증 중...' : '로그인'}
         </button>
       </form>
@@ -165,19 +175,36 @@ export default function LoginForm() {
       </div>
 
       <div className={styles.socialGroup}>
-        <button type="button" className={`${styles.socialBtn} ${styles.kakaoBtn}`}>
-          <div className={styles.socialIcon} style={{ background: '#000', opacity: 0.1 }}></div>
-          카카오 로그인
-        </button>
-        <button type="button" className={`${styles.socialBtn} ${styles.naverBtn}`}>
-          <div className={styles.socialIcon} style={{ background: '#fff' }}></div>
-          네이버 로그인
-        </button>
+        {/* ✨ 카카오 로그인 (표준 링크 방식으로 뒤로 가기 문제 해결 및 로고 추가) */}
+        <a 
+          href={`${API_BASE_URL}/oauth2/authorization/kakao`}
+          className={`${styles.socialBtn} ${styles.kakaoBtn} ${isSocialLoading ? styles.btnDisabled : ''}`}
+          onClick={handleSocialClick}
+        >
+          {/* 카카오 공식 로고 SVG */}
+          <svg className={styles.socialIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 3C7.029 3 3 6.12 3 9.967C3 12.43 4.54 14.591 6.84 15.892L6.34 19.528C6.315 19.743 6.438 19.98 6.643 20.082C6.732 20.126 6.83 20.148 6.927 20.148C7.072 20.148 7.215 20.098 7.327 20.007L11.503 16.591C11.666 16.608 11.831 16.618 12 16.618C16.971 16.618 21 13.498 21 9.651C21 5.804 16.971 2.684 12 2.684V3Z" fill="#000000"/>
+          </svg>
+          {isSocialLoading ? '인증 진행 중...' : '카카오 로그인'}
+        </a>
+
+        {/* ✨ 네이버 로그인 (정방향 로고 수정 및 중앙 정렬 최적화) */}
+        <a 
+          href={`${API_BASE_URL}/oauth2/authorization/naver`}
+          className={`${styles.socialBtn} ${styles.naverBtn} ${isSocialLoading ? styles.btnDisabled : ''}`}
+          onClick={handleSocialClick}
+        >
+          {/* 네이버 공식 로고 SVG (정방향 수정) */}
+          <svg className={styles.socialIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M16.273 12.845L7.376 0H0V24H7.727V11.155L16.624 24H24V0H16.273V12.845Z" fill="#FFFFFF"/>
+          </svg>
+          {isSocialLoading ? '인증 진행 중...' : '네이버 로그인'}
+        </a>
       </div>
 
       <div className={styles.footer}>
         계정이 없으신가요? 
-        <Link href="/auth/register" className={styles.signupLink}>
+        <Link href="/register" className={styles.signupLink}>
           회원가입
         </Link>
       </div>

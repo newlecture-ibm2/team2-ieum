@@ -1,5 +1,7 @@
 package com.ieum.global.security;
 
+import com.ieum.global.security.oauth2.CustomOAuth2UserService;
+import com.ieum.global.security.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,7 +42,9 @@ public class SecurityConfig {
                         HttpSecurity http,
                         JwtAuthenticationFilter jwtAuthenticationFilter,
                         JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                        JwtAccessDeniedHandler jwtAccessDeniedHandler) throws Exception {
+                        JwtAccessDeniedHandler jwtAccessDeniedHandler,
+                        CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
                 http
                                 // CSRF 비활성화 (REST API는 Stateless)
                                 .csrf(csrf -> csrf.disable())
@@ -128,8 +132,15 @@ public class SecurityConfig {
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                                 .accessDeniedHandler(jwtAccessDeniedHandler))
 
+                                // 카카오 소셜 로그인(OAuth2) 설정
+                                .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(userInfo -> userInfo
+                                                                .userService(customOAuth2UserService))
+                                                .successHandler(oAuth2SuccessHandler))
+
                                 // JWT 필터 추가
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
                 return http.build();
         }

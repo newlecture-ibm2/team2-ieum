@@ -1,11 +1,15 @@
 package com.ieum.user.auth.adapter.in.web;
 
+import com.ieum.user.auth.application.port.in.AuthUseCase;
+import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -13,7 +17,10 @@ import java.util.Map;
 @Tag(name = "사용자", description = "내 정보 조회 / 수정 / 내 활동 / FCM 토큰 등록")
 @RestController
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
+    private final AuthUseCase authUseCase;
 
     @Operation(summary = "내 정보 조회", description = "로그인한 사용자의 프로필 정보를 조회합니다.")
     @ApiResponses({
@@ -21,9 +28,10 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
     @GetMapping("/me")
-    public ResponseEntity<?> getMyInfo() {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "내 정보"));
+    public ResponseEntity<AuthRes.UserDto> getMyInfo() {
+        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
+        AuthRes.UserDto profile = authUseCase.getMyProfile(Long.valueOf(userIdStr));
+        return ResponseEntity.ok(profile);
     }
 
     @Operation(summary = "내 정보 수정", description = "로그인한 사용자의 프로필 정보를 수정합니다. (닉네임, 프로필 이미지)")
