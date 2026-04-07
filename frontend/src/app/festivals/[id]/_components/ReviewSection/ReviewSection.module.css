@@ -159,9 +159,35 @@
   font-size: 12px;
 }
 
+.rcDateWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .rcDate {
   font-size: 12px;
   color: var(--color-gray-400);
+}
+
+.deleteReviewBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.deleteReviewBtn:hover:not(:disabled) {
+  background-color: var(--color-gray-100);
+}
+
+.deleteReviewBtn:disabled {
+  cursor: not-allowed;
 }
 
 .rcText {
