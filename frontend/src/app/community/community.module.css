@@ -1,0 +1,121 @@
+.mainContainer {
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* 히어로 배너 */
+.heroBanner {
+  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
+  padding: 36px 0 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+}
+
+.heroBanner::after {
+  content: '';
+  position: absolute;
+  bottom: -30px;
+  left: 50px;
+  width: 100px;
+  height: 100px;
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 50%;
+}
+
+.heroInner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.heroSub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 콘텐츠 영역 */
+.contentSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px 24px 60px;
+}
+
+/* 게시글 리스트 */
+.postList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 로딩 & 스크롤 트리거 */
+.loadingWrap {
+  text-align: center;
+  padding: 24px 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.scrollTrigger {
+  height: 1px;
+}
+
+/* 비어있음 */
+.emptyState {
+  text-align: center;
+  padding: 60px 0;
+  color: #94a3b8;
+}
+
+.emptyState p:first-child {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emptyState p:last-child {
+  font-size: 14px;
+}
+
+/* 글쓰기 FAB */
+.fab {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #a55eea, #6c5ce7);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+  cursor: pointer;
+  z-index: 100;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border: none;
+  text-decoration: none;
+}
+
+.fab:hover {
+  transform: scale(1.08);
+  box-shadow: 0 8px 28px rgba(108, 92, 231, 0.5);
+}

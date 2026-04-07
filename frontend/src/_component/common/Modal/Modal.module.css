@@ -11,8 +11,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 /* ===== 모달 박스 ===== */
@@ -28,13 +33,28 @@
 }
 
 /* 사이즈 변형 */
-.sizeSmall  { width: 380px; }
-.sizeMedium { width: 480px; }
-.sizeLarge  { width: 600px; }
+.sizeSmall {
+  width: 340px;
+}
+
+.sizeMedium {
+  width: 480px;
+}
+
+.sizeLarge {
+  width: 600px;
+}
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ===== 헤더 ===== */
@@ -119,11 +139,12 @@
 
 /* ===== Confirm 메시지 ===== */
 .confirmMessage {
-  font-size: 14px;
-  color: var(--color-gray-600);
-  line-height: 1.7;
-  text-align: center;
-  padding: 8px 0;
+  font-size: 14.5px;
+  color: var(--color-gray-700);
+  line-height: 1.6;
+  text-align: left;
+  white-space: pre-line;
+  padding: 12px 0 20px;
 }
 
 /* ===== 스크롤바 ===== */
@@ -138,6 +159,7 @@
 
 /* ===== 반응형 ===== */
 @media (max-width: 520px) {
+
   .sizeSmall,
   .sizeMedium,
   .sizeLarge {

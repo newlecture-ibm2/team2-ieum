@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Map, ArrowRight } from 'lucide-react';
+import { FESTIVAL_STATUS_TABS } from '@/constants/filterOptions';
 import styles from './HeroBanner.module.css';
 
 interface HeroBannerProps {
@@ -35,11 +36,7 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
     return () => clearInterval(timer);
   }, []);
 
-  const TABS = [
-    { label: '전체', value: 'all' },
-    { label: '진행중', value: 'ongoing' },
-    { label: '진행예정', value: 'upcoming' },
-  ];
+  const TABS = FESTIVAL_STATUS_TABS;
 
   return (
     <section className={styles.heroSection}>
