@@ -34,6 +34,10 @@ public class ReviewEntity {
     @Column(length = 1000, nullable = false)
     private String content;
 
+    @Column(nullable = false, length = 10)
+    @Builder.Default
+    private String status = "ACTIVE"; // ACTIVE / REMOVED
+
     @CreatedDate
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;

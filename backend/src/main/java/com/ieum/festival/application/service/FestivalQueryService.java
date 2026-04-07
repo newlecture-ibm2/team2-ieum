@@ -32,20 +32,30 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
     // ───────────────────────────────────
     @Override
     public Map<String, Object> loadFestivals(String status, String keyword, String areaCode,
-                                              Integer month, int page, int size) {
+                                              Integer month, String sort, Double lat, Double lng,
+                                              int page, int size) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
         String searchKeyword = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
 
         Page<FestivalEntity> festivalPage;
 
-        if ("ongoing".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCode, month, pageable);
-        } else if ("upcoming".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCode, month, pageable);
-        } else if ("ended".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCode, month, pageable);
+        if ("popular".equals(sort)) {
+            festivalPage = festivalPersistencePort.findByPopularity(searchKeyword, areaCode, month, pageable);
+        } else if ("views".equals(sort)) {
+            festivalPage = festivalPersistencePort.findByViews(searchKeyword, areaCode, month, pageable);
+        } else if ("distance".equals(sort) && lat != null && lng != null) {
+            festivalPage = festivalPersistencePort.findByDistance(searchKeyword, areaCode, month, lat, lng, pageable);
         } else {
-            festivalPage = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCode, month, pageable);
+            // 기본값(latest): 기존 상태 기반 동적 정렬 유지
+            if ("ongoing".equalsIgnoreCase(status)) {
+                festivalPage = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCode, month, pageable);
+            } else if ("upcoming".equalsIgnoreCase(status)) {
+                festivalPage = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCode, month, pageable);
+            } else if ("ended".equalsIgnoreCase(status)) {
+                festivalPage = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCode, month, pageable);
+            } else {
+                festivalPage = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCode, month, pageable);
+            }
         }
 
         List<FestivalResponseDto> dtoList = festivalPage.getContent().stream()
@@ -70,6 +80,9 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
         if (optional.isEmpty()) return null;
 
         FestivalEntity entity = optional.get();
+
+        // 조회수 증가 (dirty checking으로 트랜잭션 종료 시 자동 반영)
+        entity.setViewCount((entity.getViewCount() != null ? entity.getViewCount() : 0) + 1);
 
         // Lazy Caching: 공공 API 출처인데 overview가 아직 없으면 API 호출 후 DB 저장
         if ("API".equals(entity.getSource()) && entity.getOverview() == null) {

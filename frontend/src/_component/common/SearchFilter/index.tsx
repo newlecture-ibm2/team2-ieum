@@ -125,7 +125,28 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
     if (newSort !== 'latest') params.set('sort', newSort);
     else params.delete('sort');
     params.delete('page');
-    router.push(`${pathname}?${params.toString()}`);
+
+    if (newSort === 'distance' && typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          params.set('lat', position.coords.latitude.toFixed(6));
+          params.set('lng', position.coords.longitude.toFixed(6));
+          router.push(`${pathname}?${params.toString()}`);
+        },
+        () => {
+          alert('위치 정보를 가져올 수 없습니다. 브라우저 위치 권한을 허용해주세요.');
+          // 위치 실패 시 기본 정렬로 폴백
+          params.delete('sort');
+          params.delete('lat');
+          params.delete('lng');
+          router.push(`${pathname}?${params.toString()}`);
+        }
+      );
+    } else {
+      params.delete('lat');
+      params.delete('lng');
+      router.push(`${pathname}?${params.toString()}`);
+    }
   };
 
   const handleResetFilter = () => {
@@ -301,7 +322,6 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
             <option value="latest">최신순</option>
             {filterType !== 'notice' && <option value="popular">인기순</option>}
             <option value="views">조회순</option>
-            {filterType !== 'notice' && <option value="reviews">리뷰순</option>}
             {filterType === 'festival' && (
               <option value="distance">거리순</option>
             )}

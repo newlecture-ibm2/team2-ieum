@@ -33,13 +33,14 @@ public class ReviewService {
 
     @Transactional(readOnly = true)
     public Map<String, Object> getReviews(Long festivalId, int page, int size, String sort) {
-        Sort sortObj = sort.equals("rating") ? Sort.by(Sort.Direction.DESC, "rating") : Sort.by(Sort.Direction.DESC, "createdAt");
+        Sort sortObj = sort.equals("rating") ? Sort.by(Sort.Direction.DESC, "rating")
+                : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size, sortObj);
-        
+
         Page<java.util.Map<String, Object>> reviewPage = repository.findReviewsWithNickname(festivalId, pageable);
         Double avgRating = repository.getAverageRating(festivalId);
         Long ratingCount = repository.countByFestivalId(festivalId);
-        
+
         // 평점 분포 통계 (1점~5점)
         Map<Integer, Long> ratingCounts = new HashMap<>();
         for (int i = 1; i <= 5; i++) {
@@ -49,14 +50,14 @@ public class ReviewService {
             int rating = review.get("rating") != null ? (int) review.get("rating") : 0;
             ratingCounts.put(rating, ratingCounts.getOrDefault(rating, 0L) + 1L);
         }
-        
+
         Map<String, Object> response = new HashMap<>();
         response.put("content", reviewPage.getContent());
         response.put("totalPages", reviewPage.getTotalPages());
         response.put("totalElements", ratingCount);
         response.put("averageRating", avgRating != null ? Math.round(avgRating * 10.0) / 10.0 : 0.0);
         response.put("ratingDistribution", ratingCounts);
-        
+
         return response;
     }
 
@@ -65,8 +66,8 @@ public class ReviewService {
         com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         Long userId = user.getId();
-        
-        if (repository.existsByFestivalIdAndUserId(festivalId, userId)) {
+
+        if (repository.existsByFestivalIdAndUserIdActive(festivalId, userId)) {
             throw new IllegalArgumentException("이미 해당 축제에 리뷰를 작성하셨습니다.");
         }
         ReviewEntity review = ReviewEntity.builder()
@@ -84,20 +85,20 @@ public class ReviewService {
     public ReviewEntity updateReview(Long reviewId, String email, Integer rating, String content) {
         com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-                
+
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
-                
+
         if (!review.getUserId().equals(user.getId()) && !user.getRole().name().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 수정할 수 있습니다.");
         }
-        
+
         review.setRating(rating);
         review.setContent(content);
-        
+
         repository.save(review);
         updateFestivalStats(review.getFestivalId());
-        
+
         return review;
     }
 
@@ -105,10 +106,10 @@ public class ReviewService {
     public void deleteReview(Long reviewId, String email) {
         com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity user = userJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-                
+
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
-                
+
         if (!review.getUserId().equals(user.getId()) && !user.getRole().name().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
         }

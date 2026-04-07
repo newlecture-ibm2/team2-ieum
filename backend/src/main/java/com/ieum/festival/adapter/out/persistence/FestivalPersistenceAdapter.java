@@ -41,6 +41,21 @@ public class FestivalPersistenceAdapter implements FestivalPersistencePort {
     }
 
     @Override
+    public Page<FestivalEntity> findByPopularity(String keyword, String areaCode, Integer month, Pageable pageable) {
+        return repository.findByPopularity(keyword, areaCode, month, pageable);
+    }
+
+    @Override
+    public Page<FestivalEntity> findByViews(String keyword, String areaCode, Integer month, Pageable pageable) {
+        return repository.findByViews(keyword, areaCode, month, pageable);
+    }
+
+    @Override
+    public Page<FestivalEntity> findByDistance(String keyword, String areaCode, Integer month, Double lat, Double lng, Pageable pageable) {
+        return repository.findByDistance(keyword, areaCode, month, lat, lng, pageable);
+    }
+
+    @Override
     public Optional<FestivalEntity> findById(Long id) {
         return repository.findById(id);
     }

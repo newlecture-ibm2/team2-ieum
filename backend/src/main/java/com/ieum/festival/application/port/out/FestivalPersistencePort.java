@@ -20,6 +20,12 @@ public interface FestivalPersistencePort {
 
     Page<FestivalEntity> findEndedFestivals(String keyword, String areaCode, Integer month, Pageable pageable);
 
+    Page<FestivalEntity> findByPopularity(String keyword, String areaCode, Integer month, Pageable pageable);
+
+    Page<FestivalEntity> findByViews(String keyword, String areaCode, Integer month, Pageable pageable);
+
+    Page<FestivalEntity> findByDistance(String keyword, String areaCode, Integer month, Double lat, Double lng, Pageable pageable);
+
     Optional<FestivalEntity> findById(Long id);
 
     FestivalEntity save(FestivalEntity entity);

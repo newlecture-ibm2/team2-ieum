@@ -6,14 +6,20 @@ import Pagination from '@/_component/common/Pagination';
 import styles from './page.module.css';
 import { Festival } from '@/types/festival';
 
+// Next.js 서버 컴포넌트 캐싱 비활성화 — 정렬/필터 URL이 바뀔 때마다 항상 최신 데이터 fetch
+export const dynamic = 'force-dynamic';
+
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
-async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
+async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string, sort?: string, lat?: string, lng?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
   try {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (keyword) params.append('keyword', keyword);
     if (areaCode) params.append('areaCode', areaCode);
     if (month) params.append('month', month);
+    if (sort && sort !== 'latest') params.append('sort', sort);
+    if (lat) params.append('lat', lat);
+    if (lng) params.append('lng', lng);
     params.append('page', page);
     params.append('size', '12');
 
@@ -41,10 +47,13 @@ export default async function MainPage({
   const currentKeyword = resolvedParams.keyword || '';
   const currentAreaCode = resolvedParams.areaCode || '';
   const currentMonth = resolvedParams.month || '';
+  const currentSort = resolvedParams.sort || 'latest';
+  const currentLat = resolvedParams.lat || '';
+  const currentLng = resolvedParams.lng || '';
 
   const statusQuery = currentTab === 'all' ? '' : currentTab;
 
-  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined);
+  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined, currentSort, currentLat || undefined, currentLng || undefined);
 
   return (
     <main className={styles.mainContainer}>

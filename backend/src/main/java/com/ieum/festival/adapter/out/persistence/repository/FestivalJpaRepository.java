@@ -79,4 +79,36 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
                      "ORDER BY f.endDate DESC")
        Page<FestivalEntity> findEndedFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
                      @Param("month") Integer month, Pageable pageable);
+
+       // ── 인기순 (avgRating × reviewCount DESC) ── JPQL
+       @Query("SELECT f FROM FestivalEntity f " +
+              "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+              "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
+              "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
+              "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
+              "ORDER BY (COALESCE(f.avgRating, 0.0) * COALESCE(f.reviewCount, 0)) DESC, COALESCE(f.reviewCount, 0) DESC")
+       Page<FestivalEntity> findByPopularity(@Param("keyword") String keyword,
+                     @Param("areaCode") String areaCode, @Param("month") Integer month, Pageable pageable);
+
+       // ── 조회순 (viewCount DESC) ── JPQL
+       @Query("SELECT f FROM FestivalEntity f " +
+              "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+              "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
+              "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
+              "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
+              "ORDER BY COALESCE(f.viewCount, 0) DESC")
+       Page<FestivalEntity> findByViews(@Param("keyword") String keyword,
+                     @Param("areaCode") String areaCode, @Param("month") Integer month, Pageable pageable);
+
+       // ── 거리순 (유클리드 직선거리 ASC) ── JPQL
+       @Query("SELECT f FROM FestivalEntity f " +
+              "WHERE (f.isVisible IS NULL OR f.isVisible = true) " +
+              "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
+              "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
+              "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
+              "AND f.latitude IS NOT NULL AND f.longitude IS NOT NULL " +
+              "ORDER BY ((f.latitude - :lat) * (f.latitude - :lat) + (f.longitude - :lng) * (f.longitude - :lng)) ASC")
+       Page<FestivalEntity> findByDistance(@Param("keyword") String keyword,
+                     @Param("areaCode") String areaCode, @Param("month") Integer month,
+                     @Param("lat") Double lat, @Param("lng") Double lng, Pageable pageable);
 }

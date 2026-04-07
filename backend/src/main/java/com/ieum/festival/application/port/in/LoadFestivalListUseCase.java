@@ -13,5 +13,6 @@ public interface LoadFestivalListUseCase {
      * @return { list, total, totalPages, currentPage }
      */
     Map<String, Object> loadFestivals(String status, String keyword, String areaCode,
-                                       Integer month, int page, int size);
+                                       Integer month, String sort, Double lat, Double lng,
+                                       int page, int size);
 }

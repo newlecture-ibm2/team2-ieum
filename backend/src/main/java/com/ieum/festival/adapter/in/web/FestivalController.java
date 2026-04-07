@@ -57,10 +57,13 @@ public class FestivalController {
             @Parameter(description = "검색 키워드 (축제명, 지역명)", example = "벚꽃") @RequestParam(required = false) String keyword,
             @Parameter(description = "지역 코드 (1=서울, 31=경기 등)", example = "1") @RequestParam(required = false) String areaCode,
             @Parameter(description = "월별 필터 (1~12)", example = "5") @RequestParam(required = false) Integer month,
+            @Parameter(description = "정렬 기준 (latest, popular, views, distance)", example = "popular") @RequestParam(defaultValue = "latest") String sort,
+            @Parameter(description = "현재 위도 (거리순 정렬 시 필수)", example = "37.5665") @RequestParam(required = false) Double lat,
+            @Parameter(description = "현재 경도 (거리순 정렬 시 필수)", example = "126.978") @RequestParam(required = false) Double lng,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
 
-        Map<String, Object> data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, page, size);
+        Map<String, Object> data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, sort, lat, lng, page, size);
         return ResponseEntity.ok(Map.of("success", true, "data", data));
     }
 
