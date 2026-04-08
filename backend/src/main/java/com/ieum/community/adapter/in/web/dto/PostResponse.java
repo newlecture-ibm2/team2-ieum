@@ -14,9 +14,14 @@ public class PostResponse {
     private String title;
     private String content;
     private String areaCode;
+    private String festivalId;
+    private String festivalName;
     private Long authorId;
     private String authorName;
     private int viewCount;
+    private int likeCount;
+    private int commentCount;
+    private boolean isLiked;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -27,11 +32,36 @@ public class PostResponse {
                 .title(entity.getTitle())
                 .content(entity.getContent())
                 .areaCode(entity.getAreaCode())
+                .festivalId(entity.getFestivalId())
+                .festivalName(entity.getFestivalName())
                 .authorId(entity.getAuthorId())
                 .authorName(entity.getAuthorName())
                 .viewCount(entity.getViewCount())
+                .likeCount(entity.getLikeCount())
+                .commentCount(entity.getCommentCount())
+                .isLiked(false) // 기본값, Service에서 덮어씀
                 .createdAt(entity.getCreatedAt())
                 .updatedAt(entity.getUpdatedAt())
+                .build();
+    }
+
+    public PostResponse withIsLiked(boolean isLiked) {
+        return PostResponse.builder()
+                .id(this.id)
+                .category(this.category)
+                .title(this.title)
+                .content(this.content)
+                .areaCode(this.areaCode)
+                .festivalId(this.festivalId)
+                .festivalName(this.festivalName)
+                .authorId(this.authorId)
+                .authorName(this.authorName)
+                .viewCount(this.viewCount)
+                .likeCount(this.likeCount)
+                .commentCount(this.commentCount)
+                .isLiked(isLiked)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
                 .build();
     }
 }

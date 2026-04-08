@@ -12,6 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
 
        @Query("SELECT p FROM PostEntity p WHERE " +
+                     "p.status = 'ACTIVE' AND " +
                      "(:category IS NULL OR p.category = :category) AND " +
                      "(:areaCode IS NULL OR p.areaCode = :areaCode) AND " +
                      "(:keyword IS NULL OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
@@ -20,4 +21,7 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
                      @Param("areaCode") String areaCode,
                      @Param("keyword") String keyword,
                      Pageable pageable);
+
+       @Query("SELECT p FROM PostEntity p WHERE p.id = :id AND p.status = 'ACTIVE'")
+       java.util.Optional<PostEntity> findActiveById(@Param("id") Long id);
 }
