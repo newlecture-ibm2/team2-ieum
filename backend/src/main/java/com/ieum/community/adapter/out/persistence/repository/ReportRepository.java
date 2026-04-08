@@ -10,4 +10,12 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface ReportRepository extends JpaRepository<ReportEntity, Long> {
 
     boolean existsByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType, Long targetId);
+
+    java.util.Optional<ReportEntity> findByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType, Long targetId);
+
+    @org.springframework.data.jpa.repository.Query("SELECT r.targetId FROM ReportEntity r WHERE r.reporterId = :reporterId AND r.targetType = :targetType AND r.status IN :statuses")
+    java.util.List<Long> findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
+            @org.springframework.data.repository.query.Param("reporterId") Long reporterId,
+            @org.springframework.data.repository.query.Param("targetType") String targetType,
+            @org.springframework.data.repository.query.Param("statuses") java.util.List<String> statuses);
 }

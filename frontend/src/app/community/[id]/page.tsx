@@ -35,6 +35,7 @@ export default function CommunityDetailPage() {
   const [reportTarget, setReportTarget] = useState<{ type: 'POST' | 'COMMENT', id: number | string } | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [alreadyReported, setAlreadyReported] = useState(false);
+  const [reportedCommentIds, setReportedCommentIds] = useState<number[]>([]);
 
   // 대댓글(답글) 관련 상태
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
@@ -59,6 +60,15 @@ export default function CommunityDetailPage() {
             .then(res => {
               if (res.data?.data === true) {
                 setAlreadyReported(true);
+              }
+            })
+            .catch(() => { });
+
+          // 내가 신고한 댓글 목록 확인 (신고 완료 표시용)
+          api.get(`/api/reports/my-targets?targetType=COMMENT`)
+            .then(res => {
+              if (Array.isArray(res.data?.data)) {
+                setReportedCommentIds(res.data.data);
               }
             })
             .catch(() => { });
@@ -398,10 +408,14 @@ export default function CommunityDetailPage() {
                       ) : comment.userId !== currentUserId ? (
                         <>
                           <span> · </span>
-                          <span onClick={() => {
-                            if (!isLoggedIn) { setShowLoginModal(true); return; }
-                            setReportTarget({ type: 'COMMENT', id: comment.id });
-                          }}>신고</span>
+                          {reportedCommentIds.includes(comment.id) ? (
+                            <span className={styles.reportedText}>신고완료</span>
+                          ) : (
+                            <span onClick={() => {
+                              if (!isLoggedIn) { setShowLoginModal(true); return; }
+                              setReportTarget({ type: 'COMMENT', id: comment.id });
+                            }}>신고</span>
+                          )}
                         </>
                       ) : null}
                     </div>
@@ -523,10 +537,14 @@ export default function CommunityDetailPage() {
                         ) : child.userId !== currentUserId ? (
                           <>
                             <span> · </span>
-                            <span onClick={() => {
-                              if (!isLoggedIn) { setShowLoginModal(true); return; }
-                              setReportTarget({ type: 'COMMENT', id: child.id });
-                            }}>신고</span>
+                            {reportedCommentIds.includes(child.id) ? (
+                              <span className={styles.reportedText}>신고완료</span>
+                            ) : (
+                              <span onClick={() => {
+                                if (!isLoggedIn) { setShowLoginModal(true); return; }
+                                setReportTarget({ type: 'COMMENT', id: child.id });
+                              }}>신고</span>
+                            )}
                           </>
                         ) : null}
                       </div>
@@ -614,7 +632,11 @@ export default function CommunityDetailPage() {
           targetId={reportTarget.id} 
           onClose={() => setReportTarget(null)} 
           onSuccess={() => {
-            if (reportTarget.type === 'POST') setAlreadyReported(true);
+            if (reportTarget.type === 'POST') {
+              setAlreadyReported(true);
+            } else if (reportTarget.type === 'COMMENT') {
+              setReportedCommentIds(prev => [...prev, Number(reportTarget.id)]);
+            }
             setReportTarget(null);
           }} 
         />
