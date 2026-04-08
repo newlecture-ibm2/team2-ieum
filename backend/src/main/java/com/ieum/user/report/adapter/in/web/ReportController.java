@@ -29,9 +29,6 @@ public class ReportController {
 
     private final CreateReportUseCase createReportUseCase;
     private final LoadReportUseCase loadReportUseCase;
-    
-    // TODO: 헥사고날 아키텍처 규칙에 따라 UseCase 인터페이스로 변경 필요
-    private final ReportService reportService;
 
     /**
      * Authentication 객체에서 userId 추출
@@ -97,7 +94,11 @@ public class ReportController {
     @GetMapping("/me")
     public ApiResponse<List<ReportResponse>> getMyReports(Authentication authentication) {
         Long userId = getUserId(authentication);
-        return ApiResponse.success(reportService.getMyReports(userId));
+        List<Report> reports = loadReportUseCase.getMyReports(userId);
+        List<ReportResponse> responses = reports.stream()
+                .map(ReportResponse::fromDomain)
+                .toList();
+        return ApiResponse.success(responses);
     }
 
     @Operation(summary = "신고 상세 및 답변 조회", description = "특정 신고 건의 상세 내용과 관리자 답변을 조회합니다. (API_USR_0081)")
@@ -106,6 +107,7 @@ public class ReportController {
             @PathVariable Long reportId,
             Authentication authentication) {
         Long userId = getUserId(authentication);
-        return ApiResponse.success(reportService.getReportDetail(reportId, userId));
+        Report report = loadReportUseCase.getReportDetail(reportId, userId);
+        return ApiResponse.success(ReportResponse.fromDomain(report));
     }
 }

@@ -25,8 +25,18 @@ public class MyPageController {
 
     private final MyPageUseCase myPageUseCase;
 
+    private Long parseUserId() {
+        try {
+            String name = SecurityContextHolder.getContext().getAuthentication().getName();
+            if (name == null || "anonymousUser".equals(name)) return 1L; // 임시 유저 ID
+            return Long.valueOf(name);
+        } catch (Exception e) {
+            return 1L; // 파싱 실패 시 기본 회원 1L
+        }
+    }
+
     @Operation(summary = "내 활동 내역 조회", description = "내가 쓴 게시글, 댓글, 리뷰 등을 필터링하여 조회합니다.")
-    @GetMapping("/activities/")
+    @GetMapping("/activities")
     public ResponseEntity<ApiResponse<MyPageRes.ActivityList>> getMyActivities(
             @Parameter(description = "활동 유형 (posts/reviews/comments)", example = "posts")
             @RequestParam String type,
@@ -35,8 +45,8 @@ public class MyPageController {
             @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size
     ) {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        MyPageRes.ActivityList activities = myPageUseCase.getMyActivities(Long.valueOf(userIdStr), type, page, size);
+        Long userId = parseUserId();
+        MyPageRes.ActivityList activities = myPageUseCase.getMyActivities(userId, type, page, size);
         return ResponseEntity.ok(ApiResponse.success(activities));
     }
 
@@ -46,8 +56,8 @@ public class MyPageController {
             @RequestPart(value = "data", required = false) MyPageReq.UpdateProfile request,
             @RequestPart(value = "profileImg", required = false) MultipartFile profileImg
     ) {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        MyPageRes.ProfileUpdate response = myPageUseCase.updateProfile(Long.valueOf(userIdStr), request, profileImg);
+        Long userId = parseUserId();
+        MyPageRes.ProfileUpdate response = myPageUseCase.updateProfile(userId, request, profileImg);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 
@@ -56,8 +66,8 @@ public class MyPageController {
     public ResponseEntity<ApiResponse<MyPageRes.ProfileUpdate>> updateProfileImage(
             @RequestPart(value = "profileImg") MultipartFile profileImg
     ) {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        MyPageRes.ProfileUpdate response = myPageUseCase.updateProfileImage(Long.valueOf(userIdStr), profileImg);
+        Long userId = parseUserId();
+        MyPageRes.ProfileUpdate response = myPageUseCase.updateProfileImage(userId, profileImg);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
 }

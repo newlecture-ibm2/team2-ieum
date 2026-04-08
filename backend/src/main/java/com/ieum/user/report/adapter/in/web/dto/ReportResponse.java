@@ -16,6 +16,7 @@ public class ReportResponse {
     private String reason;
     private String description;
     private String status;
+    private String action;
     private String adminNote;
     private LocalDateTime processedAt;
     private LocalDateTime createdAt;
@@ -29,6 +30,7 @@ public class ReportResponse {
                 .reason(report.getReason())
                 .description(report.getDescription())
                 .status(report.getStatus())
+                .action(report.getAction())
                 .adminNote(report.getAdminNote())
                 .processedAt(report.getProcessedAt())
                 .createdAt(report.getCreatedAt())

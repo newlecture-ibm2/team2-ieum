@@ -1,6 +1,6 @@
 package com.ieum.user.inquiry.adapter.in.web;
 
-import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.user.inquiry.domain.model.UserInquiry;
 import com.ieum.global.response.ApiResponse;
 import com.ieum.user.inquiry.application.port.in.GetMyInquiriesUseCase;
 import com.ieum.user.inquiry.application.port.in.RegisterInquiryUseCase;
@@ -37,7 +37,7 @@ public class UserInquiryController {
             userId = 0L; 
         }
 
-        List<Inquiry> inquiries = getMyInquiriesUseCase.getMyInquiries(userId);
+        List<UserInquiry> inquiries = getMyInquiriesUseCase.getMyInquiries(userId);
 
         return ApiResponse.success(Map.of(
                 "inquiries", inquiries

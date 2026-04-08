@@ -20,7 +20,7 @@ export default function CommentList() {
     // 설계서상 API: GET /api/users/me/comments
     const fetchComments = async () => {
       try {
-        const res = await fetch('/api/users/me/activities/?type=comments');
+        const res = await fetch(`/api/users/me/activities/?type=comments&_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.success && data.data) {

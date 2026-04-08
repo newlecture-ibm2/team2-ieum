@@ -68,16 +68,4 @@ public class InquiryEntity {
                 .authorNickname(authorNickname)
                 .build();
     }
-
-    public static InquiryEntity fromDomain(Inquiry domain) {
-        return InquiryEntity.builder()
-                .id(domain.getId())
-                .userId(domain.getUserId())
-                .title(domain.getTitle())
-                .content(domain.getContent())
-                .status(domain.getStatus())
-                .answer(domain.getAnswer())
-                .createdAt(domain.getCreatedAt() != null ? LocalDateTime.parse(domain.getCreatedAt()) : null)
-                .build();
-    }
 }

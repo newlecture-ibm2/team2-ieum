@@ -119,9 +119,11 @@ public class AdminFestivalEntity {
 
     @Column(name = "review_count", nullable = false)
     @ColumnDefault("0")
-    private Integer reviewCount;
+    @Builder.Default
+    private Integer reviewCount = 0;
 
     @Column(name = "favorite_count", nullable = false)
+    @ColumnDefault("0")
     @Builder.Default
     private Integer favoriteCount = 0;
 

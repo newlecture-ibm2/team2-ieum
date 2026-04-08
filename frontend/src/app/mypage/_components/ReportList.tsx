@@ -6,12 +6,13 @@ import styles from '../mypage.module.css';
 
 interface Report {
   id: string;
-  type: string;
-  title: string;
-  content: string;
+  targetType: string;
+  reason: string;
+  description: string;
   status: 'PENDING' | 'RESOLVED' | 'REJECTED';
+  action?: string;
+  adminNote?: string;
   createdAt: string;
-  adminFeedback?: string;
   targetId: string;
 }
 
@@ -24,11 +25,11 @@ export default function ReportList() {
     // 설계서상 API: GET /api/users/me/reports
     const fetchReports = async () => {
       try {
-        const res = await fetch('/api/users/me/reports');
+        const res = await fetch('/api/reports/me');
         const data = await res.json();
         
         if (data.success && data.data) {
-          setReports(data.data.reports || []);
+          setReports(data.data || []);
         }
       } catch (error) {
         console.error('Failed to fetch reports:', error);
@@ -90,7 +91,7 @@ export default function ReportList() {
             </div>
             
             <div style={{ display: 'flex', justifySelf: 'stretch', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-              <h4 className={styles.cardTitle}>{report.type} - {report.title}</h4>
+              <h4 className={styles.cardTitle}>{report.targetType} - {report.reason}</h4>
               <button 
                 className={styles.btnAction} 
                 style={{ fontSize: '0.7rem', border: '1px solid var(--color-primary-200)', color: 'var(--color-primary-600)', background: '#f5f3ff' }}
@@ -101,13 +102,13 @@ export default function ReportList() {
             </div>
 
             <p className={styles.cardBody} style={{ margin: expandedId === report.id ? '12px 0' : '0', overflow: 'hidden', textOverflow: 'ellipsis', display: expandedId === report.id ? 'block' : '-webkit-box', WebkitLineClamp: 1, WebkitBoxOrient: 'vertical' }}>
-              {report.content}
+              {report.description}
             </p>
 
-            {expandedId === report.id && report.adminFeedback && (
+            {expandedId === report.id && report.adminNote && (
               <div className={styles.adminResponse}>
                 <strong>관리자 답변:</strong>
-                {report.adminFeedback}
+                {report.adminNote}
               </div>
             )}
 

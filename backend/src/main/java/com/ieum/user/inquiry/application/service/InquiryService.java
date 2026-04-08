@@ -1,7 +1,7 @@
 package com.ieum.user.inquiry.application.service;
 
-import com.ieum.admin.inquiry.application.port.out.InquiryPort;
-import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.user.inquiry.application.port.out.UserInquiryPort;
+import com.ieum.user.inquiry.domain.model.UserInquiry;
 import com.ieum.user.inquiry.application.port.in.GetMyInquiriesUseCase;
 import com.ieum.user.inquiry.application.port.in.RegisterInquiryUseCase;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +17,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InquiryService implements RegisterInquiryUseCase, GetMyInquiriesUseCase {
 
-    private final InquiryPort inquiryPort;
+    private final UserInquiryPort userInquiryPort;
 
     @Override
     @Transactional
@@ -31,7 +31,7 @@ public class InquiryService implements RegisterInquiryUseCase, GetMyInquiriesUse
         }
 
         // 1. 도메인 모델 생성 (기본 상태 PENDING)
-        Inquiry inquiry = Inquiry.builder()
+        UserInquiry inquiry = UserInquiry.builder()
                 .userId(command.getUserId())
                 .title(command.getTitle())
                 .content(command.getContent())
@@ -39,12 +39,12 @@ public class InquiryService implements RegisterInquiryUseCase, GetMyInquiriesUse
                 .build();
 
         // 2. 영속성 포트를 통한 저장
-        return inquiryPort.save(inquiry);
+        return userInquiryPort.save(inquiry);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<Inquiry> getMyInquiries(Long userId) {
-        return inquiryPort.findByUserId(userId);
+    public List<UserInquiry> getMyInquiries(Long userId) {
+        return userInquiryPort.findByUserId(userId);
     }
 }

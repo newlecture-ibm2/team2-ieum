@@ -20,7 +20,7 @@ export default function ReviewList() {
     // 설계서상 API: GET /api/users/me/reviews
     const fetchReviews = async () => {
       try {
-        const res = await fetch('/api/users/me/activities/?type=reviews');
+        const res = await fetch(`/api/users/me/activities/?type=reviews&_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.success && data.data) {

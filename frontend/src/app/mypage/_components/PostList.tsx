@@ -20,7 +20,7 @@ export default function PostList() {
     // 설계서상 API: GET /api/users/me/posts
     const fetchPosts = async () => {
       try {
-        const res = await fetch('/api/users/me/activities/?type=posts');
+        const res = await fetch(`/api/users/me/activities/?type=posts&_t=${Date.now()}`, { cache: 'no-store' });
         const data = await res.json();
         
         if (data.success && data.data) {

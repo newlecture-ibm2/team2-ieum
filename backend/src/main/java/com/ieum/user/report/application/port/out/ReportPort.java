@@ -9,4 +9,6 @@ public interface ReportPort {
     Report save(Report report);
     Optional<Report> findByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType, Long targetId);
     List<Long> findTargetIdsByReporterIdAndTargetTypeAndStatusIn(Long reporterId, String targetType, List<String> statuses);
+    List<Report> findAllByReporterId(Long reporterId);
+    Optional<Report> findByIdAndReporterId(Long id, Long reporterId);
 }

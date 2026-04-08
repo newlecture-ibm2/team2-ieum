@@ -23,8 +23,8 @@ public class InquiryPersistenceAdapter implements InquiryPort {
     private final InquiryAdminRepository repository;
 
     @Override
-    public Page<Inquiry> findAll(String status, String searchType, String keyword, Pageable pageable) {
-        Page<Object[]> page = repository.findInquiriesByConditions(status, searchType, keyword, pageable);
+    public Page<Inquiry> findAll(String status, String searchType, String keyword, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        Page<Object[]> page = repository.findInquiriesByConditions(status, searchType, keyword, start, end, pageable);
 
         var inquiries = page.getContent().stream().map(row -> {
             InquiryEntity entity = (InquiryEntity) row[0];
@@ -78,16 +78,7 @@ public class InquiryPersistenceAdapter implements InquiryPort {
     }
 
     @Override
-    public java.util.List<Inquiry> findByUserId(Long userId) {
-        return repository.findAllByUserIdOrderByCreatedAtDesc(userId).stream()
-                .map(InquiryEntity::toDomain)
-                .toList();
-    }
-
-    @Override
-    public Long save(Inquiry inquiry) {
-        InquiryEntity entity = InquiryEntity.fromDomain(inquiry);
-        InquiryEntity saved = repository.save(entity);
-        return saved.getId();
+    public long countCreatedToday(LocalDateTime start, LocalDateTime end) {
+        return repository.countCreatedToday(start, end);
     }
 }
