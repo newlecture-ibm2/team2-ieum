@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Map;
+import java.util.HashMap;
+import jakarta.persistence.EntityManager;
 
 /**
  * 신고 Persistence Adapter (OutPort 구현체)
@@ -22,6 +25,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ReportPersistenceAdapter implements ReportPort {
 
+    private final EntityManager em;
     private final ReportAdminRepository repository;
     private final ReportResponseRepository responseRepository;
 
@@ -72,5 +76,37 @@ public class ReportPersistenceAdapter implements ReportPort {
     @Override
     public long countByStatus(String status) {
         return repository.countByStatus(status);
+    }
+
+    @Override
+    public Map<String, String> findOriginalContent(String targetType, Long targetId) {
+        Map<String, String> result = new HashMap<>();
+        try {
+            if ("POST".equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT p.authorName, p.content, p.createdAt FROM PostEntity p WHERE p.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+                result.put("author", (String) row[0]);
+                result.put("content", (String) row[1]);
+                result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                return result;
+            } else if ("COMMENT".equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT c.userName, c.content, c.createdAt FROM CommentEntity c WHERE c.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+                result.put("author", (String) row[0]);
+                result.put("content", (String) row[1]);
+                result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                return result;
+            } else if ("REVIEW".equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT u.nickname, r.content, r.createdAt FROM ReviewEntity r LEFT JOIN UserRef u ON r.userId = u.id WHERE r.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+                result.put("author", row[0] != null ? (String) row[0] : "알 수 없음");
+                result.put("content", (String) row[1]);
+                result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                return result;
+            }
+        } catch (Exception e) {
+            return null; // 못 찾거나 삭제된 경우
+        }
+        return null; // 알 수 없는 타입
     }
 }

@@ -12,16 +12,16 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-@Profile("init")
+// @Profile("init")
 public class DatabaseFixer implements CommandLineRunner {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) throws Exception {
-        int rows = jdbcTemplate.update("UPDATE master_category SET is_active = true WHERE type = 'STANDARD'");
+        int rows = jdbcTemplate.update("UPDATE festival_master_category SET is_active = true WHERE type = 'STANDARD'");
         System.out.println("FIXED DB: set " + rows + " categories to active");
 
-        String insertSql = "INSERT INTO master_category (code, name, type, is_active, level, parent_code) " +
+        String insertSql = "INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'STANDARD', true, ?, ?) ON CONFLICT (code) DO NOTHING";
                 
         int inserts = 0;
@@ -33,11 +33,11 @@ public class DatabaseFixer implements CommandLineRunner {
         inserts += jdbcTemplate.update(insertSql, "A02081300", "기타행사", 3, "A0208");
         
         // 자체생성 하위
-        jdbcTemplate.update("INSERT INTO master_category (code, name, type, is_active, level, parent_code) " +
+        jdbcTemplate.update("INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'CUSTOM', true, ?, ?) ON CONFLICT (code) DO NOTHING", "CUSTOM_C01", "자체생성", 1, null);
-        inserts += jdbcTemplate.update("INSERT INTO master_category (code, name, type, is_active, level, parent_code) " +
+        inserts += jdbcTemplate.update("INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'CUSTOM', true, ?, ?) ON CONFLICT (code) DO NOTHING", "CUS_C01_M1", "일반 축제", 2, "CUSTOM_C01");
-        inserts += jdbcTemplate.update("INSERT INTO master_category (code, name, type, is_active, level, parent_code) " +
+        inserts += jdbcTemplate.update("INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'CUSTOM', true, ?, ?) ON CONFLICT (code) DO NOTHING", "CUS_C01_M2", "대학 축제", 2, "CUSTOM_C01");
         
         System.out.println("FIXED DB: inserted " + inserts + " missing subcategories");

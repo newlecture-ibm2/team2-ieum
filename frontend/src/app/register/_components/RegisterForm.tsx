@@ -10,7 +10,7 @@ import styles from '../register.module.css';
 export default function RegisterForm() {
   const router = useRouter();
 
-  const [email, setEmail] = useState('');
+  const [id, setId] = useState('');
   const [nickname, setNickname] = useState('');
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
@@ -28,7 +28,7 @@ export default function RegisterForm() {
   });
 
   const [errors, setErrors] = useState({
-    email: '',
+    id: '',
     nickname: '',
     phone: '',
     password: '',
@@ -37,6 +37,35 @@ export default function RegisterForm() {
   });
 
   const [isLoading, setIsLoading] = useState(false);
+
+  // 개별 필드 실시간 검증 로직
+  const validateField = (name: string, value: string) => {
+    let error = '';
+    switch (name) {
+      case 'id':
+        if (!value) error = '아이디를 입력해주세요.';
+        else if (value.length < 4) error = '아이디는 4자 이상 입력해주세요.';
+        else if (!/^[a-zA-Z0-9]+$/.test(value)) error = '영문과 숫자만 사용 가능합니다.';
+        break;
+      case 'nickname':
+        if (!value || value.length < 2) error = '닉네임은 2자 이상 입력해주세요.';
+        break;
+      case 'password':
+        const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
+        if (!value) error = '비밀번호를 입력해주세요.';
+        else if (!pwRegex.test(value)) error = '8자 이상, 영문+숫자를 포함해야 합니다.';
+        break;
+      case 'passwordConfirm':
+        if (value !== password) error = '비밀번호가 일치하지 않습니다.';
+        break;
+      case 'phone':
+        const phoneClean = value.replace(/[^0-9]/g, '');
+        if (!phoneClean || phoneClean.length < 10) error = '올바른 전화번호를 입력해주세요.';
+        break;
+    }
+    setErrors(prev => ({ ...prev, [name]: error }));
+    return !error;
+  };
 
   // 전체 동의 핸들러
   const handleAllAgree = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -47,6 +76,7 @@ export default function RegisterForm() {
       privacy: checked,
       marketing: checked,
     });
+    if (checked) setErrors(prev => ({ ...prev, global: '' }));
   };
 
   // 개별 동의 핸들러
@@ -54,60 +84,23 @@ export default function RegisterForm() {
     const newAgreements = { ...agreements, [key]: !agreements[key] };
     setAgreements(newAgreements);
     setAllAgreed(newAgreements.terms && newAgreements.privacy && newAgreements.marketing);
+    if (newAgreements.terms && newAgreements.privacy) setErrors(prev => ({ ...prev, global: '' }));
   };
 
-  const validate = () => {
-    let isValid = true;
-    const newErrors = { email: '', nickname: '', phone: '', password: '', passwordConfirm: '', global: '' };
-
-    // 이메일 검증
-    // eslint-disable-next-line
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) {
-      newErrors.email = '이메일을 입력해주세요.';
-      isValid = false;
-    } else if (!emailRegex.test(email)) {
-      newErrors.email = '올바른 이메일 형식이 아닙니다.';
-      isValid = false;
-    }
-
-    // 닉네임 검증
-    if (!nickname || nickname.length < 2) {
-      newErrors.nickname = '닉네임은 2자 이상 입력해주세요.';
-      isValid = false;
-    }
-
-    // 전화번호 재포맷팅 및 검증
-    const phoneClean = phone.replace(/[^0-9]/g, '');
-    if (!phoneClean || phoneClean.length < 10) {
-      newErrors.phone = '올바른 전화번호를 입력해주세요.';
-      isValid = false;
-    }
-
-    // 비밀번호 검증 (8자 이상, 영문 숫자 포함)
-    const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
-    if (!password) {
-      newErrors.password = '비밀번호를 입력해주세요.';
-      isValid = false;
-    } else if (!pwRegex.test(password)) {
-      newErrors.password = '8자 이상, 영문+숫자 기호를 포함해야 합니다.';
-      isValid = false;
-    }
-
-    // 비밀번호 확인
-    if (password !== passwordConfirm) {
-      newErrors.passwordConfirm = '비밀번호가 일치하지 않습니다.';
-      isValid = false;
-    }
-
-    // 필수 약관 검증
+  const validateAll = () => {
+    const isIdValid = validateField('id', id);
+    const isNicknameValid = validateField('nickname', nickname);
+    const isPhoneValid = validateField('phone', phone);
+    const isPasswordValid = validateField('password', password);
+    const isPasswordConfirmValid = validateField('passwordConfirm', passwordConfirm);
+    
+    let isAgreed = true;
     if (!agreements.terms || !agreements.privacy) {
-      newErrors.global = '필수 이용약관에 동의해주세요.';
-      isValid = false;
+      setErrors(prev => ({ ...prev, global: '필수 이용약관에 동의해주세요.' }));
+      isAgreed = false;
     }
 
-    setErrors(newErrors);
-    return isValid;
+    return isIdValid && isNicknameValid && isPhoneValid && isPasswordValid && isPasswordConfirmValid && isAgreed;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -119,39 +112,40 @@ export default function RegisterForm() {
       formatted = `${val.slice(0, 3)}-${val.slice(3, 7)}-${val.slice(7, 11)}`;
     }
     setPhone(formatted);
+    validateField('phone', formatted);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateAll()) return;
 
     try {
       setIsLoading(true);
-      // 방금 구축한 백엔드 회원가입 API 연동
       const response = await axios.post('/api/auth/signup', {
-        email,
+        id,
         password,
         nickname,
-        phone
+        phone,
+        isMarketingAgreed: agreements.marketing
       });
 
       if (response.data.status === 'SUCCESS') {
         alert('회원가입이 성공적으로 완료되었습니다.');
-        router.push('/auth/login');
+        router.push('/login');
       } else {
         setErrors(prev => ({ ...prev, global: response.data.message || '가입 실패' }));
       }
     } catch (error: any) {
       setErrors(prev => ({ 
         ...prev, 
-        global: error.response?.data?.message || '이미 가입된 이메일이거나 닉네임입니다.' 
+        global: error.response?.data?.message || '이미 가입된 아이디이거나 닉네임입니다.' 
       }));
     } finally {
       setIsLoading(false);
     }
   };
 
-  const isSubmitDisabled = !email || !password || !nickname || !agreements.terms || !agreements.privacy || isLoading;
+  const isSubmitDisabled = !id || !password || !nickname || !agreements.terms || !agreements.privacy || isLoading;
 
   return (
     <div className={styles.card}>
@@ -165,21 +159,24 @@ export default function RegisterForm() {
       </div>
 
       <form className={styles.form} onSubmit={handleSubmit}>
-        {/* 이메일 */}
+        {/* 아이디 */}
         <div className={styles.inputGroup}>
-          <label htmlFor="email" className={styles.inputLabel}>이메일 (아이디)</label>
+          <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
             <Mail className={styles.inputIcon} />
             <input 
-              id="email"
-              type="email" 
-              className={`${styles.input} ${errors.email ? styles.inputError : ''}`} 
-              placeholder="example@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="id"
+              type="text" 
+              className={`${styles.input} ${errors.id ? styles.inputError : ''}`} 
+              placeholder="영문, 숫자 4자 이상"
+              value={id}
+              onChange={(e) => {
+                setId(e.target.value);
+                validateField('id', e.target.value);
+              }}
             />
           </div>
-          {errors.email && <div className={styles.errorMessage}>{errors.email}</div>}
+          {errors.id && <div className={styles.errorMessage}>{errors.id}</div>}
         </div>
 
         {/* 닉네임 */}
@@ -193,7 +190,10 @@ export default function RegisterForm() {
               className={`${styles.input} ${errors.nickname ? styles.inputError : ''}`} 
               placeholder="닉네임을 입력하세요"
               value={nickname}
-              onChange={(e) => setNickname(e.target.value)}
+              onChange={(e) => {
+                setNickname(e.target.value);
+                validateField('nickname', e.target.value);
+              }}
             />
           </div>
           {errors.nickname && <div className={styles.errorMessage}>{errors.nickname}</div>}
@@ -228,7 +228,10 @@ export default function RegisterForm() {
               className={`${styles.input} ${errors.password ? styles.inputError : ''}`} 
               placeholder="8자 이상, 영문+숫자 포함"
               value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              onChange={(e) => {
+                setPassword(e.target.value);
+                validateField('password', e.target.value);
+              }}
             />
             <button 
               type="button" 
@@ -252,7 +255,10 @@ export default function RegisterForm() {
               className={`${styles.input} ${errors.passwordConfirm ? styles.inputError : ''}`} 
               placeholder="비밀번호 재입력"
               value={passwordConfirm}
-              onChange={(e) => setPasswordConfirm(e.target.value)}
+              onChange={(e) => {
+                setPasswordConfirm(e.target.value);
+                validateField('passwordConfirm', e.target.value);
+              }}
             />
             <button 
               type="button" 
@@ -289,7 +295,7 @@ export default function RegisterForm() {
         </div>
 
         {errors.global && (
-          <div className={styles.errorMessage} style={{textAlign: 'center', marginBottom: '8px', fontSize: '13px'}}>
+          <div className={styles.errorMessage} style={{textAlign: 'center', marginBottom: '8px', fontSize: '13px', width: '100%'}}>
             {errors.global}
           </div>
         )}
@@ -301,7 +307,7 @@ export default function RegisterForm() {
 
       <div className={styles.footer}>
         이미 계정이 있으신가요? 
-        <Link href="/auth/login" className={styles.loginLink}>
+        <Link href="/login" className={styles.loginLink}>
           로그인
         </Link>
       </div>

@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 
 export async function POST(req: NextRequest) {
-  const { email, password } = await req.json();
+  const { id, password } = await req.json();
 
   // 1) 백엔드에 로그인 요청
   const backendRes = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/auth/login`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ id, password }),
   });
 
   if (!backendRes.ok) {
@@ -21,8 +21,8 @@ export async function POST(req: NextRequest) {
   const session = await getSession();
   session.accessToken = data.data.accessToken;
   session.user = {
+    userId: data.data.user.userId,
     id: data.data.user.id,
-    email: data.data.user.email,
     nickname: data.data.user.nickname,
     role: data.data.user.role,
   };
