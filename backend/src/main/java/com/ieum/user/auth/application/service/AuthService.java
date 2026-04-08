@@ -36,6 +36,16 @@ public class AuthService implements AuthUseCase {
         User user = loadUserPort.loadByLoginId(request.getId())
                 .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
+        // 🛡️ 탈퇴 유예 정책 체크
+        if ("WITHDRAWAL".equals(user.getStatus())) {
+            if (user.isWithdrawalExpired()) {
+                throw new BadCredentialsException("탈퇴 후 30일이 경과하여 삭제된 계정입니다.");
+            }
+            // 30일 이내라면 자동 복구
+            user = user.reactivate();
+            saveUserPort.saveUser(user);
+        }
+
         if (!user.checkPassword(request.getPassword(), passwordEncoder)) {
             throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
         }
@@ -51,6 +61,24 @@ public class AuthService implements AuthUseCase {
                 .expiresIn(jwtProvider.getExpirationSeconds())
                 .user(AuthRes.UserDto.from(user))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void withdraw(Long userId, String password) {
+        User user = loadUserPort.loadUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (!user.checkPassword(password, passwordEncoder)) {
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
+        }
+
+        // 도메인 로직을 통한 탈퇴 상태 변경 및 저장
+        User withdrawnUser = user.withdraw();
+        saveUserPort.saveUser(withdrawnUser);
+
+        // 연관 데이터 처리 (리프레시 토큰 무효화 등)
+        saveUserPort.removeRefreshToken(userId);
     }
 
     @Override

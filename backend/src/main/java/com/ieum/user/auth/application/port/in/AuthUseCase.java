@@ -18,4 +18,7 @@ public interface AuthUseCase {
 
     /** 내 정보 조회 */
     AuthRes.UserDto getMyProfile(Long userId);
+
+    /** 회원 탈퇴 */
+    void withdraw(Long userId, String password);
 }
