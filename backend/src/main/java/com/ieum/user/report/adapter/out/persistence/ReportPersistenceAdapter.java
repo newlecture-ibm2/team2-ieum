@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.List;
 import java.util.Optional;
 
-@Component
+@Component("userReportPersistenceAdapter")
 @RequiredArgsConstructor
 public class ReportPersistenceAdapter implements ReportPort {
 
@@ -31,19 +31,21 @@ public class ReportPersistenceAdapter implements ReportPort {
                 .createdAt(report.getCreatedAt())
                 .processedAt(report.getProcessedAt())
                 .build();
-        
+
         ReportEntity saved = reportRepository.save(entity);
         return toDomain(saved);
     }
 
     @Override
-    public Optional<Report> findByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType, Long targetId) {
+    public Optional<Report> findByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType,
+            Long targetId) {
         return reportRepository.findByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId)
                 .map(this::toDomain);
     }
 
     @Override
-    public List<Long> findTargetIdsByReporterIdAndTargetTypeAndStatusIn(Long reporterId, String targetType, List<String> statuses) {
+    public List<Long> findTargetIdsByReporterIdAndTargetTypeAndStatusIn(Long reporterId, String targetType,
+            List<String> statuses) {
         return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(reporterId, targetType, statuses);
     }
 
