@@ -19,8 +19,7 @@ public interface InquiryAdminRepository extends JpaRepository<InquiryEntity, Lon
     /* ── 동적 검색 쿼리 (LOWER 적용) ── */
     @Query("SELECT i, u.nickname FROM InquiryEntity i " +
            "LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = i.userId " +
-           "WHERE (:status IS NULL OR :status = '' OR :status = 'NEW_TODAY' OR i.status = :status) " +
-           "AND (:status != 'NEW_TODAY' OR (i.createdAt >= :todayStart AND i.createdAt < :todayEnd)) " +
+           "WHERE (:status IS NULL OR :status = '' OR i.status = :status) " +
            "AND (:keyword IS NULL OR :keyword = '' OR " +
            "  ((:searchType IS NULL OR :searchType = 'ALL' OR :searchType = '') AND (LOWER(i.title) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(u.nickname) LIKE LOWER(CONCAT('%',:keyword,'%')) OR LOWER(i.content) LIKE LOWER(CONCAT('%',:keyword,'%')))) OR " +
            "  (:searchType = 'TITLE' AND LOWER(i.title) LIKE LOWER(CONCAT('%',:keyword,'%'))) OR " +
@@ -31,8 +30,6 @@ public interface InquiryAdminRepository extends JpaRepository<InquiryEntity, Lon
     Page<Object[]> findInquiriesByConditions(@Param("status") String status,
                                              @Param("searchType") String searchType,
                                              @Param("keyword") String keyword,
-                                             @Param("todayStart") java.time.LocalDateTime todayStart,
-                                             @Param("todayEnd") java.time.LocalDateTime todayEnd,
                                              Pageable pageable);
 
     /* ── 단건 조회 (닉네임 포함) ── */
@@ -43,6 +40,6 @@ public interface InquiryAdminRepository extends JpaRepository<InquiryEntity, Lon
 
     long countByStatus(String status);
 
-    @Query("SELECT COUNT(i) FROM InquiryEntity i WHERE i.createdAt >= :todayStart AND i.createdAt < :todayEnd")
-    long countCreatedToday(@Param("todayStart") java.time.LocalDateTime todayStart, @Param("todayEnd") java.time.LocalDateTime todayEnd);
+    /* ── 사용자별 문의 내역 조회 (최신순) ── */
+    java.util.List<InquiryEntity> findAllByUserIdOrderByCreatedAtDesc(Long userId);
 }

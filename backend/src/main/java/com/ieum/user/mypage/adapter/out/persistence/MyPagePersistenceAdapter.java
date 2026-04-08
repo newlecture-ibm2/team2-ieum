@@ -35,10 +35,12 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<PostEntity> postPage = postRepository.findByAuthorId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
         
         return MyPageRes.ActivityList.builder()
-                .items(postPage.getContent().stream()
+                .activities(postPage.getContent().stream()
                         .map(post -> MyPageRes.ActivityDto.builder()
                                 .id(post.getId())
-                                .summary(post.getTitle()) // 게시글은 제목을 요약으로 사용
+                                .title(post.getTitle())
+                                .content(post.getContent())
+                                .summary(post.getTitle()) 
                                 .createdAt(post.getCreatedAt().format(formatter))
                                 .type("posts")
                                 .build())
@@ -53,10 +55,12 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<ReviewEntity> reviewPage = reviewRepository.findByUserId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         return MyPageRes.ActivityList.builder()
-                .items(reviewPage.getContent().stream()
+                .activities(reviewPage.getContent().stream()
                         .map(review -> MyPageRes.ActivityDto.builder()
                                 .id(review.getId())
-                                .summary(getSummary(review.getContent())) // 리뷰 본문 요약
+                                .title("리뷰 내역")
+                                .content(review.getContent())
+                                .summary(getSummary(review.getContent()))
                                 .createdAt(review.getCreatedAt().format(formatter))
                                 .type("reviews")
                                 .build())
@@ -71,10 +75,12 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<CommentEntity> commentPage = commentRepository.findByUserId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         return MyPageRes.ActivityList.builder()
-                .items(commentPage.getContent().stream()
+                .activities(commentPage.getContent().stream()
                         .map(comment -> MyPageRes.ActivityDto.builder()
-                                .id(comment.getId())
-                                .summary(getSummary(comment.getContent())) // 댓글 본문 요약
+                                .id(Long.valueOf(comment.getId()))
+                                .title("댓글 내역")
+                                .content(comment.getContent())
+                                .summary(getSummary(comment.getContent())) 
                                 .createdAt(comment.getCreatedAt().format(formatter))
                                 .type("comments")
                                 .build())

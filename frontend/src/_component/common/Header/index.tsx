@@ -165,7 +165,7 @@ export default function Header() {
           {isLoggedIn ? (
             <>
               <Link
-                href="/myPage"
+                href="/mypage"
                 className={styles.userBtn}
                 aria-label="마이페이지"
               >

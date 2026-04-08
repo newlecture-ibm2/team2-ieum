@@ -121,9 +121,9 @@ public class AdminFestivalEntity {
     @ColumnDefault("0")
     private Integer reviewCount;
 
-    @Column(name = "favorite_count", nullable = false)
+    @Column(name = "scrap_count", nullable = false)
     @ColumnDefault("0")
-    private Integer favoriteCount;
+    private Integer scrapCount;
 
     @Column(name = "view_count", nullable = false)
     @ColumnDefault("0")
@@ -144,7 +144,7 @@ public class AdminFestivalEntity {
         if (this.status == null) this.status = "UPCOMING";
         if (this.avgRating == null) this.avgRating = 0.0;
         if (this.reviewCount == null) this.reviewCount = 0;
-        if (this.favoriteCount == null) this.favoriteCount = 0;
+        if (this.scrapCount == null) this.scrapCount = 0;
         if (this.viewCount == null) this.viewCount = 0;
         this.createdAt = LocalDateTime.now();
     }
@@ -204,7 +204,7 @@ public class AdminFestivalEntity {
                 .isVisible(this.isVisible == null || Boolean.TRUE.equals(this.isVisible))
                 .avgRating(this.avgRating != null ? this.avgRating : 0.0)
                 .reviewCount(this.reviewCount != null ? this.reviewCount : 0)
-                .favoriteCount(this.favoriteCount != null ? this.favoriteCount : 0)
+                .scrapCount(this.scrapCount != null ? this.scrapCount : 0)
                 .viewCount(this.viewCount != null ? this.viewCount : 0)
                 .apiModifiedAt(this.apiModifiedAt)
                 .createdAt(this.createdAt)
@@ -250,7 +250,7 @@ public class AdminFestivalEntity {
                 .isVisible(festival.isVisible())
                 .avgRating(festival.getAvgRating())
                 .reviewCount(festival.getReviewCount())
-                .favoriteCount(festival.getFavoriteCount())
+                .scrapCount(festival.getScrapCount())
                 .viewCount(festival.getViewCount())
                 .apiModifiedAt(festival.getApiModifiedAt())
                 .createdAt(festival.getCreatedAt())

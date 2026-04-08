@@ -99,7 +99,7 @@ public class SecurityConfig {
                                                 .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 즐겨찾기
-                                                .requestMatchers("/api/favorites/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers("/api/scraps/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 커뮤니티 CUD
                                                 .requestMatchers(HttpMethod.POST, "/api/community/**")

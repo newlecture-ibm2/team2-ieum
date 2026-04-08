@@ -19,6 +19,8 @@ public class ReportResponse {
     private String reason;
     private String description;
     private String status;
+    private String adminNote;
+    private LocalDateTime processedAt;
     private LocalDateTime createdAt;
 
     public static ReportResponse fromEntity(ReportEntity entity) {
@@ -29,6 +31,8 @@ public class ReportResponse {
                 .reason(entity.getReason())
                 .description(entity.getDescription())
                 .status(entity.getStatus())
+                .adminNote(entity.getAdminNote())
+                .processedAt(entity.getProcessedAt())
                 .createdAt(entity.getCreatedAt())
                 .build();
     }

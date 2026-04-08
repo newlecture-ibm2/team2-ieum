@@ -11,7 +11,7 @@ import java.util.Optional;
  */
 public interface InquiryPort {
 
-    Page<Inquiry> findAll(String status, String searchType, String keyword, java.time.LocalDateTime start, java.time.LocalDateTime end, Pageable pageable);
+    Page<Inquiry> findAll(String status, String searchType, String keyword, Pageable pageable);
 
     Optional<Inquiry> findById(Long id);
 
@@ -22,5 +22,7 @@ public interface InquiryPort {
 
     long countByStatus(String status);
 
-    long countCreatedToday(java.time.LocalDateTime start, java.time.LocalDateTime end);
+    java.util.List<Inquiry> findByUserId(Long userId);
+
+    Long save(Inquiry inquiry);
 }

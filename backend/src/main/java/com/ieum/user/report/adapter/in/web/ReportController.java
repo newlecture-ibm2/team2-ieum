@@ -1,8 +1,8 @@
 package com.ieum.user.report.adapter.in.web;
 
-import com.ieum.user.report.adapter.in.web.dto.ReportRequest;
-import com.ieum.user.report.adapter.in.web.dto.ReportResponse;
-import com.ieum.user.report.application.service.ReportService;
+import com.ieum.community.adapter.in.web.dto.ReportRequest;
+import com.ieum.community.adapter.in.web.dto.ReportResponse;
+import com.ieum.community.application.service.ReportService;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -11,14 +11,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
-import java.util.List;
-
 /**
- * 통합 사용자 신고 API (POST, COMMENT, REVIEW 공통)
- * POST   /api/reports           — 신고 접수
- * GET    /api/reports/check     — 신고 여부 확인
- * GET    /api/reports/my-targets — 내가 신고한 대상 ID 목록
+ * 사용자 신고 API
+ * POST /api/reports — 게시글, 댓글, 리뷰 등 콘텐츠 신고 접수
  */
 @Tag(name = "신고", description = "부적절한 콘텐츠 신고 접수")
 @RestController
@@ -30,6 +25,7 @@ public class ReportController {
 
     /**
      * Authentication 객체에서 userId 추출
+     * - 로그인 구현 완료 전까지는 임시로 1L 반환
      */
     private Long getUserId(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
@@ -71,16 +67,19 @@ public class ReportController {
         return ApiResponse.success(reported);
     }
 
-    @Operation(summary = "내가 신고한 타겟 ID 목록 조회", description = "비회원은 빈 배열 반환. 반환된 ID들은 신고가 반려되지 않은(대기 또는 삭제된) 상태입니다.")
-    @GetMapping("/my-targets")
-    public ApiResponse<List<Long>> getMyReportedTargetIds(
-            @RequestParam String targetType,
+    @Operation(summary = "내 신고 내역 목록 조회", description = "내가 접수한 모든 신고 내역을 최신순으로 조회합니다. (API_USR_0080)")
+    @GetMapping("/me")
+    public ApiResponse<java.util.List<ReportResponse>> getMyReports(Authentication authentication) {
+        Long userId = getUserId(authentication);
+        return ApiResponse.success(reportService.getMyReports(userId));
+    }
+
+    @Operation(summary = "신고 상세 및 답변 조회", description = "특정 신고 건의 상세 내용과 관리자 답변을 조회합니다. (API_USR_0081)")
+    @GetMapping("/me/{reportId}")
+    public ApiResponse<ReportResponse> getReportDetail(
+            @PathVariable Long reportId,
             Authentication authentication) {
         Long userId = getUserId(authentication);
-        if (userId == null) {
-            return ApiResponse.success(Collections.emptyList());
-        }
-        List<Long> targetIds = reportService.getMyReportedTargetIds(userId, targetType);
-        return ApiResponse.success(targetIds);
+        return ApiResponse.success(reportService.getReportDetail(reportId, userId));
     }
 }

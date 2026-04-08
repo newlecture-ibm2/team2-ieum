@@ -610,6 +610,7 @@
                     { name: 'status', type: 'varchar(10)', note: 'PENDING / ANSWERED' },
                     { name: 'answer', type: 'text', note: '관리자 답변' },
                     { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
+                    { name: 'answered_by', type: 'bigint', fk: true, note: '답변 관리자 ID' },
                     { name: 'created_at', type: 'timestamp', note: '작성일' },
                 ]
             },

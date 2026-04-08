@@ -95,9 +95,6 @@ public class ReportService {
         return ReportResponse.fromEntity(saved);
     }
 
-    /**
-     * 이미 신고했는지 확인
-     */
     @Transactional(readOnly = true)
     public boolean isAlreadyReported(Long reporterId, String targetType, Long targetId) {
         Optional<ReportEntity> existingOpt = reportRepository.findByReporterIdAndTargetTypeAndTargetId(
@@ -119,5 +116,25 @@ public class ReportService {
         return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
                 reporterId, targetType, List.of("PENDING", "RESOLVED")
         );
+    }
+
+    /**
+     * 설계서 API_USR_0080: 내 신고 내역 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<ReportResponse> getMyReports(Long reporterId) {
+        return reportRepository.findByReporterIdOrderByCreatedAtDesc(reporterId).stream()
+                .map(ReportResponse::fromEntity)
+                .toList();
+    }
+
+    /**
+     * 설계서 API_USR_0081: 신고 상세 및 답변 조회
+     */
+    @Transactional(readOnly = true)
+    public ReportResponse getReportDetail(Long reportId, Long reporterId) {
+        ReportEntity entity = reportRepository.findByIdAndReporterId(reportId, reporterId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.AUTH_001, "본인의 신고 내역만 조회할 수 있습니다."));
+        return ReportResponse.fromEntity(entity);
     }
 }

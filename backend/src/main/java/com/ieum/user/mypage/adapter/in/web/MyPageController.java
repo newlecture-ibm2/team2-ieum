@@ -50,4 +50,14 @@ public class MyPageController {
         MyPageRes.ProfileUpdate response = myPageUseCase.updateProfile(Long.valueOf(userIdStr), request, profileImg);
         return ResponseEntity.ok(ApiResponse.success(response));
     }
+
+    @Operation(summary = "프로필 이미지 단독 수정", description = "프로필 이미지만 전용으로 업로드하여 갱신합니다. (API_USR_0011)")
+    @PatchMapping(value = "/profile/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<MyPageRes.ProfileUpdate>> updateProfileImage(
+            @RequestPart(value = "profileImg") MultipartFile profileImg
+    ) {
+        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
+        MyPageRes.ProfileUpdate response = myPageUseCase.updateProfileImage(Long.valueOf(userIdStr), profileImg);
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
 }
