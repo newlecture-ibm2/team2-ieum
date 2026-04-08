@@ -89,9 +89,22 @@ public class PostController {
             @Parameter(description = "페이지 크기")
             @RequestParam(defaultValue = "10") int size) {
 
-        Sort sortObj = sort.equals("popular")
-                ? Sort.by(Sort.Direction.DESC, "viewCount")
-                : Sort.by(Sort.Direction.DESC, "createdAt");
+        Sort sortObj;
+        switch (sort) {
+            case "popular":
+                sortObj = Sort.by(Sort.Direction.DESC, "likeCount");
+                break;
+            case "views":
+                sortObj = Sort.by(Sort.Direction.DESC, "viewCount");
+                break;
+            case "comments":
+                sortObj = Sort.by(Sort.Direction.DESC, "commentCount");
+                break;
+            case "latest":
+            default:
+                sortObj = Sort.by(Sort.Direction.DESC, "createdAt");
+                break;
+        }
         Page<PostResponse> result = postService.getPosts(category, areaCode, keyword, PageRequest.of(page, size, sortObj));
         return ApiResponse.success(result);
     }
@@ -99,8 +112,9 @@ public class PostController {
     @Operation(summary = "게시글 상세 조회", description = "게시글 ID로 상세 내용을 조회합니다.")
     @GetMapping("/{postId}")
     public ApiResponse<PostResponse> getPostDetail(
-            @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId) {
-        PostResponse response = postService.getPostDetail(postId);
+            @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
+            Authentication authentication) {
+        PostResponse response = postService.getPostDetail(postId, getUserId(authentication));
         return ApiResponse.success(response);
     }
 
@@ -121,6 +135,15 @@ public class PostController {
             Authentication authentication) {
         postService.deletePost(postId, getUserId(authentication), isAdmin(authentication));
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "게시글 공감 토글", description = "게시글에 공감을 하거나 취소합니다. (로그인 필수)")
+    @PostMapping("/{postId}/likes")
+    public ApiResponse<Boolean> toggleLike(
+            @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
+            Authentication authentication) {
+        boolean isLiked = postService.toggleLike(postId, getUserId(authentication));
+        return ApiResponse.success(isLiked);
     }
 
     // ──────── 댓글 ────────

@@ -22,8 +22,12 @@ export default function CommunityDetailPage() {
   const postId = params.id as string;
   const { toast } = useToast();
 
-  const { post, comments, loading, error, fetchDetail } = usePostDetail(postId);
-  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [authChecked, setAuthChecked] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+
+  const { post, setPost, comments, loading, error, fetchDetail, attachments } = usePostDetail(postId, authChecked && isLoggedIn);
+
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -33,29 +37,42 @@ export default function CommunityDetailPage() {
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [alreadyReported, setAlreadyReported] = useState(false);
 
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [authChecked, setAuthChecked] = useState(false);
-  const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  // 대댓글(답글) 관련 상태
+  const [replyingTo, setReplyingTo] = useState<number | null>(null);
+  const [replyContent, setReplyContent] = useState('');
 
-  // 로그인 상태 확인
+
+  // 로그인 상태 확인 및 신고 여부 확인
   useEffect(() => {
     fetch('/api/auth/me')
       .then(res => res.json())
       .then(data => {
         setIsLoggedIn(data.isLoggedIn);
         if (data.isLoggedIn && data.user) {
-          setCurrentUserId(data.user.id);
-        }
-        if (!data.isLoggedIn) {
-          setShowLoginModal(true);
+          setCurrentUserId(data.user.userId);
+
+          // 이미 신고했는지 확인
+          api.get(`/api/reports/check?targetType=POST&targetId=${postId}`)
+            .then(res => {
+              if (res.data?.data === true) {
+                setAlreadyReported(true);
+              }
+            })
+            .catch(() => { });
         }
         setAuthChecked(true);
       })
       .catch(() => {
-        setShowLoginModal(true);
         setAuthChecked(true);
       });
-  }, []);
+  }, [postId]);
+
+  // 비회원 상세조회 차단 처리
+  useEffect(() => {
+    if (authChecked && !isLoggedIn) {
+      setShowLoginModal(true);
+    }
+  }, [authChecked, isLoggedIn]);
 
   const handleDeletePost = async () => {
     try {
@@ -73,8 +90,7 @@ export default function CommunityDetailPage() {
   };
 
   const handleEditPost = () => {
-    // router.push(`/community/write?edit=${postId}`);
-    toast('수정 페이지는 별도 화면으로 구현 예정입니다!', 'info');
+    router.push(`/community/write?edit=${postId}`);
   };
 
   const handleSubmitComment = async () => {
@@ -101,22 +117,55 @@ export default function CommunityDetailPage() {
     }
   };
 
-  // 로그인 필요 모달 (비회원 상세 조회 차단 포함)
-  if (showLoginModal && !isLoggedIn) {
+  // 대댓글(답글) 등록
+  const handleSubmitReply = async (parentId: number) => {
+    if (!isLoggedIn) {
+      setShowLoginModal(true);
+      return;
+    }
+    if (submitting || !replyContent.trim()) return;
+    setSubmitting(true);
+    try {
+      const res = await api.post(`/api/community/posts/${postId}/comments`, {
+        content: replyContent.trim(),
+        parentId: parentId
+      });
+      if (res.data.success) {
+        setReplyContent('');
+        setReplyingTo(null);
+        fetchDetail(); // 댓글 새로고침
+      }
+    } catch (err) {
+      console.error(err);
+      toast('답글 등록에 실패했습니다.', 'error');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+
+
+  if (!authChecked) return <div className={styles.loading}>인증 확인 중...</div>;
+
+  // 비로그인 시 화면 렌더링 방지 및 모달 노출
+  if (!isLoggedIn) {
     return (
       <>
-        <div className={styles.loading}>로그인이 필요합니다.</div>
-        <ConfirmModal
-          message={"로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?"}
-          confirmText="로그인"
-          onConfirm={() => router.replace('/login')}
-          onCancel={() => router.replace('/community')}
-        />
+        <div style={{ textAlign: 'center', padding: '100px 0', color: '#94a3b8' }}>로그인 확인 중...</div>
+        {showLoginModal && (
+          <ConfirmModal
+            message={"로그인이 필요한 기능입니다.\n로그인 페이지로 이동하시겠습니까?"}
+            confirmText="로그인"
+            onConfirm={() => router.replace('/login')}
+            onCancel={() => router.replace('/community')}
+          />
+        )}
       </>
     );
   }
 
   if (loading) return <div className={styles.loading}>불러오는 중...</div>;
+
   if (error || !post) return <div className={styles.error}>{error}</div>;
 
   const isAuthor = post.authorId === currentUserId;
@@ -156,38 +205,83 @@ export default function CommunityDetailPage() {
             <span className={styles.pmLabel}>지역</span>
             <span className={styles.pmValue}>{getRegionLabel(post.areaCode)}</span>
           </div>
+          {post.festivalName && (
+            <div className={styles.pmItem}>
+              <span className={styles.pmLabel}>연관 축제</span>
+              <span className={styles.pmValue} style={{ color: 'var(--ieum-primary)', fontWeight: 600 }}>
+                {post.festivalName}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
       {/* 글 내용 */}
       <div className={styles.postBody}>
+        {attachments && attachments.length > 0 && (
+          <div className={styles.postImages}>
+            {attachments.map(attach => (
+              <img
+                key={attach.id}
+                src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attach.id}/download`}
+                alt="첨부 이미지"
+                className={styles.postImageItem}
+              />
+            ))}
+          </div>
+        )}
         {post.content}
       </div>
 
       {/* 하단 액션 (공감/상태) */}
       <div className={styles.postFooterActions}>
-        <button className={styles.actionLikeBtn}>
-          <Heart size={16} /> 공감하기
+        <button 
+          className={`${styles.actionLikeBtn} ${post.isLiked ? styles.liked : ''}`}
+          onClick={async () => {
+            if (!isLoggedIn) {
+              setShowLoginModal(true);
+              return;
+            }
+            try {
+              const res = await api.post(`/api/community/posts/${postId}/likes`);
+              if (res.data.success) {
+                // 서버 재조회 대신 클라이언트 상태를 즉시 업데이트 (조회수 중복 증가 방지)
+                const isNowLiked = res.data.data;
+                setPost((prev: any) => {
+                  if (!prev) return prev;
+                  return {
+                    ...prev,
+                    isLiked: isNowLiked,
+                    likeCount: isNowLiked ? prev.likeCount + 1 : Math.max(0, prev.likeCount - 1),
+                  };
+                });
+              }
+            } catch (err: any) {
+              const msg = err.response?.data?.message || '공감 처리에 실패했습니다.';
+              toast(msg, 'error');
+            }
+          }}
+        >
+          <Heart size={16} fill={post.isLiked ? 'currentColor' : 'none'} /> 공감하기 {post.likeCount > 0 && post.likeCount}
         </button>
         <div className={styles.statsInfo}>
-          <span>공유하기</span>
+          <span
+            className={styles.reportLink}
+            onClick={() => {
+              navigator.clipboard.writeText(window.location.href);
+              toast('주소가 복사되었습니다.', 'info');
+            }}
+          >
+            공유하기
+          </span>
           <span
             className={`${styles.reportLink} ${alreadyReported ? styles.reportDisabled : ''}`}
-            onClick={async () => {
+            onClick={() => {
               if (alreadyReported) return;
               if (!isLoggedIn) {
                 setShowLoginModal(true);
                 return;
               }
-              // 신고 버튼 클릭 시 중복 여부 확인
-              try {
-                const res = await api.get(`/api/reports/check?targetType=POST&targetId=${postId}`);
-                if (res.data?.data === true) {
-                  setAlreadyReported(true);
-                  toast('이미 신고한 게시글입니다.', 'info');
-                  return;
-                }
-              } catch {}
               setIsReportModalOpen(true);
             }}
           >{alreadyReported ? '신고 완료' : '신고'}</span>
@@ -212,7 +306,11 @@ export default function CommunityDetailPage() {
                 </div>
                 <div className={styles.commentText}>{comment.content}</div>
                 <div className={styles.commentActions}>
-                  <span>답글 달기</span>
+                  <span onClick={() => {
+                    if (!isLoggedIn) { setShowLoginModal(true); return; }
+                    setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                    setReplyContent('');
+                  }}>답글 달기</span>
                   {comment.userId === currentUserId && (
                     <>
                       <span> · </span>
@@ -220,6 +318,39 @@ export default function CommunityDetailPage() {
                     </>
                   )}
                 </div>
+
+                {/* 답글 입력 폼 */}
+                {replyingTo === comment.id && (
+                  <div className={styles.replyInputWrap}>
+                    <input
+                      type="text"
+                      className={styles.replyInput}
+                      placeholder={`${comment.userName}님에게 답글 작성...`}
+                      value={replyContent}
+                      onChange={e => setReplyContent(e.target.value)}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                          e.preventDefault();
+                          handleSubmitReply(comment.id);
+                        }
+                      }}
+                      autoFocus
+                    />
+                    <button
+                      className={styles.replySubmitBtn}
+                      onClick={() => handleSubmitReply(comment.id)}
+                      disabled={submitting || !replyContent.trim()}
+                    >
+                      등록
+                    </button>
+                    <button
+                      className={styles.replyCancelBtn}
+                      onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                    >
+                      취소
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -235,10 +366,51 @@ export default function CommunityDetailPage() {
                   </div>
                   <div className={styles.commentText}>{child.content}</div>
                   <div className={styles.commentActions}>
+                    <span onClick={() => {
+                      if (!isLoggedIn) { setShowLoginModal(true); return; }
+                      setReplyingTo(replyingTo === child.id ? null : child.id);
+                      setReplyContent('');
+                    }}>답글 달기</span>
                     {child.userId === currentUserId && (
-                      <span>삭제</span>
+                      <>
+                        <span> · </span>
+                        <span>삭제</span>
+                      </>
                     )}
                   </div>
+
+                  {/* 대댓글에 대한 답글 입력 폼 (parentId는 최상위 부모 댓글로 전달) */}
+                  {replyingTo === child.id && (
+                    <div className={styles.replyInputWrap}>
+                      <input
+                        type="text"
+                        className={styles.replyInput}
+                        placeholder={`${child.userName}님에게 답글 작성...`}
+                        value={replyContent}
+                        onChange={e => setReplyContent(e.target.value)}
+                        onKeyDown={e => {
+                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                            e.preventDefault();
+                            handleSubmitReply(comment.id);
+                          }
+                        }}
+                        autoFocus
+                      />
+                      <button
+                        className={styles.replySubmitBtn}
+                        onClick={() => handleSubmitReply(comment.id)}
+                        disabled={submitting || !replyContent.trim()}
+                      >
+                        등록
+                      </button>
+                      <button
+                        className={styles.replyCancelBtn}
+                        onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                      >
+                        취소
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ))}
@@ -360,6 +532,16 @@ export default function CommunityDetailPage() {
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* 비로그인 사용자 작업 시도 안내 모달 */}
+      {showLoginModal && (
+        <ConfirmModal
+          message={"로그인이 필요한 기능입니다.\n로그인 화면으로 이동하시겠습니까?"}
+          confirmText="로그인"
+          onConfirm={() => router.push('/login')}
+          onCancel={() => setShowLoginModal(false)}
+        />
       )}
 
     </main>

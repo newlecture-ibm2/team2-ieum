@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '@/lib/api';
 
 export interface PostDetail {
@@ -7,9 +7,13 @@ export interface PostDetail {
   title: string;
   content: string;
   areaCode: string;
+  festivalId?: string;
+  festivalName?: string;
   authorId: number;
   authorName: string;
   viewCount: number;
+  likeCount: number;
+  isLiked: boolean;
   createdAt: string;
   updatedAt: string;
 }
@@ -25,9 +29,10 @@ export interface Comment {
   children?: Comment[];
 }
 
-export function usePostDetail(postId: string) {
+export function usePostDetail(postId: string, enabled: boolean = true) {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
+  const [attachments, setAttachments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -35,9 +40,10 @@ export function usePostDetail(postId: string) {
     if (!postId) return;
     try {
       setLoading(true);
-      const [postRes, commentRes] = await Promise.all([
+      const [postRes, commentRes, attachRes] = await Promise.all([
         api.get(`/api/community/posts/${postId}`),
-        api.get(`/api/community/posts/${postId}/comments`)
+        api.get(`/api/community/posts/${postId}/comments`),
+        api.get(`/api/attachments?targetType=POST&targetId=${postId}`).catch(() => ({ data: { data: [] } }))
       ]);
 
       if (postRes.data.success) {
@@ -49,6 +55,8 @@ export function usePostDetail(postId: string) {
       if (commentRes.data.success) {
         setComments(commentRes.data.data);
       }
+
+      setAttachments(attachRes.data?.data || []);
     } catch (err) {
       console.error(err);
       setError('게시글 로드 중 오류가 발생했습니다.');
@@ -57,9 +65,14 @@ export function usePostDetail(postId: string) {
     }
   }, [postId]);
 
-  useEffect(() => {
-    fetchDetail();
-  }, [fetchDetail]);
+  const initialized = useRef(false);
 
-  return { post, comments, loading, error, fetchDetail };
+  useEffect(() => {
+    if (enabled && !initialized.current) {
+      initialized.current = true;
+      fetchDetail();
+    }
+  }, [enabled, fetchDetail]);
+
+  return { post, setPost, comments, loading, error, fetchDetail, attachments };
 }

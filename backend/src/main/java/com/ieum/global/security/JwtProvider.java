@@ -45,10 +45,12 @@ public class JwtProvider {
      */
     public String generateAccessToken(Long userId, String nickname, String role) {
         long now = System.currentTimeMillis();
+        // Spring Security의 hasRole("USER")은 "ROLE_USER" 권한을 확인하므로 접두사 보장
+        String authority = (role != null && !role.startsWith("ROLE_")) ? "ROLE_" + role : role;
         return Jwts.builder()
                 .subject(String.valueOf(userId))
                 .claim("nickname", nickname)
-                .claim("auth", role) // 예: "ROLE_USER"
+                .claim("auth", authority) // 예: "ROLE_USER"
                 .issuedAt(new Date(now))
                 .expiration(new Date(now + accessTokenExpiration))
                 .signWith(key)
