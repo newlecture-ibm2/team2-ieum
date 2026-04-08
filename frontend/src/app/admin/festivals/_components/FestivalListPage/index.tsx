@@ -126,7 +126,7 @@ export default function FestivalListPage() {
     setSyncMenuOpen(false);
     setSyncingAction(actionName);
     try {
-      const res = await adminApi.post<ApiResponse<any>>(url);
+      const res = await adminApi.post<ApiResponse<{ details?: Record<string, number> }>>(url);
       if (res.data.success) {
         const details = res.data.data?.details;
         let msg = `[${actionName}] 동기화 완료!`;
@@ -139,8 +139,9 @@ export default function FestivalListPage() {
             // Options refresh could be triggered here if we add that to hook
         }
       }
-    } catch (error: any) {
-      toast(error.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.', 'error');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { message?: string } } } };
+      toast(err.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.', 'error');
     } finally {
       setSyncingAction(null);
     }
@@ -272,7 +273,7 @@ export default function FestivalListPage() {
                     <td className={`${c.tableCell} ${c.textLeft}`}>{festival.region}</td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(festival.startDate, festival.endDate)}</td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>
-                      <span className={`${c.statusBadge} ${(c as any)[badge]}`}>{label}</span>
+                      <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
                     </td>
                     <td className={`${c.tableCell} ${c.textRight}`}>
                       <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(festival.id, festival.isVisible)}>
