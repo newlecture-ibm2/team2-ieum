@@ -247,7 +247,7 @@ export default function CommunityDetailPage() {
               if (res.data.success) {
                 // 서버 재조회 대신 클라이언트 상태를 즉시 업데이트 (조회수 중복 증가 방지)
                 const isNowLiked = res.data.data;
-                setPost((prev: any) => {
+                setPost((prev) => {
                   if (!prev) return prev;
                   return {
                     ...prev,
@@ -256,8 +256,9 @@ export default function CommunityDetailPage() {
                   };
                 });
               }
-            } catch (err: any) {
-              const msg = err.response?.data?.message || '공감 처리에 실패했습니다.';
+            } catch (err: unknown) {
+              const errorResponse = (err as { response?: { data?: { message?: string } } }).response;
+              const msg = errorResponse?.data?.message || '공감 처리에 실패했습니다.';
               toast(msg, 'error');
             }
           }}
@@ -523,13 +524,14 @@ export default function CommunityDetailPage() {
                     });
                     toast('신고가 접수되었습니다.', 'success');
                     setAlreadyReported(true);
-                  } catch (err: any) {
-                    const status = err?.response?.status;
+                  } catch (err: unknown) {
+                    const errorObj = err as { response?: { status?: number; data?: { message?: string } } };
+                    const status = errorObj?.response?.status;
                     if (status === 409) {
                       toast('이미 신고한 게시글입니다.', 'info');
                       setAlreadyReported(true);
                     } else {
-                      const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
+                      const msg = errorObj?.response?.data?.message || '신고 접수에 실패했습니다.';
                       toast(msg, 'error');
                     }
                   } finally {
