@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -55,13 +56,29 @@ public class ReportService {
         }
 
         // 5. 중복 신고 방지 (UK: reporter_id + target_type + target_id)
-        boolean alreadyReported = reportRepository.existsByReporterIdAndTargetTypeAndTargetId(
+        Optional<ReportEntity> existingOpt = reportRepository.findByReporterIdAndTargetTypeAndTargetId(
                 reporterId, request.getTargetType(), request.getTargetId());
-        if (alreadyReported) {
-            throw new BusinessException(ErrorCode.REPORT_001, "이미 신고한 대상입니다.");
+
+        if (existingOpt.isPresent()) {
+            ReportEntity existing = existingOpt.get();
+            if ("PENDING".equals(existing.getStatus()) || "RESOLVED".equals(existing.getStatus())) {
+                throw new BusinessException(ErrorCode.REPORT_001, "이미 신고한 대상입니다.");
+            } else if ("REJECTED".equals(existing.getStatus())) {
+                // 반려된 상태면 다시 PENDING으로 업데이트하며 사유 갱신 (DB Unique Constraint 고려)
+                existing.setStatus("PENDING");
+                existing.setReason(request.getReason());
+                existing.setDescription(request.getDescription());
+                existing.setCreatedAt(LocalDateTime.now());
+                existing.setAction(null);
+                existing.setAdminNote(null);
+                existing.setProcessedAt(null);
+                
+                ReportEntity saved = reportRepository.save(existing);
+                return ReportResponse.fromEntity(saved);
+            }
         }
 
-        // 6. 엔티티 생성 및 저장
+        // 6. 엔티티 생성 및 저장 (기존 내역이 전혀 없는 경우)
         ReportEntity entity = ReportEntity.builder()
                 .reporterId(reporterId)
                 .targetType(request.getTargetType())
@@ -81,6 +98,23 @@ public class ReportService {
      */
     @Transactional(readOnly = true)
     public boolean isAlreadyReported(Long reporterId, String targetType, Long targetId) {
-        return reportRepository.existsByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId);
+        Optional<ReportEntity> existingOpt = reportRepository.findByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId);
+        if (existingOpt.isEmpty()) {
+            return false;
+        }
+        String status = existingOpt.get().getStatus();
+        // PENDING 또는 RESOLVED 상태인 경우에만 중복 신고로 간주 (REJECTED인 경우 재신고 모드로 처리하여 버튼을 열어둠)
+        return "PENDING".equals(status) || "RESOLVED".equals(status);
+    }
+
+    /**
+     * 내가 신고한 특정 유형의 대상 ID 목록 조회 (PENDING, RESOLVED 상태 한정)
+     */
+    @Transactional(readOnly = true)
+    public java.util.List<Long> getMyReportedTargetIds(Long reporterId, String targetType) {
+        if (reporterId == null) return java.util.Collections.emptyList();
+        return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
+            reporterId, targetType, java.util.List.of("PENDING", "RESOLVED")
+        );
     }
 }

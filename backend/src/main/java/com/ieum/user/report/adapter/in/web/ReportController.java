@@ -66,4 +66,16 @@ public class ReportController {
         boolean reported = reportService.isAlreadyReported(userId, targetType, targetId);
         return ApiResponse.success(reported);
     }
+    @Operation(summary = "내가 신고한 타겟 ID 목록 조회", description = "비회원은 빈 배열 반환. 반환된 ID들은 신고가 반려되지 않은(대기 또는 삭제된) 상태입니다.")
+    @GetMapping("/my-targets")
+    public ApiResponse<java.util.List<Long>> getMyReportedTargetIds(
+            @RequestParam String targetType,
+            Authentication authentication) {
+        Long userId = getUserId(authentication);
+        if (userId == null) {
+            return ApiResponse.success(java.util.Collections.emptyList());
+        }
+        java.util.List<Long> targetIds = reportService.getMyReportedTargetIds(userId, targetType);
+        return ApiResponse.success(targetIds);
+    }
 }

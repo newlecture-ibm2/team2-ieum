@@ -10,11 +10,37 @@
   margin-bottom: 32px;
 }
 
+.titleWrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-left: -8px;
+}
+
+.backBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
 .postTitle {
   font-size: 28px;
   font-weight: 700;
   color: #1e293b;
-  margin-bottom: 16px;
   line-height: 1.4;
 }
 
@@ -335,107 +361,6 @@
   pointer-events: none;
 }
 
-/* ===== 신고 모달 ===== */
-.reportModal {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.reportDesc {
-  font-size: 14px;
-  color: #475569;
-  margin: 0;
-}
-
-.reportOptions {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.reportOption {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  cursor: pointer;
-  transition: all 0.2s;
-  font-size: 14px;
-  color: #334155;
-}
-
-.reportOption:hover {
-  border-color: #8b5cf6;
-  background: #f5f3ff;
-}
-
-.reportOption input[type="radio"] {
-  accent-color: #8b5cf6;
-  width: 16px;
-  height: 16px;
-}
-
-.reportTextarea {
-  width: 100%;
-  min-height: 80px;
-  padding: 12px;
-  border: 1px solid #e2e8f0;
-  border-radius: 8px;
-  font-size: 14px;
-  resize: vertical;
-  outline: none;
-  transition: border-color 0.2s;
-}
-
-.reportTextarea:focus {
-  border-color: #8b5cf6;
-}
-
-.reportActions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.btnCancel {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: 1px solid #e2e8f0;
-  background: #f8fafc;
-  color: #475569;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.btnCancel:hover {
-  background: #e2e8f0;
-}
-
-.btnReport {
-  padding: 8px 18px;
-  border-radius: 8px;
-  border: none;
-  background: #ef4444;
-  color: white;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s;
-}
-
-.btnReport:hover {
-  background: #dc2626;
-}
-
-.btnReport:disabled {
-  background: #cbd5e1;
-  cursor: not-allowed;
-}
 
 /* ===== 답글(대댓글) 입력 폼 ===== */
 .replyInputWrap {
@@ -526,3 +451,10 @@
   margin-right: 6px;
   vertical-align: baseline;
 }
+
+.deletedText {
+  color: #94a3b8;
+  font-size: 14px;
+  padding: 8px 0;
+}
+
