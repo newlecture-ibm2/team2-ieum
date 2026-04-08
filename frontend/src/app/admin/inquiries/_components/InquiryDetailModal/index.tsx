@@ -67,8 +67,9 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
       });
       toast('답변이 성공적으로 등록되었습니다.', 'success');
       onAnswered();
-    } catch (err: any) {
-      const errorCode = err?.response?.data?.error?.code;
+    } catch (err: unknown) {
+      type BackendError = { response?: { data?: { error?: { code?: string } } } };
+      const errorCode = (err as BackendError)?.response?.data?.error?.code;
       if (errorCode === 'ALREADY_ANSWERED') {
         toast('이미 답변이 등록된 문의입니다. 목록을 새로고침합니다.', 'error');
         onAnswered();
