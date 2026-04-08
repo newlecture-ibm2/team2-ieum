@@ -211,6 +211,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id         BIGINT          NOT NULL,
     rating          INTEGER         NOT NULL CHECK (rating >= 1 AND rating <= 5),
     content         VARCHAR(500)    NOT NULL,
+    status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
@@ -225,6 +226,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 COMMENT ON TABLE  reviews              IS '축제 리뷰 테이블';
 COMMENT ON COLUMN reviews.rating       IS '별점 (1~5)';
 COMMENT ON COLUMN reviews.content      IS '리뷰 내용 (10~500자)';
+COMMENT ON COLUMN reviews.status       IS '리뷰 상태 (ACTIVE, REMOVED)';
 
 -- ------------------------------------------------------------
 -- 2-5. 즐겨찾기 (favorites)

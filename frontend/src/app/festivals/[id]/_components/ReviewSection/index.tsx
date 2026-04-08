@@ -158,7 +158,7 @@ export default function ReviewSection({
                     <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
                     <div style={{ display: 'flex', gap: '4px' }}>
                       {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
-                      {(currentUser && (String(currentUser.id) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+                      {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
                         <button 
                           className={styles.deleteReviewBtn} 
                           onClick={() => handleDeleteReview(review.id)}
@@ -170,7 +170,7 @@ export default function ReviewSection({
                       )}
                       
                       {/* 본인의 리뷰가 아닌 경우 신고 버튼 표출 */}
-                      {(currentUser && String(currentUser.id) !== String(review.userId)) && (
+                      {(currentUser && String(currentUser.userId) !== String(review.userId)) && (
                         <button 
                           className={styles.deleteReviewBtn} 
                           onClick={() => handleReportReview(review.id)}

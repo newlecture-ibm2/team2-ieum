@@ -79,7 +79,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
             <div className={styles.ratingBox} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div>{renderStars(review.rating)}</div>
               {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
-              {(currentUser && (String(currentUser.id) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+              {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
                 <button
                   onClick={() => handleDeleteReview(review.id)}
                   disabled={deletingId === review.id}
@@ -102,7 +102,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
               )}
 
               {/* 본인의 리뷰가 아닌 경우 신고 버튼 표출 */}
-              {(currentUser && String(currentUser.id) !== String(review.userId)) && (
+              {(currentUser && String(currentUser.userId) !== String(review.userId)) && (
                 <button
                   onClick={() => handleReportReview(review.id)}
                   title="신고하기"
