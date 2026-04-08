@@ -11,4 +11,5 @@ public interface LoadUserPort {
     Optional<User> loadUserById(Long id);
     boolean existsByLoginId(String loginId);
     boolean existsByNickname(String nickname);
+    boolean existsByPhone(String phone);
 }

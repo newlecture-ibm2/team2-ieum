@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Mail, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
-import styles from './find-password.module.css';
+import styles from '../find-password.module.css';
 
 type Step = 1 | 2 | 3 | 4; // 4는 완료 상태
 

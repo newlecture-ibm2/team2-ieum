@@ -125,7 +125,7 @@ export default function RegisterForm() {
         id,
         password,
         nickname,
-        phone,
+        phone: phone.replace(/[^0-9]/g, ''), // 📱 백엔드와 정합성을 위해 숫자만 추출해서 전송
         isMarketingAgreed: agreements.marketing
       });
 
@@ -133,12 +133,14 @@ export default function RegisterForm() {
         alert('회원가입이 성공적으로 완료되었습니다.');
         router.push('/login');
       } else {
-        setErrors(prev => ({ ...prev, global: response.data.message || '가입 실패' }));
+        setErrors(prev => ({ ...prev, global: response.data.message || '가입 처리 중 오류가 발생했습니다.' }));
       }
     } catch (error: any) {
+      // 🛠️ 백엔드에서 전달한 구체적인 에러 메시지(아이디/전화번호 중복 등)를 그대로 표시
+      const serverMessage = error.response?.data?.message || '이미 등록된 정보이거나 가입 형식이 올바르지 않습니다.';
       setErrors(prev => ({ 
         ...prev, 
-        global: error.response?.data?.message || '이미 가입된 아이디이거나 닉네임입니다.' 
+        global: serverMessage
       }));
     } finally {
       setIsLoading(false);
