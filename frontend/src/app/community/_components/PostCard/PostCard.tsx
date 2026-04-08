@@ -30,12 +30,31 @@ function timeAgo(dateStr: string): string {
 export default function PostCard({ post }: PostCardProps) {
   const cat = CATEGORY_MAP[post.category?.toLowerCase()] || { label: post.category, className: '' };
 
+  let thumbnailUrl = null;
+  if (post.thumbnailId) {
+    thumbnailUrl = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${post.thumbnailId}/download`;
+  } else if (post.content && post.content.includes('<img')) {
+    const match = post.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (match) {
+      thumbnailUrl = match[1];
+    }
+  }
+
+  const plainTextContent = (post.content || '')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"');
+
   return (
     <Link href={`/community/${post.id}`} className={styles.item}>
-      {post.thumbnailId && (
+      {thumbnailUrl && (
         <div className={styles.thumbnailWrap}>
           <img 
-            src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${post.thumbnailId}/download`} 
+            src={thumbnailUrl} 
             alt="게시글 이미지" 
             className={styles.thumbnailImg} 
           />
@@ -54,7 +73,7 @@ export default function PostCard({ post }: PostCardProps) {
           )}
         </div>
         <div className={styles.title}>{post.title}</div>
-        <div className={styles.desc}>{post.content}</div>
+        <div className={styles.desc}>{plainTextContent}</div>
         <div className={styles.meta}>
           <span>{timeAgo(post.createdAt)}</span>
           <span>·</span>

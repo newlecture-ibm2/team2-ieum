@@ -1,5 +1,6 @@
 package com.ieum.community.adapter.out.persistence.entity;
 
+import com.ieum.community.domain.model.Comment;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -8,6 +9,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "comments")
@@ -54,6 +56,44 @@ public class CommentEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // ─── Domain ↔ Entity 변환 ───
+
+    /**
+     * JPA Entity → 도메인 모델 변환 (children 포함 재귀)
+     */
+    public Comment toDomain() {
+        return Comment.builder()
+                .id(this.id)
+                .postId(this.postId)
+                .userId(this.userId)
+                .userName(this.userName)
+                .parentId(this.parent != null ? this.parent.getId() : null)
+                .content(this.content)
+                .status(this.status)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
+                .children(this.children != null
+                        ? this.children.stream().map(CommentEntity::toDomain).collect(Collectors.toList())
+                        : new ArrayList<>())
+                .build();
+    }
+
+    /**
+     * 도메인 모델 → JPA Entity 변환 (저장용, children 제외)
+     */
+    public static CommentEntity fromDomain(Comment comment) {
+        return CommentEntity.builder()
+                .id(comment.getId())
+                .postId(comment.getPostId())
+                .userId(comment.getUserId())
+                .userName(comment.getUserName())
+                .content(comment.getContent())
+                .status(comment.getStatus() != null ? comment.getStatus() : "ACTIVE")
+                .build();
+    }
+
+    // ─── JPA 세션 내 직접 변경용 ───
 
     public void updateContent(String content) {
         this.content = content;

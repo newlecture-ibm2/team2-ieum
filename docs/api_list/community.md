@@ -130,7 +130,7 @@
 | 파라미터 | 타입 | 필수 | 설명 |
 |----------|------|------|------|
 | `category` | String | ✅ | 카테고리 (`QNA`, `TIP`, `FOOD`) |
-| `title` | String | ✅ | 제목 (2~100자) |
+| `title` | String | ✅ | 제목 (2~200자) |
 | `content` | String | ✅ | 내용 (10~5000자) |
 
 ### Response (201 Created)
@@ -210,7 +210,7 @@
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |----------|------|------|------|
-| `content` | String | ✅ | 댓글 내용 (1~1000자) |
+| `content` | String | ✅ | 댓글 내용 (1~500자) |
 
 ### Response (201 Created)
 
