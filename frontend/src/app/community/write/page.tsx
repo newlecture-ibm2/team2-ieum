@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { ImagePlus, X } from 'lucide-react';
 import api from '@/lib/api';
@@ -9,7 +9,7 @@ import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
 import styles from './write.module.css';
 
-export default function CommunityWritePage() {
+function CommunityWriteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
@@ -344,5 +344,13 @@ export default function CommunityWritePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CommunityWritePage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '100px 0', color: '#94a3b8' }}>데이터를 불러오는 중입니다...</div>}>
+      <CommunityWriteContent />
+    </Suspense>
   );
 }

@@ -88,6 +88,15 @@ public class AuthService implements AuthUseCase {
             throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
         }
 
+        // 📱 전화번호 정규화 (숫자만 추출) 및 중복 체크
+        String normalizedPhone = (request.getPhone() != null) 
+                ? request.getPhone().replaceAll("[^0-9]", "") 
+                : null;
+
+        if (normalizedPhone != null && !normalizedPhone.isBlank() && loadUserPort.existsByPhone(normalizedPhone)) {
+            throw new IllegalArgumentException("이미 가입된 전화번호입니다.");
+        }
+
         // 🔍 name이 비어있으면 nickname을 대신 사용 (DB NOT NULL 제약조건 대응)
         String realName = (request.getName() == null || request.getName().isBlank()) ? request.getNickname() : request.getName();
 
@@ -96,7 +105,7 @@ public class AuthService implements AuthUseCase {
                 .password(passwordEncoder.encode(request.getPassword()))
                 .name(realName)
                 .nickname(request.getNickname())
-                .phone(request.getPhone())
+                .phone(normalizedPhone)
                 .role("USER")
                 .termsAgreed(request.isTermsAgreed())
                 .marketingAgreed(request.isMarketingAgreed())

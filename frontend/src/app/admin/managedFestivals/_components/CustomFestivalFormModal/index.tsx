@@ -10,6 +10,15 @@ import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
 import fm from './FormModal.module.css';
 
+declare global {
+  interface Window {
+    daum?: {
+      Postcode: new (options: { oncomplete: (data: Record<string, string>) => void }) => { open: () => void };
+      postcode: { load: (fn: () => void) => void };
+    };
+  }
+}
+
 // ── 폼 초기값 ──
 const INITIAL_FORM: CustomFestivalFormData = {
   title: '', areaCode: '', startDate: getToday(), endDate: getToday(),
@@ -112,23 +121,23 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
   // ── 편집 모드 초기화 ──
   useEffect(() => {
     if (!editingItem) return;
-    const playTime = (editingItem as any).playTime || '';
+    const playTime = editingItem.playTime || '';
     const allDay = playTime === '종일';
     setFormData({
       title: editingItem.title || '', areaCode: editingItem.areaCode || '',
       startDate: editingItem.startDate || '', endDate: editingItem.endDate || '',
       category: editingItem.category || '', content: editingItem.content || '',
       isVisible: editingItem.isVisible,
-      eventPlace: (editingItem as any).eventPlace || '', address: (editingItem as any).address || '', detailAddress: '',
-      useFee: (editingItem as any).useFee === '무료' ? '' : String((editingItem as any).useFee || ''),
+      eventPlace: editingItem.eventPlace || '', address: editingItem.address || '', detailAddress: '',
+      useFee: editingItem.useFee === '무료' ? '' : String(editingItem.useFee || ''),
       isAllDay: allDay, startTime: allDay ? '' : playTime.split(' ~ ')[0] || '',
       endTime: allDay ? '' : playTime.split(' ~ ')[1] || '',
-      tel: (editingItem as any).tel || '', homepage: (editingItem as any).homepage || '',
-      sigunguCode: (editingItem as any).sigunguCode || '',
+      tel: editingItem.tel || '', homepage: editingItem.homepage || '',
+      sigunguCode: editingItem.sigunguCode || '',
     });
     setMainPreview(editingItem.imgUrl || null);
     setExtraPreviews(editingItem.extraImages ? editingItem.extraImages.split(',') : []);
-    setIsFree((editingItem as any).useFee === '무료');
+    setIsFree(editingItem.useFee === '무료');
     if (editingItem.areaCode) fetchSigungus(editingItem.areaCode);
   }, [editingItem]);
 
@@ -152,16 +161,18 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
   // ── 주소 검색 ──
   const openPostcode = () => {
     const loadAndOpen = () => {
-      new (window as any).daum.Postcode({
-        oncomplete: (data: any) => updateField('address', data.roadAddress || data.jibunAddress),
-      }).open();
+      if (window.daum?.Postcode) {
+        new window.daum.Postcode({
+          oncomplete: (data: Record<string, string>) => updateField('address', data.roadAddress || data.jibunAddress),
+        }).open();
+      }
     };
-    if (typeof window !== 'undefined' && (window as any).daum?.Postcode) {
+    if (typeof window !== 'undefined' && window.daum?.Postcode) {
       loadAndOpen();
     } else {
       const script = document.createElement('script');
       script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-      script.onload = () => (window as any).daum.postcode.load(() => loadAndOpen());
+      script.onload = () => window.daum?.postcode.load(() => loadAndOpen());
       document.head.appendChild(script);
     }
   };
@@ -269,11 +280,13 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
                     <input type="date" className={`${s.formInput} ${errors.startDate ? s.errorInput : ''}`} value={formData.startDate}
                       onChange={e => { updateField('startDate', e.target.value); setErrors(p => { const n = { ...p }; delete n.endDate; return n; }); }}
-                      onClick={e => (e.currentTarget as any).showPicker?.()} onKeyDown={e => e.preventDefault()} />
+                      onClick={e => { const target = e.currentTarget as HTMLInputElement & { showPicker?: () => void }; if (typeof target.showPicker === 'function') target.showPicker(); }}
+                      onKeyDown={e => e.preventDefault()} />
                     <span style={{ color: '#94a3b8' }}>~</span>
                     <input type="date" className={`${s.formInput} ${errors.endDate ? s.errorInput : ''}`} value={formData.endDate}
                       onChange={e => updateField('endDate', e.target.value)}
-                      onClick={e => (e.currentTarget as any).showPicker?.()} onKeyDown={e => e.preventDefault()} />
+                      onClick={e => { const target = e.currentTarget as HTMLInputElement & { showPicker?: () => void }; if (typeof target.showPicker === 'function') target.showPicker(); }}
+                      onKeyDown={e => e.preventDefault()} />
                   </div>
                   {(errors.startDate || errors.endDate) && <span className={s.errorText}>⚠ {errors.startDate || errors.endDate}</span>}
                 </div>

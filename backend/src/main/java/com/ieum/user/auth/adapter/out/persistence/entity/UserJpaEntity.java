@@ -34,7 +34,7 @@ public class UserJpaEntity {
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;
 
-    @Column(length = 20)
+    @Column(length = 20, unique = true)
     private String phone;
 
     @Column(name = "profile_image", length = 500)
