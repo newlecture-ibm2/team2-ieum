@@ -15,7 +15,7 @@ export interface ApiResponse<T> {
     message: string;
     detail: string;
     timestamp: string;
-    errors: any[];
+    errors: unknown[];
   } | null;
 }
 
@@ -93,6 +93,13 @@ export interface CustomFestivalItem {
   content: string; // 상세 내용
   imgUrl: string | null; // 이미지 URL
   extraImages: string | null; // 콤마로 연결된 갤러리 이미지 URL 
+  playTime?: string;
+  eventPlace?: string;
+  address?: string;
+  useFee?: string;
+  tel?: string;
+  homepage?: string;
+  sigunguCode?: string;
 }
 
 export interface CustomFestivalListResult {
