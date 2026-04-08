@@ -55,4 +55,11 @@ public class AuthReq {
         private String id;
         private String newPassword;
     }
+
+    /** 회원 탈퇴: 비밀번호 확인 */
+    @Getter
+    @Setter
+    public static class Withdraw {
+        private String password;
+    }
 }

@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
  * [Domain] 사용자 (비즈니스 객체)
  */
 @Getter
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 public class User {
 
@@ -34,5 +34,35 @@ public class User {
      */
     public boolean checkPassword(String plainPassword, org.springframework.security.crypto.password.PasswordEncoder encoder) {
         return encoder.matches(plainPassword, this.password);
+    }
+
+    /**
+     * 회원 탈퇴 처리 (유예 기간 시작)
+     */
+    public User withdraw() {
+        return this.toBuilder()
+                .status("WITHDRAWAL")
+                .deletedAt(LocalDateTime.now())
+                .build();
+    }
+
+    /**
+     * 회원 계정 복구 (유예 기간 내 복귀)
+     */
+    public User reactivate() {
+        return this.toBuilder()
+                .status("ACTIVE")
+                .deletedAt(null)
+                .build();
+    }
+
+    /**
+     * 탈퇴 유예 기간(30일) 만료 여부 확인
+     */
+    public boolean isWithdrawalExpired() {
+        if (!"WITHDRAWAL".equals(this.status) || this.deletedAt == null) {
+            return false;
+        }
+        return this.deletedAt.plusDays(30).isBefore(LocalDateTime.now());
     }
 }
