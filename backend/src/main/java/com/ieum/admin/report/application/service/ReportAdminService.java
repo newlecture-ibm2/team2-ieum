@@ -64,19 +64,20 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
             Long id = report.getTargetId();
 
             if ("POST".equalsIgnoreCase(type)) {
-                // TODO: 커뮤니티 파트 - PostEntity에 ERD 명세대로 status(ACTIVE/REMOVED) 컬럼이 추가되면 아래 주석 해제 요망
-                // em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")
-                //        .setParameter("id", id)
-                //        .executeUpdate();
+                // TODO: 커뮤니티 파트 - PostEntity에 ERD 명세대로 status(ACTIVE/REMOVED) 컬럼이 추가되면 아래 주석 해제
+                // 요망
+                // em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id =
+                // :id")
+                // .setParameter("id", id)
+                // .executeUpdate();
             } else if ("COMMENT".equalsIgnoreCase(type)) {
                 em.createQuery("UPDATE CommentEntity c SET c.status = 'REMOVED' WHERE c.id = :id")
                         .setParameter("id", id)
                         .executeUpdate();
             } else if ("REVIEW".equalsIgnoreCase(type)) {
-                // TODO: 리뷰 파트 - ReviewEntity에 ERD 명세대로 status(ACTIVE/REMOVED) 컬럼이 추가되면 아래 주석 해제 요망
-                // em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
-                //        .setParameter("id", id)
-                //        .executeUpdate();
+                em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
+                        .setParameter("id", id)
+                        .executeUpdate();
             }
         });
     }

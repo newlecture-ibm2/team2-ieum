@@ -233,3 +233,79 @@
 .reviewMoreBtn:hover {
   background: #f1f5f9;
 }
+
+/* 신고 모달 스타일 */
+.reportModal {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.reportDesc {
+  font-size: 14px;
+  color: #475569;
+  margin: 0;
+}
+.reportOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.reportOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 14px;
+  color: #334155;
+}
+.reportOption:hover {
+  background-color: #f8fafc;
+}
+.reportTextarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 80px;
+  outline: none;
+}
+.reportTextarea:focus {
+  border-color: #facc15;
+}
+.reportActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 10px;
+}
+.btnCancel {
+  padding: 10px 16px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #64748b;
+  cursor: pointer;
+}
+.btnReport {
+  padding: 10px 24px;
+  border: none;
+  background: #e53e3e;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  cursor: pointer;
+}
+.btnReport:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
