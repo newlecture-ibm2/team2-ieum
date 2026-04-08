@@ -1,33 +1,58 @@
 package com.ieum.community.adapter.in.web;
 
+import com.ieum.community.adapter.in.web.dto.CommentRequest;
+import com.ieum.community.adapter.in.web.dto.CommentResponse;
+import com.ieum.community.application.service.CommentService;
+import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-
-@Tag(name = "댓글", description = "댓글 삭제")
+@Tag(name = "댓글", description = "댓글 수정 / 삭제")
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/community/comments")
 public class CommentController {
 
-    @Operation(summary = "댓글 삭제", description = "본인이 작성한 댓글을 삭제합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "삭제 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요"),
-            @ApiResponse(responseCode = "403", description = "권한 없음 (본인 댓글만 삭제 가능)"),
-            @ApiResponse(responseCode = "404", description = "댓글을 찾을 수 없음")
-    })
+    private final CommentService commentService;
+
+    private Long getUserId(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
+            return null;
+        }
+        try {
+            return Long.valueOf(auth.getName());
+        } catch (NumberFormatException e) {
+            return -1L;
+        }
+    }
+
+    private boolean isAdmin(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) return false;
+        return auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+    }
+
+    @Operation(summary = "댓글 수정", description = "본인이 작성한 댓글을 수정합니다.")
+    @PutMapping("/{commentId}")
+    public ApiResponse<CommentResponse> updateComment(
+            @Parameter(description = "댓글 ID", required = true, example = "1") @PathVariable Long commentId,
+            @RequestBody CommentRequest request,
+            Authentication authentication) {
+        CommentResponse response = commentService.updateComment(
+                commentId, request.getContent(), getUserId(authentication), isAdmin(authentication));
+        return ApiResponse.success(response);
+    }
+
+    @Operation(summary = "댓글 삭제", description = "본인이 작성한 댓글을 삭제합니다. (소프트 삭제)")
     @DeleteMapping("/{commentId}")
-    public ResponseEntity<?> deleteComment(
-            @Parameter(description = "댓글 ID", required = true, example = "1")
-            @PathVariable Long commentId
-    ) {
-        // TODO: 구현
-        return ResponseEntity.ok(Map.of("message", "댓글 삭제 성공"));
+    public ApiResponse<Void> deleteComment(
+            @Parameter(description = "댓글 ID", required = true, example = "1") @PathVariable Long commentId,
+            Authentication authentication) {
+        commentService.deleteComment(commentId, getUserId(authentication), isAdmin(authentication));
+        return ApiResponse.success();
     }
 }

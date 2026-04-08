@@ -1,13 +1,20 @@
-// iron-session 설정
-//
-// TODO: iron-session 패키지 설치 후 구현
-// npm install iron-session
-//
-// 세션에 저장할 데이터:
-// - accessToken: string (JWT)
-// - user: { id, email, nickname, role }
+import { getIronSession, SessionOptions } from "iron-session";
+import { cookies } from "next/headers";
 
-export const sessionOptions = {
+/* ===== 세션 데이터 타입 ===== */
+export interface SessionData {
+  accessToken?: string;
+  refreshToken?: string;
+  user?: {
+    userId: number;
+    id: string; // loginId
+    nickname: string;
+    role: "USER" | "ADMIN";
+  };
+}
+
+/* ===== iron-session 옵션 ===== */
+export const sessionOptions: SessionOptions = {
   cookieName: "ieum_session",
   password: process.env.SESSION_SECRET || "complex_password_at_least_32_characters_long",
   cookieOptions: {
@@ -18,12 +25,8 @@ export const sessionOptions = {
   },
 };
 
-export interface SessionData {
-  accessToken?: string;
-  user?: {
-    id: number;
-    email: string;
-    nickname: string;
-    role: "USER" | "ADMIN";
-  };
+/* ===== 서버 컴포넌트 / API Route 에서 세션 읽기 ===== */
+export async function getSession() {
+  const cookieStore = await cookies();
+  return getIronSession<SessionData>(cookieStore, sessionOptions);
 }

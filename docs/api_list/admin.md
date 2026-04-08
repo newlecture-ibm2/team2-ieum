@@ -53,11 +53,13 @@ Authorization: Bearer {adminAccessToken}
 
 ## 📌 2. 축제 관리 (Festival Management)
 
-### 2-1. 축제 등록
+> 시스템 내부 등록 축제(Custom)와 공공 데이터 기반 축제(Public)를 나누어 관리합니다.
+
+### 2-1. 자체 축제 (Custom) 등록
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `POST /api/admin/festivals` |
+| **URL** | `POST /api/admin/managedFestivals` |
 | **권한** | ADMIN |
 
 #### Request Body
@@ -90,11 +92,11 @@ Authorization: Bearer {adminAccessToken}
 }
 ```
 
-### 2-2. 축제 수정
+### 2-2. 자체 축제 (Custom) 수정
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `PUT /api/admin/festivals/{festivalId}` |
+| **URL** | `PUT /api/admin/managedFestivals/{festivalId}` |
 | **권한** | ADMIN |
 
 > Request Body는 2-1 축제 등록과 동일
@@ -108,18 +110,54 @@ Authorization: Bearer {adminAccessToken}
 }
 ```
 
-### 2-3. 축제 삭제
+### 2-3. 자체 축제 (Custom) 삭제
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `DELETE /api/admin/festivals/{festivalId}` |
+| **URL** | `DELETE /api/admin/managedFestivals/{festivalId}` |
 | **권한** | ADMIN |
 
 #### Response (204 No Content)
 
 > 응답 본문 없음
 
-### 2-4. 관리자용 축제 목록 조회
+### 2-4. 관리자용 자체 축제 (Custom) 목록 조회
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `GET /api/admin/managedFestivals` |
+| **권한** | ADMIN |
+
+#### Query Parameters
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `page` | Integer | ❌ | 페이지 번호 |
+| `size` | Integer | ❌ | 페이지 크기 |
+| `keyword` | String | ❌ | 검색 키워드 |
+
+#### Response (200 OK)
+
+```json
+{
+  "code": 200,
+  "data": {
+    "content": [
+      {
+        "id": 1,
+        "title": "2026 자체 기획 벚꽃 축제",
+        "status": "UPCOMING",
+        "startDate": "2026-04-01",
+        "endDate": "2026-04-10"
+      }
+    ],
+    "totalElements": 12,
+    "totalPages": 2
+  }
+}
+```
+
+### 2-5. 관리자용 공공 축제 목록 조회
 
 | 항목 | 내용 |
 |------|------|
@@ -143,19 +181,57 @@ Authorization: Bearer {adminAccessToken}
   "data": {
     "content": [
       {
-        "id": 1,
-        "title": "2026 벚꽃 축제",
+        "id": 100,
+        "title": "공공 API 제공 진해 군항제",
         "status": "UPCOMING",
         "startDate": "2026-04-01",
         "endDate": "2026-04-10",
-        "reviewCount": 120,
-        "avgRating": 4.5,
-        "createdAt": "2026-03-20T10:00:00"
+        "isVisible": true
       }
     ],
-    "totalElements": 57,
-    "totalPages": 6
+    "totalElements": 500,
+    "totalPages": 50
   }
+}
+```
+
+### 2-6. 공공 데이터 수동 동기화
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `POST /api/admin/festivals/sync` |
+| **권한** | ADMIN |
+
+#### Response (200 OK)
+
+```json
+{
+  "code": 200,
+  "message": "데이터 동기화가 성공적으로 완료되었습니다."
+}
+```
+
+### 2-7. 공공 축제 노출/숨김 수정
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `PATCH /api/admin/festivals/{festivalId}/visibility` |
+| **권한** | ADMIN |
+
+#### Request Body
+
+```json
+{
+  "isVisible": false
+}
+```
+
+#### Response (200 OK)
+
+```json
+{
+  "code": 200,
+  "message": "노출 상태가 변경되었습니다."
 }
 ```
 

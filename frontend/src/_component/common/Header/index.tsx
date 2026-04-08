@@ -1,10 +1,12 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, User } from "lucide-react";
+import { Bell, User, LogOut, Shield } from "lucide-react";
 import api from "@/lib/api";
+import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -24,13 +26,49 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
+  const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
+
+  const closePopup = () => {
+    const shouldReload = popupConfig?.reload;
+    setPopupConfig(null);
+    if (shouldReload) {
+      window.location.reload();
+    }
+  };
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  /* ===== 인증 상태 (iron-session 기반) ===== */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
+  const [hasUnread, setHasUnread] = useState(false);
+
+  useEffect(() => {
+    // 1) 로그인 상태 확인 — iron-session 세션 쿠키 기반
+    fetch("/api/auth/me")
+      .then((res) => res.json())
+      .then((data) => {
+        setIsLoggedIn(data.isLoggedIn);
+        setUserNickname(data.user?.nickname ?? null);
+        setUserRole(data.user?.role ?? null);
+
+        // 2) 로그인 상태면 읽지 않은 알림 확인
+        if (data.isLoggedIn) {
+          api
+            .get("/api/users/me/notifications")
+            .then((res) => {
+              const unreadCount = res.data?.data?.unreadCount || 0;
+              setHasUnread(unreadCount > 0);
+            })
+            .catch(() => {}); // 에러 무시
+        }
+      })
+      .catch(() => {}); // 비로그인 or 에러 무시
+  }, []);
 
   if (pathname.startsWith("/admin")) return null;
-
-
-  // TODO: 실제 인증 상태는 zustand store 또는 iron-session에서 가져옴
-  const isLoggedIn = false;
-  const hasUnreadNotifications = true;
 
   return (
     <header className={styles.header}>
@@ -74,10 +112,15 @@ export default function Header() {
               try {
                 const res = await api.patch('/api/festivals/refresh-status');
                 const data = res.data;
-                alert(`✅ ${data.message} (${data.updatedCount}건 변경)`);
-                window.location.reload();
+                setPopupConfig({
+                  msg: `✅ ${data.message} (${data.updatedCount}건 변경)`,
+                  reload: true,
+                });
               } catch (err) {
-                alert('❌ 상태 최신화 실패: ' + err);
+                setPopupConfig({
+                  msg: '❌ 상태 최신화 실패: ' + err,
+                  reload: false,
+                });
               }
             }}
             title="[DEV] 축제 status DB 일괄 갱신"
@@ -85,35 +128,80 @@ export default function Header() {
             🔄 상태 최신화
           </button>
 
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 목록 / 비회원은 로그인 유도 */}
-          <Link
-            href={isLoggedIn ? "/notifications" : "/auth/login"}
-            className={styles.bellBtn}
-            aria-label="알림"
-          >
-            <Bell strokeWidth={1.8} />
-            {isLoggedIn && hasUnreadNotifications && (
-              <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
-            )}
-          </Link>
+          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+          {isLoggedIn && (
+            <div className={styles.bellWrapper}>
+              <button
+                type="button"
+                className={styles.bellBtn}
+                aria-label="알림"
+                onClick={() => setIsNotiOpen((prev) => !prev)}
+              >
+                <Bell strokeWidth={1.8} />
+                {hasUnread && (
+                  <span className={styles.bellDot} aria-label="읽지 않은 알림 있음" />
+                )}
+              </button>
 
-          {/* ④ 마이페이지 / 로그인 — E4 */}
-          {isLoggedIn ? (
+              {/* 알림 드롭다운 */}
+              {isNotiOpen && (
+                <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
+              )}
+            </div>
+          )}
+
+          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN일 때만 표시 */}
+          {isLoggedIn && userRole === "ROLE_ADMIN" && (
             <Link
-              href="/myPage"
-              className={styles.userBtn}
-              aria-label="마이페이지"
+              href="/admin"
+              className={styles.adminBtn}
+              aria-label="관리자 페이지"
             >
-              <User strokeWidth={2} />
+              <Shield size={18} strokeWidth={2} />
             </Link>
+          )}
+
+          {/* ④-2 마이페이지 / 로그인 — E4 */}
+          {isLoggedIn ? (
+            <>
+              <Link
+                href="/myPage"
+                className={styles.userBtn}
+                aria-label="마이페이지"
+              >
+                <User strokeWidth={2} />
+              </Link>
+              <button
+                type="button"
+                className={styles.logoutBtn}
+                aria-label="로그아웃"
+                onClick={async () => {
+                  await fetch("/api/auth/logout", { method: "POST" });
+                  window.location.href = "/";
+                }}
+              >
+                <LogOut strokeWidth={2} size={20} />
+              </button>
+            </>
           ) : (
-            <Link href="/auth/login" className={styles.loginBtn}>
+            <Link href="/login" className={styles.loginBtn}>
               로그인
             </Link>
           )}
         </div>
       </div>
+
+      {/* 팝업 모달 */}
+      {popupConfig && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalBox}>
+            <p className={styles.modalText}>{popupConfig?.msg}</p>
+            <button className={styles.modalBtn} onClick={closePopup}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
-

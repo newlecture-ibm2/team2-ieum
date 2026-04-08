@@ -1,0 +1,10 @@
+/* ── FormModal 전용 모달 너비 확장 ── */
+.formModalWrap [role="dialog"] {
+  width: 1100px;
+  max-width: 95vw;
+}
+
+/* 본문 내부에서 formGrid가 스크롤되도록 padding 조정 */
+.formModalWrap [role="dialog"]>div:last-child {
+  padding: 0;
+}

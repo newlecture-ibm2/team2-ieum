@@ -1,0 +1,41 @@
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.totalCount {
+  font-size: 15px;
+  color: #475569;
+}
+
+.totalCount b {
+  color: #3b82f6;
+}
+
+.sortOptions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sortBtn {
+  background: none;
+  border: none;
+  padding: 0;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.sortBtn.active {
+  color: #0f172a;
+  font-weight: 700;
+}
+
+.divider {
+  color: #cbd5e1;
+  font-size: 12px;
+}

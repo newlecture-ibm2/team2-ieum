@@ -1,10 +1,13 @@
 import axios from "axios";
 
 // 환경변수 처리를 위한 함수. 
-// 팀원들간의 환경 차이(8080, 9090)를 .env 파일(NEXT_PUBLIC_API_URL)로만 제어합니다.
-// 하드코딩된 포트는 모두 제거되었습니다.
+// 프론트엔드(클라이언트) 환경에서는 Next.js Proxy(/api/...)를 타게 하여 BFF 패턴이 유지되도록 함.
+// 서버사이드(SSR) 요청일 경우는 백엔드 API URL을 그대로 사용.
 const getBaseUrl = () => {
-  return process.env.NEXT_PUBLIC_API_URL || "";
+  if (typeof window !== "undefined") {
+    return ""; 
+  }
+  return process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
 };
 
 const api = axios.create({

@@ -18,13 +18,25 @@ import java.util.Map;
 public class ReviewService {
 
     private final ReviewJpaRepository repository;
+    private final com.ieum.user.auth.adapter.out.persistence.repository.UserJpaRepository userJpaRepository;
+    private final com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository festivalJpaRepository;
+
+    private void updateFestivalStats(Long festivalId) {
+        festivalJpaRepository.findById(festivalId).ifPresent(festival -> {
+            Double avgRating = repository.getAverageRating(festivalId);
+            Long reviewCount = repository.countByFestivalId(festivalId);
+            festival.setAvgRating(avgRating != null ? Math.round(avgRating * 10.0) / 10.0 : 0.0);
+            festival.setReviewCount(reviewCount.intValue());
+            festivalJpaRepository.save(festival);
+        });
+    }
 
     @Transactional(readOnly = true)
     public Map<String, Object> getReviews(Long festivalId, int page, int size, String sort) {
         Sort sortObj = sort.equals("rating") ? Sort.by(Sort.Direction.DESC, "rating") : Sort.by(Sort.Direction.DESC, "createdAt");
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size, sortObj);
         
-        Page<ReviewEntity> reviewPage = repository.findByFestivalId(festivalId, pageable);
+        Page<java.util.Map<String, Object>> reviewPage = repository.findReviewsWithNickname(festivalId, pageable);
         Double avgRating = repository.getAverageRating(festivalId);
         Long ratingCount = repository.countByFestivalId(festivalId);
         
@@ -33,8 +45,8 @@ public class ReviewService {
         for (int i = 1; i <= 5; i++) {
             ratingCounts.put(i, 0L);
         }
-        for (ReviewEntity review : reviewPage.getContent()) {
-            int rating = review.getRating();
+        for (java.util.Map<String, Object> review : reviewPage.getContent()) {
+            int rating = review.get("rating") != null ? (int) review.get("rating") : 0;
             ratingCounts.put(rating, ratingCounts.getOrDefault(rating, 0L) + 1L);
         }
         
@@ -49,7 +61,11 @@ public class ReviewService {
     }
 
     @Transactional
-    public ReviewEntity createReview(Long festivalId, Long userId, Integer rating, String content) {
+    public ReviewEntity createReview(Long festivalId, String loginId, Integer rating, String content) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        Long userId = userEntity.getUserId();
+        
         if (repository.existsByFestivalIdAndUserId(festivalId, userId)) {
             throw new IllegalArgumentException("이미 해당 축제에 리뷰를 작성하셨습니다.");
         }
@@ -59,31 +75,45 @@ public class ReviewService {
                 .rating(rating)
                 .content(content)
                 .build();
-        return repository.save(review);
+        ReviewEntity saved = repository.save(review);
+        updateFestivalStats(festivalId);
+        return saved;
     }
 
     @Transactional
-    public ReviewEntity updateReview(Long reviewId, Long userId, Integer rating, String content) {
+    public ReviewEntity updateReview(Long reviewId, String loginId, Integer rating, String content) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
                 
-        if (!review.getUserId().equals(userId)) {
+        if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 수정할 수 있습니다.");
         }
         
         review.setRating(rating);
         review.setContent(content);
+        
+        repository.save(review);
+        updateFestivalStats(review.getFestivalId());
+        
         return review;
     }
 
     @Transactional
-    public void deleteReview(Long reviewId, Long userId) {
+    public void deleteReview(Long reviewId, String loginId) {
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+                
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
                 
-        if (!review.getUserId().equals(userId)) {
+        if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
         }
         repository.delete(review);
+        repository.flush(); // delete 반영 후 집계 쿼리 실행되도록 강제 플러시
+        updateFestivalStats(review.getFestivalId());
     }
 }

@@ -20,8 +20,8 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     private final RefreshTokenJpaRepository refreshTokenRepository;
 
     @Override
-    public Optional<User> loadUserByEmail(String email) {
-        return userRepository.findByEmail(email).map(UserJpaEntity::toDomain);
+    public Optional<User> loadByLoginId(String loginId) {
+        return userRepository.findByLoginId(loginId).map(UserJpaEntity::toDomain);
     }
 
     @Override
@@ -30,8 +30,13 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
     }
 
     @Override
-    public boolean existsByEmail(String email) {
-        return userRepository.existsByEmail(email);
+    public boolean existsByLoginId(String loginId) {
+        return userRepository.existsByLoginId(loginId);
+    }
+
+    @Override
+    public boolean existsByNickname(String nickname) {
+        return userRepository.findByNickname(nickname).isPresent();
     }
 
     @Override

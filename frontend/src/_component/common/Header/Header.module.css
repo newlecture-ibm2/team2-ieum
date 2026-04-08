@@ -121,6 +121,10 @@
 }
 
 /* 알림 벨 */
+.bellWrapper {
+  position: relative;
+}
+
 .bellBtn {
   position: relative;
   width: 34px;
@@ -177,6 +181,27 @@
   color: white;
 }
 
+/* 관리자 버튼 */
+.adminBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.adminBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.adminBtn svg {
+  color: white;
+}
+
 /* 비회원용 버튼 */
 .loginBtn {
   padding: 6px 16px;
@@ -191,6 +216,34 @@
 .loginBtn:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+/* 로그아웃 버튼 */
+.logoutBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-gray-100);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--color-error);
+  transform: scale(1.08);
+}
+
+.logoutBtn svg {
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.logoutBtn:hover svg {
+  color: white;
 }
 
 /* ===== [DEV] 상태 최신화 버튼 — 개발 완료 후 제거 ===== */
@@ -214,4 +267,59 @@
 
 .devRefreshBtn:active {
   transform: scale(0.95);
+}
+
+/* ===== 팝업 모달 ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.modalBox {
+  margin: 0;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 320px;
+  animation: modal-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes modal-fade-in {
+  from { opacity: 0; transform: scale(0.95) translateY(10px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.modalText {
+  font-size: 16px;
+  color: var(--color-gray-800);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.modalBtn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modalBtn:hover {
+  opacity: 0.9;
 }

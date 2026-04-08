@@ -3,9 +3,12 @@
 import { useState, useEffect } from 'react';
 import type { CustomFestivalItem, CustomFestivalFormData, ApiResponse, RegionOptionDto, CategoryOptionDto } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
-import { resolveImageSrc, getToday } from '@/app/admin/_utils/format';
+import { resolveImageSrc, getToday } from '@/app/admin/festivals/format';
 import c from '@/app/admin/_styles/admin-common.module.css';
 import s from '../CustomFestivalListPage/CustomFestivalListPage.module.css';
+import { Modal } from '@/_component/common/Modal';
+import { useToast } from '@/_component/common/Toast';
+import fm from './FormModal.module.css';
 
 // ── 폼 초기값 ──
 const INITIAL_FORM: CustomFestivalFormData = {
@@ -36,7 +39,8 @@ function validateForm(
     errors.tel = '올바른 전화번호 형식이 아닙니다.';
   if (form.homepage && !/^https?:\/\/.+/.test(form.homepage))
     errors.homepage = 'http:// 또는 https:// 로 시작해야 합니다.';
-  if (!hasImage) errors.img = '대표 이미지는 필수입니다.';
+  // 대표 이미지 필수 검증 해제
+  // if (!hasImage) errors.img = '대표 이미지는 필수입니다.';
   return errors;
 }
 
@@ -86,6 +90,7 @@ interface Props {
 
 export default function CustomFestivalFormModal({ editingItem, regionOptions, categoryOptions, onClose, onSaved }: Props) {
   const isEdit = !!editingItem;
+  const { toast } = useToast();
 
   // ── 폼 상태 ──
   const [formData, setFormData] = useState<CustomFestivalFormData>({ ...INITIAL_FORM });
@@ -103,12 +108,6 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
     setFormData(prev => ({ ...prev, [key]: value }));
     setErrors(prev => { const next = { ...prev }; delete next[key]; return next; });
   };
-
-  // ── 스크롤 방지 ──
-  useEffect(() => {
-    document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = 'unset'; };
-  }, []);
 
   // ── 편집 모드 초기화 ──
   useEffect(() => {
@@ -170,7 +169,11 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
   // ── 제출 ──
   const handleSubmit = async () => {
     const validationErrors = validateForm(formData, !!(file || mainPreview));
-    if (Object.keys(validationErrors).length > 0) { setErrors(validationErrors); return; }
+    if (Object.keys(validationErrors).length > 0) { 
+      setErrors(validationErrors); 
+      toast('필수 입력 항목을 모두 작성해주세요.', 'error');
+      return; 
+    }
 
     try {
       const data = buildSubmitData(formData, isFree, file, extraFiles);
@@ -181,10 +184,10 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
         : await adminApi.post(url, data, config);
 
       if (res.data.success) {
-        alert(isEdit ? '수정되었습니다.' : '등록되었습니다.');
+        toast(isEdit ? '수정되었습니다.' : '등록되었습니다.', 'success');
         onSaved();
       }
-    } catch { alert('저장에 실패했습니다.'); }
+    } catch { toast('저장에 실패했습니다.', 'error'); }
   };
 
   // ── 이미지 핸들러 ──
@@ -194,7 +197,7 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
   };
 
   const handleExtraImagesAdd = (newFiles: File[]) => {
-    if (extraFiles.length + newFiles.length > 7) { alert('갤러리 이미지는 총 7장까지만 등록 가능합니다.'); return; }
+    if (extraFiles.length + newFiles.length > 7) { toast('갤러리 이미지는 총 7장까지만 등록 가능합니다.', 'warning'); return; }
     setExtraFiles(prev => [...prev, ...newFiles]);
     setExtraPreviews(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))]);
   };
@@ -207,14 +210,9 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
 
   return (
     <>
-      <div className={c.modalOverlay}>
-        <div className={c.modalContent}>
-          <div className={c.modalHeader}>
-            <div className={c.modalTitle}>📝 축제 {isEdit ? '수정' : '등록'}</div>
-            <button className={c.modalCloseBtn} onClick={onClose}>✕</button>
-          </div>
-
-          <div className={s.formGrid} style={{ overflowY: 'auto' }}>
+      <div className={fm.formModalWrap}>
+        <Modal title={`📝 축제 ${isEdit ? '수정' : '등록'}`} size="large" onClose={onClose} closeOnOverlay={false}>
+          <div className={s.formGrid} style={{ overflowY: 'auto', padding: '0 8px' }}>
             {/* ── 좌측: 기본 정보 + 일정 + 장소 ── */}
             <div className={s.layoutLeft}>
               {/* 기본 정보 */}
@@ -349,7 +347,7 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
             <div className={s.layoutRight}>
               <div className={s.formSection} style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
                 <div className={s.formGroupColumn}>
-                  <label className={s.formLabelColumn}><span className={s.requiredStar}>*</span> 대표 이미지</label>
+                  <label className={s.formLabelColumn}>대표 이미지</label>
                   <label className={s.imageUploadBox}
                     onDragOver={e => e.preventDefault()}
                     onDrop={e => { e.preventDefault(); const f = e.dataTransfer.files?.[0]; if (f) handleMainImageChange(f); }}>
@@ -424,7 +422,7 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
               <button className={c.btnSubmit} onClick={handleSubmit}>{isEdit ? '수정 완료' : '등록 완료'}</button>
             </div>
           </div>
-        </div>
+        </Modal>
       </div>
 
       {enlargedImage && (

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>화면 설계서 - 관리자 신고 관리</title>
+  <title>화면 설계서 - 관리자 신고 관리 (v2 모달 기반)</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 
@@ -342,7 +342,6 @@
       background: #f1f5f9;
     }
 
-    /* ===== 기존 이음 브랜드 스타일 공통 추가 ===== */
     .ch-pin-admin {
       width: 18px;
       height: 18px;
@@ -365,6 +364,187 @@
       border-radius: 50%;
       transform: rotate(45deg);
     }
+
+    /* ===== 모달 목업 ===== */
+    .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+      border-radius: 8px;
+    }
+
+    .modal-box {
+      background: #fff;
+      border-radius: 14px;
+      width: 88%;
+      max-height: 90%;
+      overflow-y: auto;
+      padding: 18px 22px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+      font-size: 11px;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+    }
+
+    .modal-title {
+      font-weight: 700;
+      font-size: 14px;
+      color: #1e293b;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 16px;
+      color: #94a3b8;
+      cursor: pointer;
+    }
+
+    .modal-section {
+      margin-bottom: 12px;
+    }
+
+    .modal-section-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #334155;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .modal-info-grid {
+      display: grid;
+      grid-template-columns: 64px 1fr 64px 1fr;
+      gap: 3px 8px;
+      font-size: 10px;
+    }
+
+    .modal-info-label {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .modal-info-value {
+      color: #1e293b;
+    }
+
+    .modal-divider {
+      height: 1px;
+      background: #e2e8f0;
+      margin: 10px 0;
+    }
+
+    .modal-original {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 6px 10px;
+      font-size: 10px;
+      color: #94a3b8;
+      font-style: italic;
+      text-align: center;
+    }
+
+    .template-btn {
+      padding: 3px 8px;
+      border: 1px solid #e2e8f0;
+      border-radius: 4px;
+      font-size: 9px;
+      color: #475569;
+      background: #f8fafc;
+      cursor: pointer;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+
+    .modal-textarea {
+      width: 100%;
+      min-height: 36px;
+      padding: 6px 8px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 10px;
+      resize: none;
+      outline: none;
+      font-family: inherit;
+    }
+
+    .modal-notice {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 10px;
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 6px;
+      font-size: 10px;
+      color: #1d4ed8;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 6px;
+      padding-top: 10px;
+      border-top: 1px solid #e2e8f0;
+      margin-top: 8px;
+    }
+
+    .btn-close-modal {
+      background: #f1f5f9;
+      border: 1px solid #cbd5e1;
+      color: #475569;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      cursor: pointer;
+    }
+
+    .btn-dismiss {
+      background: #fff;
+      border: 1px solid #0284c7;
+      color: #0284c7;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .btn-delete {
+      background: #ef4444;
+      border: none;
+      color: #fff;
+      padding: 5px 12px;
+      border-radius: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .badge-sm {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 8px;
+      font-size: 9px;
+      font-weight: 600;
+    }
   </style>
 </head>
 
@@ -373,7 +553,7 @@
     <div class="meta-header">
       <div class="meta-left">
         <div class="meta-label">Page Title.</div>
-        <div class="meta-value">관리자 - 신고 관리</div>
+        <div class="meta-value">관리자 - 신고 관리 (v2 모달 기반)</div>
         <div class="meta-label">Screen ID</div>
         <div class="meta-value">UI-ADM-004</div>
       </div>
@@ -381,17 +561,17 @@
         <div class="meta-label">Author</div>
         <div class="meta-value">Team 2 (수경)</div>
         <div class="meta-label">Date</div>
-        <div class="meta-value">2026.03.30</div>
+        <div class="meta-value">2026.04.06 (v2)</div>
       </div>
     </div>
     <div class="meta-row2">
       <div class="meta-label">Screen Path</div>
-      <div class="meta-value">관리자 &gt; 사이드바 &gt; 신고 관리</div>
+      <div class="meta-value">관리자 &gt; 사이드바 &gt; 신고 관리 &gt; [처리하기] → 신고 상세 모달</div>
     </div>
 
     <div class="main-content">
       <div class="screen-area">
-        <div class="mockup-ui">
+        <div class="mockup-ui" style="position: relative;">
           <div class="sidebar" data-marker="1">
             <div class="sidebar-brand">
               <div class="ch-pin-admin">
@@ -403,125 +583,168 @@
               <li>🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
               <li>🎪 축제 관리</li>
-              <li class="active">🚨 신고 관리</li>
+              <li class="active">🚨 신고 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">1</span>
+              </li>
               <li>📢 공지/팝업</li>
-              <li>💬 문의 관리</li>
+              <li>💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
-
           </div>
 
-          <div class="content-area">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+          <div class="content-area" style="position: relative;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
               <div>
-                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🚨
+                <h1 style="font-size: 17px; font-weight: 800; color: #1e293b; margin-bottom: 2px;" data-marker="2">🚨
                   사용자 신고 관리</h1>
-                <p style="font-size: 12px; color: #94a3b8;">신고된 콘텐츠를 검토하고 처리합니다</p>
+                <p style="font-size: 11px; color: #94a3b8;">신고된 콘텐츠를 확인하고 처리합니다</p>
               </div>
               <span
-                style="background: #fef2f2; color: #dc2626; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;"
-                data-marker="3">3건
+                style="background: #fef2f2; color: #dc2626; padding: 3px 10px; border-radius: 16px; font-size: 11px; font-weight: 600;">3건
                 대기중</span>
             </div>
 
-            <!-- 신고 목록 테이블 -->
-            <div style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0;">
-              <table style="width: 100%; border-collapse: collapse; font-size: 11px;" data-marker="4">
+            <!-- KPI 카드 -->
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 14px;"
+              data-marker="3">
+              <div
+                style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 9px; color: #64748b; margin-bottom: 2px;">전체</div>
+                <div style="font-size: 18px; font-weight: 800; color: #1e293b;">12</div>
+              </div>
+              <div
+                style="background: #f3e8ff; border: 2px solid #6c5ce7; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 9px; color: #64748b; margin-bottom: 2px;">대기중</div>
+                <div style="font-size: 18px; font-weight: 800; color: #6c5ce7;">3</div>
+              </div>
+              <div
+                style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 9px; color: #64748b; margin-bottom: 2px;">처리완료</div>
+                <div style="font-size: 18px; font-weight: 800; color: #16a34a;">7</div>
+              </div>
+              <div
+                style="background: #f1f5f9; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; text-align: center;">
+                <div style="font-size: 9px; color: #64748b; margin-bottom: 2px;">반려</div>
+                <div style="font-size: 18px; font-weight: 800; color: #64748b;">2</div>
+              </div>
+            </div>
+
+            <!-- 테이블 -->
+            <div style="background: #fff; border-radius: 10px; padding: 12px; border: 1px solid #e2e8f0;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 10px;" data-marker="4">
                 <thead>
                   <tr style="border-bottom: 2px solid #e2e8f0;">
-                    <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">신고 대상</th>
-                    <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">신고 사유</th>
-                    <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">신고 날짜</th>
-                    <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">상태</th>
-                    <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">관리</th>
+                    <th style="padding: 6px; text-align: left; color: #475569; font-weight: 600;">신고자</th>
+                    <th style="padding: 6px; text-align: center; color: #475569; font-weight: 600;">유형</th>
+                    <th style="padding: 6px; text-align: left; color: #475569; font-weight: 600;">사유</th>
+                    <th style="padding: 6px; text-align: center; color: #475569; font-weight: 600;">상태</th>
+                    <th style="padding: 6px; text-align: center; color: #475569; font-weight: 600;">관리</th>
                   </tr>
                 </thead>
                 <tbody>
                   <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">사용자123</td>
-                    <td style="padding: 10px 6px; color: #475569;">부적절한 댓글</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.03.24</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
+                    <td style="padding: 8px 6px; color: #1e293b; font-weight: 500;">사용자123</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #f3e8ff; color: #6c5ce7;">댓글</span></td>
+                    <td style="padding: 8px 6px; color: #475569;">욕설/비방</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #fef3c7; color: #d97706;">대기중</span></td>
+                    <td style="padding: 8px 6px; text-align: center;">
                       <button
-                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; margin-right: 4px;"
-                        data-marker="5">검토</button>
-                      <button
-                        style="background: #dc2626; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">제재</button>
+                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 600; cursor: pointer;"
+                        data-marker="5">처리하기</button>
                     </td>
                   </tr>
                   <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">축제러버</td>
-                    <td style="padding: 10px 6px; color: #475569;">스팸 게시글</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.03.23</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">처리완료</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
-                      <span style="color: #16a34a; font-size: 16px;">✅</span>
-                    </td>
-                  </tr>
-                  <tr style="border-bottom: 1px solid #f1f5f9;">
-                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">먹방킹</td>
-                    <td style="padding: 10px 6px; color: #475569;">허위 리뷰</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.03.22</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
+                    <td style="padding: 8px 6px; color: #1e293b; font-weight: 500;">축제러버</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #f3e8ff; color: #6c5ce7;">게시글</span></td>
+                    <td style="padding: 8px 6px; color: #475569;">스팸</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #dcfce7; color: #16a34a;">처리완료</span></td>
+                    <td style="padding: 8px 6px; text-align: center;">
                       <button
-                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; margin-right: 4px;">검토</button>
-                      <button
-                        style="background: #dc2626; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">제재</button>
+                        style="background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; padding: 3px 8px; border-radius: 4px; font-size: 9px; cursor: pointer;">이력
+                        보기</button>
                     </td>
                   </tr>
                   <tr>
-                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">여행가</td>
-                    <td style="padding: 10px 6px; color: #475569;">욕설 사용</td>
-                    <td style="padding: 10px 6px; color: #475569;">2026.03.21</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
+                    <td style="padding: 8px 6px; color: #1e293b; font-weight: 500;">먹방킹</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #f3e8ff; color: #6c5ce7;">리뷰</span></td>
+                    <td style="padding: 8px 6px; color: #475569;">허위 정보</td>
+                    <td style="padding: 8px 6px; text-align: center;"><span class="badge-sm"
+                        style="background: #fef3c7; color: #d97706;">대기중</span></td>
+                    <td style="padding: 8px 6px; text-align: center;">
                       <button
-                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer; margin-right: 4px;">검토</button>
-                      <button
-                        style="background: #dc2626; color: #fff; border: none; padding: 3px 10px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">제재</button>
+                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 8px; border-radius: 4px; font-size: 9px; font-weight: 600; cursor: pointer;">처리하기</button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
+          </div>
 
-            <!-- 신고 상세 (검토 클릭 시) -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 20px; margin-top: 16px; border: 2px dashed #fca5a5;">
-              <div style="font-weight: 700; font-size: 14px; color: #dc2626; margin-bottom: 14px;" data-marker="6">🔍 신고
-                상세 검토</div>
-              <div style="display: grid; grid-template-columns: auto 1fr; gap: 8px 16px; font-size: 12px;">
-                <span style="color: #64748b; font-weight: 600;">신고 대상:</span>
-                <span style="color: #1e293b;">사용자123 — 댓글 #234</span>
-                <span style="color: #64748b; font-weight: 600;">신고 사유:</span>
-                <span style="color: #1e293b;">부적절한 댓글</span>
-                <span style="color: #64748b; font-weight: 600;">신고 내용:</span>
-                <span style="color: #1e293b;">"해당 댓글에 부적절한 표현이 포함되어 있습니다."</span>
-                <span style="color: #64748b; font-weight: 600;">원본 콘텐츠:</span>
-                <span style="color: #94a3b8; font-style: italic;">"이 축제 완전 별로..."</span>
+          <!-- 모달 오버레이 -->
+          <div class="modal-overlay">
+            <div class="modal-box" data-marker="6">
+              <div class="modal-header">
+                <div class="modal-title">🔍 신고 내용 확인 및 처리</div>
+                <button class="modal-close">✕</button>
               </div>
-              <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 14px;">
-                <button
-                  style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 20px; border-radius: 6px; font-size: 12px; cursor: pointer;">반려
-                  (DISMISS)</button>
-                <button
-                  style="background: #dc2626; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">삭제
-                  처리 (DELETE)</button>
+
+              <!-- ① 신고 정보 -->
+              <div class="modal-section">
+                <div class="modal-section-title">📋 신고 정보</div>
+                <div class="modal-info-grid">
+                  <span class="modal-info-label">신고 대상</span>
+                  <span class="modal-info-value"><span class="badge-sm"
+                      style="background: #f3e8ff; color: #6c5ce7; margin-right: 4px;">댓글</span>#234</span>
+                  <span class="modal-info-label">신고자</span>
+                  <span class="modal-info-value">사용자123</span>
+                  <span class="modal-info-label">신고 사유</span>
+                  <span class="modal-info-value">욕설/비방</span>
+                  <span class="modal-info-label">신고 일시</span>
+                  <span class="modal-info-value">2026-03-24 09:30:15</span>
+                </div>
+              </div>
+
+              <div class="modal-divider"></div>
+
+              <!-- ② 원문 -->
+              <div class="modal-section" data-marker="7">
+                <div class="modal-section-title">📄 신고 대상 원문</div>
+                <div class="modal-original">🚫 이미 삭제되었거나 원문을 조회할 수 없는 콘텐츠입니다.</div>
+              </div>
+
+              <!-- ④ 답변 -->
+              <div class="modal-section" data-marker="8">
+                <div class="modal-section-title">✏️ <span style="color: #ef4444;">*</span> 처리 답변</div>
+                <div style="margin-bottom: 4px;">
+                  <span class="template-btn">스팸</span>
+                  <span class="template-btn">욕설</span>
+                  <span class="template-btn">허위정보</span>
+                  <span class="template-btn">정책위반없음</span>
+                  <span class="template-btn">기타</span>
+                </div>
+                <div style="position: relative;">
+                  <textarea class="modal-textarea"
+                    placeholder="신고자에게 전달될 처리 사유를 작성해주세요.">신고하신 콘텐츠를 확인한 결과, 욕설·비방이 포함된 것으로 확인되어 해당 콘텐츠를 삭제 처리하였습니다.</textarea>
+                  <span
+                    style="position: absolute; bottom: 4px; right: 8px; font-size: 8px; color: #94a3b8;">42/500</span>
+                </div>
+              </div>
+
+              <!-- ⑤ 하단 버튼 -->
+              <div class="modal-footer" data-marker="9">
+                <button class="btn-close-modal">닫기</button>
+                <button class="btn-dismiss">신고 반려</button>
+                <button class="btn-delete">신고 대상 댓글 삭제</button>
               </div>
             </div>
           </div>
         </div>
-
-        <!-- 동적 마커 (JS) -->
       </div>
 
       <!-- Description -->
@@ -532,9 +755,10 @@
           <h4>Summary.</h4>
           <ul>
             <li>사용자가 신고한 콘텐츠(게시글, 댓글, 리뷰)를 관리하는 화면</li>
-            <li>신고 목록 테이블 + 상세 검토 영역 제공</li>
-            <li>대기중 신고 건수를 배지로 표시</li>
-            <li>API_ADM_0050~0052 연동</li>
+            <li><strong>v2: 인라인 패널 → 모달 기반</strong>으로 변경</li>
+            <li>KPI 카드 (전체/대기중/처리완료/반려) + 상태 필터</li>
+            <li>모달: 신고 정보 → 원문 → 답변(필수) → 처리</li>
+            <li>API_ADM_0050, 0053 연동</li>
           </ul>
         </div>
 
@@ -543,7 +767,7 @@
             <td class="num">1</td>
             <td class="desc-text">
               <strong>관리자 사이드바 네비게이션</strong><br>
-              · 현재 메뉴(신고 관리)는 파란색 활성 표시
+              · 현재 메뉴(신고 관리)는 보라색 활성 표시
             </td>
           </tr>
           <tr>
@@ -557,9 +781,10 @@
           <tr>
             <td class="num">3</td>
             <td class="desc-text">
-              <strong>대기중 건수 배지</strong><br>
-              · status=PENDING 건수를 실시간 표시<br>
-              · 빨간 배경 + 흰색 텍스트
+              <strong>KPI 스탯 카드 (4종)</strong><br>
+              · 전체 / 대기중 / 처리완료 / 반려<br>
+              · 클릭 시 해당 상태로 필터 (토글)<br>
+              · 활성 카드는 보라 테두리 강조
             </td>
           </tr>
           <tr>
@@ -567,31 +792,52 @@
             <td class="desc-text">
               <strong>신고 목록 테이블</strong><br>
               <strong>API: <code>GET /api/admin/reports</code></strong> (API_ADM_0050)<br>
-              · 컬럼: 신고 대상, 신고 사유, 신고 날짜, 상태, 관리<br>
-              · 상태 배지: 대기중(노란), 처리완료(녹색)<br>
-              · 대기중인 건에만 [검토] [제재] 버튼 표시<br>
-              · 처리완료 건은 ✅ 아이콘만 표시
+              · 컬럼: 신고자, 유형, 사유, 상태, 관리<br>
+              · 행 클릭 또는 [처리하기]/[이력 보기] 클릭 → 모달
             </td>
           </tr>
           <tr>
             <td class="num">5</td>
             <td class="desc-text">
-              <strong>관리 액션 버튼</strong><br>
-              · [검토] — 신고 상세 검토 영역 펼침<br>
-              · [제재] — 즉시 삭제 처리 (확인 모달 후)
+              <strong>관리 버튼 (상태별 변경)</strong><br>
+              · <code>PENDING</code> → [처리하기] (보라 버튼)<br>
+              · <code>RESOLVED/REJECTED</code> → [이력 보기] (회색 버튼)
             </td>
           </tr>
           <tr>
             <td class="num">6</td>
             <td class="desc-text">
-              <strong>신고 상세 검토 영역</strong><br>
-              <strong>조회 API: <code>GET /api/admin/reports/{id}</code></strong> (API_ADM_0051)<br>
-              <strong>처리 API: <code>PATCH /api/admin/reports/{id}</code></strong> (API_ADM_0052)<br>
-              · [검토] 클릭 시 하단에 상세 내용 표시<br>
-              · 신고 대상, 사유, 원본 콘텐츠 확인 가능<br>
-              · "반려 (DISMISS)" — 신고 기각, 콘텐츠 유지<br>
-              · "삭제 처리 (DELETE)" — 해당 콘텐츠 삭제<br>
-              · action: DELETE 또는 DISMISS 전송
+              <strong>신고 상세 모달 (v2)</strong><br>
+              · 배경 오버레이 + 중앙 모달<br>
+              · 섹션: ① 신고 정보(2열) ② 원문 ③ 답변 ④ 버튼
+            </td>
+          </tr>
+          <tr>
+            <td class="num">7</td>
+            <td class="desc-text">
+              <strong>신고 대상 원문 영역</strong><br>
+              · 원문 API 연결 시: 작성자 / 작성일 / 내용(3줄) 표시<br>
+              · 없거나 삭제된 경우: "이미 삭제된 콘텐츠입니다" 표시
+            </td>
+          </tr>
+          <tr>
+            <td class="num">8</td>
+            <td class="desc-text">
+              <strong>처리 답변 영역 (PENDING만)</strong><br>
+              · 답변 템플릿 버튼 5종 (스팸/욕설/허위정보/정책위반없음/기타)<br>
+              · textarea (필수, 최소 10자, 글자수 표시, auto-expand)<br>
+              · RESOLVED/REJECTED → readonly 이력 카드로 대체
+            </td>
+          </tr>
+          <tr>
+            <td class="num">9</td>
+            <td class="desc-text">
+              <strong>모달 하단 액션 버튼</strong><br>
+              · [닫기] — 모달 닫기<br>
+              · [신고 반려] — DISMISS 처리 (파란 아웃라인)<br>
+              · [신고 대상 {유형} 삭제] — DELETE 처리 (빨간 버튼)<br>
+              · 삭제 버튼 문구는 target_type에 따라 동적 변경<br>
+              · 답변 10자 미만이면 disabled
             </td>
           </tr>
         </table>
@@ -603,28 +849,35 @@
         <table class="desc-table">
           <tr>
             <td class="num" style="color:#3730a3;">E1</td>
-            <td class="desc-text"><strong>검토 버튼 클릭 (Review)</strong><br>· 트리거: [검토] 버튼 클릭<br>· 동작: 해당 신고의 상세 검토 영역
-              펼침<br>· API: <code>GET /api/admin/reports/{id}</code></td>
+            <td class="desc-text"><strong>행 클릭 / [처리하기] 클릭</strong><br>· 트리거: 테이블 행 또는 [처리하기] 버튼 클릭<br>· 동작: 신고
+              상세 모달 오픈 (PENDING → 답변 폼 표시)</td>
           </tr>
           <tr>
             <td class="num" style="color:#3730a3;">E2</td>
-            <td class="desc-text"><strong>즉시 제재 (Sanction)</strong><br>· 트리거: [제재] 버튼 클릭<br>· 동작: 확인 모달 → 콘텐츠 삭제 + 상태
-              RESOLVED<br>· API: <code>PATCH /api/admin/reports/{id}</code> (action: DELETE)</td>
+            <td class="desc-text"><strong>[이력 보기] 클릭</strong><br>· 트리거: 처리완료/반려 건의 [이력 보기] 클릭<br>· 동작: 상세 모달 오픈
+              (readonly 이력 표시)</td>
           </tr>
           <tr>
             <td class="num" style="color:#3730a3;">E3</td>
-            <td class="desc-text"><strong>반려 처리 (Dismiss)</strong><br>· 트리거: 상세 검토 영역 [반려] 버튼 클릭<br>· 동작: 신고 기각, 콘텐츠
-              유지<br>· API: <code>PATCH /api/admin/reports/{id}</code> (action: DISMISS)</td>
+            <td class="desc-text"><strong>답변 템플릿 선택</strong><br>· 트리거: 템플릿 버튼 클릭<br>· 동작: textarea에 사전 정의된 답변
+              자동 입력</td>
           </tr>
           <tr>
             <td class="num" style="color:#3730a3;">E4</td>
-            <td class="desc-text"><strong>삭제 처리 (Delete Content)</strong><br>· 트리거: 상세 검토 영역 [삭제 처리] 버튼 클릭<br>· 동작: 해당
-              콘텐츠 삭제 + 신고 처리 완료</td>
+            <td class="desc-text"><strong>신고 반려 (Dismiss)</strong><br>· 트리거: [신고 반려] 클릭<br>· 동작: 답변 유효성 검사(10자↑)
+              → API 호출 → 모달 닫기 → 목록 갱신<br>· API: <code>PATCH /api/admin/reports/{id}/process</code>
+              (actionType: DISMISS)</td>
           </tr>
           <tr>
             <td class="num" style="color:#3730a3;">E5</td>
-            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
-              메뉴 페이지로 이동</td>
+            <td class="desc-text"><strong>대상 콘텐츠 삭제 (Delete)</strong><br>· 트리거: [신고 대상 {유형} 삭제] 클릭<br>· 동작:
+              confirm 확인 → 답변 유효성 검사(10자↑) → API 호출 → 모달 닫기 → 목록 갱신<br>· API:
+              <code>PATCH /api/admin/reports/{id}/process</code> (actionType: DELETE)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E6</td>
+            <td class="desc-text"><strong>KPI 카드 클릭 (필터)</strong><br>· 트리거: 상단 KPI 카드 클릭<br>· 동작: 해당 상태로 목록 필터
+              (토글 방식 — 같은 카드 재클릭 시 전체로 복귀)</td>
           </tr>
         </table>
 
@@ -632,10 +885,12 @@
           <h4>Check Point</h4>
           <p>
             · 관리자(ADMIN) 권한 검증 필수<br>
-            · 신고 처리 시 해당 콘텐츠의 작성자에게 알림 발송 고려<br>
-            · 동일 콘텐츠에 복수 신고 시 하나로 묶어서 표시<br>
-            · 처리 완료 후 상태 즉시 갱신 (낙관적 업데이트)<br>
-            · 대기중 건수 배지는 목록 API 응답의 PENDING 건수로 계산
+            · <strong>반려/삭제 모두 답변(message) 필수 — 미입력 시 처리 불가</strong><br>
+            · 삭제 버튼 문구는 target_type별 동적 변경 (리뷰/게시글/댓글)<br>
+            · 원문 조회 API 미구현 시 "삭제된 콘텐츠" 표시<br>
+            · 처리 완료 후 목록 즉시 갱신 (API 재조회)<br>
+            · 사용자 측 신고내역/답변 확인 기능은 <strong>후속 범위</strong><br>
+            · report_responses 테이블에 답변 저장 → 이력 조회 가능
           </p>
         </div>
       </div>
@@ -660,24 +915,24 @@
             <td>API_ADM_0050</td>
             <td><span class="method get">GET</span></td>
             <td class="endpoint">/api/admin/reports</td>
-            <td>신고 내역 목록 조회</td>
-            <td>status (PENDING 등)</td>
+            <td>신고 목록 조회 (KPI 포함)</td>
+            <td>status, targetType, page, size</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
           <tr>
-            <td>API_ADM_0051</td>
-            <td><span class="method get">GET</span></td>
-            <td class="endpoint">/api/admin/reports/{reportId}</td>
-            <td>신고 상세 확인</td>
-            <td>—</td>
+            <td>API_ADM_0053</td>
+            <td><span class="method patch">PATCH</span></td>
+            <td class="endpoint">/api/admin/reports/{id}/process</td>
+            <td>신고 처리 (답변 기반)</td>
+            <td>actionType, message (body, 필수)</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
           <tr>
             <td>API_ADM_0052</td>
             <td><span class="method patch">PATCH</span></td>
-            <td class="endpoint">/api/admin/reports/{reportId}</td>
-            <td>신고 처리 (반려/삭제)</td>
-            <td>action: DELETE/DISMISS (body)</td>
+            <td class="endpoint">/api/admin/reports/{id}</td>
+            <td>신고 처리 (레거시 호환)</td>
+            <td>action, adminNote (body)</td>
             <td><span class="auth-admin">🔐 관리자</span></td>
           </tr>
         </tbody>

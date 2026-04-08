@@ -25,20 +25,13 @@ interface FestivalItem {
   longitude: number | null;
 }
 
-// 지역 필터 목록
-const REGIONS = [
-  "서울", "경기", "인천", "강원",
-  "대전", "충북", "충남", "세종",
-  "광주", "전북", "전남", "대구",
-  "경북", "경남", "부산", "울산", "제주",
-];
+// 지역 필터 목록 (공통 상수)
+import { REGION_NAMES } from '@/constants/filterOptions';
+const REGIONS = REGION_NAMES;
 
-// 상태 필터 옵션
-const STATUS_OPTIONS = [
-  { value: "all", label: "전체" },
-  { value: "ongoing", label: "진행 중" },
-  { value: "upcoming", label: "진행 예정" },
-];
+// 상태 필터 옵션 (공통 상수)
+import { FESTIVAL_STATUS_OPTIONS } from '@/constants/filterOptions';
+const STATUS_OPTIONS = FESTIVAL_STATUS_OPTIONS;
 
 // 한반도 최종 좌표/줌
 const KOREA_CENTER = { lat: 36.5, lng: 127.5 };

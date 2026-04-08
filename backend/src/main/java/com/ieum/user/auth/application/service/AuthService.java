@@ -6,13 +6,16 @@ import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
-import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
@@ -23,20 +26,34 @@ public class AuthService implements AuthUseCase {
     private final PasswordEncoder passwordEncoder;
     private final JwtProvider jwtProvider;
 
+    // TODO: 실무에서는 Redis/DB 사용 권장 (현재는 임시 메모리 저장)
+    private final Map<String, String> recoveryCodes = new ConcurrentHashMap<>();
+    private final Map<String, Boolean> verifiedIds = new ConcurrentHashMap<>();
+
     @Override
     @Transactional
     public AuthRes.TokenDto login(AuthReq.Login request) {
-        User user = loadUserPort.loadUserByEmail(request.getEmail())
-                .orElseThrow(() -> new BadCredentialsException("이메일 또는 비밀번호가 일치하지 않습니다."));
+        User user = loadUserPort.loadByLoginId(request.getId())
+                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
-        if (!user.checkPassword(request.getPassword(), passwordEncoder)) {
-            throw new BadCredentialsException("이메일 또는 비밀번호가 일치하지 않습니다.");
+        // 🛡️ 탈퇴 유예 정책 체크
+        if ("WITHDRAWAL".equals(user.getStatus())) {
+            if (user.isWithdrawalExpired()) {
+                throw new BadCredentialsException("탈퇴 후 30일이 경과하여 삭제된 계정입니다.");
+            }
+            // 30일 이내라면 자동 복구
+            user = user.reactivate();
+            saveUserPort.saveUser(user);
         }
 
-        String accessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole().getKey());
-        String refreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        if (!user.checkPassword(request.getPassword(), passwordEncoder)) {
+            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
+        }
 
-        saveUserPort.saveRefreshToken(user.getId(), refreshToken);
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
+
+        saveUserPort.saveRefreshToken(user.getUserId(), refreshToken);
 
         return AuthRes.TokenDto.builder()
                 .accessToken(accessToken)
@@ -48,19 +65,43 @@ public class AuthService implements AuthUseCase {
 
     @Override
     @Transactional
-    public void register(AuthReq.Register request) {
-        if (loadUserPort.existsByEmail(request.getEmail())) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+    public void withdraw(Long userId, String password) {
+        User user = loadUserPort.loadUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (!user.checkPassword(password, passwordEncoder)) {
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
-        User newUser = new User(
-                null,
-                request.getEmail(),
-                passwordEncoder.encode(request.getPassword()),
-                request.getNickname(),
-                request.getPhone(),
-                Role.USER
-        );
+        // 도메인 로직을 통한 탈퇴 상태 변경 및 저장
+        User withdrawnUser = user.withdraw();
+        saveUserPort.saveUser(withdrawnUser);
+
+        // 연관 데이터 처리 (리프레시 토큰 무효화 등)
+        saveUserPort.removeRefreshToken(userId);
+    }
+
+    @Override
+    @Transactional
+    public void register(AuthReq.Register request) {
+        if (loadUserPort.existsByLoginId(request.getId())) {
+            throw new IllegalArgumentException("이미 사용 중인 아이디입니다.");
+        }
+
+        // 🔍 name이 비어있으면 nickname을 대신 사용 (DB NOT NULL 제약조건 대응)
+        String realName = (request.getName() == null || request.getName().isBlank()) ? request.getNickname() : request.getName();
+
+        User newUser = User.builder()
+                .loginId(request.getId())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .name(realName)
+                .nickname(request.getNickname())
+                .phone(request.getPhone())
+                .role("USER")
+                .termsAgreed(request.isTermsAgreed())
+                .marketingAgreed(request.isMarketingAgreed())
+                .status("ACTIVE")
+                .build();
 
         saveUserPort.saveUser(newUser);
     }
@@ -74,18 +115,25 @@ public class AuthService implements AuthUseCase {
             throw new IllegalArgumentException("유효하지 않은 Refresh Token입니다.");
         }
         
-        String email = jwtProvider.getAuthentication(tokenString).getName();
-        User user = loadUserPort.loadUserByEmail(email)
+        String subjectId = jwtProvider.getSubjectFromToken(tokenString);
+        Long userId;
+        try {
+            userId = Long.valueOf(subjectId);
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("유효하지 않은 토큰 정보입니다.");
+        }
+        
+        User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        if (!saveUserPort.validateRefreshToken(user.getId(), tokenString)) {
+        if (!saveUserPort.validateRefreshToken(user.getUserId(), tokenString)) {
             throw new IllegalArgumentException("DB에 존재하지 않거나 일치하지 않는 Refresh Token입니다.");
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(user.getEmail(), user.getRole().getKey());
-        String newRefreshToken = jwtProvider.generateRefreshToken(user.getEmail());
+        String newAccessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String newRefreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
-        saveUserPort.saveRefreshToken(user.getId(), newRefreshToken);
+        saveUserPort.saveRefreshToken(user.getUserId(), newRefreshToken);
 
         return AuthRes.TokenDto.builder()
                 .accessToken(newAccessToken)
@@ -93,5 +141,77 @@ public class AuthService implements AuthUseCase {
                 .expiresIn(jwtProvider.getExpirationSeconds())
                 .user(AuthRes.UserDto.from(user))
                 .build();
+    }
+
+    @Override
+    @Transactional
+    public void requestRecovery(AuthReq.PasswordRecoveryRequest request) {
+        String loginId = request.getId();
+        if (!loadUserPort.existsByLoginId(loginId)) {
+            throw new IllegalArgumentException("가입되지 않은 아이디입니다.");
+        }
+
+        // 6자리 난수 생성
+        String code = String.format("%06d", new Random().nextInt(1000000));
+        recoveryCodes.put(loginId, code);
+        verifiedIds.put(loginId, false);
+
+        // TODO: 실제 이메일 발송 로직 연동 (현재는 로그 출력으로 대체)
+        System.out.println("================================");
+        System.out.println("[PASSWORD RECOVERY] ID: " + loginId);
+        System.out.println("[PASSWORD RECOVERY] Code: " + code);
+        System.out.println("================================");
+    }
+
+    @Override
+    public void verifyCode(AuthReq.PasswordRecoveryVerify request) {
+        String loginId = request.getId();
+        String code = request.getCode();
+
+        if (!recoveryCodes.containsKey(loginId) || !recoveryCodes.get(loginId).equals(code)) {
+            throw new IllegalArgumentException("인증 코드가 일치하지 않거나 만료되었습니다.");
+        }
+
+        recoveryCodes.remove(loginId); // 인증 성공 시 코드 제거
+        verifiedIds.put(loginId, true); // 인증 완료 표시
+    }
+
+    @Override
+    @Transactional
+    public void resetPassword(AuthReq.PasswordReset request) {
+        String loginId = request.getId();
+        
+        if (!verifiedIds.getOrDefault(loginId, false)) {
+            throw new IllegalArgumentException("본인 인증이 완료되지 않았습니다.");
+        }
+
+        User user = loadUserPort.loadByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        User updatedUser = User.builder()
+                .userId(user.getUserId())
+                .loginId(user.getLoginId())
+                .password(passwordEncoder.encode(request.getNewPassword()))
+                .name(user.getName())
+                .nickname(user.getNickname())
+                .phone(user.getPhone())
+                .profileImage(user.getProfileImage())
+                .role(user.getRole())
+                .termsAgreed(user.isTermsAgreed())
+                .marketingAgreed(user.isMarketingAgreed())
+                .status(user.getStatus())
+                .build();
+
+        saveUserPort.saveUser(updatedUser);
+
+        verifiedIds.remove(loginId); // 재설정 완료 후 상태 제거
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthRes.UserDto getMyProfile(Long userId) {
+        User user = loadUserPort.loadUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return AuthRes.UserDto.from(user);
     }
 }

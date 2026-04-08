@@ -16,6 +16,7 @@
 6. [DTO에 스키마 어노테이션 적용](#6-dto에-스키마-어노테이션-적용)
 7. [접속 방법 & 팀 공유 가이드](#7-접속-방법--팀-공유-가이드)
 8. [자주 쓰는 어노테이션 치트시트](#8-자주-쓰는-어노테이션-치트시트)
+9. [동적/자유 구조 응답 (Map 등) 문서화 가이드](#9-동적자유-구조-응답-map-등-문서화-가이드)
 
 ---
 
@@ -437,6 +438,35 @@ public String upload(
     @RequestParam("file") MultipartFile file
 ) { ... }
 ```
+
+---
+
+## 9. 동적/자유 구조 응답 (Map 등) 문서화 가이드
+
+프론트엔드에 `FestivalResponse` 같은 정적 DTO가 아닌, 공공데이터(TourAPI) 등을 조합하여 `Map<String, Object>` 형태로 유연하게 응답을 내려보낼 경우 Swagger가 내부 필드(`overview`, `tel` 등)를 자동 추론하지 못합니다. 
+
+이 경우 방금 축제 상세 조회 API에 적용한 것처럼, `@Operation`의 `description` 항목에 마크다운 문법을 활용하여 응답 항목들을 명확히 나열해 주어야 합니다.
+
+### 예시: FestivalController 공공데이터 응답 문서화
+
+```java
+@Operation(
+    summary = "축제 상세 조회", 
+    description = "축제 ID로 상세 정보를 조회합니다.\\n\\n" +
+                  "**[공공데이터 연동 상세 항목 (TourAPI)]**\\n" +
+                  "- `overview` (개요): 축제에 대한 상세 설명\\n" +
+                  "- `tel` (전화번호): 행사 문의 번호\\n" +
+                  "- `useFee` (이용요금): 티켓 가격 정보\\n" +
+                  "- `extraImages`: 축제 전경 추가 이미지 배열"
+)
+@GetMapping("/{festivalId}")
+public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
+    Map<String, Object> detail = loadFestivalDetailUseCase.loadDetail(festivalId);
+    return ResponseEntity.ok(Map.of("success", true, "data", detail));
+}
+```
+
+> **규칙**: DTO 파일 생성이 애매한 자유 구조 응답(`Map` 등)을 반환할 때는 반드시 위와 같이 `@Operation(description="...")` 영역에 Key와 목적을 프론트엔드가 이해할 수 있도록 마크다운으로 문서화합니다.
 
 ---
 
