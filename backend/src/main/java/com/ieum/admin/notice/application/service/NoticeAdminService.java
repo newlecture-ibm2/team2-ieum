@@ -8,6 +8,7 @@ import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.attachment.application.port.in.DeleteAttachmentUseCase;
 import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
+import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 /**
@@ -26,16 +28,19 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Transactional
-public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseCase, DeleteNoticeUseCase, GetAdminNoticeListUseCase {
+public class NoticeAdminService
+        implements CreateNoticeUseCase, UpdateNoticeUseCase, DeleteNoticeUseCase, GetAdminNoticeListUseCase {
 
     private final AdminNoticePort adminNoticePort;
     private final UploadAttachmentUseCase uploadAttachmentUseCase;
     private final DeleteAttachmentUseCase deleteAttachmentUseCase;
+    private final SystemNotificationUseCase systemNotificationUseCase;
 
     @Override
     public AdminNotice create(String title, String content, String summary,
-                         Boolean isPinned, Boolean isPopup,
-                         List<MultipartFile> files) {
+            Boolean isPinned, Boolean isPopup, Boolean sendPush, Boolean isActive,
+            LocalDateTime startDate, LocalDateTime endDate,
+            List<MultipartFile> files) {
 
         AdminNotice notice = AdminNotice.builder()
                 .title(title)
@@ -43,6 +48,10 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
                 .summary(summary)
                 .isPinned(isPinned != null ? isPinned : false)
                 .isPopup(isPopup != null ? isPopup : false)
+                .isPushed(Boolean.TRUE.equals(sendPush))
+                .isActive(isActive != null ? isActive : true)
+                .startDate(startDate)
+                .endDate(endDate)
                 .build();
 
         AdminNotice saved = adminNoticePort.save(notice);
@@ -52,13 +61,19 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
             uploadAttachmentUseCase.uploadAll("NOTICE", saved.getId(), files);
         }
 
+        // 푸시 알림 발송
+        if (Boolean.TRUE.equals(sendPush)) {
+            systemNotificationUseCase.sendNoticeNotification(saved.getId(), saved.getTitle(), saved.getSummary());
+        }
+
         return saved;
     }
 
     @Override
     public AdminNotice update(Long noticeId, String title, String content, String summary,
-                         Boolean isPinned, Boolean isPopup,
-                         List<MultipartFile> newFiles, List<Long> deleteFileIds) {
+            Boolean isPinned, Boolean isPopup, Boolean sendPush, Boolean isActive,
+            LocalDateTime startDate, LocalDateTime endDate,
+            List<MultipartFile> newFiles, List<Long> deleteFileIds) {
 
         AdminNotice notice = adminNoticePort.findById(noticeId)
                 .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
@@ -71,8 +86,10 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
                 .viewCount(notice.getViewCount())
                 .isPinned(isPinned != null ? isPinned : notice.getIsPinned())
                 .isPopup(isPopup != null ? isPopup : notice.getIsPopup())
-                .startDate(notice.getStartDate())
-                .endDate(notice.getEndDate())
+                .isPushed(Boolean.TRUE.equals(sendPush) || notice.getIsPushed())
+                .isActive(isActive != null ? isActive : notice.getIsActive())
+                .startDate(startDate != null ? startDate : notice.getStartDate())
+                .endDate(endDate != null ? endDate : notice.getEndDate())
                 .createdAt(notice.getCreatedAt())
                 .build();
 
@@ -86,7 +103,14 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
             uploadAttachmentUseCase.uploadAll("NOTICE", noticeId, newFiles);
         }
 
-        return adminNoticePort.save(updated);
+        AdminNotice saved = adminNoticePort.save(updated);
+
+        // 푸시 알림 발송
+        if (Boolean.TRUE.equals(sendPush)) {
+            systemNotificationUseCase.sendNoticeNotification(saved.getId(), saved.getTitle(), saved.getSummary());
+        }
+
+        return saved;
     }
 
     @Override
@@ -101,8 +125,11 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AdminNotice> getAdminNotices(int page, int size) {
-        Sort sort = Sort.by("createdAt").descending();
-        return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort));
+    public Page<AdminNotice> getAdminNotices(int page, int size, String searchType, String keyword, Boolean isPinned,
+            Boolean isPopup, Boolean isPushed, String status) {
+        Sort sort = Sort.by("isPinned").descending()
+                .and(Sort.by("createdAt").descending());
+        return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort), searchType, keyword, isPinned, isPopup,
+                isPushed, status);
     }
 }

@@ -19,6 +19,16 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
   };
 
   const getBadge = (notice: Notice) => {
+    if (notice.isActive === false) return { text: '비활성', className: styles.badgeInactive };
+
+    const now = new Date();
+    if (notice.startDate && new Date(notice.startDate) > now) {
+      return { text: '예약', className: styles.badgeReserved };
+    }
+    if (notice.endDate && new Date(notice.endDate) < now) {
+      return { text: '종료', className: styles.badgeExpired };
+    }
+
     if (notice.isPopup) return { text: '팝업', className: styles.badgePopup };
     return { text: '활성', className: styles.badgeActive };
   };

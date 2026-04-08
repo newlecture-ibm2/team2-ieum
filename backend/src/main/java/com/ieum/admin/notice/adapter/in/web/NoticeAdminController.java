@@ -42,9 +42,16 @@ public class NoticeAdminController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<AdminNotice>>> getAdminNotices(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isPinned,
+            @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean isPushed,
+            @RequestParam(required = false) String status) {
         return ResponseEntity.ok(ApiResponse.success(
-                getAdminNoticeListUseCase.getAdminNotices(page, size)));
+                getAdminNoticeListUseCase.getAdminNotices(page, size, searchType, keyword, isPinned,
+                        isPopup, isPushed, status)));
     }
 
     /**
@@ -62,10 +69,15 @@ public class NoticeAdminController {
             @RequestParam(required = false) String summary,
             @RequestParam(required = false) Boolean isPinned,
             @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean sendPush,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @RequestParam(required = false) List<MultipartFile> files) {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup, files)));
+                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup,
+                                sendPush, isActive, startDate, endDate, files)));
     }
 
     /**
@@ -78,17 +90,21 @@ public class NoticeAdminController {
     })
     @PutMapping(value = "/{noticeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AdminNotice>> updateNotice(
-            @Parameter(description = "공지사항 ID", required = true, example = "1")
-            @PathVariable Long noticeId,
+            @Parameter(description = "공지사항 ID", required = true, example = "1") @PathVariable Long noticeId,
             @RequestParam String title,
             @RequestParam String content,
             @RequestParam(required = false) String summary,
             @RequestParam(required = false) Boolean isPinned,
             @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean sendPush,
+            @RequestParam(required = false) Boolean isActive,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
             @RequestParam(required = false) List<MultipartFile> newFiles,
             @RequestParam(required = false) List<Long> deleteFileIds) {
         return ResponseEntity.ok(ApiResponse.success(
-                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup, newFiles, deleteFileIds)));
+                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup,
+                        sendPush, isActive, startDate, endDate, newFiles, deleteFileIds)));
     }
 
     /**
@@ -101,8 +117,7 @@ public class NoticeAdminController {
     })
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<ApiResponse<Void>> deleteNotice(
-            @Parameter(description = "공지사항 ID", required = true, example = "1")
-            @PathVariable Long noticeId) {
+            @Parameter(description = "공지사항 ID", required = true, example = "1") @PathVariable Long noticeId) {
         deleteNoticeUseCase.delete(noticeId);
         return ResponseEntity.ok(ApiResponse.success());
     }

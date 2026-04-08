@@ -1,4 +1,4 @@
-package com.ieum.community.adapter.in.web.dto;
+package com.ieum.user.report.adapter.in.web.dto;
 
 import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
 import lombok.Builder;
@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 /**
- * 사용자 신고 응답 DTO
+ * 사용자 신고 응답 DTO (통합 — POST, COMMENT, REVIEW 공통)
  */
 @Getter
 @Builder
