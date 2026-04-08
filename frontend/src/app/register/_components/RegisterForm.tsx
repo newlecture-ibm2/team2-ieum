@@ -93,7 +93,7 @@ export default function RegisterForm() {
     const isPhoneValid = validateField('phone', phone);
     const isPasswordValid = validateField('password', password);
     const isPasswordConfirmValid = validateField('passwordConfirm', passwordConfirm);
-    
+
     let isAgreed = true;
     if (!agreements.terms || !agreements.privacy) {
       setErrors(prev => ({ ...prev, global: '필수 이용약관에 동의해주세요.' }));
@@ -136,9 +136,9 @@ export default function RegisterForm() {
         setErrors(prev => ({ ...prev, global: response.data.message || '가입 실패' }));
       }
     } catch (error: any) {
-      setErrors(prev => ({ 
-        ...prev, 
-        global: error.response?.data?.message || '이미 가입된 아이디이거나 닉네임입니다.' 
+      setErrors(prev => ({
+        ...prev,
+        global: error.response?.data?.message || '이미 가입된 아이디이거나 닉네임입니다.'
       }));
     } finally {
       setIsLoading(false);
@@ -164,10 +164,10 @@ export default function RegisterForm() {
           <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
             <Mail className={styles.inputIcon} />
-            <input 
+            <input
               id="id"
-              type="text" 
-              className={`${styles.input} ${errors.id ? styles.inputError : ''}`} 
+              type="text"
+              className={`${styles.input} ${errors.id ? styles.inputError : ''}`}
               placeholder="영문, 숫자 4자 이상"
               value={id}
               onChange={(e) => {
@@ -184,10 +184,10 @@ export default function RegisterForm() {
           <label htmlFor="nickname" className={styles.inputLabel}>닉네임</label>
           <div className={styles.inputWrapper}>
             <User className={styles.inputIcon} />
-            <input 
+            <input
               id="nickname"
-              type="text" 
-              className={`${styles.input} ${errors.nickname ? styles.inputError : ''}`} 
+              type="text"
+              className={`${styles.input} ${errors.nickname ? styles.inputError : ''}`}
               placeholder="닉네임을 입력하세요"
               value={nickname}
               onChange={(e) => {
@@ -204,10 +204,10 @@ export default function RegisterForm() {
           <label htmlFor="phone" className={styles.inputLabel}>전화번호</label>
           <div className={styles.inputWrapper}>
             <Phone className={styles.inputIcon} />
-            <input 
+            <input
               id="phone"
-              type="text" 
-              className={`${styles.input} ${errors.phone ? styles.inputError : ''}`} 
+              type="text"
+              className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
               placeholder="010-1234-5678"
               value={phone}
               onChange={handlePhoneChange}
@@ -222,10 +222,10 @@ export default function RegisterForm() {
           <label htmlFor="password" className={styles.inputLabel}>비밀번호</label>
           <div className={styles.inputWrapper}>
             <Lock className={styles.inputIcon} />
-            <input 
+            <input
               id="password"
-              type={showPassword ? "text" : "password"} 
-              className={`${styles.input} ${errors.password ? styles.inputError : ''}`} 
+              type={showPassword ? "text" : "password"}
+              className={`${styles.input} ${errors.password ? styles.inputError : ''}`}
               placeholder="8자 이상, 영문+숫자 포함"
               value={password}
               onChange={(e) => {
@@ -233,8 +233,8 @@ export default function RegisterForm() {
                 validateField('password', e.target.value);
               }}
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={styles.eyeButton}
               onClick={() => setShowPassword(!showPassword)}
             >
@@ -249,10 +249,10 @@ export default function RegisterForm() {
           <label htmlFor="passwordConfirm" className={styles.inputLabel}>비밀번호 확인</label>
           <div className={styles.inputWrapper}>
             <Lock className={styles.inputIcon} />
-            <input 
+            <input
               id="passwordConfirm"
-              type={showPasswordConfirm ? "text" : "password"} 
-              className={`${styles.input} ${errors.passwordConfirm ? styles.inputError : ''}`} 
+              type={showPasswordConfirm ? "text" : "password"}
+              className={`${styles.input} ${errors.passwordConfirm ? styles.inputError : ''}`}
               placeholder="비밀번호 재입력"
               value={passwordConfirm}
               onChange={(e) => {
@@ -260,8 +260,8 @@ export default function RegisterForm() {
                 validateField('passwordConfirm', e.target.value);
               }}
             />
-            <button 
-              type="button" 
+            <button
+              type="button"
               className={styles.eyeButton}
               onClick={() => setShowPasswordConfirm(!showPasswordConfirm)}
             >
@@ -295,7 +295,7 @@ export default function RegisterForm() {
         </div>
 
         {errors.global && (
-          <div className={styles.errorMessage} style={{textAlign: 'center', marginBottom: '8px', fontSize: '13px', width: '100%'}}>
+          <div className={styles.errorMessage} style={{ textAlign: 'center', marginBottom: '8px', fontSize: '13px', width: '100%' }}>
             {errors.global}
           </div>
         )}
@@ -306,7 +306,7 @@ export default function RegisterForm() {
       </form>
 
       <div className={styles.footer}>
-        이미 계정이 있으신가요? 
+        이미 계정이 있으신가요?
         <Link href="/login" className={styles.loginLink}>
           로그인
         </Link>

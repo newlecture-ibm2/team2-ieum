@@ -66,7 +66,7 @@ public class ReviewService {
         com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository
                 .findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-        Long userId = user.getId();
+        Long userId = userEntity.getUserId();
 
         if (repository.existsByFestivalIdAndUserId(festivalId, userId)) {
             throw new IllegalArgumentException("이미 해당 축제에 리뷰를 작성하셨습니다.");
@@ -91,7 +91,7 @@ public class ReviewService {
         ReviewEntity review = repository.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
 
-        if (!review.getUserId().equals(user.getId()) && !user.getRole().name().contains("ADMIN")) {
+        if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 수정할 수 있습니다.");
         }
 
@@ -106,7 +106,8 @@ public class ReviewService {
 
     @Transactional
     public void deleteReview(Long reviewId, String loginId) {
-        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository.findByLoginId(loginId)
+        com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity userEntity = userJpaRepository
+                .findByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         ReviewEntity review = repository.findById(reviewId)
@@ -115,12 +116,8 @@ public class ReviewService {
         if (!review.getUserId().equals(userEntity.getUserId()) && !userEntity.getRole().contains("ADMIN")) {
             throw new IllegalArgumentException("본인의 리뷰만 삭제할 수 있습니다.");
         }
-
-        Long festivalId = review.getFestivalId();
-        
         repository.delete(review);
         repository.flush(); // delete 반영 후 집계 쿼리 실행되도록 강제 플러시
-        
-        updateFestivalStats(festivalId);
+        updateFestivalStats(review.getFestivalId());
     }
 }
