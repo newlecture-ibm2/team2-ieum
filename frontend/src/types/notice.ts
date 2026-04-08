@@ -9,6 +9,7 @@ export interface Notice {
   viewCount: number;
   isPinned: boolean;
   isPopup: boolean;
+  isActive: boolean;
   startDate?: string;
   endDate?: string;
   createdAt: string;

@@ -36,6 +36,7 @@ public class CommentEntity {
     private CommentEntity parent;
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
+    @OrderBy("createdAt ASC")
     @Builder.Default
     private List<CommentEntity> children = new ArrayList<>();
 

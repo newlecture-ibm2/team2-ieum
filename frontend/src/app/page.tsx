@@ -5,6 +5,7 @@ import FestivalList from './festivals/_components/FestivalList';
 import Pagination from '@/_component/common/Pagination';
 import styles from './page.module.css';
 import { Festival } from '@/types/festival';
+import NoticePopup from './notices/_components/NoticePopup';
 
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
 async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
@@ -75,6 +76,9 @@ export default async function MainPage({
       </section>
 
       {/* 팀원이 공통 푸터를 개발할 예정 */}
+      
+      {/* 5. 팝업 공지사항 */}
+      <NoticePopup />
     </main>
   );
 }

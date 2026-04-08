@@ -25,14 +25,22 @@ export interface Comment {
   userName: string;
   parentId: number | null;
   content: string;
+  status: string;
   createdAt: string;
   children?: Comment[];
+}
+
+export interface Attachment {
+  id: number;
+  fileName?: string;
+  fileSize?: number;
+  [key: string]: unknown;
 }
 
 export function usePostDetail(postId: string, enabled: boolean = true) {
   const [post, setPost] = useState<PostDetail | null>(null);
   const [comments, setComments] = useState<Comment[]>([]);
-  const [attachments, setAttachments] = useState<any[]>([]);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 

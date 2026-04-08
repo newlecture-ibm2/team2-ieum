@@ -127,6 +127,22 @@ export default function NotificationDropdown({ onClose }: Props) {
     onClose();
   };
 
+  /* 개별 알림 삭제 */
+  const handleDeleteClick = async (e: React.MouseEvent, notification: Notification) => {
+    e.stopPropagation(); // 부모 항목 클릭 이벤트 방지
+    try {
+      await api.delete(`/api/users/me/notifications/${notification.id}`);
+      if (data) {
+        setData({
+          unreadCount: notification.isRead ? data.unreadCount : Math.max(0, data.unreadCount - 1),
+          notifications: data.notifications.filter((n) => n.id !== notification.id),
+        });
+      }
+    } catch {
+      // 에러 무시
+    }
+  };
+
   /* ===== 렌더링 ===== */
   return (
     <>
@@ -180,7 +196,17 @@ export default function NotificationDropdown({ onClose }: Props) {
                     <div className={styles.message}>{n.message}</div>
                     <div className={styles.time}>{timeAgo(n.createdAt)}</div>
                   </div>
-                  {!n.isRead && <div className={styles.unreadDot} />}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    {!n.isRead && <div className={styles.unreadDot} />}
+                    <button
+                      type="button"
+                      className={styles.deleteBtn}
+                      onClick={(e) => handleDeleteClick(e, n)}
+                      title="알림 삭제"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 </div>
               );
             })

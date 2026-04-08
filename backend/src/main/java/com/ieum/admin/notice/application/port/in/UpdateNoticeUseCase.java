@@ -14,6 +14,7 @@ public interface UpdateNoticeUseCase {
      * 공지사항 수정 (첨부파일 추가/삭제 포함)
      */
     AdminNotice update(Long noticeId, String title, String content, String summary,
-                  Boolean isPinned, Boolean isPopup,
-                  List<MultipartFile> newFiles, List<Long> deleteFileIds);
+            Boolean isPinned, Boolean isPopup, Boolean sendPush, Boolean isActive,
+            java.time.LocalDateTime startDate, java.time.LocalDateTime endDate,
+            List<MultipartFile> newFiles, List<Long> deleteFileIds);
 }

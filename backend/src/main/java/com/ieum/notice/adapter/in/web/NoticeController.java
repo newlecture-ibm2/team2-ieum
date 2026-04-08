@@ -74,11 +74,11 @@ public class NoticeController {
     /**
      * 팝업용 공지 조회 (API_NTC_0020)
      */
-    @Operation(summary = "팝업 공지 조회", description = "메인 화면 진입 시 isPopup=true인 최신 공지 1건 반환")
+    @Operation(summary = "팝업 공지 조회", description = "메인 화면 진입 시 isPopup=true인 유효한 공지사항 목록 반환")
     @GetMapping("/popup")
-    public ResponseEntity<ApiResponse<Notice>> getPopupNotice() {
+    public ResponseEntity<ApiResponse<java.util.List<Notice>>> getPopupNotices() {
         return ResponseEntity.ok(ApiResponse.success(
-                getPopupNoticeUseCase.getPopupNotice()));
+                getPopupNoticeUseCase.getPopupNotices()));
     }
 
     /**

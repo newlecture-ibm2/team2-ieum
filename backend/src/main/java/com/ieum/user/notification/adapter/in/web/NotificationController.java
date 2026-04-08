@@ -31,9 +31,18 @@ public class NotificationController {
     private final RegisterFcmTokenUseCase registerFcmTokenUseCase;
     private final UpdateNotificationSettingUseCase updateNotificationSettingUseCase;
     private final MarkNotificationsReadUseCase markNotificationsReadUseCase;
+    private final com.ieum.user.notification.application.port.in.DeleteNotificationUseCase deleteNotificationUseCase;
 
-    // TODO: 현재는 테스트를 위해 userId = 1L 로 고정합니다. (Security 도입 시 @AuthenticationPrincipal 같은 인증 객체로 변경)
-    private final Long TEMP_USER_ID = 1L;
+    // SecurityContext에서 현재 로그인한 사용자 ID(Long)를 추출하는 헬퍼 메서드
+    private Long getCurrentUserId() {
+        String name = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication()
+                .getName();
+        try {
+            return Long.valueOf(name);
+        } catch (NumberFormatException e) {
+            return null; // 인증되지 않은 경우
+        }
+    }
 
     /**
      * 내 알림 조회 (API_USR_0040)
@@ -41,8 +50,11 @@ public class NotificationController {
     @Operation(summary = "내 알림 목록", description = "나에게 온 알림 목록과 읽지 않은 알림 개수를 조회합니다.")
     @GetMapping("/notifications")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getMyNotifications() {
+        Long userId = getCurrentUserId();
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         return ResponseEntity.ok(ApiResponse.success(
-                getMyNotificationsUseCase.getMyNotifications(TEMP_USER_ID)));
+                getMyNotificationsUseCase.getMyNotifications(userId)));
     }
 
     /**
@@ -52,9 +64,12 @@ public class NotificationController {
     @PostMapping("/fcm-token")
     public ResponseEntity<ApiResponse<Void>> registerFcmToken(
             @RequestBody Map<String, String> request) {
+        Long userId = getCurrentUserId();
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         String token = request.get("token");
         if (token != null && !token.isBlank()) {
-            registerFcmTokenUseCase.register(TEMP_USER_ID, token);
+            registerFcmTokenUseCase.register(userId, token);
         }
         return ResponseEntity.ok(ApiResponse.success());
     }
@@ -66,14 +81,16 @@ public class NotificationController {
     @PatchMapping("/notifications/settings")
     public ResponseEntity<ApiResponse<NotificationSetting>> updateSettings(
             @RequestBody Map<String, Boolean> request) {
+        Long userId = getCurrentUserId();
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         NotificationSetting updated = updateNotificationSettingUseCase.updateSettings(
-                TEMP_USER_ID,
+                userId,
                 request.get("pushEnabled"),
                 request.get("festivalStart"),
                 request.get("festivalEnd"),
                 request.get("notice"),
-                request.get("comment")
-        );
+                request.get("comment"));
         return ResponseEntity.ok(ApiResponse.success(updated));
     }
 
@@ -84,8 +101,24 @@ public class NotificationController {
     @PatchMapping("/notifications/read")
     public ResponseEntity<ApiResponse<Map<String, Integer>>> markAsRead(
             @RequestBody(required = false) Map<String, List<Long>> request) {
+        Long userId = getCurrentUserId();
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         List<Long> ids = (request != null) ? request.get("notificationIds") : null;
-        int count = markNotificationsReadUseCase.markAsRead(TEMP_USER_ID, ids);
+        int count = markNotificationsReadUseCase.markAsRead(userId, ids);
         return ResponseEntity.ok(ApiResponse.success(Map.of("updatedCount", count)));
+    }
+
+    /**
+     * 알림 개별 삭제
+     */
+    @Operation(summary = "알림 삭제", description = "특정 알림을 삭제합니다.")
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<ApiResponse<Void>> deleteNotification(@PathVariable Long notificationId) {
+        Long userId = getCurrentUserId();
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        deleteNotificationUseCase.deleteNotification(userId, notificationId);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }
