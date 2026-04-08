@@ -1,7 +1,7 @@
 package com.ieum.admin.festival.application.service;
 
-import com.ieum.admin.festival.adapter.out.persistence.entity.RegionMasterEntity;
-import com.ieum.admin.festival.adapter.out.persistence.repository.RegionMasterRepository;
+import com.ieum.admin.festival.domain.model.RegionMaster;
+import com.ieum.admin.festival.application.port.out.MasterDataPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -23,7 +23,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class RegionSeedInitializer implements CommandLineRunner {
 
-    private final RegionMasterRepository regionMasterRepository;
+    private final MasterDataPort masterDataPort;
 
     /**
      * 대한민국 17개 시도 (Tour API areaCode 기준)
@@ -62,31 +62,39 @@ public class RegionSeedInitializer implements CommandLineRunner {
             String displayName = row[2];
             String shortName   = row[3];
 
-            RegionMasterEntity entity = regionMasterRepository.findById(code).orElse(null);
+            RegionMaster entity = masterDataPort.findRegionByCode(code).orElse(null);
 
             if (entity == null) {
                 // 신규 INSERT
-                entity = new RegionMasterEntity(code, tourName, displayName, shortName);
-                regionMasterRepository.save(entity);
+                entity = RegionMaster.builder()
+                        .regionCode(code)
+                        .name(tourName)
+                        .displayName(displayName)
+                        .shortName(shortName)
+                        .active(true)
+                        .build();
+                masterDataPort.saveRegion(entity);
                 created++;
                 log.debug("지역 INSERT: {} → {} ({})", code, displayName, shortName);
             } else {
                 // 기존 데이터가 있으면 displayName / shortName / active만 갱신
                 boolean changed = false;
+                RegionMaster.RegionMasterBuilder builder = entity.toBuilder();
+                
                 if (!displayName.equals(entity.getDisplayName())) {
-                    entity.setDisplayName(displayName);
+                    builder.displayName(displayName);
                     changed = true;
                 }
                 if (!shortName.equals(entity.getShortName())) {
-                    entity.setShortName(shortName);
+                    builder.shortName(shortName);
                     changed = true;
                 }
                 if (!entity.isActive()) {
-                    entity.setActive(true);
+                    builder.active(true);
                     changed = true;
                 }
                 if (changed) {
-                    regionMasterRepository.save(entity);
+                    masterDataPort.saveRegion(builder.build());
                     updated++;
                     log.debug("지역 UPDATE: {} → {} ({})", code, displayName, shortName);
                 }

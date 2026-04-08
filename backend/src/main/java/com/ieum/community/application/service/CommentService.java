@@ -4,9 +4,12 @@ import com.ieum.community.application.port.in.*;
 import com.ieum.community.application.port.out.CommentPort;
 import com.ieum.community.application.port.out.PostPort;
 import com.ieum.community.domain.model.Comment;
+import com.ieum.community.domain.model.Post;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
+import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +21,7 @@ import java.util.List;
  * - Output Port(CommentPort, PostPort)만 의존 (JPA Repository 직접 참조 없음)
  * - adapter.in.web 패키지의 DTO를 알지 못함
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -25,6 +29,7 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
 
     private final CommentPort commentPort;
     private final PostPort postPort;
+    private final SendNotificationUseCase sendNotificationUseCase;
 
     // ──── CreateCommentUseCase ────
 
@@ -38,12 +43,13 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
         }
 
         // 게시글 존재 여부 확인
-        postPort.findById(postId)
+        Post post = postPort.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
+        Comment parentComment = null;
         // 대댓글인 경우 부모 댓글 확인
         if (parentId != null) {
-            Comment parentComment = commentPort.findById(parentId)
+            parentComment = commentPort.findById(parentId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001,
                             "Parent comment ID: " + parentId));
 
@@ -62,7 +68,40 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
                 .status("ACTIVE")
                 .build();
 
-        return commentPort.save(comment);
+        Comment saved = commentPort.save(comment);
+
+        // 알림 전송 로직
+        // 대댓글인 경우: 부모 댓글 작성자에게 알림
+        // 최상위 댓글인 경우: 게시물 작성자에게 알림
+        try {
+            Long targetUserId = (parentComment != null) ? parentComment.getUserId() : post.getAuthorId();
+            
+            log.info("알림 전송 시도: targetUserId={}, requesterId={}", targetUserId, userId);
+
+            // 본인이 쓴 글이나 본인 댓글에 작성할 때는 알림 제외
+            if (targetUserId != null && !targetUserId.equals(userId)) {
+                String title = (parentComment != null) ? "새로운 대댓글이 달렸습니다." : "새로운 댓글이 달렸습니다.";
+                String msg = "작성자 " + userName + ": " + 
+                             (content.length() > 20 ? content.substring(0, 20) + "..." : content);
+                
+                log.info("알림 발송 조건 충족: 발송 시작...");
+                sendNotificationUseCase.sendNotification(
+                        targetUserId,
+                        "COMMENT",
+                        "COMMUNITY",
+                        postId,
+                        title,
+                        msg
+                );
+            } else {
+                log.info("알림 발송 제외: 본인 글/댓글에 대한 작업입니다.");
+            }
+        } catch (Exception e) {
+            log.error("알림 발송 중 오류 발생: {}", e.getMessage(), e);
+            // 알림 발송 실패가 댓글 작성 자체를 롤백시키지 않도록 예외 처리
+        }
+
+        return saved;
     }
 
     // ──── LoadCommentUseCase ────

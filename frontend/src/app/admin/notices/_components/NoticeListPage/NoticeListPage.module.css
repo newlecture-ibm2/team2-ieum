@@ -17,3 +17,14 @@
   margin-right: 6px;
   font-size: 13px;
 }
+
+.clickableTitle {
+  cursor: pointer;
+}
+
+.clickableTitle:hover {
+  text-decoration: underline;
+  color: #6c5ce7;
+}
+
+

@@ -13,8 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.ieum.admin.report.application.port.in.GetReportTargetUseCase;
-
-import jakarta.persistence.EntityManager;
+import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 
 /**
  * 신고 관리 서비스 (UseCase 구현체)
@@ -27,8 +26,7 @@ import jakarta.persistence.EntityManager;
 public class ReportAdminService implements GetReportListUseCase, ProcessReportUseCase, GetReportTargetUseCase {
 
     private final ReportPort reportPort;
-    private final EntityManager em;
-
+    private final SendNotificationUseCase sendNotificationUseCase;
     @Override
     public ReportListResult getReports(int page, int size, String status, String targetType, String searchType,
             String keyword) {
@@ -56,26 +54,38 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
         if ("DELETE".equalsIgnoreCase(action)) {
             hideTargetContent(reportId);
         }
+
+        // 처리 완료 후 신고자에게 결과 알림 전송
+        reportPort.findById(reportId).ifPresent(report -> {
+            if (report.getReporterId() != null) {
+                try {
+                    String title = "회원님의 신고 처리 결과 안내";
+                    String notifyMessage = "RESOLVED".equals(newStatus) 
+                            ? "신고가 정상 처리(완료)되었습니다." 
+                            : "신고가 반려(미조치)되었습니다.";
+                    
+                    if (message != null && !message.isEmpty()) {
+                        notifyMessage += " - " + (message.length() > 20 ? message.substring(0, 20) + "..." : message);
+                    }
+
+                    sendNotificationUseCase.sendNotification(
+                            report.getReporterId(),
+                            "NOTICE",  // 공지와 유사한 시스템 알림 타입으로 분류 (아이콘 표시용)
+                            report.getTargetType(), // REVIEW, POST, COMMENT 등
+                            report.getTargetId(),
+                            title,
+                            notifyMessage
+                    );
+                } catch (Exception e) {
+                    // 알림 실패 무시
+                }
+            }
+        });
     }
 
     private void hideTargetContent(Long reportId) {
         reportPort.findById(reportId).ifPresent(report -> {
-            String type = report.getTargetType();
-            Long id = report.getTargetId();
-
-            if ("POST".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            } else if ("COMMENT".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE CommentEntity c SET c.status = 'REMOVED' WHERE c.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            } else if ("REVIEW".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            }
+            reportPort.hideTargetContent(report.getTargetType(), report.getTargetId());
         });
     }
 

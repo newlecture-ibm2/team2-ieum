@@ -11,6 +11,8 @@ export interface AdminNoticeItem {
   viewCount: number;
   isPinned: boolean;
   isPopup: boolean;
+  isPushed: boolean;
+  isActive: boolean;
   startDate?: string;
   endDate?: string;
   createdAt: string;

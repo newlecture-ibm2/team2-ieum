@@ -8,38 +8,62 @@ import type { AdminNoticeItem, AdminNoticeListResponse } from '@/types/admin-not
 import { Modal } from '@/_component/common/Modal';
 import ConfirmModal from '@/_component/common/Modal/ConfirmModal';
 import NoticeFormModal from '../NoticeFormModal';
+import NoticeDetailModal from '../NoticeDetailModal';
 import { useToast } from '@/_component/common/Toast';
 import s from './NoticeListPage.module.css';
 
 export default function NoticeListPage() {
-  const list = useAdminList();
+  const list = useAdminList({ extraFilterKeys: ['searchType'] });
   const {
     currentPage, setCurrentPage, totalPages, setTotalPages,
     totalElements, setTotalElements,
+    extraFilters, setExtraFilter,
     loading, setLoading,
-    keyword, searchTerm, setSearchTerm, handleKeyDown, submitSearch
+    keyword, searchTerm, setSearchTerm, submitSearch
   } = list;
 
   const { toast } = useToast();
 
   const [notices, setNotices] = useState<AdminNoticeItem[]>([]);
+  const [allCount, setAllCount] = useState(0);
   const [pinnedCount, setPinnedCount] = useState(0);
   const [popupCount, setPopupCount] = useState(0);
+  const [pushedCount, setPushedCount] = useState(0);
+  const [filterType, setFilterType] = useState<'all' | 'pinned' | 'popup' | 'pushed' | 'ACTIVE' | 'INACTIVE' | 'RESERVED' | 'ENDED'>('all');
+  const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
+
+  const onSearchSubmit = () => {
+    setExtraFilter('searchType', localSearchType);
+    submitSearch();
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit();
+    }
+  };
 
   /* ── 모달 상태 ── */
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
   const [editTarget, setEditTarget] = useState<AdminNoticeItem | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<AdminNoticeItem | null>(null);
+  const [detailTarget, setDetailTarget] = useState<AdminNoticeItem | null>(null);
 
   /* ── 데이터 로드 ── */
   const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, string | number> = {
+      const params: Record<string, string | number | boolean> = {
         page: currentPage,
         size: 10,
       };
       if (keyword) params.keyword = keyword;
+      if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
+
+      if (filterType === 'pinned') params.isPinned = true;
+      else if (filterType === 'popup') params.isPopup = true;
+      else if (filterType === 'pushed') params.isPushed = true;
+      else if (filterType !== 'all') params.status = filterType;
 
       const { data } = await adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params });
       const result = data.data;
@@ -48,18 +72,24 @@ export default function NoticeListPage() {
       setTotalPages(result.totalPages || 1);
       setTotalElements(result.totalElements);
 
-      // KPI 카운트
+      // 전체 카운트는 검색이나 필터가 없을 때만 정확하므로 별도 API에서 가져오는 것이 이상적이지만, 
+      // 임시로 현재 데이터 내에서 계산 (백엔드 지원 필요)
       const pinned = result.content.filter(n => n.isPinned).length;
       const popup = result.content.filter(n => n.isPopup).length;
-      setPinnedCount(pinned);
-      setPopupCount(popup);
+      const pushed = result.content.filter(n => n.isPushed).length;
+      if (filterType === 'all') {
+        setAllCount(result.totalElements);
+        setPinnedCount(pinned);
+        setPopupCount(popup);
+        setPushedCount(pushed);
+      }
     } catch (err) {
       console.error('공지사항 목록 조회 실패:', err);
       setNotices([]);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, keyword, setLoading, setTotalPages, setTotalElements]);
+  }, [currentPage, keyword, extraFilters.searchType, filterType, setLoading, setTotalPages, setTotalElements]);
 
   useEffect(() => {
     fetchNotices();
@@ -101,35 +131,78 @@ export default function NoticeListPage() {
       {/* ── KPI 카드 ── */}
       <div className={common.card}>
         <div className={common.statGrid}>
-          <div className={`${common.statCard} ${common.statTotal}`}>
+          <div
+            className={`${common.statCard} ${common.statTotal} ${common.statCardInteractive} ${filterType === 'all' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('all'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>전체</div>
-            <div className={common.statValue}>{totalElements}</div>
+            <div className={common.statValue}>{allCount}</div>
           </div>
-          <div className={`${common.statCard} ${common.statUpcoming}`}>
+          <div
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${filterType === 'pinned' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('pinned'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>상단고정</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pinnedCount}</div>
           </div>
-          <div className={`${common.statCard} ${common.statOngoing}`}>
+          <div
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${filterType === 'popup' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('popup'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>팝업</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{popupCount}</div>
+          </div>
+          <div
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${filterType === 'pushed' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('pushed'); setCurrentPage(1); }}
+          >
+            <div className={common.statLabel}>푸시알림</div>
+            <div className={`${common.statValue}`}>{pushedCount}</div>
           </div>
         </div>
       </div>
 
-      {/* ── 검색 바 ── */}
+      {/* ── 필터 바 ── */}
       <div className={common.filterBar}>
-        <div />
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={filterType}
+            onChange={(e) => {
+              setFilterType(e.target.value as 'all' | 'pinned' | 'popup' | 'pushed' | 'ACTIVE' | 'INACTIVE' | 'RESERVED' | 'ENDED');
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">전체 상태</option>
+            <option value="ACTIVE">활성</option>
+            <option value="RESERVED">예약</option>
+            <option value="ENDED">종료</option>
+            <option value="INACTIVE">비활성</option>
+
+          </select>
+        </div>
         <div style={{ display: 'flex', gap: '8px' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={localSearchType}
+            onChange={(e) => setLocalSearchType(e.target.value)}
+          >
+            <option value="ALL">전체 검색</option>
+            <option value="TITLE">제목</option>
+            <option value="CONTENT">내용</option>
+          </select>
           <input
             type="text"
             className={common.searchInput}
             style={{ width: 280 }}
-            placeholder="제목 또는 내용으로 검색"
+            placeholder="검색어를 입력하세요"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleSearchKeyDown}
           />
-          <button type="button" className={common.searchBtn} onClick={submitSearch}>
+          <button type="button" className={common.searchBtn} onClick={onSearchSubmit}>
             검색
           </button>
         </div>
@@ -147,8 +220,10 @@ export default function NoticeListPage() {
               <col style={{ width: '60px' }} />
               <col style={{ width: 'auto' }} />
               <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
+              <col style={{ width: '90px' }} />
+              <col style={{ width: '70px' }} />
+              <col style={{ width: '70px' }} />
+              <col style={{ width: '70px' }} />
               <col style={{ width: '110px' }} />
               <col style={{ width: '130px' }} />
             </colgroup>
@@ -157,8 +232,10 @@ export default function NoticeListPage() {
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
                 <th className={`${common.tableHeaderCell} ${common.textLeft}`}>제목</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>조회수</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>고정</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>팝업</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>푸시알림</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>작성일</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
               </tr>
@@ -179,12 +256,25 @@ export default function NoticeListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {totalElements - ((currentPage - 1) * 10 + idx)}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                    <td
+                      className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell} ${s.clickableTitle}`}
+                      onClick={() => setDetailTarget(notice)}
+                    >
                       {notice.isPinned && <span className={s.pinIcon}>📌</span>}
                       {notice.title}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.viewCount?.toLocaleString()}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(() => {
+                        if (notice.isActive === false) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>비활성</span>;
+                        const now = new Date();
+                        if (notice.startDate && new Date(notice.startDate) > now) return <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>예약</span>;
+                        if (notice.endDate && new Date(notice.endDate) < now) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>종료</span>;
+                        if (notice.isPopup) return <span className={`${common.statusBadge} ${common.badgeOngoing}`}>팝업</span>;
+                        return <span className={`${common.statusBadge} ${common.badgeOngoing}`} style={{ backgroundColor: '#e8f5e9', color: '#2e7d32' }}>활성</span>;
+                      })()}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.isPinned ? (
@@ -196,6 +286,13 @@ export default function NoticeListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.isPopup ? (
                         <span className={`${common.statusBadge} ${common.badgeOngoing}`}>Y</span>
+                      ) : (
+                        <span className={`${common.statusBadge} ${common.badgeEnded}`}>N</span>
+                      )}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {notice.isPushed ? (
+                        <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>Y</span>
                       ) : (
                         <span className={`${common.statusBadge} ${common.badgeEnded}`}>N</span>
                       )}
@@ -273,6 +370,19 @@ export default function NoticeListPage() {
           danger
           onConfirm={handleDelete}
           onCancel={() => setDeleteTarget(null)}
+        />
+      )}
+
+      {/* ── 상세보기 모달 ── */}
+      {detailTarget && (
+        <NoticeDetailModal
+          notice={detailTarget}
+          onClose={() => setDetailTarget(null)}
+          onEdit={() => {
+            setDetailTarget(null);
+            setFormMode('edit');
+            setEditTarget(detailTarget);
+          }}
         />
       )}
     </div>
