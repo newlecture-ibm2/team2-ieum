@@ -25,6 +25,7 @@ export interface Comment {
   userName: string;
   parentId: number | null;
   content: string;
+  status: string;
   createdAt: string;
   children?: Comment[];
 }
