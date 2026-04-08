@@ -53,7 +53,9 @@ export function useFestivalOptions(): UseFestivalOptionsReturn {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchRegions();
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     fetchCategories();
   }, []);
 

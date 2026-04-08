@@ -18,4 +18,5 @@ public class InquiryListResult {
     private long totalElements;
     private long pendingCount;
     private long answeredCount;
+    private long newTodayCount;
 }

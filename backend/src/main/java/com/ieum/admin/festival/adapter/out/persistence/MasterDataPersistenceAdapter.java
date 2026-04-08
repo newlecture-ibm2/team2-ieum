@@ -9,8 +9,11 @@ import com.ieum.admin.festival.adapter.out.persistence.repository.SigunguMasterR
 import com.ieum.admin.festival.application.port.out.MasterDataPort;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import com.ieum.admin.festival.domain.model.RegionMaster;
+import com.ieum.admin.festival.domain.model.SigunguMaster;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * MasterDataPort 구현체 (Output Adapter)
@@ -26,38 +29,62 @@ public class MasterDataPersistenceAdapter implements MasterDataPort {
 
     // ── Region ──
     @Override
-    public List<RegionMasterEntity> findAllRegions() {
-        return regionMasterRepository.findAll();
+    public List<RegionMaster> findAllRegions() {
+        return regionMasterRepository.findAll().stream()
+                .map(RegionMasterEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public RegionMasterEntity saveRegion(RegionMasterEntity entity) {
-        return regionMasterRepository.save(entity);
+    public java.util.Optional<RegionMaster> findRegionByCode(String regionCode) {
+        return regionMasterRepository.findByRegionCode(regionCode)
+                .map(RegionMasterEntity::toDomain);
     }
 
     @Override
-    public List<RegionMasterEntity> saveAllRegions(List<RegionMasterEntity> entities) {
-        return regionMasterRepository.saveAll(entities);
+    public RegionMaster saveRegion(RegionMaster domain) {
+        RegionMasterEntity saved = regionMasterRepository.save(RegionMasterEntity.fromDomain(domain));
+        return saved.toDomain();
+    }
+
+    @Override
+    public List<RegionMaster> saveAllRegions(List<RegionMaster> domains) {
+        List<RegionMasterEntity> entities = domains.stream()
+                .map(RegionMasterEntity::fromDomain)
+                .collect(Collectors.toList());
+        return regionMasterRepository.saveAll(entities).stream()
+                .map(RegionMasterEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     // ── Sigungu ──
     @Override
-    public List<SigunguMasterEntity> findAllSigungus() {
-        return sigunguMasterRepository.findAll();
+    public List<SigunguMaster> findAllSigungus() {
+        return sigunguMasterRepository.findAll().stream()
+                .map(SigunguMasterEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<SigunguMasterEntity> findSigungusByRegionCode(String regionCode) {
-        return sigunguMasterRepository.findByRegionCode(regionCode);
+    public List<SigunguMaster> findSigungusByRegionCode(String regionCode) {
+        return sigunguMasterRepository.findByRegionCode(regionCode).stream()
+                .map(SigunguMasterEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override
-    public SigunguMasterEntity saveSigungu(SigunguMasterEntity entity) {
-        return sigunguMasterRepository.save(entity);
+    public SigunguMaster saveSigungu(SigunguMaster domain) {
+        SigunguMasterEntity saved = sigunguMasterRepository.save(SigunguMasterEntity.fromDomain(domain));
+        return saved.toDomain();
     }
 
     @Override
-    public List<SigunguMasterEntity> saveAllSigungus(List<SigunguMasterEntity> entities) {
-        return sigunguMasterRepository.saveAll(entities);
+    public List<SigunguMaster> saveAllSigungus(List<SigunguMaster> domains) {
+        List<SigunguMasterEntity> entities = domains.stream()
+                .map(SigunguMasterEntity::fromDomain)
+                .collect(Collectors.toList());
+        return sigunguMasterRepository.saveAll(entities).stream()
+                .map(SigunguMasterEntity::toDomain)
+                .collect(Collectors.toList());
     }
 }

@@ -65,8 +65,8 @@ export default function ReportListPage() {
   };
 
   /* ── 데이터 로드 ── */
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
+  const fetchReports = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
     try {
       const params: Record<string, string | number> = {
         page: currentPage,
@@ -88,17 +88,17 @@ export default function ReportListPage() {
       setRejectedCount(result.rejectedCount);
     } catch (err) {
       console.error('신고 목록 조회 실패:', err);
-      setReports([]);
+      if (!isPolling) setReports([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   }, [currentPage, statusFilter, extraFilters.targetType, extraFilters.searchType, keyword, setLoading, setTotalPages]);
 
   useEffect(() => {
-    fetchReports();
+    fetchReports(false);
 
     // 30초마다 목록 실시간 갱신 (폴링)
-    const intervalId = setInterval(fetchReports, 30000);
+    const intervalId = setInterval(() => fetchReports(true), 30000);
     return () => clearInterval(intervalId);
   }, [fetchReports]);
 

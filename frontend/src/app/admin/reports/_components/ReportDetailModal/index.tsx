@@ -205,7 +205,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
                   <span>·</span>
                   <span>{original.createdAt?.slice(0, 10)}</span>
                 </div>
-                <div className={s.originalContent}>{original.content}</div>
+                <div className={s.originalContentScroll}>{original.content}</div>
               </div>
             )}
           </div>

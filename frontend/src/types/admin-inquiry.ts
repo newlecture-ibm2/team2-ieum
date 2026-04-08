@@ -21,4 +21,5 @@ export interface InquiryListResponse {
   totalElements: number;
   pendingCount: number;
   answeredCount: number;
+  newTodayCount: number;
 }

@@ -15,8 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import com.ieum.admin.report.application.port.in.GetReportTargetUseCase;
 import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 
-import jakarta.persistence.EntityManager;
-
 /**
  * 신고 관리 서비스 (UseCase 구현체)
  * - Port 인터페이스만 의존
@@ -28,9 +26,7 @@ import jakarta.persistence.EntityManager;
 public class ReportAdminService implements GetReportListUseCase, ProcessReportUseCase, GetReportTargetUseCase {
 
     private final ReportPort reportPort;
-    private final EntityManager em;
     private final SendNotificationUseCase sendNotificationUseCase;
-
     @Override
     public ReportListResult getReports(int page, int size, String status, String targetType, String searchType,
             String keyword) {
@@ -89,22 +85,7 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
 
     private void hideTargetContent(Long reportId) {
         reportPort.findById(reportId).ifPresent(report -> {
-            String type = report.getTargetType();
-            Long id = report.getTargetId();
-
-            if ("POST".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            } else if ("COMMENT".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE CommentEntity c SET c.status = 'REMOVED' WHERE c.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            } else if ("REVIEW".equalsIgnoreCase(type)) {
-                em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
-                        .setParameter("id", id)
-                        .executeUpdate();
-            }
+            reportPort.hideTargetContent(report.getTargetType(), report.getTargetId());
         });
     }
 
