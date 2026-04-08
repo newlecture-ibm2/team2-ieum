@@ -1,8 +1,7 @@
 package com.ieum.admin.festival.application.port.out;
 
-import com.ieum.admin.festival.adapter.out.persistence.entity.CategoryMasterEntity;
-import com.ieum.admin.festival.adapter.out.persistence.entity.RegionMasterEntity;
-import com.ieum.admin.festival.adapter.out.persistence.entity.SigunguMasterEntity;
+import com.ieum.admin.festival.domain.model.RegionMaster;
+import com.ieum.admin.festival.domain.model.SigunguMaster;
 
 import java.util.List;
 
@@ -14,13 +13,14 @@ import java.util.List;
 public interface MasterDataPort {
 
     // ── Region ──
-    List<RegionMasterEntity> findAllRegions();
-    RegionMasterEntity saveRegion(RegionMasterEntity entity);
-    List<RegionMasterEntity> saveAllRegions(List<RegionMasterEntity> entities);
+    List<RegionMaster> findAllRegions();
+    java.util.Optional<RegionMaster> findRegionByCode(String regionCode);
+    RegionMaster saveRegion(RegionMaster domain);
+    List<RegionMaster> saveAllRegions(List<RegionMaster> domains);
 
     // ── Sigungu ──
-    List<SigunguMasterEntity> findAllSigungus();
-    List<SigunguMasterEntity> findSigungusByRegionCode(String regionCode);
-    SigunguMasterEntity saveSigungu(SigunguMasterEntity entity);
-    List<SigunguMasterEntity> saveAllSigungus(List<SigunguMasterEntity> entities);
+    List<SigunguMaster> findAllSigungus();
+    List<SigunguMaster> findSigungusByRegionCode(String regionCode);
+    SigunguMaster saveSigungu(SigunguMaster domain);
+    List<SigunguMaster> saveAllSigungus(List<SigunguMaster> domains);
 }

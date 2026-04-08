@@ -170,7 +170,7 @@ export default function NoticeListPage() {
             style={{ minWidth: 130 }}
             value={filterType}
             onChange={(e) => {
-              setFilterType(e.target.value as any);
+              setFilterType(e.target.value as 'all' | 'pinned' | 'popup' | 'pushed' | 'ACTIVE' | 'INACTIVE' | 'RESERVED' | 'ENDED');
               setCurrentPage(1);
             }}
           >

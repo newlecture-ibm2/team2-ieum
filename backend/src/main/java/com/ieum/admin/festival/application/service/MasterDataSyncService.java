@@ -2,9 +2,8 @@ package com.ieum.admin.festival.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ieum.admin.festival.adapter.out.persistence.entity.CategoryMasterEntity;
-import com.ieum.admin.festival.adapter.out.persistence.entity.RegionMasterEntity;
-import com.ieum.admin.festival.adapter.out.persistence.entity.SigunguMasterEntity;
+import com.ieum.admin.festival.domain.model.RegionMaster;
+import com.ieum.admin.festival.domain.model.SigunguMaster;
 import com.ieum.admin.festival.application.port.in.SyncCategoryMasterUseCase;
 import com.ieum.admin.festival.application.port.in.SyncRegionMasterUseCase;
 import com.ieum.admin.festival.application.result.DataSyncResult;
@@ -78,8 +77,8 @@ public class MasterDataSyncService implements SyncRegionMasterUseCase {
         log.info("시군구 마스터 동기화 시작...");
         try {
             // 활성화된 지역(region) 목록을 기준으로 각 지역별 시군구 조회
-            List<RegionMasterEntity> activeRegions = masterDataPort.findAllRegions().stream()
-                    .filter(RegionMasterEntity::isActive)
+            List<RegionMaster> activeRegions = masterDataPort.findAllRegions().stream()
+                    .filter(RegionMaster::isActive)
                     .toList();
 
             if (activeRegions.isEmpty()) {
@@ -88,17 +87,17 @@ public class MasterDataSyncService implements SyncRegionMasterUseCase {
             }
 
             // 전체 DB 시군구 → Map<regionCode_sigunguCode, entity>
-            List<SigunguMasterEntity> allDbSigungus = masterDataPort.findAllSigungus();
-            Map<String, SigunguMasterEntity> dbMap = allDbSigungus.stream()
+            List<SigunguMaster> allDbSigungus = masterDataPort.findAllSigungus();
+            Map<String, SigunguMaster> dbMap = allDbSigungus.stream()
                     .collect(Collectors.toMap(
                             e -> e.getRegionCode() + "_" + e.getSigunguCode(),
                             e -> e, (a, b) -> a));
 
             Set<String> allApiKeys = new HashSet<>();
             int totalChangeCount = 0;
-            List<SigunguMasterEntity> toSave = new ArrayList<>();
+            List<SigunguMaster> toSave = new ArrayList<>();
 
-            for (RegionMasterEntity region : activeRegions) {
+            for (RegionMaster region : activeRegions) {
                 List<JsonNode> apiItems = callTourApi("/areaCode2",
                         Map.of("areaCode", region.getRegionCode()));
 
@@ -109,23 +108,30 @@ public class MasterDataSyncService implements SyncRegionMasterUseCase {
 
                     String key = region.getRegionCode() + "_" + code;
                     allApiKeys.add(key);
-                    SigunguMasterEntity existing = dbMap.get(key);
+                    SigunguMaster existing = dbMap.get(key);
 
                     if (existing == null) {
-                        toSave.add(new SigunguMasterEntity(code, region.getRegionCode(), name));
+                        toSave.add(SigunguMaster.builder()
+                                .sigunguCode(code)
+                                .regionCode(region.getRegionCode())
+                                .name(name)
+                                .active(true)
+                                .build());
                         totalChangeCount++;
                     } else {
                         boolean changed = false;
+                        SigunguMaster.SigunguMasterBuilder builder = existing.toBuilder();
+                        
                         if (!name.equals(existing.getName())) {
-                            existing.setName(name);
+                            builder.name(name);
                             changed = true;
                         }
                         if (!existing.isActive()) {
-                            existing.setActive(true);
+                            builder.active(true);
                             changed = true;
                         }
                         if (changed) {
-                            toSave.add(existing);
+                            toSave.add(builder.build());
                             totalChangeCount++;
                         }
                     }
@@ -133,11 +139,10 @@ public class MasterDataSyncService implements SyncRegionMasterUseCase {
             }
 
             // SOFT DELETE: DB에 있지만 API에 없는 시군구
-            for (SigunguMasterEntity dbEntity : allDbSigungus) {
+            for (SigunguMaster dbEntity : allDbSigungus) {
                 String key = dbEntity.getRegionCode() + "_" + dbEntity.getSigunguCode();
                 if (!allApiKeys.contains(key) && dbEntity.isActive()) {
-                    dbEntity.setActive(false);
-                    toSave.add(dbEntity);
+                    toSave.add(dbEntity.toBuilder().active(false).build());
                     totalChangeCount++;
                 }
             }

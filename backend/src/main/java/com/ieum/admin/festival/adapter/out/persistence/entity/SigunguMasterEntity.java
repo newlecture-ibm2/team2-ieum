@@ -37,4 +37,22 @@ public class SigunguMasterEntity {
         this.name = name;
         this.isActive = true;
     }
+
+    public com.ieum.admin.festival.domain.model.SigunguMaster toDomain() {
+        return com.ieum.admin.festival.domain.model.SigunguMaster.builder()
+                .regionCode(this.regionCode)
+                .sigunguCode(this.sigunguCode)
+                .name(this.name)
+                .active(this.isActive)
+                .build();
+    }
+
+    public static SigunguMasterEntity fromDomain(com.ieum.admin.festival.domain.model.SigunguMaster domain) {
+        SigunguMasterEntity entity = new SigunguMasterEntity();
+        entity.setRegionCode(domain.getRegionCode());
+        entity.setSigunguCode(domain.getSigunguCode());
+        entity.setName(domain.getName());
+        entity.setActive(domain.isActive());
+        return entity;
+    }
 }
