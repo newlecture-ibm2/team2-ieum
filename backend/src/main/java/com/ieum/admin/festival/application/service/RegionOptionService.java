@@ -1,6 +1,7 @@
 package com.ieum.admin.festival.application.service;
 
-import com.ieum.admin.festival.adapter.out.persistence.repository.RegionMasterRepository;
+import com.ieum.admin.festival.application.port.out.MasterDataPort;
+import com.ieum.admin.festival.domain.model.RegionMaster;
 import com.ieum.admin.festival.application.dto.RegionOptionDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RegionOptionService {
-    private final RegionMasterRepository regionMasterRepository;
+    private final MasterDataPort masterDataPort;
 
     /**
      * 지역 코드 → 최신 행정구역 화면 표시명으로 변환
@@ -19,8 +20,8 @@ public class RegionOptionService {
      */
     public String resolveLabel(String code) {
         if (code == null) return "미지정";
-        return regionMasterRepository.findByRegionCode(code)
-                .map(r -> r.getEffectiveDisplayName())
+        return masterDataPort.findRegionByCode(code)
+                .map(RegionMaster::getEffectiveDisplayName)
                 .orElse("미지정");
     }
 
@@ -30,8 +31,8 @@ public class RegionOptionService {
      * - value: Tour API 코드 유지 (검색 필터링용)
      */
     public List<RegionOptionDto> getMergedRegionOptions() {
-        return regionMasterRepository.findAll().stream()
-                .filter(r -> r.isActive())
+        return masterDataPort.findAllRegions().stream()
+                .filter(RegionMaster::isActive)
                 .map(r -> new RegionOptionDto(
                         r.getRegionCode(),
                         r.getEffectiveDisplayName(),

@@ -85,9 +85,10 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
         toast('공지사항이 작성되었습니다.', 'success');
       }
       onSaved();
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('공지사항 저장 실패:', err);
-      const msg = err?.response?.data?.error?.message || '저장 중 오류가 발생했습니다.';
+      type BackendError = { response?: { data?: { error?: { message?: string } } } };
+      const msg = (err as BackendError)?.response?.data?.error?.message || '저장 중 오류가 발생했습니다.';
       toast(msg, 'error');
     } finally {
       setProcessing(false);

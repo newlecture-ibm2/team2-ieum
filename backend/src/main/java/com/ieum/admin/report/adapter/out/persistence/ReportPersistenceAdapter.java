@@ -109,4 +109,21 @@ public class ReportPersistenceAdapter implements ReportPort {
         }
         return null; // 알 수 없는 타입
     }
+
+    @Override
+    public void hideTargetContent(String targetType, Long targetId) {
+        if ("POST".equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")
+                    .setParameter("id", targetId)
+                    .executeUpdate();
+        } else if ("COMMENT".equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE CommentEntity c SET c.status = 'REMOVED' WHERE c.id = :id")
+                    .setParameter("id", targetId)
+                    .executeUpdate();
+        } else if ("REVIEW".equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
+                    .setParameter("id", targetId)
+                    .executeUpdate();
+        }
+    }
 }

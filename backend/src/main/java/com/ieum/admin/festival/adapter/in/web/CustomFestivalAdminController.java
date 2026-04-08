@@ -1,6 +1,7 @@
 package com.ieum.admin.festival.adapter.in.web;
 
 import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
+import com.ieum.admin.festival.application.command.CustomFestivalCommand;
 import com.ieum.admin.festival.application.port.in.CreateCustomFestivalUseCase;
 import com.ieum.admin.festival.application.port.in.DeleteCustomFestivalUseCase;
 import com.ieum.admin.festival.application.port.in.GetCustomFestivalListUseCase;
@@ -61,7 +62,25 @@ public class CustomFestivalAdminController {
     public ResponseEntity<ApiResponse<Map<String, Object>>> createCustomFestival(
             @ModelAttribute CustomFestivalRequest request
     ) {
-        Long festivalId = createCustomFestivalUseCase.createCustomFestival(request);
+        CustomFestivalCommand command = CustomFestivalCommand.builder()
+                .title(request.getTitle())
+                .areaCode(request.getAreaCode())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .content(request.getContent())
+                .category(request.getCategory())
+                .eventPlace(request.getEventPlace())
+                .address(request.getAddress())
+                .useFee(request.getUseFee())
+                .playTime(request.getPlayTime())
+                .tel(request.getTel())
+                .homepage(request.getHomepage())
+                .sigunguCode(request.getSigunguCode())
+                .img(request.getImg())
+                .extraImgs(request.getExtraImgs())
+                .isVisible(request.getIsVisible())
+                .build();
+        Long festivalId = createCustomFestivalUseCase.createCustomFestival(command);
         return ResponseEntity.status(201).body(ApiResponse.success(
                 Map.of("status", "CREATED", "festivalId", festivalId)
         ));
@@ -73,7 +92,25 @@ public class CustomFestivalAdminController {
             @PathVariable Long festivalId,
             @ModelAttribute CustomFestivalRequest request
     ) {
-        updateCustomFestivalUseCase.updateCustomFestival(festivalId, request);
+        CustomFestivalCommand command = CustomFestivalCommand.builder()
+                .title(request.getTitle())
+                .areaCode(request.getAreaCode())
+                .startDate(request.getStartDate())
+                .endDate(request.getEndDate())
+                .content(request.getContent())
+                .category(request.getCategory())
+                .eventPlace(request.getEventPlace())
+                .address(request.getAddress())
+                .useFee(request.getUseFee())
+                .playTime(request.getPlayTime())
+                .tel(request.getTel())
+                .homepage(request.getHomepage())
+                .sigunguCode(request.getSigunguCode())
+                .img(request.getImg())
+                .extraImgs(request.getExtraImgs())
+                .isVisible(request.getIsVisible())
+                .build();
+        updateCustomFestivalUseCase.updateCustomFestival(festivalId, command);
         return ResponseEntity.ok(ApiResponse.success(
                 Map.of("status", "UPDATED", "festivalId", festivalId)
         ));
