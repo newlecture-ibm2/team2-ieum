@@ -29,7 +29,7 @@ export default function NoticeListPage() {
   const [pinnedCount, setPinnedCount] = useState(0);
   const [popupCount, setPopupCount] = useState(0);
   const [pushedCount, setPushedCount] = useState(0);
-  const [filterType, setFilterType] = useState<'all'|'pinned'|'popup'|'pushed'>('all');
+  const [filterType, setFilterType] = useState<'all' | 'pinned' | 'popup' | 'pushed' | 'ACTIVE' | 'INACTIVE' | 'RESERVED' | 'ENDED'>('all');
   const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
 
   const onSearchSubmit = () => {
@@ -59,9 +59,11 @@ export default function NoticeListPage() {
       };
       if (keyword) params.keyword = keyword;
       if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
+
       if (filterType === 'pinned') params.isPinned = true;
-      if (filterType === 'popup') params.isPopup = true;
-      if (filterType === 'pushed') params.isPushed = true;
+      else if (filterType === 'popup') params.isPopup = true;
+      else if (filterType === 'pushed') params.isPushed = true;
+      else if (filterType !== 'all') params.status = filterType;
 
       const { data } = await adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params });
       const result = data.data;
@@ -129,28 +131,28 @@ export default function NoticeListPage() {
       {/* ── KPI 카드 ── */}
       <div className={common.card}>
         <div className={common.statGrid}>
-          <div 
+          <div
             className={`${common.statCard} ${common.statTotal} ${common.statCardInteractive} ${filterType === 'all' ? common.statActive : ''}`}
             onClick={() => { setFilterType('all'); setCurrentPage(1); }}
           >
             <div className={common.statLabel}>전체</div>
             <div className={common.statValue}>{allCount}</div>
           </div>
-          <div 
+          <div
             className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${filterType === 'pinned' ? common.statActive : ''}`}
             onClick={() => { setFilterType('pinned'); setCurrentPage(1); }}
           >
             <div className={common.statLabel}>상단고정</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pinnedCount}</div>
           </div>
-          <div 
+          <div
             className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${filterType === 'popup' ? common.statActive : ''}`}
             onClick={() => { setFilterType('popup'); setCurrentPage(1); }}
           >
             <div className={common.statLabel}>팝업</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{popupCount}</div>
           </div>
-          <div 
+          <div
             className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${filterType === 'pushed' ? common.statActive : ''}`}
             onClick={() => { setFilterType('pushed'); setCurrentPage(1); }}
           >
@@ -173,9 +175,11 @@ export default function NoticeListPage() {
             }}
           >
             <option value="all">전체 상태</option>
-            <option value="pinned">상단고정</option>
-            <option value="popup">팝업</option>
-            <option value="pushed">푸시알림</option>
+            <option value="ACTIVE">활성</option>
+            <option value="RESERVED">예약</option>
+            <option value="ENDED">종료</option>
+            <option value="INACTIVE">비활성</option>
+
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -216,9 +220,10 @@ export default function NoticeListPage() {
               <col style={{ width: '60px' }} />
               <col style={{ width: 'auto' }} />
               <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
+              <col style={{ width: '90px' }} />
+              <col style={{ width: '70px' }} />
+              <col style={{ width: '70px' }} />
+              <col style={{ width: '70px' }} />
               <col style={{ width: '110px' }} />
               <col style={{ width: '130px' }} />
             </colgroup>
@@ -227,6 +232,7 @@ export default function NoticeListPage() {
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
                 <th className={`${common.tableHeaderCell} ${common.textLeft}`}>제목</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>조회수</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>고정</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>팝업</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>푸시알림</th>
@@ -259,6 +265,16 @@ export default function NoticeListPage() {
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.viewCount?.toLocaleString()}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(() => {
+                        if (notice.isActive === false) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>비활성</span>;
+                        const now = new Date();
+                        if (notice.startDate && new Date(notice.startDate) > now) return <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>예약</span>;
+                        if (notice.endDate && new Date(notice.endDate) < now) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>종료</span>;
+                        if (notice.isPopup) return <span className={`${common.statusBadge} ${common.badgeOngoing}`}>팝업</span>;
+                        return <span className={`${common.statusBadge} ${common.badgeOngoing}`} style={{ backgroundColor: '#e8f5e9', color: '#2e7d32' }}>활성</span>;
+                      })()}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.isPinned ? (

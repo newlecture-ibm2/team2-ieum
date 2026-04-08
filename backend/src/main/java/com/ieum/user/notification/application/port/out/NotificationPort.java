@@ -18,6 +18,7 @@ public interface NotificationPort {
     int markAsReadByUserId(Long userId);
     int markAsReadByIds(Long userId, List<Long> notificationIds);
     void saveAllNotifications(List<Notification> notifications);
+    void deleteNotification(Long userId, Long notificationId);
 
     // ── FcmToken ──
     Optional<FcmToken> findTokenByUserIdAndToken(Long userId, String token);

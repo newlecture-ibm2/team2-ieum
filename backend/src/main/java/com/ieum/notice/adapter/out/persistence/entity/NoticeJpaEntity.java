@@ -52,6 +52,10 @@ public class NoticeJpaEntity {
     @Column(name = "is_pushed")
     private Boolean isPushed = false;
 
+    @Builder.Default
+    @Column(name = "is_active")
+    private Boolean isActive = true;
+
     @Column(name = "start_date")
     private LocalDateTime startDate;
 
@@ -79,6 +83,7 @@ public class NoticeJpaEntity {
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
                 .isPushed(this.isPushed)
+                .isActive(this.isActive)
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .createdAt(this.createdAt)
@@ -99,6 +104,7 @@ public class NoticeJpaEntity {
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())
                 .isPushed(notice.getIsPushed())
+                .isActive(notice.getIsActive())
                 .startDate(notice.getStartDate())
                 .endDate(notice.getEndDate())
                 .createdAt(notice.getCreatedAt())

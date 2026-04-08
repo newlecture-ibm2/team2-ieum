@@ -14,6 +14,7 @@ public interface CreateNoticeUseCase {
      * 공지사항 신규 등록 (첨부파일 포함)
      */
     AdminNotice create(String title, String content, String summary,
-                  Boolean isPinned, Boolean isPopup, Boolean sendPush,
-                  List<MultipartFile> files);
+            Boolean isPinned, Boolean isPopup, Boolean sendPush, Boolean isActive,
+            java.time.LocalDateTime startDate, java.time.LocalDateTime endDate,
+            List<MultipartFile> files);
 }

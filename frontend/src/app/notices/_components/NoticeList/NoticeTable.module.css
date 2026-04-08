@@ -78,6 +78,21 @@
   color: #2e7d32;
 }
 
+.badgeInactive {
+  background: #f1f5f9;
+  color: #64748b;
+}
+
+.badgeReserved {
+  background: #fff8e1;
+  color: #f57c00;
+}
+
+.badgeExpired {
+  background: #fce4ec;
+  color: #c2185b;
+}
+
 .emptyState {
   text-align: center;
   padding: 60px 20px;
@@ -97,6 +112,7 @@
 }
 
 @media (max-width: 768px) {
+
   .noticeTable th:nth-child(4),
   .noticeTable td:nth-child(4),
   .noticeTable th:nth-child(5),

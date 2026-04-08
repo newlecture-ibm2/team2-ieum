@@ -8,7 +8,7 @@ interface ModalProps {
   /** 모달 제목 (생략 시 헤더 없이 본문만 표시) */
   title?: string;
   /** 모달 크기 */
-  size?: "small" | "medium" | "large";
+  size?: "small" | "medium" | "large" | "xlarge";
   /** 닫기 콜백 */
   onClose: () => void;
   /** 오버레이 클릭 시 닫기 허용 여부 (기본 true) */
@@ -50,9 +50,11 @@ export default function Modal({
   const sizeClass =
     size === "small"
       ? styles.sizeSmall
-      : size === "large"
-        ? styles.sizeLarge
-        : styles.sizeMedium;
+      : size === "xlarge"
+        ? styles.sizeXLarge
+        : size === "large"
+          ? styles.sizeLarge
+          : styles.sizeMedium;
 
   return (
     <div

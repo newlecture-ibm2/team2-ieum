@@ -35,9 +35,10 @@ public class SystemNotificationService implements SystemNotificationUseCase {
     @Override
     public void sendNoticeNotification(Long noticeId, String title, String summary) {
         log.info("전체 사용자 대상 공지사항 푸시 알림 발송 시작: noticeId={}", noticeId);
-        
+
         List<UserJpaEntity> allUsers = userJpaRepository.findAll();
         List<FcmToken> allTokens = notificationPort.findAllTokens();
+        log.info("조회된 전체 사용자 수: {}, 전체 FCM 토큰 수: {}", allUsers.size(), allTokens.size());
 
         // userId 단위로 토큰 매핑
         Map<Long, List<FcmToken>> tokensByUser = allTokens.stream()
@@ -46,8 +47,8 @@ public class SystemNotificationService implements SystemNotificationUseCase {
         List<Notification> bulkNotifications = new ArrayList<>();
 
         for (UserJpaEntity user : allUsers) {
-            Long userId = user.getId();
-            
+            Long userId = user.getUserId();
+
             // 알림 설정 확인 (설정이 없으면 기본적으로 받는다고 가정)
             NotificationSetting setting = notificationPort.findSettingByUserId(userId).orElse(null);
             boolean isNoticePushEnabled = true;
@@ -59,14 +60,15 @@ public class SystemNotificationService implements SystemNotificationUseCase {
             }
 
             if (!isNoticePushEnabled) {
+                log.debug("사용자 {} 알림 비활성 상태로 알림 제외", userId);
                 continue;
             }
 
             // 1. DB 알림 생성
-            String notificationMessage = summary == null || summary.isEmpty() 
-                    ? title 
+            String notificationMessage = summary == null || summary.isEmpty()
+                    ? title
                     : title + " - " + summary;
-                    
+
             Notification notification = Notification.builder()
                     .userId(userId)
                     .type("NOTICE")
@@ -82,7 +84,11 @@ public class SystemNotificationService implements SystemNotificationUseCase {
             List<FcmToken> userTokens = tokensByUser.get(userId);
             if (userTokens != null) {
                 for (FcmToken tokenInfo : userTokens) {
-                    fcmMessageSender.sendPush(tokenInfo.getToken(), "이음 - 새 공지사항", notificationMessage);
+                    try {
+                        fcmMessageSender.sendPush(tokenInfo.getToken(), "이음 - 새 공지사항", notificationMessage);
+                    } catch (Exception e) {
+                        log.warn("사용자 {} 에게 FCM 발송 실패 (token={}): {}", userId, tokenInfo.getToken(), e.getMessage());
+                    }
                 }
             }
         }
@@ -90,7 +96,9 @@ public class SystemNotificationService implements SystemNotificationUseCase {
         // DB 알림 일괄 저장
         if (!bulkNotifications.isEmpty()) {
             notificationPort.saveAllNotifications(bulkNotifications);
-            log.info("{} 명의 사용자에게 공지사항 알림 저장 완료", bulkNotifications.size());
+            log.info("공지사항 알림 DB 저장 완료: {} 명의 사용자", bulkNotifications.size());
+        } else {
+            log.info("발송 대상 사용자가 없어 알림을 저장하지 않았습니다.");
         }
     }
 }

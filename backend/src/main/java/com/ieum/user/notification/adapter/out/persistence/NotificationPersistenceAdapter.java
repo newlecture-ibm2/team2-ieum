@@ -57,6 +57,11 @@ public class NotificationPersistenceAdapter implements NotificationPort {
         notificationJpaRepository.saveAll(entities);
     }
 
+    @Override
+    public void deleteNotification(Long userId, Long notificationId) {
+        notificationJpaRepository.deleteByUserIdAndId(userId, notificationId);
+    }
+
     // ── FcmToken ──
 
     @Override

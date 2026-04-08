@@ -83,11 +83,32 @@
 
 .charCount {
   position: absolute;
-  bottom: 10px;
-  right: 14px;
+  bottom: 8px;
+  right: 12px;
   font-size: 11px;
-  color: #94a3b8;
-  pointer-events: none;
+  color: var(--color-gray-400);
+}
+
+.dateRangeInput {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dateRangeInput input {
+  flex: 1;
+}
+
+.dateSeparator {
+  color: var(--color-gray-400);
+  font-weight: 500;
+}
+
+.fieldDesc {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-gray-400);
+  line-height: 1.4;
 }
 
 .errorText {
@@ -172,22 +193,26 @@
 /* ── 옵션 토글 ── */
 .optionRow {
   display: flex;
-  gap: 28px;
+  gap: 16px;
   padding: 12px 0 4px;
+  flex-wrap: wrap;
 }
 
 .toggleWrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .toggleLabel {
   font-size: 13px;
   font-weight: 600;
   color: #475569;
+  white-space: nowrap;
 }
 
 /* ── 하단 버튼 ── */

@@ -11,9 +11,9 @@ export default function NoticePopup() {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
-    // 1. Check localStorage for 'hidePopupToday'
     const hideUntil = localStorage.getItem('hideNoticePopupUntil');
     if (hideUntil && new Date().getTime() < parseInt(hideUntil, 10)) {
+      console.log('NoticePopup: 숨김 처리 중 (만료: ' + new Date(parseInt(hideUntil, 10)).toLocaleString() + ')');
       return; // "오늘 하루 안보기" 상태
     }
 
@@ -21,6 +21,7 @@ export default function NoticePopup() {
     const fetchPopup = async () => {
       try {
         const { data } = await api.get<{ data: Notice[] }>('/api/notices/popup');
+        console.log('NoticePopup fetched data:', data); // 디버깅 용
         if (data && data.data && data.data.length > 0) {
           setNotices(data.data);
           setIsOpen(true);
@@ -38,9 +39,10 @@ export default function NoticePopup() {
   };
 
   const handleHideToday = () => {
-    // 24 hours from now
-    const tomorrow = new Date().getTime() + 24 * 60 * 60 * 1000;
-    localStorage.setItem('hideNoticePopupUntil', tomorrow.toString());
+    // 오늘 자정 (밤 12시) 까지 만료
+    const tomorrow = new Date();
+    tomorrow.setHours(24, 0, 0, 0); // 다음날 0시 0분 0초
+    localStorage.setItem('hideNoticePopupUntil', tomorrow.getTime().toString());
     setIsOpen(false);
   };
 
@@ -66,7 +68,7 @@ export default function NoticePopup() {
         <div className={s.body}>
           {currentNotice.content}
         </div>
-        
+
         {notices.length > 1 && (
           <div className={s.carouselControls}>
             <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>

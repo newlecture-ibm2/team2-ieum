@@ -40,7 +40,7 @@ export default function NoticeDetailModal({ notice, onClose, onEdit }: Props) {
     fetchAttachments();
   }, [notice.id]);
 
-  const formatDate = (dt: string) => {
+  const formatDate = (dt: string | undefined) => {
     if (!dt) return '-';
     const d = new Date(dt);
     return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')} ${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
@@ -53,7 +53,7 @@ export default function NoticeDetailModal({ notice, onClose, onEdit }: Props) {
   return (
     <Modal
       title="📋 공지사항 상세"
-      size="large"
+      size="xlarge"
       onClose={onClose}
       closeOnOverlay
     >
@@ -68,8 +68,15 @@ export default function NoticeDetailModal({ notice, onClose, onEdit }: Props) {
           </span>
         </div>
 
-        {/* 배지 */}
+        {/* 배지 및 상태 */}
         <div className={s.badgeRow}>
+          {(() => {
+            if (notice.isActive === false) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>🔒 비활성</span>;
+            const now = new Date();
+            if (notice.startDate && new Date(notice.startDate) > now) return <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>⏰ 예약</span>;
+            if (notice.endDate && new Date(notice.endDate) < now) return <span className={`${common.statusBadge} ${common.badgeEnded}`}>⌛ 종료</span>;
+            return <span className={`${common.statusBadge} ${common.badgeOngoing}`}>✅ 활성</span>;
+          })()}
           {notice.isPinned && (
             <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
               📌 상단 고정
@@ -81,6 +88,13 @@ export default function NoticeDetailModal({ notice, onClose, onEdit }: Props) {
             </span>
           )}
         </div>
+
+        {/* 게시 기간 정보 */}
+        {(notice.startDate || notice.endDate) && (
+          <div className={s.periodRow}>
+            🗓️ 게시 기간: {formatDate(notice.startDate)} ~ {notice.endDate ? formatDate(notice.endDate) : '무기한'}
+          </div>
+        )}
 
         {/* 제목 */}
         <h2 className={s.detailTitle}>{notice.title}</h2>

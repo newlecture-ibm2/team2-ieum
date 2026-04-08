@@ -13,8 +13,10 @@
 
 .popupContainer {
   background-color: #fff;
-  width: 400px;
-  max-width: 90vw;
+  width: 450px;
+  height: 500px;
+  max-width: 95vw;
+  max-height: 90vh;
   border-radius: 12px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
   display: flex;
@@ -28,6 +30,7 @@
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -68,10 +71,9 @@
 .body {
   padding: 24px 20px;
   font-size: 0.95rem;
-  line-height: 1.5;
+  line-height: 1.6;
   color: #334155;
-  min-height: 100px;
-  max-height: 50vh;
+  height: 320px;
   overflow-y: auto;
   white-space: pre-wrap;
 }

@@ -22,13 +22,35 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long
 
     Page<NoticeJpaEntity> findByContentContaining(String keyword, Pageable pageable);
 
-    Page<NoticeJpaEntity> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword, Pageable pageable);
+    Page<NoticeJpaEntity> findByTitleContainingOrContentContaining(String titleKeyword, String contentKeyword,
+            Pageable pageable);
 
     @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isPopup = true " +
-           "AND (n.startDate IS NULL OR n.startDate <= :now) " +
-           "AND (n.endDate IS NULL OR n.endDate >= :now) " +
-           "ORDER BY n.createdAt DESC")
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "ORDER BY n.createdAt DESC")
     List<NoticeJpaEntity> findPopupNotices(@Param("now") LocalDateTime now);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.title LIKE %:keyword% OR n.content LIKE %:keyword%)")
+    Page<NoticeJpaEntity> findActiveNotices(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.title LIKE %:keyword%)")
+    Page<NoticeJpaEntity> findActiveNoticesByTitle(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.content LIKE %:keyword%)")
+    Page<NoticeJpaEntity> findActiveNoticesByContent(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
 
     Optional<NoticeJpaEntity> findFirstByIdLessThanOrderByIdDesc(Long noticeId);
 

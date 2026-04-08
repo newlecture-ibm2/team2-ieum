@@ -31,6 +31,9 @@ public class Notice {
     @Builder.Default
     private Boolean isPushed = false;
 
+    @Builder.Default
+    private Boolean isActive = true;
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;

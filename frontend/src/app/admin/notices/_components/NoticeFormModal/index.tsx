@@ -24,7 +24,10 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
-  const [sendPush, setSendPush] = useState(isEdit ? notice!.isPushed : false); // 수정 시 Pushed 상태 반영
+  const [isActive, setIsActive] = useState(isEdit ? notice!.isActive : true);
+  const [sendPush, setSendPush] = useState(isEdit ? notice!.isPushed : false);
+  const [startDate, setStartDate] = useState(isEdit ? (notice!.startDate?.slice(0, 16) || '') : '');
+  const [endDate, setEndDate] = useState(isEdit ? (notice!.endDate?.slice(0, 16) || '') : '');
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -63,7 +66,10 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
       if (summary.trim()) formData.append('summary', summary.trim());
       formData.append('isPinned', String(isPinned));
       formData.append('isPopup', String(isPopup));
+      formData.append('isActive', String(isActive));
       formData.append('sendPush', String(sendPush));
+      if (startDate) formData.append('startDate', startDate.length === 16 ? `${startDate}:00` : startDate);
+      if (endDate) formData.append('endDate', endDate.length === 16 ? `${endDate}:00` : endDate);
       const fileKey = isEdit ? 'newFiles' : 'files';
       files.forEach((file) => formData.append(fileKey, file));
 
@@ -91,7 +97,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   return (
     <Modal
       title={isEdit ? '📝 공지사항 수정' : '📝 공지사항 작성'}
-      size="large"
+      size="xlarge"
       onClose={onClose}
       closeOnOverlay={false}
     >
@@ -123,6 +129,28 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             placeholder="목록에 표시될 간단한 요약"
             maxLength={200}
           />
+        </div>
+
+        {/* 게시 기간 */}
+        <div className={s.fieldGroup}>
+          <label className={s.fieldLabel}>게시 기간 (예약 설정)</label>
+          <div className={s.dateRangeInput}>
+            <input
+              type="datetime-local"
+              className={s.fieldInput}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className={s.dateSeparator}>~</span>
+            <input
+              type="datetime-local"
+              className={s.fieldInput}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              placeholder="종료일 (미설정 시 무제한)"
+            />
+          </div>
+          <p className={s.fieldDesc}>게시 기간 미설정 시 즉시 노출되며, 종료일 미설정 시 수동 비활성 전까지 노출됩니다.</p>
         </div>
 
         {/* 내용 */}
@@ -208,6 +236,13 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
               <div className={`${common.toggleThumb} ${sendPush ? common.toggleThumbOn : ''}`} />
             </div>
             <span className={s.toggleLabel}>🔔 푸시 알림 발송</span>
+          </label>
+
+          <label className={s.toggleWrap} onClick={() => setIsActive(!isActive)}>
+            <div className={`${common.toggleTrack} ${isActive ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${isActive ? common.toggleThumbOn : ''}`} />
+            </div>
+            <span className={s.toggleLabel}>👁 공개 여부</span>
           </label>
         </div>
       </div>

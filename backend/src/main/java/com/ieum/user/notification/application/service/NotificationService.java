@@ -4,6 +4,7 @@ import com.ieum.user.notification.application.port.in.GetMyNotificationsUseCase;
 import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCase;
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
+import com.ieum.user.notification.application.port.in.DeleteNotificationUseCase;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
 import com.ieum.user.notification.domain.model.NotificationSetting;
@@ -22,7 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 @Transactional
 public class NotificationService implements GetMyNotificationsUseCase, RegisterFcmTokenUseCase,
-        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase {
+        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase {
 
     private final NotificationPort notificationPort;
 
@@ -84,5 +85,12 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
             return notificationPort.markAsReadByUserId(userId);
         }
         return notificationPort.markAsReadByIds(userId, notificationIds);
+    }
+
+    // ── 알림 삭제 처리 ──
+
+    @Override
+    public void deleteNotification(Long userId, Long notificationId) {
+        notificationPort.deleteNotification(userId, notificationId);
     }
 }
