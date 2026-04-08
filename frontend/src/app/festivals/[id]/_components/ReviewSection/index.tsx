@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Trash2 } from 'lucide-react';
+import { User, Trash2, Flag } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import api from '@/lib/api';
+import { Modal } from '@/_component/common/Modal';
 import styles from './ReviewSection.module.css';
 
 interface ReviewSectionProps {
@@ -28,6 +29,9 @@ export default function ReviewSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [reportingReviewId, setReportingReviewId] = useState<number | null>(null);
+  const [reportReason, setReportReason] = useState('');
+  const [reportDescription, setReportDescription] = useState('');
 
   useEffect(() => {
     fetch('/api/auth/me')
@@ -73,6 +77,11 @@ export default function ReviewSection({
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleReportReview = (reviewId: number) => {
+    if (!currentUser) return onPopup('로그인이 필요합니다.');
+    setReportingReviewId(reviewId);
   };
 
   const renderStars = (score: number) => {
@@ -147,17 +156,30 @@ export default function ReviewSection({
                   </div>
                   <div className={styles.rcDateWrapper}>
                     <div className={styles.rcDate}>{new Date(review.createdAt).toLocaleDateString()}</div>
-                    {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
-                    {(currentUser && (currentUser.id === review.userId || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
-                      <button 
-                        className={styles.deleteReviewBtn} 
-                        onClick={() => handleDeleteReview(review.id)}
-                        disabled={deletingId === review.id}
-                        title="리뷰 삭제"
-                      >
-                        <Trash2 size={16} color={deletingId === review.id ? "#cbd5e1" : "#e53e3e"} />
-                      </button>
-                    )}
+                    <div style={{ display: 'flex', gap: '4px' }}>
+                      {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
+                      {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+                        <button 
+                          className={styles.deleteReviewBtn} 
+                          onClick={() => handleDeleteReview(review.id)}
+                          disabled={deletingId === review.id}
+                          title="리뷰 삭제"
+                        >
+                          <Trash2 size={16} color={deletingId === review.id ? "#cbd5e1" : "#e53e3e"} />
+                        </button>
+                      )}
+                      
+                      {/* 본인의 리뷰가 아닌 경우 신고 버튼 표출 */}
+                      {(currentUser && String(currentUser.userId) !== String(review.userId)) && (
+                        <button 
+                          className={styles.deleteReviewBtn} 
+                          onClick={() => handleReportReview(review.id)}
+                          title="리뷰 신고"
+                        >
+                          <Flag size={14} color="#a0aec0" />
+                        </button>
+                      )}
+                    </div>
                   </div>
                 </div>
                 <div className={styles.rcText}>{review.content}</div>
@@ -172,6 +194,84 @@ export default function ReviewSection({
           + 후기 전체보기 (총 {reviewStats?.totalElements || 0}개)
         </button>
       </Link>
+
+      {reportingReviewId !== null && (
+        <Modal title="리뷰 신고" size="small" onClose={() => setReportingReviewId(null)}>
+          <div className={styles.reportModal}>
+            <p className={styles.reportDesc}>신고 사유를 선택해주세요.</p>
+            <div className={styles.reportOptions}>
+              {[
+                { value: 'SPAM', label: '스팸/광고' },
+                { value: 'ABUSE', label: '욕설/비방' },
+                { value: 'INAPPROPRIATE', label: '부적절한 내용' },
+                { value: 'FALSE_INFO', label: '허위 정보' },
+                { value: 'OTHER', label: '기타' },
+              ].map(opt => (
+                <label key={opt.value} className={styles.reportOption}>
+                  <input
+                    type="radio"
+                    name="reportReason"
+                    value={opt.value}
+                    checked={reportReason === opt.value}
+                    onChange={e => setReportReason(e.target.value)}
+                  />
+                  <span>{opt.label}</span>
+                </label>
+              ))}
+            </div>
+            {reportReason === 'OTHER' && (
+              <textarea
+                className={styles.reportTextarea}
+                placeholder="상세 사유를 입력해주세요 (최대 500자)"
+                maxLength={500}
+                value={reportDescription}
+                onChange={e => setReportDescription(e.target.value)}
+              />
+            )}
+            <div className={styles.reportActions}>
+              <button
+                className={styles.btnCancel}
+                onClick={() => {
+                  setReportingReviewId(null);
+                  setReportReason('');
+                  setReportDescription('');
+                }}
+              >
+                취소
+              </button>
+              <button
+                className={styles.btnReport}
+                disabled={!reportReason}
+                onClick={async () => {
+                  try {
+                    await axios.post('/api/reports', {
+                      targetType: 'REVIEW',
+                      targetId: reportingReviewId,
+                      reason: reportReason,
+                      description: reportReason === 'OTHER' ? reportDescription : null,
+                    });
+                    onPopup('신고가 접수되었습니다.');
+                  } catch (err: any) {
+                    const status = err?.response?.status;
+                    if (status === 409) {
+                      onPopup('이미 신고한 리뷰입니다.');
+                    } else {
+                      const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
+                      onPopup(msg);
+                    }
+                  } finally {
+                    setReportingReviewId(null);
+                    setReportReason('');
+                    setReportDescription('');
+                  }
+                }}
+              >
+                신고하기
+              </button>
+            </div>
+          </div>
+        </Modal>
+      )}
     </section>
   );
 }

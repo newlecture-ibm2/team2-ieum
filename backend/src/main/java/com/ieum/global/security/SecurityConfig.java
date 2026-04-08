@@ -103,6 +103,7 @@ public class SecurityConfig {
                                                 // 🔒 회원 전용 — 신고
                                                 .requestMatchers(HttpMethod.POST, "/api/reports").hasAnyRole("USER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/reports/check").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/my-targets").hasAnyRole("USER", "ADMIN")
 
                                                 // ✅ 관리자 로그인 — 인증 불필요
                                                 .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()

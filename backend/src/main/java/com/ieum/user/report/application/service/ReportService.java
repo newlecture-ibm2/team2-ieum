@@ -1,9 +1,9 @@
-package com.ieum.community.application.service;
+package com.ieum.user.report.application.service;
 
 import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
-import com.ieum.community.adapter.in.web.dto.ReportRequest;
-import com.ieum.community.adapter.in.web.dto.ReportResponse;
-import com.ieum.community.adapter.out.persistence.repository.ReportRepository;
+import com.ieum.user.report.adapter.in.web.dto.ReportRequest;
+import com.ieum.user.report.adapter.in.web.dto.ReportResponse;
+import com.ieum.user.report.adapter.out.persistence.repository.ReportRepository;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -11,12 +11,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 /**
- * 사용자 신고 Service
- * - 신고 접수 (중복 방지)
+ * 통합 사용자 신고 Service (POST, COMMENT, REVIEW 공통)
+ * - 신고 접수 (중복 방지 + 반려 시 재신고 지원)
  * - targetType / reason 유효성 검증
  */
 @Service
@@ -64,7 +66,7 @@ public class ReportService {
             if ("PENDING".equals(existing.getStatus()) || "RESOLVED".equals(existing.getStatus())) {
                 throw new BusinessException(ErrorCode.REPORT_001, "이미 신고한 대상입니다.");
             } else if ("REJECTED".equals(existing.getStatus())) {
-                // 반려된 상태면 다시 PENDING으로 업데이트하며 사유 갱신 (DB Unique Constraint 고려)
+                // 반려된 상태면 다시 PENDING으로 업데이트하며 사유 갱신
                 existing.setStatus("PENDING");
                 existing.setReason(request.getReason());
                 existing.setDescription(request.getDescription());
@@ -72,7 +74,7 @@ public class ReportService {
                 existing.setAction(null);
                 existing.setAdminNote(null);
                 existing.setProcessedAt(null);
-                
+
                 ReportEntity saved = reportRepository.save(existing);
                 return ReportResponse.fromEntity(saved);
             }
@@ -98,12 +100,13 @@ public class ReportService {
      */
     @Transactional(readOnly = true)
     public boolean isAlreadyReported(Long reporterId, String targetType, Long targetId) {
-        Optional<ReportEntity> existingOpt = reportRepository.findByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId);
+        Optional<ReportEntity> existingOpt = reportRepository.findByReporterIdAndTargetTypeAndTargetId(
+                reporterId, targetType, targetId);
         if (existingOpt.isEmpty()) {
             return false;
         }
         String status = existingOpt.get().getStatus();
-        // PENDING 또는 RESOLVED 상태인 경우에만 중복 신고로 간주 (REJECTED인 경우 재신고 모드로 처리하여 버튼을 열어둠)
+        // PENDING 또는 RESOLVED 상태인 경우에만 중복 신고로 간주
         return "PENDING".equals(status) || "RESOLVED".equals(status);
     }
 
@@ -111,10 +114,10 @@ public class ReportService {
      * 내가 신고한 특정 유형의 대상 ID 목록 조회 (PENDING, RESOLVED 상태 한정)
      */
     @Transactional(readOnly = true)
-    public java.util.List<Long> getMyReportedTargetIds(Long reporterId, String targetType) {
-        if (reporterId == null) return java.util.Collections.emptyList();
+    public List<Long> getMyReportedTargetIds(Long reporterId, String targetType) {
+        if (reporterId == null) return Collections.emptyList();
         return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
-            reporterId, targetType, java.util.List.of("PENDING", "RESOLVED")
+                reporterId, targetType, List.of("PENDING", "RESOLVED")
         );
     }
 }

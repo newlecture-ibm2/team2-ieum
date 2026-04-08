@@ -43,8 +43,7 @@ public class ReviewController {
             @ApiResponse(responseCode = "201", description = "리뷰 작성 성공"),
             @ApiResponse(responseCode = "401", description = "인증 필요"),
             @ApiResponse(responseCode = "403", description = "종료된 축제만 리뷰 작성 가능"),
-            @ApiResponse(responseCode = "404", description = "축제를 찾을 수 없음"),
-            @ApiResponse(responseCode = "409", description = "이미 해당 축제에 리뷰를 작성함")
+            @ApiResponse(responseCode = "404", description = "축제를 찾을 수 없음")
     })
     @PostMapping
     public ResponseEntity<?> createReview(
@@ -60,12 +59,8 @@ public class ReviewController {
         }
         String email = principal.getName();
         
-        try {
-            reviewService.createReview(festivalId, email, rating, content);
-            return ResponseEntity.status(201).body(Map.of("success", true, "message", "리뷰 작성 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
-        }
+        reviewService.createReview(festivalId, email, rating, content);
+        return ResponseEntity.status(201).body(Map.of("success", true, "message", "리뷰 작성 성공"));
     }
 
     @Operation(summary = "리뷰 수정", description = "본인이 작성한 리뷰를 수정합니다.")

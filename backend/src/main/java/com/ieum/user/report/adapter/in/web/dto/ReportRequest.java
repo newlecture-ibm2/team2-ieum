@@ -1,10 +1,10 @@
-package com.ieum.community.adapter.in.web.dto;
+package com.ieum.user.report.adapter.in.web.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 /**
- * 사용자 신고 요청 DTO
+ * 사용자 신고 요청 DTO (통합 — POST, COMMENT, REVIEW 공통)
  *
  * targetType: REVIEW / POST / COMMENT
  * reason: SPAM / ABUSE / INAPPROPRIATE / FALSE_INFO / OTHER
