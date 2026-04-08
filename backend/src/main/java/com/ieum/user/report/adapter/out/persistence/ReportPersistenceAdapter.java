@@ -1,0 +1,67 @@
+package com.ieum.user.report.adapter.out.persistence;
+
+import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
+import com.ieum.user.report.adapter.out.persistence.repository.ReportRepository;
+import com.ieum.user.report.application.port.out.ReportPort;
+import com.ieum.user.report.domain.model.Report;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Component;
+
+import java.util.List;
+import java.util.Optional;
+
+@Component("userReportPersistenceAdapter")
+@RequiredArgsConstructor
+public class ReportPersistenceAdapter implements ReportPort {
+
+    private final ReportRepository reportRepository;
+
+    @Override
+    public Report save(Report report) {
+        ReportEntity entity = ReportEntity.builder()
+                .id(report.getId())
+                .reporterId(report.getReporterId())
+                .targetType(report.getTargetType())
+                .targetId(report.getTargetId())
+                .reason(report.getReason())
+                .description(report.getDescription())
+                .status(report.getStatus())
+                .action(report.getAction())
+                .adminNote(report.getAdminNote())
+                .createdAt(report.getCreatedAt())
+                .processedAt(report.getProcessedAt())
+                .build();
+
+        ReportEntity saved = reportRepository.save(entity);
+        return toDomain(saved);
+    }
+
+    @Override
+    public Optional<Report> findByReporterIdAndTargetTypeAndTargetId(Long reporterId, String targetType,
+            Long targetId) {
+        return reportRepository.findByReporterIdAndTargetTypeAndTargetId(reporterId, targetType, targetId)
+                .map(this::toDomain);
+    }
+
+    @Override
+    public List<Long> findTargetIdsByReporterIdAndTargetTypeAndStatusIn(Long reporterId, String targetType,
+            List<String> statuses) {
+        return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(reporterId, targetType, statuses);
+    }
+
+    private Report toDomain(ReportEntity entity) {
+        return Report.builder()
+                .id(entity.getId())
+                .reporterId(entity.getReporterId())
+                .targetType(entity.getTargetType())
+                .targetId(entity.getTargetId())
+                .reason(entity.getReason())
+                .description(entity.getDescription())
+                .status(entity.getStatus())
+                .action(entity.getAction())
+                .adminNote(entity.getAdminNote())
+                .createdAt(entity.getCreatedAt())
+                .processedAt(entity.getProcessedAt())
+                .build();
+    }
+}

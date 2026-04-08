@@ -2,7 +2,9 @@ package com.ieum.user.report.adapter.in.web;
 
 import com.ieum.user.report.adapter.in.web.dto.ReportRequest;
 import com.ieum.user.report.adapter.in.web.dto.ReportResponse;
-import com.ieum.user.report.application.service.ReportService;
+import com.ieum.user.report.application.port.in.CreateReportUseCase;
+import com.ieum.user.report.application.port.in.LoadReportUseCase;
+import com.ieum.user.report.domain.model.Report;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -26,7 +28,8 @@ import java.util.List;
 @RequestMapping("/api/reports")
 public class ReportController {
 
-    private final ReportService reportService;
+    private final CreateReportUseCase createReportUseCase;
+    private final LoadReportUseCase loadReportUseCase;
 
     /**
      * Authentication 객체에서 userId 추출
@@ -53,8 +56,11 @@ public class ReportController {
     public ApiResponse<ReportResponse> createReport(
             @RequestBody ReportRequest request,
             Authentication authentication) {
-        ReportResponse response = reportService.createReport(request, getUserId(authentication));
-        return ApiResponse.success(response);
+        Report report = createReportUseCase.createReport(
+                request.getTargetType(), request.getTargetId(),
+                request.getReason(), request.getDescription(),
+                getUserId(authentication));
+        return ApiResponse.success(ReportResponse.fromDomain(report));
     }
 
     @Operation(summary = "신고 여부 확인", description = "현재 사용자가 해당 대상을 이미 신고했는지 확인합니다.")
@@ -67,7 +73,7 @@ public class ReportController {
         if (userId == null) {
             return ApiResponse.success(false);
         }
-        boolean reported = reportService.isAlreadyReported(userId, targetType, targetId);
+        boolean reported = loadReportUseCase.isAlreadyReported(userId, targetType, targetId);
         return ApiResponse.success(reported);
     }
 
@@ -80,7 +86,7 @@ public class ReportController {
         if (userId == null) {
             return ApiResponse.success(Collections.emptyList());
         }
-        List<Long> targetIds = reportService.getMyReportedTargetIds(userId, targetType);
+        List<Long> targetIds = loadReportUseCase.getMyReportedTargetIds(userId, targetType);
         return ApiResponse.success(targetIds);
     }
 }
