@@ -24,14 +24,7 @@ const REASON_MAP: Record<string, string> = {
   OTHER:         '기타',
 };
 
-/* ── 답변 템플릿 ── */
-const TEMPLATES: { label: string; text: string }[] = [
-  { label: '스팸', text: '신고하신 콘텐츠를 확인한 결과, 스팸성 콘텐츠로 판단되어 해당 콘텐츠를 삭제 처리하였습니다. 더 나은 서비스를 위해 노력하겠습니다.' },
-  { label: '욕설', text: '신고하신 콘텐츠를 확인한 결과, 욕설·비방이 포함된 것으로 확인되어 해당 콘텐츠를 삭제 처리하였습니다.' },
-  { label: '허위정보', text: '신고하신 콘텐츠를 확인한 결과, 사실과 다른 정보가 포함되어 있어 해당 콘텐츠를 삭제 처리하였습니다.' },
-  { label: '정책위반없음', text: '신고하신 콘텐츠를 면밀히 검토한 결과, 현재 커뮤니티 정책에 위반되는 내용이 확인되지 않아 신고를 반려합니다. 추가 의견이 있으시면 다시 신고해주세요.' },
-  { label: '기타', text: '신고해주셔서 감사합니다. 검토 결과, ' },
-];
+/* ── 답변 템플릿 부분은 하단에서 동적으로 렌더링 ── */
 
 /* ── 원문 타입 ── */
 interface OriginalContent {
@@ -71,11 +64,17 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
     const fetchOriginal = async () => {
       setOriginalLoading(true);
       try {
-        // 원문 API가 준비되면 여기에 연결
-        // const { data } = await adminApi.get(`/reports/${report.id}/target`);
-        // setOriginal(data.data);
-        // 현재는 미구현 — 삭제 상태로 표시
-        setOriginalDeleted(true);
+        const { data } = await adminApi.get(`/reports/${report.id}/target`);
+        if (data.success && data.data) {
+          setOriginal({
+            author: data.data.author,
+            content: data.data.content,
+            createdAt: data.data.createdAt
+          });
+          setOriginalDeleted(false);
+        } else {
+          setOriginalDeleted(true);
+        }
       } catch {
         setOriginalDeleted(true);
       } finally {
@@ -137,43 +136,40 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
     setMessageError('');
   };
 
+  /* ── 아웃링크 계산 ── */
+  const getOutlink = () => {
+    if (report.targetType === 'POST') return `/community/${report.targetId}`;
+    if (report.targetType === 'FESTIVAL') return `/festivals/${report.targetId}`; // 리뷰의 상위 축제를 직접 알기는 로직상 까다로워 대안 경로 처리 (필요시 수정)
+    return null;
+  };
+  const outlink = getOutlink();
+
   return (
     <>
       <div className={s.modalWrap}>
         <Modal title={`🔍 신고 내용 확인 ${!isPending ? '(처리 완료)' : ''}`} size="large" onClose={onClose} closeOnOverlay={false}>
           <div className={s.modalBody}>
-          {/* ── ① 신고 기본 정보 ── */}
+          {/* ── ① 신고 기본 정보 (Summary Card) ── */}
           <div className={s.section}>
-            <div className={s.sectionTitle}>
-              <span className={s.sectionIcon}>📋</span> 신고 정보
-            </div>
-            <div className={s.infoGrid}>
-              <span className={s.infoLabel}>신고 대상</span>
-              <span className={s.infoValue}>
-                <span className={`${common.statusBadge} ${common.badgeUpcoming}`} style={{ marginRight: 6 }}>
-                  {targetLabel}
-                </span>
-                #{report.targetId}
-              </span>
+            <div className={s.infoSummaryCard}>
+              <div className={s.infoHeader}>
+                <div className={s.reasonBadge}>
+                  🚨 {REASON_MAP[report.reason] || report.reason}
+                </div>
+                <div className={s.targetBadge}>
+                  {targetLabel} #{report.targetId}
+                </div>
+              </div>
 
-              <span className={s.infoLabel}>신고자</span>
-              <span className={s.infoValue}>{report.reporterNickname}</span>
-
-              <span className={s.infoLabel}>신고 사유</span>
-              <span className={s.infoValue}>
-                {REASON_MAP[report.reason] || report.reason}
-              </span>
-
-              <span className={s.infoLabel}>신고 일시</span>
-              <span className={s.infoValue}>
-                {report.createdAt?.replace('T', ' ').slice(0, 16)}
-              </span>
+              <div className={s.metaList}>
+                <div className={s.metaItem}>신고자: <strong>👤 {report.reporterNickname}</strong></div>
+                <div className={s.metaItem}>접수일시: <strong>{report.createdAt?.replace('T', ' ').slice(0, 16)}</strong></div>
+              </div>
 
               {report.description && (
-                <>
-                  <span className={`${s.infoLabel} ${s.infoFullRow}`}>상세 내용</span>
-                  <span className={`${s.infoValue} ${s.infoFullRow}`}>{report.description}</span>
-                </>
+                <div className={s.quoteBox}>
+                  {report.description}
+                </div>
               )}
             </div>
           </div>
@@ -182,8 +178,15 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
 
           {/* ── ② 신고 대상 원문 ── */}
           <div className={s.section}>
-            <div className={s.sectionTitle}>
-              <span className={s.sectionIcon}>📄</span> 신고 대상 원문
+            <div className={s.sectionHeaderWrap}>
+              <div className={s.sectionTitleNoMargin}>
+                <span className={s.sectionIcon}>📄</span> 신고 대상 원문
+              </div>
+              {outlink && !originalDeleted && !originalLoading && (
+                 <a href={outlink} target="_blank" rel="noopener noreferrer" className={s.outlinkBtn} title="새 탭에서 원문 엽니다">
+                   🔗 원문 바로가기
+                 </a>
+              )}
             </div>
             {originalLoading ? (
               <div style={{ textAlign: 'center', padding: '16px 0', color: '#94a3b8', fontSize: 13 }}>
@@ -218,18 +221,22 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
                 <span className={s.requiredStar}>*</span> 처리 답변
               </div>
 
-              {/* 템플릿 버튼 */}
+              {/* 동적 템플릿 버튼 (신고 사유 기반) */}
               <div className={s.templateRow}>
-                {TEMPLATES.map((t) => (
-                  <button
-                    key={t.label}
-                    className={s.templateBtn}
-                    onClick={() => applyTemplate(t.text)}
-                    type="button"
-                  >
-                    {t.label}
-                  </button>
-                ))}
+                <button
+                  className={`${s.templateBtn} ${s.templateBtnAccept}`}
+                  onClick={() => applyTemplate(`신고하신 콘텐츠를 확인한 결과, [${REASON_MAP[report.reason] || report.reason}] 사유가 명확히 확인되어 해당 ${targetLabel}을(를) 규제(숨김) 처리하였습니다. 건전한 커뮤니티 조성을 위한 신고에 진심으로 감사드립니다.`)}
+                  type="button"
+                >
+                  ✅ {REASON_MAP[report.reason] || report.reason} 인정 (구제 템플릿)
+                </button>
+                <button
+                  className={`${s.templateBtn} ${s.templateBtnReject}`}
+                  onClick={() => applyTemplate(`접수해주신 [${REASON_MAP[report.reason] || report.reason}] 사유에 대해 면밀히 검토하였으나, 현재 커뮤니티 운영 정책상 명백한 위반 사항을 발견하기 어려워 부득이하게 신고를 반려 처리합니다. 추가적인 다른 문제가 있다면 언제든 다시 신고해 주시기 바랍니다.`)}
+                  type="button"
+                >
+                  ↩️ 정책 위반 없음 (반려 템플릿)
+                </button>
               </div>
 
               {/* textarea */}

@@ -129,6 +129,19 @@
   white-space: pre-wrap;
 }
 
+.postImages {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.postImageItem {
+  max-width: 100%;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
 .postFooterActions {
   display: flex;
   justify-content: space-between;
@@ -424,3 +437,92 @@
   cursor: not-allowed;
 }
 
+/* ===== 답글(대댓글) 입력 폼 ===== */
+.replyInputWrap {
+  display: flex;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
+  animation: replySlideIn 0.2s ease-out;
+}
+
+@keyframes replySlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.replyInput {
+  flex: 1;
+  padding: 8px 12px;
+  border: 1px solid #cbd5e1;
+  border-radius: 6px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.replyInput:focus {
+  border-color: #8b5cf6;
+}
+
+.replySubmitBtn {
+  padding: 6px 14px;
+  background: #8b5cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  white-space: nowrap;
+}
+
+.replySubmitBtn:hover {
+  background: #7c3aed;
+}
+
+.replySubmitBtn:disabled {
+  background: #cbd5e1;
+  cursor: not-allowed;
+}
+
+.replyCancelBtn {
+  padding: 6px 14px;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.replyCancelBtn:hover {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+/* ===== @멘션 태그 ===== */
+.mentionTag {
+  display: inline-block;
+  background: #ede9fe;
+  color: #7c3aed;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 1px 8px;
+  border-radius: 4px;
+  margin-right: 6px;
+  vertical-align: baseline;
+}

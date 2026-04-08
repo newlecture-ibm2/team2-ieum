@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { Bell, User, Shield } from "lucide-react";
+import { Bell, User, LogOut, Shield } from "lucide-react";
 import api from "@/lib/api";
 import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
@@ -150,8 +150,8 @@ export default function Header() {
             </div>
           )}
 
-          {/* ④-1 관리자 버튼 — role이 ADMIN일 때만 표시 */}
-          {isLoggedIn && userRole === "ADMIN" && (
+          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN일 때만 표시 */}
+          {isLoggedIn && userRole === "ROLE_ADMIN" && (
             <Link
               href="/admin"
               className={styles.adminBtn}
@@ -163,15 +163,28 @@ export default function Header() {
 
           {/* ④-2 마이페이지 / 로그인 — E4 */}
           {isLoggedIn ? (
-            <Link
-              href="/myPage"
-              className={styles.userBtn}
-              aria-label="마이페이지"
-            >
-              <User strokeWidth={2} />
-            </Link>
+            <>
+              <Link
+                href="/myPage"
+                className={styles.userBtn}
+                aria-label="마이페이지"
+              >
+                <User strokeWidth={2} />
+              </Link>
+              <button
+                type="button"
+                className={styles.logoutBtn}
+                aria-label="로그아웃"
+                onClick={async () => {
+                  await fetch("/api/auth/logout", { method: "POST" });
+                  window.location.href = "/";
+                }}
+              >
+                <LogOut strokeWidth={2} size={20} />
+              </button>
+            </>
           ) : (
-            <Link href="/auth/login" className={styles.loginBtn}>
+            <Link href="/login" className={styles.loginBtn}>
               로그인
             </Link>
           )}
@@ -182,7 +195,7 @@ export default function Header() {
       {popupConfig && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalBox}>
-            <p className={styles.modalText}>{popupConfig.msg}</p>
+            <p className={styles.modalText}>{popupConfig?.msg}</p>
             <button className={styles.modalBtn} onClick={closePopup}>
               확인
             </button>

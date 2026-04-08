@@ -227,6 +227,17 @@
   gap: 8px;
   transition: var(--transition-fast);
   border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none; /* <a> 태그의 밑줄 제거 */
+}
+
+.btnDisabled {
+  background-color: var(--color-gray-200) !important;
+  color: var(--color-gray-500) !important;
+  cursor: not-allowed;
+  pointer-events: none; /* 클릭 방지 */
+  box-shadow: none !important;
+  transform: none !important;
 }
 
 .kakaoBtn {
@@ -237,6 +248,7 @@
 .kakaoBtn:hover {
   background-color: #F4DC00;
   box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .naverBtn {
@@ -247,13 +259,22 @@
 .naverBtn:hover {
   background-color: #02b351;
   box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
 }
 
 .socialIcon {
-  width: 18px;
-  height: 18px;
-  border-radius: 4px;
-  background: rgba(0,0,0,0.05); /* Placeholder if actual image is missing */
+  width: 17px; /* 전체적으로 살짝 줄여서 카카오와 밸런스를 맞춤 */
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateY(1px); /* 글씨 높이에 맞춰 하단으로 1px 미세 조정 */
+}
+
+/* 네이버 아이콘이 각진 형태라 더 커 보일 수 있으므로 추가 보정 */
+.naverBtn .socialIcon {
+  width: 15.5px;
+  height: 15.5px;
 }
 
 .footer {

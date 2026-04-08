@@ -301,7 +301,11 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
             <option value="latest">최신순</option>
             {filterType !== 'notice' && <option value="popular">인기순</option>}
             <option value="views">조회순</option>
-            {filterType !== 'notice' && <option value="reviews">리뷰순</option>}
+            {filterType === 'community' ? (
+              <option value="comments">댓글순</option>
+            ) : filterType !== 'notice' ? (
+              <option value="reviews">리뷰순</option>
+            ) : null}
             {filterType === 'festival' && (
               <option value="distance">거리순</option>
             )}

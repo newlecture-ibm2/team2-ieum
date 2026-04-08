@@ -19,14 +19,14 @@ public class AuthController {
 
     private final AuthUseCase authUseCase;
 
-    @Operation(summary = "회원가입", description = "이메일, 비밀번호, 닉네임으로 회원가입합니다.")
+    @Operation(summary = "회원가입", description = "아이디, 비밀번호, 닉네임으로 회원가입합니다.")
     @PostMapping("/signup")
     public ResponseEntity<ApiResponse<Void>> signup(@RequestBody AuthReq.Register request) {
         authUseCase.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
     }
 
-    @Operation(summary = "로그인", description = "이메일/비밀번호로 로그인 후 JWT 토큰을 발급합니다.")
+    @Operation(summary = "로그인", description = "아이디/비밀번호로 로그인 후 JWT 토큰을 발급합니다.")
     @PostMapping("/login")
     public ResponseEntity<ApiResponse<AuthRes.TokenDto>> login(@RequestBody AuthReq.Login request) {
         AuthRes.TokenDto tokenDto = authUseCase.login(request);
@@ -43,6 +43,36 @@ public class AuthController {
     @Operation(summary = "로그아웃", description = "클라이언트 세션을 무효화합니다.")
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout() {
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "비밀번호 찾기 - 인증 코드 요청", description = "입력한 아이디로 비밀번호 재설정용 인증 코드를 전송합니다.")
+    @PostMapping("/password-recovery/request")
+    public ResponseEntity<ApiResponse<Void>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
+        authUseCase.requestRecovery(request);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "비밀번호 찾기 - 인증 코드 검증", description = "아이디 인증 코드를 검증합니다.")
+    @PostMapping("/password-recovery/verify")
+    public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryCode(@RequestBody AuthReq.PasswordRecoveryVerify request) {
+        authUseCase.verifyCode(request);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "비밀번호 찾기 - 비밀번호 재설정", description = "인증 완료 후 새로운 비밀번호로 변경합니다.")
+    @PostMapping("/password-recovery/reset")
+    public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody AuthReq.PasswordReset request) {
+        authUseCase.resetPassword(request);
+        return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "회원 탈퇴", description = "비밀번호 확인 후 30일간의 유예 기간을 두고 계정을 탈퇴(Soft Delete) 처리합니다.")
+    @DeleteMapping("/me")
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(@RequestBody AuthReq.Withdraw request) {
+        // 현재 로그인한 사용자 ID 추출 (Spring Security 연동)
+        String userIdStr = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        authUseCase.withdraw(Long.valueOf(userIdStr), request.getPassword());
         return ResponseEntity.ok(ApiResponse.success());
     }
 }

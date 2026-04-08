@@ -11,6 +11,22 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewEntity, Long> {
     
     Page<ReviewEntity> findByFestivalId(Long festivalId, Pageable pageable);
     
+    @Query("SELECT new map(" +
+           "r.id as id, " +
+           "r.festivalId as festivalId, " +
+           "r.userId as userId, " +
+           "r.rating as rating, " +
+           "r.content as content, " +
+           "r.createdAt as createdAt, " +
+           "r.updatedAt as updatedAt, " +
+           "u.nickname as nickname, " +
+           "u.role as role" +
+           ") " +
+           "FROM ReviewEntity r " +
+           "JOIN UserJpaEntity u ON r.userId = u.id " +
+           "WHERE r.festivalId = :festivalId")
+    Page<java.util.Map<String, Object>> findReviewsWithNickname(@Param("festivalId") Long festivalId, Pageable pageable);
+    
     @Query("SELECT AVG(r.rating) FROM ReviewEntity r WHERE r.festivalId = :festivalId")
     Double getAverageRating(@Param("festivalId") Long festivalId);
     

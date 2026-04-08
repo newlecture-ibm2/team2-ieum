@@ -15,6 +15,10 @@
 
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getIronSession } from "iron-session";
+import { cookies } from "next/headers";
+import { sessionOptions } from "./lib/session";
+import type { SessionData } from "./lib/session";
 
 // 회원 전용 경로
 const PROTECTED_ROUTES = ["/mypage", "/community/write"];
@@ -22,26 +26,33 @@ const PROTECTED_ROUTES = ["/mypage", "/community/write"];
 // 관리자 전용 경로
 const ADMIN_ROUTES = ["/admin"];
 
-export function middleware(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // TODO: iron-session에서 세션 읽기
-  // const session = await getSession(request);
+  const isAdminRoute = ADMIN_ROUTES.some((route) => pathname.startsWith(route));
+  const isProtectedRoute = PROTECTED_ROUTES.some((route) => pathname.startsWith(route));
 
-  // 관리자 전용 경로 체크
-  if (ADMIN_ROUTES.some((route) => pathname.startsWith(route))) {
-    // TODO: ADMIN role 검증
-    // if (!session?.user || session.user.role !== 'ADMIN') {
-    //   return NextResponse.redirect(new URL('/auth/login', request.url));
-    // }
+  // 대상 경로가 아니라면 바로 패스하여 성능 최적화
+  if (!isAdminRoute && !isProtectedRoute) {
+    return NextResponse.next();
   }
 
-  // 회원 전용 경로 체크
-  if (PROTECTED_ROUTES.some((route) => pathname.startsWith(route))) {
-    // TODO: USER/ADMIN role 검증
-    // if (!session?.user) {
-    //   return NextResponse.redirect(new URL('/auth/login', request.url));
-    // }
+  // Next.js 15+ 에서는 await cookies() 사용
+  const cookieStore = await cookies();
+  const session = await getIronSession<SessionData>(cookieStore, sessionOptions);
+
+  // 관리자 전용 경로 체크: ADMIN이 아니면 / (랜딩페이지) 로 강제 이동
+  if (isAdminRoute) {
+    if (!session?.user || session.user.role !== 'ADMIN') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
+  }
+
+  // 회원 전용 경로 체크: 로그인이 안되어있으면 /auth/login 으로 이동
+  if (isProtectedRoute) {
+    if (!session?.user) {
+      return NextResponse.redirect(new URL('/auth/login', request.url));
+    }
   }
 
   return NextResponse.next();

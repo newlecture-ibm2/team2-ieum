@@ -96,6 +96,10 @@ export default function ReportListPage() {
 
   useEffect(() => {
     fetchReports();
+
+    // 30초마다 목록 실시간 갱신 (폴링)
+    const intervalId = setInterval(fetchReports, 30000);
+    return () => clearInterval(intervalId);
   }, [fetchReports]);
 
   /* ── KPI 카드 클릭 ── */

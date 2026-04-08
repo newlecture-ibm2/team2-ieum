@@ -47,15 +47,21 @@ public class ReviewController {
             @ApiResponse(responseCode = "409", description = "이미 해당 축제에 리뷰를 작성함")
     })
     @PostMapping
-    public ResponseEntity<?> createReview(@RequestBody Map<String, Object> request) {
+    public ResponseEntity<?> createReview(
+            @RequestBody Map<String, Object> request,
+            java.security.Principal principal
+    ) {
         Long festivalId = Long.valueOf(request.get("festivalId").toString());
         Integer rating = Integer.valueOf(request.get("rating").toString());
         String content = request.get("content").toString();
-        // 임시 하드코딩 유저 ID (인증 구현 시 실제 유저 식별자 사용)
-        Long userId = 1L; 
+        
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+        }
+        String email = principal.getName();
         
         try {
-            reviewService.createReview(festivalId, userId, rating, content);
+            reviewService.createReview(festivalId, email, rating, content);
             return ResponseEntity.status(201).body(Map.of("success", true, "message", "리뷰 작성 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
@@ -73,14 +79,19 @@ public class ReviewController {
     public ResponseEntity<?> updateReview(
             @Parameter(description = "리뷰 ID", required = true, example = "1")
             @PathVariable Long reviewId,
-            @RequestBody Map<String, Object> request
+            @RequestBody Map<String, Object> request,
+            java.security.Principal principal
     ) {
         Integer rating = Integer.valueOf(request.get("rating").toString());
         String content = request.get("content").toString();
-        Long userId = 1L; // 임시 하드코딩
+        
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+        }
+        String email = principal.getName();
         
         try {
-            reviewService.updateReview(reviewId, userId, rating, content);
+            reviewService.updateReview(reviewId, email, rating, content);
             return ResponseEntity.ok(Map.of("success", true, "message", "리뷰 수정 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(403).body(Map.of("success", false, "message", e.getMessage()));
@@ -97,11 +108,16 @@ public class ReviewController {
     @DeleteMapping("/{reviewId}")
     public ResponseEntity<?> deleteReview(
             @Parameter(description = "리뷰 ID", required = true, example = "1")
-            @PathVariable Long reviewId
+            @PathVariable Long reviewId,
+            java.security.Principal principal
     ) {
-        Long userId = 1L; // 임시 하드코딩
+        if (principal == null) {
+            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+        }
+        String email = principal.getName();
+        
         try {
-            reviewService.deleteReview(reviewId, userId);
+            reviewService.deleteReview(reviewId, email);
             return ResponseEntity.ok(Map.of("success", true, "message", "리뷰 삭제 성공"));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(403).body(Map.of("success", false, "message", e.getMessage()));

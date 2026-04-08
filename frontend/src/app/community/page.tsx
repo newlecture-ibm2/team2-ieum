@@ -6,6 +6,7 @@ import { Pencil } from 'lucide-react';
 import Link from 'next/link';
 import styles from './community.module.css';
 import SearchFilter from '@/_component/common/SearchFilter';
+import Pagination from '@/_component/common/Pagination';
 import PopularPosts from './_components/PopularPosts/PopularPosts';
 import PostCard from './_components/PostCard/PostCard';
 import { usePosts } from './_components/PostCard/usePosts';
@@ -25,21 +26,24 @@ function CommunityContent() {
   const areaCode = searchParams.get('areaCode') || '';
   const keyword = searchParams.get('keyword') || '';
   const sort = searchParams.get('sort') || 'latest';
+  const page = Number(searchParams.get('page')) || 1;
 
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
     fetch('/api/auth/me')
-      .then(res => res.json())
-      .then(data => setIsLoggedIn(data.isLoggedIn))
+      .then((res) => res.json())
+      .then((data) => setIsLoggedIn(data.isLoggedIn))
       .catch(() => {});
   }, []);
 
-  const { posts, loading, hasMore, lastPostRef } = usePosts({
+  const { posts, loading, totalPages } = usePosts({
     category: category || undefined,
     areaCode: areaCode || undefined,
     keyword: keyword || undefined,
     sort,
+    page,
+    size: 10,
   });
 
   const { popularPosts } = usePopularPosts();
@@ -63,7 +67,7 @@ function CommunityContent() {
         {/* 🔥 인기 게시글 Top 3 */}
         <PopularPosts posts={popularPosts} />
 
-        {/* 게시글 리스트 (무한 스크롤) */}
+        {/* 게시글 리스트 */}
         <div className={styles.postList}>
           {posts.length === 0 && !loading && (
             <div className={styles.emptyState}>
@@ -72,21 +76,19 @@ function CommunityContent() {
             </div>
           )}
 
-          {posts.map((post, idx) => {
-            if (idx === posts.length - 1) {
-              return (
-                <div ref={lastPostRef} key={post.id}>
-                  <PostCard post={post} />
-                </div>
-              );
-            }
-            return <PostCard key={post.id} post={post} />;
-          })}
+          {posts.map((post) => (
+            <PostCard key={post.id} post={post} />
+          ))}
 
           {loading && (
             <div className={styles.loadingWrap}>게시글을 불러오는 중...</div>
           )}
         </div>
+
+        {/* 페이지네이션 */}
+        {!loading && posts.length > 0 && (
+          <Pagination currentPage={page} totalPages={totalPages} />
+        )}
       </section>
 
       {/* 글쓰기 FAB — 로그인 사용자만 노출 */}

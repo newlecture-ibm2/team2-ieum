@@ -1,5 +1,7 @@
 package com.ieum.global.security;
 
+import com.ieum.global.security.oauth2.CustomOAuth2UserService;
+import com.ieum.global.security.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -40,7 +42,9 @@ public class SecurityConfig {
                         HttpSecurity http,
                         JwtAuthenticationFilter jwtAuthenticationFilter,
                         JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-                        JwtAccessDeniedHandler jwtAccessDeniedHandler) throws Exception {
+                        JwtAccessDeniedHandler jwtAccessDeniedHandler,
+                        CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
                 http
                                 // CSRF 비활성화 (REST API는 Stateless)
                                 .csrf(csrf -> csrf.disable())
@@ -120,6 +124,7 @@ public class SecurityConfig {
                                                 // ✅ 첨부파일(이미지 등) 다운로드 허용
                                                 // [로컬 개발 환경 전용 설정] 실서버에서는 Nginx가 처리하므로 이 필터를 거치지 않습니다.
                                                 .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
 
                                                 // ✅ 에러 페이지 경로 허용 (404 등이 401로 마스킹되는 것 방지)
                                                 .requestMatchers("/error").permitAll()
@@ -138,8 +143,15 @@ public class SecurityConfig {
                                                 .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                                                 .accessDeniedHandler(jwtAccessDeniedHandler))
 
+                                // 카카오 소셜 로그인(OAuth2) 설정
+                                .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(userInfo -> userInfo
+                                                                .userService(customOAuth2UserService))
+                                                .successHandler(oAuth2SuccessHandler))
+
                                 // JWT 필터 추가
                                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
 
                 return http.build();
         }
