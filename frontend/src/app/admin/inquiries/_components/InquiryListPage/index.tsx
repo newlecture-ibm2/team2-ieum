@@ -27,6 +27,7 @@ export default function InquiryListPage() {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [newTodayCount, setNewTodayCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
 
   /* ── 모달/토스트 상태 ── */
@@ -47,8 +48,8 @@ export default function InquiryListPage() {
   };
 
   /* ── 데이터 로드 ── */
-  const fetchInquiries = useCallback(async () => {
-    setLoading(true);
+  const fetchInquiries = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
     try {
       const params: Record<string, string | number> = {
         page: currentPage,
@@ -66,19 +67,21 @@ export default function InquiryListPage() {
       setTotalCount(result.pendingCount + result.answeredCount);
       setPendingCount(result.pendingCount);
       setAnsweredCount(result.answeredCount);
+      setNewTodayCount(result.newTodayCount || 0);
     } catch (err) {
       console.error('문의 목록 조회 실패:', err);
-      setInquiries([]);
+      // do not blindly clear inquiries array on polling fail to prevent ui empty flash
+      if (!isPolling) setInquiries([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   }, [currentPage, statusFilter, extraFilters.searchType, keyword, setLoading, setTotalPages]);
 
   useEffect(() => {
-    fetchInquiries();
+    fetchInquiries(false);
 
     // 30초마다 목록 실시간 갱신 (폴링)
-    const intervalId = setInterval(fetchInquiries, 30000);
+    const intervalId = setInterval(() => fetchInquiries(true), 30000);
     return () => clearInterval(intervalId);
   }, [fetchInquiries]);
 
@@ -117,6 +120,17 @@ export default function InquiryListPage() {
             <div className={common.statValue}>{totalCount}</div>
           </div>
           <div
+            className={`${common.statCard} ${common.statCardInteractive} ${statusFilter === 'NEW_TODAY' ? common.statActive : ''}`}
+            style={{ 
+              backgroundColor: statusFilter === 'NEW_TODAY' ? '#dbeafe' : '#eff6ff', 
+              border: '1px solid #bfdbfe' 
+            }}
+            onClick={() => handleStatClick('NEW_TODAY')}
+          >
+            <div className={common.statLabel} style={{ color: '#1e3a8a' }}>오늘 신규 접수</div>
+            <div className={common.statValue} style={{ color: '#2563eb' }}>{newTodayCount}</div>
+          </div>
+          <div
             className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
             onClick={() => handleStatClick('PENDING')}
           >
@@ -143,6 +157,7 @@ export default function InquiryListPage() {
             onChange={(e) => setStatusFilterAndReset(e.target.value)}
           >
             <option value="">전체 상태</option>
+            <option value="NEW_TODAY">오늘 신규 접수</option>
             <option value="PENDING">대기중</option>
             <option value="ANSWERED">답변완료</option>
           </select>

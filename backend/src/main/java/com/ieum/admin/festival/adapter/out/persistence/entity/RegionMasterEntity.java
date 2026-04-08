@@ -53,4 +53,24 @@ public class RegionMasterEntity {
     public String getEffectiveDisplayName() {
         return displayName != null && !displayName.isEmpty() ? displayName : name;
     }
+
+    public com.ieum.admin.festival.domain.model.RegionMaster toDomain() {
+        return com.ieum.admin.festival.domain.model.RegionMaster.builder()
+                .regionCode(this.regionCode)
+                .name(this.name)
+                .displayName(this.displayName)
+                .shortName(this.shortName)
+                .active(this.isActive)
+                .build();
+    }
+
+    public static RegionMasterEntity fromDomain(com.ieum.admin.festival.domain.model.RegionMaster domain) {
+        RegionMasterEntity entity = new RegionMasterEntity();
+        entity.setRegionCode(domain.getRegionCode());
+        entity.setName(domain.getName());
+        entity.setDisplayName(domain.getDisplayName());
+        entity.setShortName(domain.getShortName());
+        entity.setActive(domain.isActive());
+        return entity;
+    }
 }
