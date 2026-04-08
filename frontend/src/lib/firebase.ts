@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getMessaging, getToken } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Firebase 설정 (클라이언트 키 — 브라우저에 노출되는 공개 정보이므로 하드코딩 OK)
 const firebaseConfig = {

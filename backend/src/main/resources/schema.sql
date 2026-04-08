@@ -254,7 +254,7 @@ CREATE TABLE IF NOT EXISTS posts (
     id              BIGSERIAL       PRIMARY KEY,
     user_id         BIGINT          NOT NULL,
     category        board_category  NOT NULL,
-    title           VARCHAR(100)    NOT NULL,
+    title           VARCHAR(200)    NOT NULL,
     content         TEXT            NOT NULL,
     view_count      INTEGER         NOT NULL DEFAULT 0,
     comment_count   INTEGER         NOT NULL DEFAULT 0,
@@ -267,7 +267,7 @@ CREATE TABLE IF NOT EXISTS posts (
 
 COMMENT ON TABLE  posts                 IS '커뮤니티 게시글 테이블';
 COMMENT ON COLUMN posts.category        IS '게시판 카테고리 (QNA, TIP, FOOD)';
-COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~100자)';
+COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~200자)';
 COMMENT ON COLUMN posts.content         IS '게시글 내용 (10~5000자)';
 COMMENT ON COLUMN posts.view_count      IS '조회수';
 COMMENT ON COLUMN posts.comment_count   IS '댓글 수 (캐시)';
@@ -279,7 +279,7 @@ CREATE TABLE IF NOT EXISTS comments (
     id              BIGSERIAL       PRIMARY KEY,
     post_id         BIGINT          NOT NULL,
     user_id         BIGINT          NOT NULL,
-    content         VARCHAR(1000)   NOT NULL,
+    content         VARCHAR(500)    NOT NULL,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
@@ -290,7 +290,7 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 COMMENT ON TABLE  comments             IS '게시글 댓글 테이블';
-COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~1000자)';
+COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~500자)';
 
 -- ------------------------------------------------------------
 -- 2-8. 신고 (reports)

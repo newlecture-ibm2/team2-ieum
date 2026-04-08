@@ -22,6 +22,8 @@ interface NotificationsResponse {
 
 interface Props {
   onClose: () => void;
+  refreshKey?: number;
+  onUnreadChange?: (hasUnread: boolean) => void;
 }
 
 /* ===== 유틸 ===== */
@@ -55,7 +57,7 @@ function getTargetUrl(n: Notification) {
 }
 
 /* ===== 컴포넌트 ===== */
-export default function NotificationDropdown({ onClose }: Props) {
+export default function NotificationDropdown({ onClose, refreshKey, onUnreadChange }: Props) {
   const [data, setData] = useState<NotificationsResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -80,7 +82,7 @@ export default function NotificationDropdown({ onClose }: Props) {
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+  }, [fetchNotifications, refreshKey]);
 
   /* 모두 읽음 처리 */
   const handleReadAll = async () => {
@@ -93,6 +95,7 @@ export default function NotificationDropdown({ onClose }: Props) {
           notifications: data.notifications.map((n) => ({ ...n, isRead: true })),
         });
       }
+      onUnreadChange?.(false);
     } catch {
       // 에러 무시 (이미 보여주고 있는 리스트 유지)
     }
@@ -106,14 +109,16 @@ export default function NotificationDropdown({ onClose }: Props) {
         await api.patch("/api/users/me/notifications/read", {
           notificationIds: [notification.id],
         });
+        const newUnread = Math.max(0, (data?.unreadCount ?? 1) - 1);
         if (data) {
           setData({
-            unreadCount: Math.max(0, data.unreadCount - 1),
+            unreadCount: newUnread,
             notifications: data.notifications.map((n) =>
               n.id === notification.id ? { ...n, isRead: true } : n
             ),
           });
         }
+        onUnreadChange?.(newUnread > 0);
       } catch {
         // 에러 무시
       }
@@ -133,10 +138,12 @@ export default function NotificationDropdown({ onClose }: Props) {
     try {
       await api.delete(`/api/users/me/notifications/${notification.id}`);
       if (data) {
+        const newUnread = notification.isRead ? data.unreadCount : Math.max(0, data.unreadCount - 1);
         setData({
-          unreadCount: notification.isRead ? data.unreadCount : Math.max(0, data.unreadCount - 1),
+          unreadCount: newUnread,
           notifications: data.notifications.filter((n) => n.id !== notification.id),
         });
+        onUnreadChange?.(newUnread > 0);
       }
     } catch {
       // 에러 무시

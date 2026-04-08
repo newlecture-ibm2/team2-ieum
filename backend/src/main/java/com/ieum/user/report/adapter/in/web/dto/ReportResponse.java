@@ -1,19 +1,16 @@
 package com.ieum.user.report.adapter.in.web.dto;
 
-import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
+import com.ieum.user.report.domain.model.Report;
 import lombok.Builder;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-/**
- * 사용자 신고 응답 DTO (통합 — POST, COMMENT, REVIEW 공통)
- */
 @Getter
 @Builder
 public class ReportResponse {
-
     private Long id;
+    private Long reporterId;
     private String targetType;
     private Long targetId;
     private String reason;
@@ -23,17 +20,18 @@ public class ReportResponse {
     private LocalDateTime processedAt;
     private LocalDateTime createdAt;
 
-    public static ReportResponse fromEntity(ReportEntity entity) {
+    public static ReportResponse fromDomain(Report report) {
         return ReportResponse.builder()
-                .id(entity.getId())
-                .targetType(entity.getTargetType())
-                .targetId(entity.getTargetId())
-                .reason(entity.getReason())
-                .description(entity.getDescription())
-                .status(entity.getStatus())
-                .adminNote(entity.getAdminNote())
-                .processedAt(entity.getProcessedAt())
-                .createdAt(entity.getCreatedAt())
+                .id(report.getId())
+                .reporterId(report.getReporterId())
+                .targetType(report.getTargetType())
+                .targetId(report.getTargetId())
+                .reason(report.getReason())
+                .description(report.getDescription())
+                .status(report.getStatus())
+                .adminNote(report.getAdminNote())
+                .processedAt(report.getProcessedAt())
+                .createdAt(report.getCreatedAt())
                 .build();
     }
 }
