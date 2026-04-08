@@ -15,7 +15,10 @@ public interface AdminNoticePort {
 
     Optional<AdminNotice> findById(Long noticeId);
 
-    Page<AdminNotice> findAll(Pageable pageable);
+    Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned, Boolean isPopup, Boolean isPushed);
 
     void deleteById(Long noticeId);
+
+    boolean existsPopupActive();
+    boolean existsPopupActiveExcept(Long noticeId);
 }

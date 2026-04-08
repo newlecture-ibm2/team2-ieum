@@ -42,9 +42,14 @@ public class NoticeAdminController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<AdminNotice>>> getAdminNotices(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isPinned,
+            @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean isPushed) {
         return ResponseEntity.ok(ApiResponse.success(
-                getAdminNoticeListUseCase.getAdminNotices(page, size)));
+                getAdminNoticeListUseCase.getAdminNotices(page, size, searchType, keyword, isPinned, isPopup, isPushed)));
     }
 
     /**

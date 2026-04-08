@@ -24,7 +24,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
-  const [sendPush, setSendPush] = useState(false); // 작성/수정 시 푸시 알림 발송 여부
+  const [sendPush, setSendPush] = useState(isEdit ? notice!.isPushed : false); // 수정 시 Pushed 상태 반영
   const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 

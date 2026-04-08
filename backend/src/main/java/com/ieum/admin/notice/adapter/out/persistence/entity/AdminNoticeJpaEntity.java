@@ -49,6 +49,10 @@ public class AdminNoticeJpaEntity {
     @Column(name = "is_popup")
     private Boolean isPopup = false;
 
+    @Builder.Default
+    @Column(name = "is_pushed")
+    private Boolean isPushed = false;
+
     @Column(name = "start_date")
     private LocalDateTime startDate;
 
@@ -75,6 +79,7 @@ public class AdminNoticeJpaEntity {
                 .viewCount(this.viewCount)
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
+                .isPushed(this.isPushed)
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .createdAt(this.createdAt)
@@ -94,6 +99,7 @@ public class AdminNoticeJpaEntity {
                 .viewCount(notice.getViewCount())
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())
+                .isPushed(notice.getIsPushed())
                 .startDate(notice.getStartDate())
                 .endDate(notice.getEndDate())
                 .createdAt(notice.getCreatedAt())

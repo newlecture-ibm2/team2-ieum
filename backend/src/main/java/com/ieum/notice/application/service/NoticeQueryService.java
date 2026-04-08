@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -64,7 +65,7 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
     }
 
     @Override
-    public Notice getPopupNotice() {
-        return noticePort.findPopupNotice().orElse(null);
+    public List<Notice> getPopupNotices() {
+        return noticePort.findPopupNotices();
     }
 }

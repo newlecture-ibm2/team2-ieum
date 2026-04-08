@@ -9,7 +9,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 공지사항 영속성 어댑터 (Port OUT 구현체)
@@ -50,9 +52,11 @@ public class NoticePersistenceAdapter implements NoticePort {
     }
 
     @Override
-    public Optional<Notice> findPopupNotice() {
-        return noticeJpaRepository.findTopPopupNotice(LocalDateTime.now())
-                .map(NoticeJpaEntity::toDomain);
+    public List<Notice> findPopupNotices() {
+        return noticeJpaRepository.findPopupNotices(LocalDateTime.now())
+                .stream()
+                .map(NoticeJpaEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

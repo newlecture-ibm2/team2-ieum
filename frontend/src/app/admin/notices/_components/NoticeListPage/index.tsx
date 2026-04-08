@@ -13,19 +13,35 @@ import { useToast } from '@/_component/common/Toast';
 import s from './NoticeListPage.module.css';
 
 export default function NoticeListPage() {
-  const list = useAdminList();
+  const list = useAdminList({ extraFilterKeys: ['searchType'] });
   const {
     currentPage, setCurrentPage, totalPages, setTotalPages,
     totalElements, setTotalElements,
+    extraFilters, setExtraFilter,
     loading, setLoading,
-    keyword, searchTerm, setSearchTerm, handleKeyDown, submitSearch
+    keyword, searchTerm, setSearchTerm, submitSearch
   } = list;
 
   const { toast } = useToast();
 
   const [notices, setNotices] = useState<AdminNoticeItem[]>([]);
+  const [allCount, setAllCount] = useState(0);
   const [pinnedCount, setPinnedCount] = useState(0);
   const [popupCount, setPopupCount] = useState(0);
+  const [pushedCount, setPushedCount] = useState(0);
+  const [filterType, setFilterType] = useState<'all'|'pinned'|'popup'|'pushed'>('all');
+  const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
+
+  const onSearchSubmit = () => {
+    setExtraFilter('searchType', localSearchType);
+    submitSearch();
+  };
+
+  const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      onSearchSubmit();
+    }
+  };
 
   /* ── 모달 상태 ── */
   const [formMode, setFormMode] = useState<'create' | 'edit' | null>(null);
@@ -37,11 +53,15 @@ export default function NoticeListPage() {
   const fetchNotices = useCallback(async () => {
     setLoading(true);
     try {
-      const params: Record<string, string | number> = {
+      const params: Record<string, string | number | boolean> = {
         page: currentPage,
         size: 10,
       };
       if (keyword) params.keyword = keyword;
+      if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
+      if (filterType === 'pinned') params.isPinned = true;
+      if (filterType === 'popup') params.isPopup = true;
+      if (filterType === 'pushed') params.isPushed = true;
 
       const { data } = await adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params });
       const result = data.data;
@@ -50,18 +70,24 @@ export default function NoticeListPage() {
       setTotalPages(result.totalPages || 1);
       setTotalElements(result.totalElements);
 
-      // KPI 카운트
+      // 전체 카운트는 검색이나 필터가 없을 때만 정확하므로 별도 API에서 가져오는 것이 이상적이지만, 
+      // 임시로 현재 데이터 내에서 계산 (백엔드 지원 필요)
       const pinned = result.content.filter(n => n.isPinned).length;
       const popup = result.content.filter(n => n.isPopup).length;
-      setPinnedCount(pinned);
-      setPopupCount(popup);
+      const pushed = result.content.filter(n => n.isPushed).length;
+      if (filterType === 'all') {
+        setAllCount(result.totalElements);
+        setPinnedCount(pinned);
+        setPopupCount(popup);
+        setPushedCount(pushed);
+      }
     } catch (err) {
       console.error('공지사항 목록 조회 실패:', err);
       setNotices([]);
     } finally {
       setLoading(false);
     }
-  }, [currentPage, keyword, setLoading, setTotalPages, setTotalElements]);
+  }, [currentPage, keyword, extraFilters.searchType, filterType, setLoading, setTotalPages, setTotalElements]);
 
   useEffect(() => {
     fetchNotices();
@@ -103,35 +129,76 @@ export default function NoticeListPage() {
       {/* ── KPI 카드 ── */}
       <div className={common.card}>
         <div className={common.statGrid}>
-          <div className={`${common.statCard} ${common.statTotal}`}>
+          <div 
+            className={`${common.statCard} ${common.statTotal} ${common.statCardInteractive} ${filterType === 'all' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('all'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>전체</div>
-            <div className={common.statValue}>{totalElements}</div>
+            <div className={common.statValue}>{allCount}</div>
           </div>
-          <div className={`${common.statCard} ${common.statUpcoming}`}>
+          <div 
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${filterType === 'pinned' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('pinned'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>상단고정</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pinnedCount}</div>
           </div>
-          <div className={`${common.statCard} ${common.statOngoing}`}>
+          <div 
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${filterType === 'popup' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('popup'); setCurrentPage(1); }}
+          >
             <div className={common.statLabel}>팝업</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{popupCount}</div>
+          </div>
+          <div 
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${filterType === 'pushed' ? common.statActive : ''}`}
+            onClick={() => { setFilterType('pushed'); setCurrentPage(1); }}
+          >
+            <div className={common.statLabel}>푸시알림</div>
+            <div className={`${common.statValue}`}>{pushedCount}</div>
           </div>
         </div>
       </div>
 
-      {/* ── 검색 바 ── */}
+      {/* ── 필터 바 ── */}
       <div className={common.filterBar}>
-        <div />
+        <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={filterType}
+            onChange={(e) => {
+              setFilterType(e.target.value as any);
+              setCurrentPage(1);
+            }}
+          >
+            <option value="all">전체 상태</option>
+            <option value="pinned">상단고정</option>
+            <option value="popup">팝업</option>
+            <option value="pushed">푸시알림</option>
+          </select>
+        </div>
         <div style={{ display: 'flex', gap: '8px' }}>
+          <select
+            className={common.filterSelect}
+            style={{ minWidth: 130 }}
+            value={localSearchType}
+            onChange={(e) => setLocalSearchType(e.target.value)}
+          >
+            <option value="ALL">전체 검색</option>
+            <option value="TITLE">제목</option>
+            <option value="CONTENT">내용</option>
+          </select>
           <input
             type="text"
             className={common.searchInput}
             style={{ width: 280 }}
-            placeholder="제목 또는 내용으로 검색"
+            placeholder="검색어를 입력하세요"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={handleKeyDown}
+            onKeyDown={handleSearchKeyDown}
           />
-          <button type="button" className={common.searchBtn} onClick={submitSearch}>
+          <button type="button" className={common.searchBtn} onClick={onSearchSubmit}>
             검색
           </button>
         </div>
@@ -151,6 +218,7 @@ export default function NoticeListPage() {
               <col style={{ width: '80px' }} />
               <col style={{ width: '80px' }} />
               <col style={{ width: '80px' }} />
+              <col style={{ width: '80px' }} />
               <col style={{ width: '110px' }} />
               <col style={{ width: '130px' }} />
             </colgroup>
@@ -161,6 +229,7 @@ export default function NoticeListPage() {
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>조회수</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>고정</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>팝업</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>푸시알림</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>작성일</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
               </tr>
@@ -201,6 +270,13 @@ export default function NoticeListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {notice.isPopup ? (
                         <span className={`${common.statusBadge} ${common.badgeOngoing}`}>Y</span>
+                      ) : (
+                        <span className={`${common.statusBadge} ${common.badgeEnded}`}>N</span>
+                      )}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {notice.isPushed ? (
+                        <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>Y</span>
                       ) : (
                         <span className={`${common.statusBadge} ${common.badgeEnded}`}>N</span>
                       )}

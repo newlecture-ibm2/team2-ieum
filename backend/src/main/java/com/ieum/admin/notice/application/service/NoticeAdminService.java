@@ -45,6 +45,7 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
                 .summary(summary)
                 .isPinned(isPinned != null ? isPinned : false)
                 .isPopup(isPopup != null ? isPopup : false)
+                .isPushed(Boolean.TRUE.equals(sendPush))
                 .build();
 
         AdminNotice saved = adminNoticePort.save(notice);
@@ -78,6 +79,7 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
                 .viewCount(notice.getViewCount())
                 .isPinned(isPinned != null ? isPinned : notice.getIsPinned())
                 .isPopup(isPopup != null ? isPopup : notice.getIsPopup())
+                .isPushed(Boolean.TRUE.equals(sendPush) || notice.getIsPushed())
                 .startDate(notice.getStartDate())
                 .endDate(notice.getEndDate())
                 .createdAt(notice.getCreatedAt())
@@ -115,8 +117,9 @@ public class NoticeAdminService implements CreateNoticeUseCase, UpdateNoticeUseC
 
     @Override
     @Transactional(readOnly = true)
-    public Page<AdminNotice> getAdminNotices(int page, int size) {
-        Sort sort = Sort.by("createdAt").descending();
-        return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort));
+    public Page<AdminNotice> getAdminNotices(int page, int size, String searchType, String keyword, Boolean isPinned, Boolean isPopup, Boolean isPushed) {
+        Sort sort = Sort.by("isPinned").descending()
+                .and(Sort.by("createdAt").descending());
+        return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort), searchType, keyword, isPinned, isPopup, isPushed);
     }
 }

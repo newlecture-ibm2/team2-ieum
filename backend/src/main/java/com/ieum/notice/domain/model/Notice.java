@@ -28,6 +28,9 @@ public class Notice {
     @Builder.Default
     private Boolean isPopup = false;
 
+    @Builder.Default
+    private Boolean isPushed = false;
+
     private LocalDateTime startDate;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;

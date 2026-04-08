@@ -32,13 +32,23 @@ public class AdminNoticePersistenceAdapter implements AdminNoticePort {
     }
 
     @Override
-    public Page<AdminNotice> findAll(Pageable pageable) {
-        return adminNoticeJpaRepository.findAll(pageable)
+    public Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned, Boolean isPopup, Boolean isPushed) {
+        return adminNoticeJpaRepository.findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, pageable)
                 .map(AdminNoticeJpaEntity::toDomain);
     }
 
     @Override
     public void deleteById(Long noticeId) {
         adminNoticeJpaRepository.deleteById(noticeId);
+    }
+
+    @Override
+    public boolean existsPopupActive() {
+        return adminNoticeJpaRepository.existsByIsPopupTrue();
+    }
+
+    @Override
+    public boolean existsPopupActiveExcept(Long noticeId) {
+        return adminNoticeJpaRepository.existsByIsPopupTrueAndIdNot(noticeId);
     }
 }

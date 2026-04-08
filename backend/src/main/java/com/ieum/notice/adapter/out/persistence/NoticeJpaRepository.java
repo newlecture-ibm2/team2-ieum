@@ -9,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -26,8 +27,8 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long
     @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isPopup = true " +
            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
-           "ORDER BY n.createdAt DESC LIMIT 1")
-    Optional<NoticeJpaEntity> findTopPopupNotice(@Param("now") LocalDateTime now);
+           "ORDER BY n.createdAt DESC")
+    List<NoticeJpaEntity> findPopupNotices(@Param("now") LocalDateTime now);
 
     Optional<NoticeJpaEntity> findFirstByIdLessThanOrderByIdDesc(Long noticeId);
 
