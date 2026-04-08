@@ -2,6 +2,7 @@ package com.ieum.festival.application.service;
 
 import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
+import com.ieum.festival.application.port.in.RefreshFestivalStatusUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -13,13 +14,18 @@ import java.util.List;
 
 /**
  * 축제 status 컬럼 자동/수동 갱신 서비스
+ * - RefreshFestivalStatusUseCase 구현
  * - 매일 자정(00:00) 자동 실행
  * - 수동 API 호출로도 실행 가능
+ * 
+ * NOTE: 이 서비스는 전체 축제를 일괄 갱신하는 배치 작업이므로
+ *       성능상의 이유로 JpaRepository를 직접 사용합니다.
+ *       (Port를 통한 개별 매핑 오버헤드 회피)
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FestivalStatusScheduler {
+public class FestivalStatusScheduler implements RefreshFestivalStatusUseCase {
 
     private final FestivalJpaRepository repository;
 
@@ -27,6 +33,7 @@ public class FestivalStatusScheduler {
      * 모든 축제의 status를 오늘 날짜 기준으로 일괄 갱신
      * @return 갱신된 축제 수
      */
+    @Override
     @Transactional
     public int refreshAllStatuses() {
         LocalDate today = LocalDate.now();

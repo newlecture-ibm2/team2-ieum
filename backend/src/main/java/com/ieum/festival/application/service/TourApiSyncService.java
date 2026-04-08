@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
+import com.ieum.festival.application.port.in.SyncFestivalUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,10 +18,18 @@ import java.time.format.DateTimeFormatter;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
+/**
+ * 공공데이터 동기화 서비스
+ * - SyncFestivalUseCase 구현
+ * 
+ * NOTE: 이 서비스는 외부 API 데이터를 대량 적재하는 배치 작업이므로
+ *       성능상의 이유로 JpaRepository를 직접 사용합니다.
+ *       (Port를 통한 개별 매핑 오버헤드 회피)
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class TourApiSyncService {
+public class TourApiSyncService implements SyncFestivalUseCase {
 
     private final FestivalJpaRepository repository;
     private final RestTemplate restTemplate = new RestTemplate();
@@ -40,6 +49,7 @@ public class TourApiSyncService {
         syncFestivals(twoYearsAgo);
     }
 
+    @Override
     @Transactional
     public void syncFestivals(String eventStartDate) {
         try {

@@ -2,8 +2,10 @@ package com.ieum.festival.adapter.in.web;
 
 import com.ieum.festival.application.port.in.LoadFestivalDetailUseCase;
 import com.ieum.festival.application.port.in.LoadFestivalListUseCase;
-import com.ieum.festival.application.service.FestivalStatusScheduler;
-import com.ieum.festival.application.service.TourApiSyncService;
+import com.ieum.festival.application.port.in.RefreshFestivalStatusUseCase;
+import com.ieum.festival.application.port.in.SyncFestivalUseCase;
+import com.ieum.festival.application.result.FestivalDetailResult;
+import com.ieum.festival.application.result.FestivalPageResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -15,7 +17,7 @@ import java.util.Map;
 
 /**
  * 축제 컨트롤러 (Input Adapter)
- * - 로직 없이 UseCase만 호출
+ * - UseCase 인터페이스에만 의존 (구체 서비스 참조 없음)
  */
 @Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
 @RestController
@@ -25,8 +27,8 @@ public class FestivalController {
 
     private final LoadFestivalListUseCase loadFestivalListUseCase;
     private final LoadFestivalDetailUseCase loadFestivalDetailUseCase;
-    private final TourApiSyncService syncService;
-    private final FestivalStatusScheduler statusScheduler;
+    private final SyncFestivalUseCase syncFestivalUseCase;
+    private final RefreshFestivalStatusUseCase refreshFestivalStatusUseCase;
 
     /**
      * 축제 상태 일괄 갱신 (개발용)
@@ -34,7 +36,7 @@ public class FestivalController {
     @Operation(summary = "축제 상태 일괄 갱신 (개발용)", description = "모든 축제의 status를 오늘 날짜 기준으로 DB에 일괄 업데이트합니다.")
     @PatchMapping("/refresh-status")
     public ResponseEntity<?> refreshStatus() {
-        int updated = statusScheduler.refreshAllStatuses();
+        int updated = refreshFestivalStatusUseCase.refreshAllStatuses();
         return ResponseEntity.ok(Map.of(
                 "success", true,
                 "message", "축제 상태 일괄 갱신 완료",
@@ -60,7 +62,7 @@ public class FestivalController {
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
 
-        Map<String, Object> data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, page, size);
+        FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, page, size);
         return ResponseEntity.ok(Map.of("success", true, "data", data));
     }
 
@@ -76,7 +78,7 @@ public class FestivalController {
                     .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
         }
         try {
-            syncService.syncFestivals(eventStartDate);
+            syncFestivalUseCase.syncFestivals(eventStartDate);
             return ResponseEntity.ok(Map.of("success", true, "message", "동기화 스케줄이 완료되었습니다. (로그를 확인하세요)"));
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(Map.of("success", false, "error", e.getMessage()));
@@ -98,7 +100,7 @@ public class FestivalController {
     )
     @GetMapping("/{festivalId}")
     public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
-        Map<String, Object> detail = loadFestivalDetailUseCase.loadDetail(festivalId);
+        FestivalDetailResult detail = loadFestivalDetailUseCase.loadDetail(festivalId);
         if (detail == null) {
             return ResponseEntity.status(404).body(Map.of("success", false, "error", "Not Found"));
         }
