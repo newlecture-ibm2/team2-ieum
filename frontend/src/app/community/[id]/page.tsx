@@ -364,12 +364,24 @@ export default function CommunityDetailPage() {
                     <span className={styles.commentName}>{child.userName} {child.userId === post.authorId && '(작성자)'}</span>
                     <span className={styles.commentTime}>{new Date(child.createdAt).toLocaleString('ko-KR')}</span>
                   </div>
-                  <div className={styles.commentText}>{child.content}</div>
+                  <div className={styles.commentText}>
+                    {child.content.match(/^@(\S+)\s/) ? (
+                      <>
+                        <span className={styles.mentionTag}>@{child.content.match(/^@(\S+)\s/)![1]}</span>
+                        {child.content.replace(/^@\S+\s/, '')}
+                      </>
+                    ) : child.content}
+                  </div>
                   <div className={styles.commentActions}>
                     <span onClick={() => {
                       if (!isLoggedIn) { setShowLoginModal(true); return; }
-                      setReplyingTo(replyingTo === child.id ? null : child.id);
-                      setReplyContent('');
+                      if (replyingTo === child.id) {
+                        setReplyingTo(null);
+                        setReplyContent('');
+                      } else {
+                        setReplyingTo(child.id);
+                        setReplyContent(`@${child.userName} `);
+                      }
                     }}>답글 달기</span>
                     {child.userId === currentUserId && (
                       <>
