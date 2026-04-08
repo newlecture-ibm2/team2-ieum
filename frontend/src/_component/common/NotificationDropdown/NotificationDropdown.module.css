@@ -164,6 +164,25 @@
   margin-top: 6px;
 }
 
+/* 삭제 버튼 */
+.deleteBtn {
+  background: none;
+  border: none;
+  color: #caced5;
+  font-size: 14px;
+  cursor: pointer;
+  padding: 4px;
+  margin-left: 8px;
+  transition: color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.deleteBtn:hover {
+  color: #ff6b6b;
+}
+
 /* ===== 빈 상태 ===== */
 .empty {
   padding: 48px 20px;

@@ -1,9 +1,12 @@
 'use client';
 
-import { Calendar, Eye, User, FileWarning } from 'lucide-react';
+import { Calendar, Eye, User, FileWarning, Paperclip, Download } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import api from '@/lib/api';
 import { Notice } from '@/types/notice';
 import styles from './page.module.css';
@@ -11,6 +14,14 @@ import styles from './page.module.css';
 interface NavNotice {
   id: number;
   title: string;
+}
+
+interface Attachment {
+  id: number;
+  fileName: string;
+  filePath: string;
+  fileSize: number;
+  contentType: string;
 }
 
 export default function NoticeDetailPage() {
@@ -23,6 +34,7 @@ export default function NoticeDetailPage() {
   const [nextNotice, setNextNotice] = useState<NavNotice | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [attachments, setAttachments] = useState<Attachment[]>([]);
 
   useEffect(() => {
     const fetchDetail = async () => {
@@ -43,7 +55,22 @@ export default function NoticeDetailPage() {
         setLoading(false);
       }
     };
-    if (noticeId) fetchDetail();
+
+    const fetchAttachments = async () => {
+      try {
+        const res = await api.get('/api/attachments', {
+          params: { targetType: 'NOTICE', targetId: noticeId },
+        });
+        if (res.data?.data) setAttachments(res.data.data);
+      } catch (err) {
+        console.error('첨부파일 조회 실패:', err);
+      }
+    };
+
+    if (noticeId) {
+      fetchDetail();
+      fetchAttachments();
+    }
   }, [noticeId]);
 
   const formatDate = (dt: string) => {
@@ -90,7 +117,59 @@ export default function NoticeDetailPage() {
         </div>
       </div>
 
-      <div className={styles.detailBody} dangerouslySetInnerHTML={{ __html: notice.content }} />
+      <div className={`${styles.detailBody} ${styles.markdownBody || ''}`}>
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
+          {notice.content}
+        </ReactMarkdown>
+      </div>
+
+      {/* 첨부파일 */}
+      {attachments.length > 0 && (
+        <div className={styles.attachSection}>
+          {/* 이미지 미리보기 */}
+          {attachments.filter(a => a.contentType?.startsWith('image/')).length > 0 && (
+            <div className={styles.imagePreviewArea}>
+              {attachments
+                .filter(a => a.contentType?.startsWith('image/'))
+                .map(img => (
+                  <div key={img.id} className={styles.imagePreviewWrap}>
+                    <img
+                      src={`/api/attachments/${img.id}/download`}
+                      alt={img.fileName}
+                      className={styles.imagePreview}
+                    />
+                    <span className={styles.imageCaption}>{img.fileName}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* 파일 다운로드 리스트 */}
+          <div className={styles.fileSection}>
+            <h4 className={styles.fileSectionTitle}>
+              <Paperclip size={14} /> 첨부파일 ({attachments.length})
+            </h4>
+            <ul className={styles.fileList}>
+              {attachments.map(file => (
+                <li key={file.id} className={styles.fileItem}>
+                  <a
+                    href={`/api/attachments/${file.id}/download`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.fileLink}
+                  >
+                    <Download size={13} />
+                    <span>{file.fileName}</span>
+                    <span className={styles.fileSizeText}>
+                      {(file.fileSize / 1024).toFixed(1)} KB
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className={styles.detailNav}>
         {prevNotice ? (

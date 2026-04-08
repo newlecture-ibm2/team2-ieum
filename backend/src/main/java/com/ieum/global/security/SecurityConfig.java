@@ -84,21 +84,30 @@ public class SecurityConfig {
                                                 // ✅ 공지사항 조회 — 비회원 허용
                                                 .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
+                                                // ✅ 첨부파일 조회/다운로드 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
+
                                                 // 🔒 회원 전용 — 프로필, 알림, FCM
                                                 .requestMatchers("/api/users/me/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 리뷰 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/reviews").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/reviews")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 즐겨찾기
                                                 .requestMatchers("/api/favorites/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 커뮤니티 CUD
-                                                .requestMatchers(HttpMethod.POST, "/api/community/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.PUT, "/api/community/**").hasAnyRole("USER", "ADMIN")
-                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.POST, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 신고
                                                 .requestMatchers(HttpMethod.POST, "/api/reports").hasAnyRole("USER", "ADMIN")

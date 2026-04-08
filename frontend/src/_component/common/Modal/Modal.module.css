@@ -45,6 +45,10 @@
   width: 600px;
 }
 
+.sizeXLarge {
+  width: 800px;
+}
+
 @keyframes slideUp {
   from {
     opacity: 0;

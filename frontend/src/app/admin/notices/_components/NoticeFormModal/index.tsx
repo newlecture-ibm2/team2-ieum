@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
 import common from '@/app/admin/_styles/admin-common.module.css';
@@ -24,6 +24,12 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
+  const [isActive, setIsActive] = useState(isEdit ? notice!.isActive : true);
+  const [sendPush, setSendPush] = useState(isEdit ? notice!.isPushed : false);
+  const [startDate, setStartDate] = useState(isEdit ? (notice!.startDate?.slice(0, 16) || '') : '');
+  const [endDate, setEndDate] = useState(isEdit ? (notice!.endDate?.slice(0, 16) || '') : '');
+  const [files, setFiles] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
@@ -60,6 +66,12 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
       if (summary.trim()) formData.append('summary', summary.trim());
       formData.append('isPinned', String(isPinned));
       formData.append('isPopup', String(isPopup));
+      formData.append('isActive', String(isActive));
+      formData.append('sendPush', String(sendPush));
+      if (startDate) formData.append('startDate', startDate.length === 16 ? `${startDate}:00` : startDate);
+      if (endDate) formData.append('endDate', endDate.length === 16 ? `${endDate}:00` : endDate);
+      const fileKey = isEdit ? 'newFiles' : 'files';
+      files.forEach((file) => formData.append(fileKey, file));
 
       if (isEdit) {
         await adminApi.put(`/notices/${notice!.id}`, formData, {
@@ -85,7 +97,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   return (
     <Modal
       title={isEdit ? '📝 공지사항 수정' : '📝 공지사항 작성'}
-      size="large"
+      size="xlarge"
       onClose={onClose}
       closeOnOverlay={false}
     >
@@ -119,6 +131,28 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           />
         </div>
 
+        {/* 게시 기간 */}
+        <div className={s.fieldGroup}>
+          <label className={s.fieldLabel}>게시 기간 (예약 설정)</label>
+          <div className={s.dateRangeInput}>
+            <input
+              type="datetime-local"
+              className={s.fieldInput}
+              value={startDate}
+              onChange={(e) => setStartDate(e.target.value)}
+            />
+            <span className={s.dateSeparator}>~</span>
+            <input
+              type="datetime-local"
+              className={s.fieldInput}
+              value={endDate}
+              onChange={(e) => setEndDate(e.target.value)}
+              placeholder="종료일 (미설정 시 무제한)"
+            />
+          </div>
+          <p className={s.fieldDesc}>게시 기간 미설정 시 즉시 노출되며, 종료일 미설정 시 수동 비활성 전까지 노출됩니다.</p>
+        </div>
+
         {/* 내용 */}
         <div className={s.fieldGroup}>
           <label className={s.fieldLabel}>
@@ -138,6 +172,49 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           {contentError && <span className={s.errorText}>⚠ {contentError}</span>}
         </div>
 
+        {/* 첨부파일 */}
+        <div className={s.fieldGroup}>
+          <label className={s.fieldLabel}>📎 첨부파일</label>
+          <div
+            className={s.fileDropZone}
+            onClick={() => fileInputRef.current?.click()}
+          >
+            <span className={s.fileDropText}>클릭하여 파일을 선택하세요</span>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            multiple
+            className={s.fileInputHidden}
+            onChange={(e) => {
+              if (e.target.files && e.target.files.length > 0) {
+                const newFiles = Array.from(e.target.files);
+                setFiles((prev) => [...prev, ...newFiles]);
+                e.target.value = '';
+              }
+            }}
+          />
+          {files.length > 0 && (
+            <ul className={s.fileList}>
+              {files.map((file, idx) => (
+                <li key={idx} className={s.fileItem}>
+                  <span className={s.fileName}>📄 {file.name}</span>
+                  <span className={s.fileSize}>
+                    {(file.size / 1024).toFixed(1)} KB
+                  </span>
+                  <button
+                    type="button"
+                    className={s.fileRemoveBtn}
+                    onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
         {/* 옵션 토글 */}
         <div className={s.optionRow}>
           <label className={s.toggleWrap} onClick={() => setIsPinned(!isPinned)}>
@@ -151,7 +228,21 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             <div className={`${common.toggleTrack} ${isPopup ? common.toggleTrackOn : ''}`}>
               <div className={`${common.toggleThumb} ${isPopup ? common.toggleThumbOn : ''}`} />
             </div>
-            <span className={s.toggleLabel}>🔔 팝업 공지</span>
+            <span className={s.toggleLabel}>📢 메인 팝업</span>
+          </label>
+
+          <label className={s.toggleWrap} onClick={() => setSendPush(!sendPush)}>
+            <div className={`${common.toggleTrack} ${sendPush ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${sendPush ? common.toggleThumbOn : ''}`} />
+            </div>
+            <span className={s.toggleLabel}>🔔 푸시 알림 발송</span>
+          </label>
+
+          <label className={s.toggleWrap} onClick={() => setIsActive(!isActive)}>
+            <div className={`${common.toggleTrack} ${isActive ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${isActive ? common.toggleThumbOn : ''}`} />
+            </div>
+            <span className={s.toggleLabel}>👁 공개 여부</span>
           </label>
         </div>
       </div>

@@ -17,6 +17,8 @@ public enum ErrorCode {
     POST_001(HttpStatus.NOT_FOUND, "게시글을 찾을 수 없습니다."),
     COMMENT_001(HttpStatus.NOT_FOUND, "댓글을 찾을 수 없습니다."),
     REPORT_001(HttpStatus.CONFLICT, "이미 신고한 대상입니다."),
+    NOTICE_001(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
+    NOTICE_002(HttpStatus.FORBIDDEN, "현재 게시 중인 공지사항이 아니거나 접근할 수 없습니다."),
     COMMON_001(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
 
     private final HttpStatus status;
