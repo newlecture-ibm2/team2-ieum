@@ -3,9 +3,10 @@
   flex-direction: column;
   max-width: 1200px;
   width: 100%;
-  margin: 20px auto;
+  margin: 30px auto 80px; /* 상단 30px, 좌우 자동, 하단 80px 여백으로 푸터와 거리 둠 */
   padding: 0 24px;
-  height: calc(100vh - 90px); /* 헤더 및 약간의 여백 제외 화면 꽉 채움 */
+  height: calc(100vh - 90px);
+  min-height: 1050px; /* 높이를 더 넉넉하게 확장 */
 }
 
 /* 타이틀 영역 */
