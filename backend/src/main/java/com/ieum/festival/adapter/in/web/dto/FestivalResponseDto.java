@@ -43,7 +43,7 @@ public class FestivalResponseDto {
     private Boolean isVisible;
     private Double avgRating;
     private Integer reviewCount;
-    private Integer scrapCount;
+    private Integer favoriteCount;
     private Integer viewCount;
     private LocalDateTime apiModifiedAt;
     private LocalDateTime createdAt;
@@ -82,7 +82,7 @@ public class FestivalResponseDto {
         this.isVisible = entity.getIsVisible();
         this.avgRating = entity.getAvgRating();
         this.reviewCount = entity.getReviewCount();
-        this.scrapCount = entity.getScrapCount();
+        this.favoriteCount = entity.getFavoriteCount();
         this.viewCount = entity.getViewCount();
         this.apiModifiedAt = entity.getApiModifiedAt();
         this.createdAt = entity.getCreatedAt();

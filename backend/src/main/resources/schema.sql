@@ -163,7 +163,7 @@ CREATE TABLE IF NOT EXISTS festivals (
     is_visible      BOOLEAN         NOT NULL DEFAULT TRUE,
     avg_rating      DOUBLE PRECISION NOT NULL DEFAULT 0.0,
     review_count    INTEGER         NOT NULL DEFAULT 0,
-    scrap_count     INTEGER         NOT NULL DEFAULT 0,
+    favorite_count  INTEGER         NOT NULL DEFAULT 0,
     view_count      INTEGER         NOT NULL DEFAULT 0,
     api_modified_at TIMESTAMP,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -198,7 +198,7 @@ COMMENT ON COLUMN festivals.is_custom           IS '자체 기획 축제 여부'
 COMMENT ON COLUMN festivals.is_visible          IS '노출 여부 (관리자 비공개 처리용)';
 COMMENT ON COLUMN festivals.avg_rating          IS '평균 별점 (캐시)';
 COMMENT ON COLUMN festivals.review_count        IS '리뷰 수 (캐시)';
-COMMENT ON COLUMN festivals.scrap_count         IS '찜(스크랩) 수 (캐시)';
+COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기(찜) 수 (캐시)';
 COMMENT ON COLUMN festivals.view_count          IS '조회수';
 COMMENT ON COLUMN festivals.api_modified_at     IS 'API 수정일 (증분 동기화 변경 감지용)';
 
@@ -229,23 +229,23 @@ COMMENT ON COLUMN reviews.content      IS '리뷰 내용 (10~500자)';
 COMMENT ON COLUMN reviews.status       IS '리뷰 상태 (ACTIVE, REMOVED)';
 
 -- ------------------------------------------------------------
--- 2-5. 찜 (scraps)
+-- 2-5. 즐겨찾기 (favorites)
 -- ------------------------------------------------------------
-CREATE TABLE IF NOT EXISTS scraps (
+CREATE TABLE IF NOT EXISTS favorites (
     id              BIGSERIAL       PRIMARY KEY,
     user_id         BIGINT          NOT NULL,
     festival_id     BIGINT          NOT NULL,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
-    CONSTRAINT fk_scraps_user
+    CONSTRAINT fk_favorites_user
         FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
-    CONSTRAINT fk_scraps_festival
+    CONSTRAINT fk_favorites_festival
         FOREIGN KEY (festival_id) REFERENCES festivals(id) ON DELETE CASCADE,
-    CONSTRAINT uq_scraps_user_festival
+    CONSTRAINT uq_favorites_user_festival
         UNIQUE (user_id, festival_id)
 );
 
-COMMENT ON TABLE  scraps               IS '축제 찜(스크랩) 테이블';
+COMMENT ON TABLE  favorites               IS '축제 즐겨찾기(찜) 테이블';
 
 -- ------------------------------------------------------------
 -- 2-6. 커뮤니티 게시글 (posts)
@@ -309,7 +309,7 @@ CREATE TABLE IF NOT EXISTS reports (
     created_at      TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_reports_reporter
-        FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_reports_reporter_target
         UNIQUE (reporter_id, target_type, target_id)
 );
@@ -505,9 +505,9 @@ CREATE INDEX IF NOT EXISTS idx_reviews_festival     ON reviews(festival_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_user         ON reviews(user_id);
 CREATE INDEX IF NOT EXISTS idx_reviews_created_at   ON reviews(created_at DESC);
 
--- scraps
-CREATE INDEX IF NOT EXISTS idx_scraps_user       ON scraps(user_id);
-CREATE INDEX IF NOT EXISTS idx_scraps_festival   ON scraps(festival_id);
+-- favorites
+CREATE INDEX IF NOT EXISTS idx_favorites_user       ON favorites(user_id);
+CREATE INDEX IF NOT EXISTS idx_favorites_festival   ON favorites(festival_id);
 
 -- posts
 CREATE INDEX IF NOT EXISTS idx_posts_user           ON posts(user_id);

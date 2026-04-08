@@ -64,7 +64,7 @@ public class Festival {
     private Integer reviewCount = 0;
     
     @Builder.Default
-    private Integer scrapCount = 0;
+    private Integer favoriteCount = 0;
     
     @Builder.Default
     private Integer viewCount = 0;

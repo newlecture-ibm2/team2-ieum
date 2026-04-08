@@ -98,8 +98,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/reviews/**")
                                                 .hasAnyRole("USER", "ADMIN")
 
-                                                // 🔒 회원 전용 — 즐겨찾기
-                                                .requestMatchers("/api/scraps/**").hasAnyRole("USER", "ADMIN")
+                                                // 🔒 회원 전용 — 스크랩(찜)
+                                                .requestMatchers("/api/favorites/**").authenticated()
 
                                                 // 🔒 회원 전용 — 커뮤니티 CUD
                                                 .requestMatchers(HttpMethod.POST, "/api/community/**")

@@ -123,9 +123,9 @@ public class FestivalEntity {
     @Builder.Default
     private Integer reviewCount = 0;
 
-    @Column(name = "scrap_count")
+    @Column(name = "favorite_count", nullable = false)
     @Builder.Default
-    private Integer scrapCount = 0;
+    private Integer favoriteCount = 0;
 
     @Column(name = "view_count")
     @Builder.Default
