@@ -169,12 +169,18 @@ export default function Header() {
                 className={styles.userBtn}
                 aria-label="마이페이지"
               >
-                <User strokeWidth={2} />
+                <div className={styles.userIconWrapper}>
+                  <User strokeWidth={2.5} />
+                </div>
+                {userNickname && (
+                  <span className={styles.userName}>{userNickname}님</span>
+                )}
               </Link>
               <button
                 type="button"
                 className={styles.logoutBtn}
                 aria-label="로그아웃"
+                title="로그아웃"
                 onClick={async () => {
                   await fetch("/api/auth/logout", { method: "POST" });
                   window.location.href = "/";

@@ -158,27 +158,57 @@
   border: 1.5px solid white;
 }
 
-/* 사용자 아이콘 */
+/* 사용자 아이콘 및 닉네임 유닛 (Pill 디자인) */
 .userBtn {
-  width: 32px;
-  height: 32px;
+  height: 34px;
+  padding: 2px 14px 2px 3px;
+  border-radius: 20px;
+  background: white; /* 닉네임 배경 */
+  border: 1px solid var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.userBtn:hover {
+  border-color: var(--color-primary-200);
+  background: var(--color-primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.12);
+}
+
+.userIconWrapper {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
   background: var(--gradient-primary);
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  transition: transform var(--transition-fast);
 }
 
-.userBtn:hover {
-  transform: scale(1.08);
-  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.3);
+.userBtn:hover .userIconWrapper {
+  transform: scale(1.05);
 }
 
-.userBtn svg {
-  width: 16px;
-  height: 16px;
+.userIconWrapper svg {
+  width: 14px;
+  height: 14px;
   color: white;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+}
+
+.userBtn:hover .userName {
+  color: var(--color-primary-600);
 }
 
 /* 관리자 버튼 */
