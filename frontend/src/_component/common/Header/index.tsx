@@ -150,8 +150,8 @@ export default function Header() {
             </div>
           )}
 
-          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN일 때만 표시 */}
-          {isLoggedIn && userRole === "ROLE_ADMIN" && (
+          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN 또는 ADMIN일 때만 표시 */}
+          {isLoggedIn && (userRole === "ROLE_ADMIN" || userRole === "ADMIN") && (
             <Link
               href="/admin"
               className={styles.adminBtn}
