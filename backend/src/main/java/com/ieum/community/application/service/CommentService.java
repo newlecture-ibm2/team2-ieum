@@ -8,6 +8,8 @@ import com.ieum.community.adapter.out.persistence.repository.PostJpaRepository;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
+import com.ieum.community.adapter.out.persistence.entity.PostEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +22,7 @@ public class CommentService {
 
     private final CommentJpaRepository commentJpaRepository;
     private final PostJpaRepository postJpaRepository;
+    private final SendNotificationUseCase sendNotificationUseCase;
 
     /**
      * 댓글 작성 (대댓글 포함)
@@ -33,7 +36,7 @@ public class CommentService {
         }
 
         // 게시글 존재 여부 확인
-        postJpaRepository.findById(postId)
+        PostEntity post = postJpaRepository.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
         CommentEntity.CommentEntityBuilder builder = CommentEntity.builder()
@@ -42,9 +45,11 @@ public class CommentService {
                 .userName(userName)
                 .content(request.getContent());
 
+        CommentEntity parentComment = null;
+
         // 대댓글인 경우 부모 댓글 확인
         if (request.getParentId() != null) {
-            CommentEntity parentComment = commentJpaRepository.findById(request.getParentId())
+            parentComment = commentJpaRepository.findById(request.getParentId())
                     .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001,
                             "Parent comment ID: " + request.getParentId()));
 
@@ -58,6 +63,30 @@ public class CommentService {
         }
 
         CommentEntity saved = commentJpaRepository.save(builder.build());
+
+        // 알림 전송 로직
+        // 대댓글인 경우: 부모 댓글 작성자에게 알림
+        // 최상위 댓글인 경우: 게시물 작성자에게 알림
+        try {
+            Long targetUserId = (parentComment != null) ? parentComment.getUserId() : post.getAuthorId();
+            // 본인이 쓴 글이나 본인 댓글에 작성할 때는 알림 제외
+            if (targetUserId != null && !targetUserId.equals(userId)) {
+                String title = (parentComment != null) ? "새로운 대댓글이 달렸습니다." : "새로운 댓글이 달렸습니다.";
+                String msg = "작성자 " + userName + ": " + 
+                             (request.getContent().length() > 20 ? request.getContent().substring(0, 20) + "..." : request.getContent());
+                sendNotificationUseCase.sendNotification(
+                        targetUserId,
+                        "COMMENT",
+                        "COMMUNITY",
+                        postId,
+                        title,
+                        msg
+                );
+            }
+        } catch (Exception e) {
+            // 알림 발송 실패가 댓글 작성 자체를 롤백시키지 않도록 예외 처리
+        }
+
         return CommentResponse.fromEntity(saved);
     }
 

@@ -251,3 +251,58 @@
   font-size: 11px;
   margin-left: auto;
 }
+
+/* ── 마크다운 스타일링 ── */
+.markdownBody {
+  word-break: break-word;
+}
+.markdownBody h1, .markdownBody h2, .markdownBody h3 {
+  margin-top: 1em;
+  margin-bottom: 0.5em;
+  color: #1e293b;
+}
+.markdownBody h1 { font-size: 1.5em; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; }
+.markdownBody h2 { font-size: 1.25em; border-bottom: 1px solid #e2e8f0; padding-bottom: 0.3em; }
+.markdownBody h3 { font-size: 1.1em; }
+.markdownBody p {
+  margin-top: 0;
+  margin-bottom: 1em;
+}
+.markdownBody ul, .markdownBody ol {
+  padding-left: 1.5em;
+  margin-bottom: 1em;
+}
+.markdownBody li {
+  margin-bottom: 0.25em;
+}
+.markdownBody a {
+  color: #3b82f6;
+  text-decoration: none;
+}
+.markdownBody a:hover {
+  text-decoration: underline;
+}
+.markdownBody blockquote {
+  padding: 0 1em;
+  color: #64748b;
+  border-left: 0.25em solid #cbd5e1;
+  margin: 0 0 1em 0;
+}
+.markdownBody pre {
+  background-color: #f1f5f9;
+  padding: 1em;
+  border-radius: 6px;
+  overflow-x: auto;
+  margin-bottom: 1em;
+}
+.markdownBody code {
+  background-color: #f1f5f9;
+  padding: 0.2em 0.4em;
+  border-radius: 3px;
+  font-size: 0.9em;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+}
+.markdownBody pre code {
+  background-color: transparent;
+  padding: 0;
+}

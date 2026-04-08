@@ -6,6 +6,7 @@ import { useRouter, useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
 import api from '@/lib/api';
 import { Notice } from '@/types/notice';
 import styles from './page.module.css';
@@ -116,8 +117,8 @@ export default function NoticeDetailPage() {
         </div>
       </div>
 
-      <div className={styles.detailBody}>
-        <ReactMarkdown remarkPlugins={[remarkGfm]}>
+      <div className={`${styles.detailBody} ${styles.markdownBody || ''}`}>
+        <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
           {notice.content}
         </ReactMarkdown>
       </div>

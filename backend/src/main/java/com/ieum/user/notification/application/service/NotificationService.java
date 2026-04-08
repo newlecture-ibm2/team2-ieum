@@ -5,13 +5,17 @@ import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCa
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
 import com.ieum.user.notification.application.port.in.DeleteNotificationUseCase;
+import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
+import com.ieum.user.notification.domain.model.Notification;
 import com.ieum.user.notification.domain.model.NotificationSetting;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,13 +23,15 @@ import java.util.Map;
 /**
  * 알림/FCM 서비스 (UseCase 구현체)
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class NotificationService implements GetMyNotificationsUseCase, RegisterFcmTokenUseCase,
-        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase {
+        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase, SendNotificationUseCase {
 
     private final NotificationPort notificationPort;
+    private final FcmMessageSender fcmMessageSender;
 
     // ── API_USR_0040: 내 알림 목록 조회 ──
 
@@ -92,5 +98,62 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
     @Override
     public void deleteNotification(Long userId, Long notificationId) {
         notificationPort.deleteNotification(userId, notificationId);
+    }
+
+    // ── 개별 알림 단건 전송 ──
+
+    @Override
+    public void sendNotification(Long targetUserId, String type, String targetType, Long targetId, String title, String message) {
+        log.info("개별 사용자 알림 전송: targetUserId={}, type={}, title={}", targetUserId, type, title);
+
+        // 1. 알림 설정 확인
+        NotificationSetting setting = notificationPort.findSettingByUserId(targetUserId).orElse(null);
+        boolean isPushEnabled = true;
+
+        if (setting != null) {
+            if (Boolean.FALSE.equals(setting.getPushEnabled())) {
+                isPushEnabled = false;
+            } else {
+                // 타입별 세부 설정 확인
+                if ("COMMENT".equals(type) && Boolean.FALSE.equals(setting.getComment())) {
+                    isPushEnabled = false;
+                } else if ("FESTIVAL_START".equals(type) && Boolean.FALSE.equals(setting.getFestivalStart())) {
+                    isPushEnabled = false;
+                } else if ("FESTIVAL_END".equals(type) && Boolean.FALSE.equals(setting.getFestivalEnd())) {
+                    isPushEnabled = false;
+                }
+            }
+        }
+
+        if (!isPushEnabled) {
+            log.debug("사용자 {} 알림 설정(off)으로 인해 발송 제외", targetUserId);
+            return;
+        }
+
+        // 2. DB 알림 생성
+        Notification notification = Notification.builder()
+                .userId(targetUserId)
+                .type(type)
+                .message(message)
+                .targetType(targetType)
+                .targetId(targetId)
+                .isRead(false)
+                .createdAt(LocalDateTime.now())
+                .build();
+        notificationPort.saveAllNotifications(List.of(notification));
+
+        // 3. FCM 발송
+        // targetUserId에 해당하는 모든 토큰(기기)으로 전송
+        List<FcmToken> tokens = notificationPort.findAllTokens().stream()
+                .filter(t -> t.getUserId().equals(targetUserId))
+                .toList();
+
+        for (FcmToken tokenInfo : tokens) {
+            try {
+                fcmMessageSender.sendPush(tokenInfo.getToken(), title, message);
+            } catch (Exception e) {
+                log.warn("사용자 {} 에게 FCM 발송 실패 (token={}): {}", targetUserId, tokenInfo.getToken(), e.getMessage());
+            }
+        }
     }
 }
