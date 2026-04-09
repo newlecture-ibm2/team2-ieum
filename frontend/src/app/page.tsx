@@ -1,4 +1,3 @@
-import api from '@/lib/api';
 import HeroBanner from './festivals/_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
 import FestivalList from './festivals/_components/FestivalList';
@@ -18,10 +17,16 @@ async function getFestivals(status?: string, page: string = '1', keyword?: strin
     params.append('page', page);
     params.append('size', '12');
 
-    const res = await api.get(`/api/festivals?${params.toString()}`);
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
+    const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
+      cache: 'no-store' // SSR 환경이므로 항상 최신 데이터 가져오기
+    });
 
-    if (res.data && res.data.success) {
-      return res.data.data; // { list: [...], total: ... }
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success) {
+        return data.data; // { list: [...], total: ... }
+      }
     }
   } catch (error) {
     console.error('Festivals fetch error. Falling back to empty array.', error);
