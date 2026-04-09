@@ -24,6 +24,7 @@ public interface NotificationPort {
     Optional<FcmToken> findTokenByUserIdAndToken(Long userId, String token);
     FcmToken saveToken(FcmToken fcmToken);
     List<FcmToken> findAllTokens();
+    List<FcmToken> findTokensByUserId(Long userId);
 
     // ── NotificationSetting ──
     Optional<NotificationSetting> findSettingByUserId(Long userId);

@@ -1,5 +1,6 @@
 package com.ieum.user.auth.adapter.in.web;
 
+import com.ieum.global.security.CurrentUserId;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
 import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import io.swagger.v3.oas.annotations.Operation;
@@ -9,7 +10,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -28,9 +28,8 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "인증 필요")
     })
     @GetMapping("/me")
-    public ResponseEntity<AuthRes.UserDto> getMyInfo() {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        AuthRes.UserDto profile = authUseCase.getMyProfile(Long.valueOf(userIdStr));
+    public ResponseEntity<AuthRes.UserDto> getMyInfo(@CurrentUserId Long userId) {
+        AuthRes.UserDto profile = authUseCase.getMyProfile(userId);
         return ResponseEntity.ok(profile);
     }
 
