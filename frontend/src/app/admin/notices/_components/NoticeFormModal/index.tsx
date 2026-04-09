@@ -1,11 +1,10 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useRef } from 'react';
 import { Modal } from '@/_component/common/Modal';
-import { useToast } from '@/_component/common/Toast';
 import common from '@/app/admin/_styles/admin-common.module.css';
-import adminApi from '@/lib/adminApi';
 import type { AdminNoticeItem } from '@/types/admin-notice';
+import { useNoticeForm } from './useNoticeForm';
 import s from './NoticeFormModal.module.css';
 
 interface Props {
@@ -16,84 +15,15 @@ interface Props {
 }
 
 export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Props) {
-  const isEdit = mode === 'edit' && notice !== null;
-  const { toast } = useToast();
+  const {
+    isEdit,
+    formState,
+    errors,
+    processing,
+    handleSubmit
+  } = useNoticeForm({ mode, notice, onSaved });
 
-  const [title, setTitle] = useState(isEdit ? notice!.title : '');
-  const [content, setContent] = useState(isEdit ? notice!.content : '');
-  const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
-  const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
-  const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
-  const [isActive, setIsActive] = useState(isEdit ? notice!.isActive : true);
-  const [sendPush, setSendPush] = useState(isEdit ? notice!.isPushed : false);
-  const [startDate, setStartDate] = useState(isEdit ? (notice!.startDate?.slice(0, 16) || '') : '');
-  const [endDate, setEndDate] = useState(isEdit ? (notice!.endDate?.slice(0, 16) || '') : '');
-  const [files, setFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const [titleError, setTitleError] = useState('');
-  const [contentError, setContentError] = useState('');
-  const [processing, setProcessing] = useState(false);
-
-  const validate = (): boolean => {
-    let valid = true;
-    if (!title.trim()) {
-      setTitleError('제목을 입력해주세요.');
-      valid = false;
-    } else {
-      setTitleError('');
-    }
-    if (!content.trim()) {
-      setContentError('내용을 입력해주세요.');
-      valid = false;
-    } else if (content.trim().length < 5) {
-      setContentError('내용은 최소 5자 이상 작성해주세요.');
-      valid = false;
-    } else {
-      setContentError('');
-    }
-    return valid;
-  };
-
-  const handleSubmit = async () => {
-    if (!validate()) return;
-
-    setProcessing(true);
-    try {
-      const formData = new FormData();
-      formData.append('title', title.trim());
-      formData.append('content', content.trim());
-      if (summary.trim()) formData.append('summary', summary.trim());
-      formData.append('isPinned', String(isPinned));
-      formData.append('isPopup', String(isPopup));
-      formData.append('isActive', String(isActive));
-      formData.append('sendPush', String(sendPush));
-      if (startDate) formData.append('startDate', startDate.length === 16 ? `${startDate}:00` : startDate);
-      if (endDate) formData.append('endDate', endDate.length === 16 ? `${endDate}:00` : endDate);
-      const fileKey = isEdit ? 'newFiles' : 'files';
-      files.forEach((file) => formData.append(fileKey, file));
-
-      if (isEdit) {
-        await adminApi.put(`/notices/${notice!.id}`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        toast('공지사항이 수정되었습니다.', 'success');
-      } else {
-        await adminApi.post('/notices', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        toast('공지사항이 작성되었습니다.', 'success');
-      }
-      onSaved();
-    } catch (err: unknown) {
-      console.error('공지사항 저장 실패:', err);
-      type BackendError = { response?: { data?: { error?: { message?: string } } } };
-      const msg = (err as BackendError)?.response?.data?.error?.message || '저장 중 오류가 발생했습니다.';
-      toast(msg, 'error');
-    } finally {
-      setProcessing(false);
-    }
-  };
 
   return (
     <Modal
@@ -110,13 +40,13 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           </label>
           <input
             type="text"
-            className={`${s.fieldInput} ${titleError ? s.fieldInputError : ''}`}
-            value={title}
-            onChange={(e) => { setTitle(e.target.value); if (titleError) setTitleError(''); }}
+            className={`${s.fieldInput} ${errors.titleError ? s.fieldInputError : ''}`}
+            value={formState.title}
+            onChange={(e) => { formState.setTitle(e.target.value); if (errors.titleError) errors.setTitleError(''); }}
             placeholder="공지사항 제목을 입력하세요"
             maxLength={100}
           />
-          {titleError && <span className={s.errorText}>⚠ {titleError}</span>}
+          {errors.titleError && <span className={s.errorText}>⚠ {errors.titleError}</span>}
         </div>
 
         {/* 요약 */}
@@ -125,8 +55,8 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           <input
             type="text"
             className={s.fieldInput}
-            value={summary}
-            onChange={(e) => setSummary(e.target.value)}
+            value={formState.summary}
+            onChange={(e) => formState.setSummary(e.target.value)}
             placeholder="목록에 표시될 간단한 요약"
             maxLength={200}
           />
@@ -139,15 +69,15 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             <input
               type="datetime-local"
               className={s.fieldInput}
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
+              value={formState.startDate}
+              onChange={(e) => formState.setStartDate(e.target.value)}
             />
             <span className={s.dateSeparator}>~</span>
             <input
               type="datetime-local"
               className={s.fieldInput}
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
+              value={formState.endDate}
+              onChange={(e) => formState.setEndDate(e.target.value)}
               placeholder="종료일 (미설정 시 무제한)"
             />
           </div>
@@ -161,16 +91,16 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           </label>
           <div className={s.textareaWrap}>
             <textarea
-              className={`${s.fieldTextarea} ${contentError ? s.fieldInputError : ''}`}
-              value={content}
-              onChange={(e) => { setContent(e.target.value); if (contentError) setContentError(''); }}
+              className={`${s.fieldTextarea} ${errors.contentError ? s.fieldInputError : ''}`}
+              value={formState.content}
+              onChange={(e) => { formState.setContent(e.target.value); if (errors.contentError) errors.setContentError(''); }}
               placeholder="공지사항 내용을 작성하세요"
               maxLength={5000}
               rows={10}
             />
-            <span className={s.charCount}>{content.length} / 5000</span>
+            <span className={s.charCount}>{formState.content.length} / 5000</span>
           </div>
-          {contentError && <span className={s.errorText}>⚠ {contentError}</span>}
+          {errors.contentError && <span className={s.errorText}>⚠ {errors.contentError}</span>}
         </div>
 
         {/* 첨부파일 */}
@@ -190,14 +120,14 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
             onChange={(e) => {
               if (e.target.files && e.target.files.length > 0) {
                 const newFiles = Array.from(e.target.files);
-                setFiles((prev) => [...prev, ...newFiles]);
+                formState.setFiles((prev) => [...prev, ...newFiles]);
                 e.target.value = '';
               }
             }}
           />
-          {files.length > 0 && (
+          {formState.files.length > 0 && (
             <ul className={s.fileList}>
-              {files.map((file, idx) => (
+              {formState.files.map((file, idx) => (
                 <li key={idx} className={s.fileItem}>
                   <span className={s.fileName}>📄 {file.name}</span>
                   <span className={s.fileSize}>
@@ -206,7 +136,7 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
                   <button
                     type="button"
                     className={s.fileRemoveBtn}
-                    onClick={() => setFiles((prev) => prev.filter((_, i) => i !== idx))}
+                    onClick={() => formState.setFiles((prev) => prev.filter((_, i) => i !== idx))}
                   >
                     ✕
                   </button>
@@ -218,30 +148,30 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
 
         {/* 옵션 토글 */}
         <div className={s.optionRow}>
-          <label className={s.toggleWrap} onClick={() => setIsPinned(!isPinned)}>
-            <div className={`${common.toggleTrack} ${isPinned ? common.toggleTrackOn : ''}`}>
-              <div className={`${common.toggleThumb} ${isPinned ? common.toggleThumbOn : ''}`} />
+          <label className={s.toggleWrap} onClick={() => formState.setIsPinned(!formState.isPinned)}>
+            <div className={`${common.toggleTrack} ${formState.isPinned ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${formState.isPinned ? common.toggleThumbOn : ''}`} />
             </div>
             <span className={s.toggleLabel}>📌 상단 고정</span>
           </label>
 
-          <label className={s.toggleWrap} onClick={() => setIsPopup(!isPopup)}>
-            <div className={`${common.toggleTrack} ${isPopup ? common.toggleTrackOn : ''}`}>
-              <div className={`${common.toggleThumb} ${isPopup ? common.toggleThumbOn : ''}`} />
+          <label className={s.toggleWrap} onClick={() => formState.setIsPopup(!formState.isPopup)}>
+            <div className={`${common.toggleTrack} ${formState.isPopup ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${formState.isPopup ? common.toggleThumbOn : ''}`} />
             </div>
             <span className={s.toggleLabel}>📢 메인 팝업</span>
           </label>
 
-          <label className={s.toggleWrap} onClick={() => setSendPush(!sendPush)}>
-            <div className={`${common.toggleTrack} ${sendPush ? common.toggleTrackOn : ''}`}>
-              <div className={`${common.toggleThumb} ${sendPush ? common.toggleThumbOn : ''}`} />
+          <label className={s.toggleWrap} onClick={() => formState.setSendPush(!formState.sendPush)}>
+            <div className={`${common.toggleTrack} ${formState.sendPush ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${formState.sendPush ? common.toggleThumbOn : ''}`} />
             </div>
             <span className={s.toggleLabel}>🔔 푸시 알림 발송</span>
           </label>
 
-          <label className={s.toggleWrap} onClick={() => setIsActive(!isActive)}>
-            <div className={`${common.toggleTrack} ${isActive ? common.toggleTrackOn : ''}`}>
-              <div className={`${common.toggleThumb} ${isActive ? common.toggleThumbOn : ''}`} />
+          <label className={s.toggleWrap} onClick={() => formState.setIsActive(!formState.isActive)}>
+            <div className={`${common.toggleTrack} ${formState.isActive ? common.toggleTrackOn : ''}`}>
+              <div className={`${common.toggleThumb} ${formState.isActive ? common.toggleThumbOn : ''}`} />
             </div>
             <span className={s.toggleLabel}>👁 공개 여부</span>
           </label>
