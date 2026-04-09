@@ -15,4 +15,11 @@ public class MyPageReq {
     public static class UpdateProfile {
         private String nickname;
     }
+
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    public static class ProfileImageUpdate {
+        private String base64Image;
+    }
 }

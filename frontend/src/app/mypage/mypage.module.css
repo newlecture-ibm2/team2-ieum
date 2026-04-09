@@ -333,6 +333,107 @@
   text-underline-offset: 4px;
 }
 
+/* 알림 설정 마스터 토글 OFF 시 하위 항목 비활성화 효과 */
+.disabledSection {
+  opacity: 0.5;
+  pointer-events: none;
+  filter: grayscale(0.5);
+  transition: all 0.3s ease;
+}
+
+/* 신고 내역 리스트 전용 스타일 */
+.cardActive {
+  border-color: var(--color-primary-300) !important;
+  background-color: #fafaff !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.btnOrigin {
+  font-size: 0.75rem !important;
+  padding: 4px 10px !important;
+  border: 1px solid var(--color-primary-200) !important;
+  color: var(--color-primary-600) !important;
+  background-color: #f5f3ff !important;
+  transition: all 0.2s ease;
+}
+
+.btnOrigin:hover {
+  background-color: var(--color-primary-50) !important;
+  border-color: var(--color-primary-400) !important;
+}
+
+.cardBodyExpanded {
+  margin: 12px 0 !important;
+  display: block !important;
+  white-space: pre-wrap !important;
+}
+
+.cardBodyCollapsed {
+  margin: 0 !important;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+}
+
+.settingsHeader {
+  font-size: 1.125rem !important;
+  font-weight: 700 !important;
+  color: var(--color-gray-900) !important;
+  border-bottom: 2px solid #f8fafc;
+  padding-bottom: 16px;
+  margin-bottom: 24px;
+}
+
+.withdrawWrapper {
+  grid-column: span 2;
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 12px;
+  padding-top: 12px;
+}
+
+.avatarWrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-bottom: 28px;
+  gap: 12px;
+}
+
+.listSummary {
+  margin-bottom: 16px;
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.listSummary strong {
+  color: var(--color-primary-600);
+  margin: 0 2px;
+}
+
+.cardMeta {
+  font-size: 0.75rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.contentAreaWrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  width: 100%;
+}
+
+.contentInner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 /* 모달 스타일 (WithdrawModal용) */
 .modalOverlay {
   position: fixed;

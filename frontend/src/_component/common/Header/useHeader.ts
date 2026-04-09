@@ -11,6 +11,7 @@ export function useHeader() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userNickname, setUserNickname] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
 
   /* ===== 알림 상태 ===== */
   const [hasUnread, setHasUnread] = useState(false);
@@ -38,6 +39,17 @@ export function useHeader() {
               setHasUnread(unreadCount > 0);
             })
             .catch(() => {});
+
+          try {
+            // 🚀 [v17] 헤더 프로필 동기화: 사진뿐만 아니라 최신 닉네임도 우리 전용 API에서 가져옵니다.
+            const profileRes = await api.get("/api/mypage/profile");
+            if (profileRes.data) {
+              if (profileRes.data.profileImageUrl) setUserProfileImage(profileRes.data.profileImageUrl);
+              if (profileRes.data.nickname) setUserNickname(profileRes.data.nickname);
+            }
+          } catch (err) {
+            console.error("헤더 프로필 조회 실패:", err);
+          }
 
           try {
             if (typeof Notification !== "undefined" && Notification.permission === "default") {
@@ -97,6 +109,7 @@ export function useHeader() {
     isLoggedIn,
     userNickname,
     userRole,
+    userProfileImage,
     hasUnread,
     setHasUnread,
     isNotiOpen,

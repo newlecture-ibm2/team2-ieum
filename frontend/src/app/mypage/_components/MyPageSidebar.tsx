@@ -1,6 +1,6 @@
 "use client";
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Heart, 
   FileText, 
@@ -12,6 +12,7 @@ import {
   User 
 } from 'lucide-react';
 import styles from '../mypage.module.css';
+import api from '@/lib/api';
 
 export type MenuType = 'favorites' | 'posts' | 'reviews' | 'comments' | 'inquiries' | 'reports' | 'settings';
 
@@ -45,14 +46,37 @@ const MENU_ITEMS = [
 ];
 
 export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPageSidebarProps) {
+  const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
+  const [nickname, setNickname] = useState(user.nickname);
+
+  // 🚀 [v17] 사이드바 자가 동기화: 사진뿐만 아니라 최신 닉네임도 우리 전용 API에서 가져옵니다.
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const response = await api.get('/api/mypage/profile');
+        if (response.data) {
+          if (response.data.profileImageUrl) setProfileImageUrl(response.data.profileImageUrl);
+          if (response.data.nickname) setNickname(response.data.nickname);
+        }
+      } catch (error) {
+        console.error('사이드바 프로필 조회 실패:', error);
+      }
+    };
+    fetchProfile();
+  }, [user.nickname]);
+
   return (
     <aside className={styles.sidebar}>
       {/* 프로필 섹션 */}
       <div className={styles.profileSection}>
-        <div className={styles.avatar}>
-          <User size={40} strokeWidth={1.5} />
+        <div className={styles.avatar} style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          {profileImageUrl ? (
+            <img src={profileImageUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+          ) : (
+            <User size={40} strokeWidth={1.5} />
+          )}
         </div>
-        <div className={styles.nickname}>{user.nickname}</div>
+        <div className={styles.nickname}>{nickname}</div>
         <div className={styles.email}>{user.id}</div>
       </div>
 

@@ -51,7 +51,7 @@ export default function InquiryList() {
       />
 
       <div className={styles.listContainer}>
-        <div className={styles.listHeader} style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#64748b' }}>
+        <div className={styles.listSummary}>
           총 <strong>{totalElements}</strong>개의 문의 내역이 있습니다.
         </div>
         {inquiries.length === 0 ? (
@@ -65,7 +65,7 @@ export default function InquiryList() {
             return (
               <div 
                 key={inquiry.id} 
-                className={styles.dataCard}
+                className={`${styles.dataCard} ${expandedId === inquiry.id ? styles.cardActive : ''}`}
                 onClick={() => toggleExpand(inquiry.id)}
                 style={{ cursor: 'pointer' }}
               >
@@ -73,19 +73,12 @@ export default function InquiryList() {
                   <span className={`${styles.statusBadge} ${inquiry.status === 'ANSWERED' ? styles.statusAnswered : styles.statusPending}`}>
                     {inquiry.status === 'ANSWERED' ? '답변 완료' : '접수 대기'}
                   </span>
-                  <span className={styles.cardDate}>{formatDate(inquiry.createdAt)}</span>
+                  <span className={styles.cardMeta}>{formatDate(inquiry.createdAt)}</span>
                 </div>
   
-                <h4 className={styles.cardTitle} style={{ margin: '8px 0' }}>{inquiry.title}</h4>
+                <h4 className={styles.cardTitle}>{inquiry.title}</h4>
                 
-                <p className={styles.cardBody} style={{ 
-                  margin: expandedId === inquiry.id ? '12px 0' : '0', 
-                  overflow: 'hidden', 
-                  textOverflow: 'ellipsis', 
-                  display: expandedId === inquiry.id ? 'block' : '-webkit-box', 
-                  WebkitLineClamp: 1, 
-                  WebkitBoxOrient: 'vertical' 
-                }}>
+                <p className={`${styles.cardBody} ${expandedId === inquiry.id ? styles.cardBodyExpanded : styles.cardBodyCollapsed}`}>
                   {inquiry.content}
                 </p>
   
@@ -93,7 +86,7 @@ export default function InquiryList() {
                   <div className={styles.adminResponse}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px' }}>
                       <strong>관리자 답변</strong>
-                      <span style={{ fontSize: '0.75rem', color: '#94a3b8' }}>{formatDate(inquiry.answeredAt || '')}</span>
+                      <span className={styles.cardMeta}>{formatDate(inquiry.answeredAt || '')}</span>
                     </div>
                     <div style={{ color: '#475569', lineHeight: '1.6' }}>
                       {inquiry.answer}

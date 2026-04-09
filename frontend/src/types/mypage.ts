@@ -54,6 +54,8 @@ export interface MyReport extends Pick<MyActivity, 'id' | 'title' | 'content' | 
   // 백엔드 ActivityDto 규격에 맞춰 title(타입-사유), content(내용)를 사용하므로
   // 개별 필드는 인터페이스에서 제외하거나 선택적(Optional)으로 관리합니다.
   targetType?: string;
+  targetId?: number;
+  targetParentId?: number;
   reason?: string;
   description?: string;
   status: 'PENDING' | 'RESOLVED' | 'REJECTED';
@@ -65,13 +67,20 @@ export interface MyReport extends Pick<MyActivity, 'id' | 'title' | 'content' | 
 export interface MyFavorite {
   id: number;
   festivalId: number;
-  name: string;
-  location: string;
-  date: string;
-  thumbnail: string;
+  title: string;
+  address: string;
+  startDate: string;
+  endDate: string;
+  imageUrl: string;
 }
 
 // --- API 응답 규격 ---
+export interface ApiResponse<T> {
+  success: boolean;
+  message: string;
+  data: T;
+}
+
 export interface ActivityListResponse {
   activities: MyActivity[];
   totalPages: number;

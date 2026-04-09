@@ -46,7 +46,9 @@ public class MyPageRes {
         private String status;
         private String answer;
         private String answeredAt;
+        private String targetType;
         private Long targetId;
+        private Long targetParentId;
     }
 
     @Getter
@@ -55,5 +57,14 @@ public class MyPageRes {
     @AllArgsConstructor
     public static class ProfileUpdate {
         private String updatedAt;
+    }
+
+    @Getter
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ProfileInfo {
+        private String nickname;
+        private String profileImageUrl;
     }
 }
