@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import com.ieum.admin.notice.adapter.in.web.dto.NoticeSaveRequest;
 
 /**
  * 관리자용 공지사항 컨트롤러 (Input Adapter)
@@ -54,6 +55,7 @@ public class NoticeAdminController {
                         isPopup, isPushed, status)));
     }
 
+
     /**
      * 공지사항 작성 (API_ADM_0061)
      */
@@ -64,20 +66,12 @@ public class NoticeAdminController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AdminNotice>> createNotice(
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam(required = false) String summary,
-            @RequestParam(required = false) Boolean isPinned,
-            @RequestParam(required = false) Boolean isPopup,
-            @RequestParam(required = false) Boolean sendPush,
-            @RequestParam(required = false) Boolean isActive,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
+            @ModelAttribute NoticeSaveRequest request,
             @RequestParam(required = false) List<MultipartFile> files) {
+        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup,
-                                sendPush, isActive, startDate, endDate, files)));
+                        createNoticeUseCase.create(request.toCreateCommand(files))));
     }
 
     /**
@@ -91,20 +85,12 @@ public class NoticeAdminController {
     @PutMapping(value = "/{noticeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AdminNotice>> updateNotice(
             @Parameter(description = "공지사항 ID", required = true, example = "1") @PathVariable Long noticeId,
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam(required = false) String summary,
-            @RequestParam(required = false) Boolean isPinned,
-            @RequestParam(required = false) Boolean isPopup,
-            @RequestParam(required = false) Boolean sendPush,
-            @RequestParam(required = false) Boolean isActive,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
+            @ModelAttribute NoticeSaveRequest request,
             @RequestParam(required = false) List<MultipartFile> newFiles,
             @RequestParam(required = false) List<Long> deleteFileIds) {
+            
         return ResponseEntity.ok(ApiResponse.success(
-                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup,
-                        sendPush, isActive, startDate, endDate, newFiles, deleteFileIds)));
+                updateNoticeUseCase.update(request.toUpdateCommand(noticeId, newFiles, deleteFileIds))));
     }
 
     /**
