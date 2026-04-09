@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkBreaks from 'remark-breaks';
+
 import api from '@/lib/api';
 import type { Notice } from '@/types/notice';
 import s from './NoticePopup.module.css';
@@ -66,11 +64,10 @@ export default function NoticePopup() {
           <h2 className={s.title}>{currentNotice.title}</h2>
           <button className={s.closeBtn} onClick={handleClose}>&times;</button>
         </div>
-        <div className={`${s.body} ${s.markdownBody}`}>
-          <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-            {currentNotice.content}
-          </ReactMarkdown>
-        </div>
+        <div
+          className={`${s.body} ${s.markdownBody}`}
+          dangerouslySetInnerHTML={{ __html: currentNotice.content }}
+        />
 
         {notices.length > 1 && (
           <div className={s.carouselControls}>
