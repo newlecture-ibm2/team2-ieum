@@ -34,7 +34,7 @@ public class MyPageController {
             @Parameter(description = "페이지 번호", example = "0")
             @RequestParam(defaultValue = "0") int page,
             @Parameter(description = "페이지 크기", example = "10")
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "6") int size
     ) {
         MyPageRes.ActivityList activities = myPageUseCase.getMyActivities(userId, type, page, size);
         return ResponseEntity.ok(ApiResponse.success(activities));

@@ -1,44 +1,49 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Edit2, Trash2, FileText } from 'lucide-react';
+import Pagination from '@/_component/common/Pagination';
+import { useToast } from '@/_component/common/Toast';
+import { ConfirmModal } from '@/_component/common/Modal';
+import { useMyPageActivity } from '../_hooks/useMyPageActivity';
+import type { MyPost } from '@/types/mypage';
 import styles from '../mypage.module.css';
 
-interface Post {
-  id: number;
-  title: string;
-  content: string;
-  category: string;
-  createdAt: string;
-}
-
 export default function PostList() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
+  const { toast } = useToast();
+  
+  // 🚀 공통 훅 사용: fetch 로직, 상태 관리 자동화
+  const { 
+    items: posts, 
+    setItems: setPosts, 
+    currentPage, 
+    totalPages, 
+    totalElements, 
+    isLoading 
+  } = useMyPageActivity('posts');
 
-  useEffect(() => {
-    // 설계서상 API: GET /api/users/me/posts
-    const fetchPosts = async () => {
-      try {
-        const res = await fetch(`/api/users/me/activities/?type=posts&_t=${Date.now()}`, { cache: 'no-store' });
-        const data = await res.json();
-        
-        if (data.success && data.data) {
-          setPosts(data.data.activities || []);
-        }
-      } catch (error) {
-        console.error('Failed to fetch posts:', error);
-      } finally {
-        setIsLoading(false);
+  const [confirmTarget, setConfirmTarget] = useState<number | null>(null);
+
+  const handleDelete = async (id: number) => {
+    try {
+      const res = await fetch(`/api/community/posts/${id}`, {
+        method: 'DELETE',
+      });
+      const data = await res.json();
+
+      if (data.success) {
+        setPosts(posts.filter(p => (p as MyPost).id !== id));
+        toast('게시글이 삭제되었습니다.', 'success');
+      } else {
+        toast(data.message || '삭제에 실패했습니다.', 'error');
       }
-    };
-
-    fetchPosts();
-  }, []);
-
-  const handleDelete = (id: number) => {
-    if (confirm('정말 삭제하시겠습니까?')) {
-      setPosts(posts.filter(p => p.id !== id));
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast('삭제 도중 오류가 발생했습니다.', 'error');
+    } finally {
+      setConfirmTarget(null);
     }
   };
 
@@ -46,8 +51,8 @@ export default function PostList() {
 
   return (
     <div className={styles.listSection}>
-      <div className={styles.listHeader} style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#64748b' }}>
-        총 <strong>{posts.length}</strong>개의 게시물을 작성했습니다.
+      <div className={styles.listHeader}>
+        총 <strong>{totalElements}</strong>개의 게시글이 있습니다.
       </div>
 
       <div className={styles.listContainer}>
@@ -57,27 +62,49 @@ export default function PostList() {
             <p>아직 작성한 게시글이 없어요. 첫 글을 작성해보세요!</p>
           </div>
         ) : (
-          posts.map((post) => (
-            <div key={post.id} className={styles.dataCard}>
-              <div className={styles.cardHeader}>
-                <h4 className={styles.cardTitle}>{post.title}</h4>
-                <span className={styles.cardDate}>{post.createdAt}</span>
+          posts.map((item) => {
+            const post = item as MyPost;
+            return (
+              <div key={post.id} className={styles.dataCard}>
+                <div className={styles.cardHeader}>
+                  <h4 className={styles.cardTitle}>{post.title}</h4>
+                  <span className={styles.cardDate}>{post.createdAt}</span>
+                </div>
+                <p className={styles.cardBody}>{post.summary}</p>
+                <div className={styles.cardActions}>
+                  <button 
+                    className={`${styles.btnAction} ${styles.btnEdit}`}
+                    onClick={() => router.push(`/community/write?edit=${post.id}`)}
+                  >
+                    <Edit2 size={14} style={{ marginRight: 4 }} /> 수정
+                  </button>
+                  <button 
+                    className={`${styles.btnAction} ${styles.btnDelete}`}
+                    onClick={() => setConfirmTarget(post.id)}
+                  >
+                    <Trash2 size={14} style={{ marginRight: 4 }} /> 삭제
+                  </button>
+                </div>
               </div>
-              <p className={styles.cardBody}>{post.content}</p>
-              <div className={styles.cardActions}>
-                <button className={`${styles.btnAction} ${styles.btnEdit}`}>
-                  <Edit2 size={14} style={{ marginRight: 4 }} /> 수정
-                </button>
-                <button 
-                  className={`${styles.btnAction} ${styles.btnDelete}`}
-                  onClick={() => handleDelete(post.id)}
-                >
-                  <Trash2 size={14} style={{ marginRight: 4 }} /> 삭제
-                </button>
-              </div>
-            </div>
-          ))
+            );
+          })
         )}
+      </div>
+
+      {/* 삭제 확인 모달 */}
+      {confirmTarget && (
+        <ConfirmModal
+          title="게시글 삭제"
+          message="정말 이 게시글을 삭제하시겠습니까? 삭제 후에는 복구할 수 없습니다."
+          confirmText="삭제하기"
+          danger={true}
+          onConfirm={() => handleDelete(confirmTarget)}
+          onCancel={() => setConfirmTarget(null)}
+        />
+      )}
+
+      <div style={{ marginTop: '24px' }}>
+        <Pagination currentPage={currentPage} totalPages={totalPages} />
       </div>
     </div>
   );
