@@ -25,6 +25,21 @@
   border-radius: 2px;
 }
 
+/* 정지 회원 안내 */
+.suspendedNotice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 18px;
+  margin-bottom: 24px;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  color: #dc2626;
+  font-size: 14px;
+  font-weight: 600;
+}
+
 /* 리뷰 폼 */
 .reviewForm {
   display: flex;
