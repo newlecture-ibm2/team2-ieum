@@ -23,7 +23,6 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/favorites")
 @RequiredArgsConstructor
-@RequiredArgsConstructor
 public class FavoriteController {
 
     private final ToggleFavoriteUseCase toggleFavoriteUseCase;
@@ -40,6 +39,7 @@ public class FavoriteController {
         return ResponseEntity.ok(ApiResponse.success(result));
     }
 
+    // 축제 메인페이지용
     @Operation(summary = "찜 추가/삭제 토글", description = "축제를 찜 목록에 추가하거나 이미 있다면 삭제합니다.")
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> toggleFavorite(
@@ -50,6 +50,7 @@ public class FavoriteController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
+    // 축제 마이페이지용
     @Operation(summary = "찜 삭제", description = "찜 목록에서 축제를 삭제합니다.")
     @DeleteMapping("/{festivalId}")
     public ResponseEntity<ApiResponse<Void>> deleteFavorite(
