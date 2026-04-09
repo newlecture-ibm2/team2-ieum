@@ -298,3 +298,18 @@
   color: #94a3b8;
   font-weight: 600;
 }
+
+/* ─── 위치 정보 스피너 (거리순 정렬 대기 중) ─── */
+.locationSpinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--color-primary-500, #a55eea);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}

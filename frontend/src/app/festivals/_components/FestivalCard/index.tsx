@@ -2,9 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Heart, Star } from 'lucide-react';
 import api from '@/lib/api';
-import { ConfirmModal } from '@/_component/common/Modal';
+import Modal from '@/_component/common/Modal/Modal';
+import modalStyles from '@/_component/common/Modal/Modal.module.css';
 import styles from './FestivalCard.module.css';
 
 import { Festival } from '@/types/festival';
@@ -14,6 +16,7 @@ interface FestivalCardProps {
 }
 
 export default function FestivalCard({ festival }: FestivalCardProps) {
+  const router = useRouter();
   const festId = festival.festivalId || festival.id;
   const imageSrc = festival.imageUrl || festival.thumbnailUrl || '/images/hero_fallback.png'; // Fallback
   const rating = festival.avgStar || festival.avgRating || 0;
@@ -133,14 +136,33 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
         </div>
       </Link>
 
-      {/* 비로그인 유저 안내 모달 */}
+      {/* 비로그인 유저 로그인 유도 모달 */}
       {showLoginModal && (
-        <ConfirmModal
-          message="회원만 이용 가능한 기능입니다."
-          confirmText="확인"
-          onConfirm={() => setShowLoginModal(false)}
-          onCancel={() => setShowLoginModal(false)}
-        />
+        <Modal
+          title="로그인이 필요합니다"
+          size="small"
+          onClose={() => setShowLoginModal(false)}
+        >
+          <p className={modalStyles.confirmMessage}>
+            찜하기는 로그인 후 이용할 수 있습니다.{'\n'}로그인하시겠습니까?
+          </p>
+          <div className={modalStyles.footer}>
+            <button
+              type="button"
+              className={modalStyles.btnCancel}
+              onClick={() => setShowLoginModal(false)}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className={modalStyles.btnConfirm}
+              onClick={() => router.push('/login')}
+            >
+              로그인
+            </button>
+          </div>
+        </Modal>
       )}
     </>
   );

@@ -2,8 +2,10 @@
 
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Search, X, SlidersHorizontal } from 'lucide-react';
+import { Search, X, SlidersHorizontal, MapPin, XCircle } from 'lucide-react';
 import styles from './SearchFilter.module.css';
+import Modal from '@/_component/common/Modal/Modal';
+import modalStyles from '@/_component/common/Modal/Modal.module.css';
 import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES } from '@/constants/filterOptions';
 
 interface SearchFilterProps {
@@ -49,6 +51,19 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
   const [searchType, setSearchType] = useState(currentSearchType);
   
   const [sort, setSort] = useState(currentSort);
+
+  // URL 파라미터가 변경될 때 로컬 상태를 동기화 (예: HeroBanner 탭 전환 시)
+  useEffect(() => {
+    setSort(searchParams.get('sort') || 'latest');
+    setKeyword(searchParams.get('keyword') || '');
+    setAreaCode(searchParams.get('areaCode') || '');
+    setMonth(searchParams.get('month') || '');
+    setCategory(searchParams.get('category') || '');
+    setPeriod(searchParams.get('period') || '');
+    setStartDate(searchParams.get('startDate') || '');
+    setEndDate(searchParams.get('endDate') || '');
+    setSearchType(searchParams.get('searchType') || 'all');
+  }, [searchParams]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -119,11 +134,63 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
     router.push(`${pathname}?${params.toString()}`);
   };
 
+  // 위치 정보 안내 모달 상태
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [locationError, setLocationError] = useState<string | null>(null);
+
   const handleSortChange = (newSort: string) => {
+    if (newSort === 'distance') {
+      // 거리순: 위치 권한 요청
+      if (!navigator.geolocation) {
+        setLocationError('이 브라우저에서는 위치 정보 기능을 지원하지 않습니다.');
+        setShowLocationModal(true);
+        return;
+      }
+
+      setShowLocationModal(true);
+      setLocationError(null);
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          // 위치 허용 성공 → 좌표를 URL에 추가
+          const { latitude, longitude } = position.coords;
+          setSort('distance');
+          setShowLocationModal(false);
+
+          const params = new URLSearchParams(searchParams.toString());
+          params.set('sort', 'distance');
+          params.set('lat', latitude.toFixed(6));
+          params.set('lng', longitude.toFixed(6));
+          params.delete('page');
+          router.push(`${pathname}?${params.toString()}`);
+        },
+        (error) => {
+          // 위치 허용 거부
+          let msg = '위치 정보를 가져올 수 없습니다.';
+          if (error.code === error.PERMISSION_DENIED) {
+            msg = '위치 정보 사용이 거부되었습니다.\n브라우저 설정에서 위치 권한을 허용해주세요.';
+          } else if (error.code === error.TIMEOUT) {
+            msg = '위치 정보 요청 시간이 초과되었습니다.\n다시 시도해주세요.';
+          }
+          setLocationError(msg);
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000, // 5분간 캐싱
+        }
+      );
+      return;
+    }
+
+    // 거리순 외 다른 정렬
     setSort(newSort);
     const params = new URLSearchParams(searchParams.toString());
     if (newSort !== 'latest') params.set('sort', newSort);
     else params.delete('sort');
+    // 거리순에서 다른 정렬로 변경 시 좌표 파라미터 제거
+    params.delete('lat');
+    params.delete('lng');
     params.delete('page');
     router.push(`${pathname}?${params.toString()}`);
   };
@@ -312,6 +379,47 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
           </select>
         </div>
       </div>
+
+      {/* 위치 정보 안내 모달 — 공통 Modal 컴포넌트 사용 */}
+      {showLocationModal && (
+        <Modal
+          title={locationError ? '위치 정보를 사용할 수 없습니다' : '위치 정보 사용 안내'}
+          size="small"
+          onClose={() => { setShowLocationModal(false); setLocationError(null); setSort('latest'); }}
+          closeOnOverlay={!!locationError}
+        >
+          <div style={{ textAlign: 'center', padding: '8px 0' }}>
+            {!locationError ? (
+              <>
+                <MapPin size={48} color="var(--color-primary-500)" style={{ marginBottom: 12 }} />
+                <p className={modalStyles.confirmMessage} style={{ textAlign: 'center' }}>
+                  거리순 정렬을 위해 현재 위치 정보가 필요합니다.
+                </p>
+                <p style={{ fontSize: 12, color: '#94a3b8', marginBottom: 20 }}>
+                  브라우저에서 위치 허용을 요청하면 &apos;허용&apos;을 눌러주세요.
+                </p>
+                <div className={styles.locationSpinner} />
+              </>
+            ) : (
+              <>
+                <XCircle size={48} color="var(--color-error, #ef4444)" style={{ marginBottom: 12 }} />
+                <p className={modalStyles.confirmMessage} style={{ textAlign: 'center', whiteSpace: 'pre-line' }}>
+                  {locationError}
+                </p>
+              </>
+            )}
+          </div>
+          <div className={modalStyles.footer}>
+            <button
+              type="button"
+              className={modalStyles.btnCancel}
+              onClick={() => { setShowLocationModal(false); setLocationError(null); setSort('latest'); }}
+            >
+              {locationError ? '닫기' : '취소'}
+            </button>
+          </div>
+        </Modal>
+      )}
     </div>
   );
 }

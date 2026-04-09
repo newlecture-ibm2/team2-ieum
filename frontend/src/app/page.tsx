@@ -1,4 +1,3 @@
-import api from '@/lib/api';
 import HeroBanner from './festivals/_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
 import FestivalList from './festivals/_components/FestivalList';
@@ -8,20 +7,29 @@ import { Festival } from '@/types/festival';
 import NoticePopup from './notices/_components/NoticePopup';
 
 // 백엔드 API 호출 함수 (서버 컴포넌트 환경)
-async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
+async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string, sort?: string, lat?: string, lng?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
   try {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     if (keyword) params.append('keyword', keyword);
     if (areaCode) params.append('areaCode', areaCode);
     if (month) params.append('month', month);
+    if (sort) params.append('sort', sort);
+    if (lat) params.append('lat', lat);
+    if (lng) params.append('lng', lng);
     params.append('page', page);
     params.append('size', '12');
 
-    const res = await api.get(`/api/festivals?${params.toString()}`);
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
+    const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
+      cache: 'no-store' // SSR 환경이므로 항상 최신 데이터 가져오기
+    });
 
-    if (res.data && res.data.success) {
-      return res.data.data; // { list: [...], total: ... }
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.success) {
+        return data.data; // { list: [...], total: ... }
+      }
     }
   } catch (error) {
     console.error('Festivals fetch error. Falling back to empty array.', error);
@@ -42,10 +50,13 @@ export default async function MainPage({
   const currentKeyword = resolvedParams.keyword || '';
   const currentAreaCode = resolvedParams.areaCode || '';
   const currentMonth = resolvedParams.month || '';
+  const currentSort = resolvedParams.sort || '';
+  const currentLat = resolvedParams.lat || '';
+  const currentLng = resolvedParams.lng || '';
 
   const statusQuery = currentTab === 'all' ? '' : currentTab;
 
-  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined);
+  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined, currentSort || undefined, currentLat || undefined, currentLng || undefined);
 
   return (
     <main className={styles.mainContainer}>

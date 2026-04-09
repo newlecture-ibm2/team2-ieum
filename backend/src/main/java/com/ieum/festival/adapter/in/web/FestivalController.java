@@ -53,17 +53,21 @@ public class FestivalController {
             "- 전체(all/미지정): 진행중 → 진행예정(가까운 순) → 종료(최근 순)\n" +
             "- 진행중(ongoing): 오늘 날짜 기준 startDate ≤ 오늘 ≤ endDate\n" +
             "- 진행예정(upcoming): startDate > 오늘, 시작일 가까운 순\n" +
-            "- 종료(ended): endDate < 오늘, 최근 종료순")
+            "- 종료(ended): endDate < 오늘, 최근 종료순\n" +
+            "- sort=distance 시 lat, lng 파라미터 필수 (사용자 위치 기반 거리순 정렬)")
     @GetMapping
     public ApiResponse<FestivalPageResult> getFestivals(
             @Parameter(description = "필터 상태 (all, ongoing, upcoming, ended)", example = "ongoing") @RequestParam(required = false) String status,
             @Parameter(description = "검색 키워드 (축제명, 지역명)", example = "벚꽃") @RequestParam(required = false) String keyword,
             @Parameter(description = "지역 코드 (1=서울, 31=경기 등)", example = "1") @RequestParam(required = false) String areaCode,
             @Parameter(description = "월별 필터 (1~12)", example = "5") @RequestParam(required = false) Integer month,
+            @Parameter(description = "정렬 기준 (latest, popular, views, reviews, distance)", example = "distance") @RequestParam(required = false) String sort,
+            @Parameter(description = "사용자 위도 (거리순 정렬 시 필수)", example = "37.5665") @RequestParam(required = false) Double lat,
+            @Parameter(description = "사용자 경도 (거리순 정렬 시 필수)", example = "126.978") @RequestParam(required = false) Double lng,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
 
-        FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, page, size);
+        FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, sort, lat, lng, page, size);
         return ApiResponse.success(data);
     }
 
