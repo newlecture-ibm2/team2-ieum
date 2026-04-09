@@ -15,6 +15,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
+import com.ieum.user.deletion.application.port.in.ForceDeleteUserUseCase;
+
 /**
  * 회원 관리 서비스 (UseCase 구현체)
  *
@@ -43,6 +45,7 @@ public class MemberAdminService implements
         UpdateMemberRoleUseCase {
 
     private final MemberPort memberPort;
+    private final ForceDeleteUserUseCase forceDeleteUserUseCase;
 
     /* ── 회원 목록 조회 ── */
     @Override
@@ -87,7 +90,11 @@ public class MemberAdminService implements
     @Override
     @Transactional
     public void deleteMember(Long userId) {
-        memberPort.deleteMember(userId);
+        // 1. 관리자 강제 탈퇴 시 상태를 DELETED 체제로 변경 (트리거 발동)
+        memberPort.updateStatus(userId, MemberStatus.DELETED);
+        
+        // 2. 공용 삭제 도메인의 오케스트레이터 호출 (실제 물리 파괴 수행)
+        forceDeleteUserUseCase.execute(userId);
     }
 
     /*

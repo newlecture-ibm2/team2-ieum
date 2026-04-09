@@ -114,9 +114,7 @@ public class MemberPersistenceAdapter implements MemberPort {
     @Override
     public void deleteMember(Long userId) {
         repository.findById(userId).ifPresent(entity -> {
-            entity.setStatus(MemberStatus.DELETED);
-            entity.setDeletedAt(LocalDateTime.now());
-            repository.save(entity);
+            repository.delete(entity);
         });
     }
 

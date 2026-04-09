@@ -7,8 +7,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 회원 관리용 JPA Repository
@@ -55,4 +55,25 @@ public interface MemberAdminRepository extends JpaRepository<MemberEntity, Long>
                                     @Param("now") LocalDateTime now,
                                     @Param("suspendedStatus") String suspendedStatus,
                                     @Param("activeStatus") String activeStatus);
+
+    /**
+     * 일정 기한이 경과한 WITHDRAWAL 탈퇴 유예자 조회
+     * - status = 'WITHDRAWAL' AND updatedAt <= cutoff
+     */
+    @Query("SELECT u.userId FROM MemberEntity u WHERE u.status = :status AND u.updatedAt <= :cutoff")
+    List<Long> findMemberIdsByStatusAndUpdatedAtBefore(@Param("status") String status, @Param("cutoff") LocalDateTime cutoff);
+
+    /**
+     * 특정 상태(예: DELETED)로 남아있는 잔여 유저 ID 조회
+     */
+    @Query("SELECT u.userId FROM MemberEntity u WHERE u.status = :status")
+    List<Long> findMemberIdsByStatus(@Param("status") String status);
+
+    /**
+     * 회원(users) 테이블을 대상으로 한 완전한 물리 삭제
+     * - 예외 발생을 방지하기 위해 벌크 연산으로 멱등성을 보장합니다.
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("DELETE FROM MemberEntity u WHERE u.userId = :userId")
+    int deletePhysicalMember(@Param("userId") Long userId);
 }
