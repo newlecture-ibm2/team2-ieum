@@ -1,24 +1,7 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
-import api from "@/lib/api";
+import { useNotificationDropdown, type Notification } from "./useNotificationDropdown";
 import styles from "./NotificationDropdown.module.css";
-
-/* ===== 타입 정의 ===== */
-interface Notification {
-  id: number;
-  type: string;        // "FESTIVAL_START" | "NOTICE" | "COMMENT" 등
-  message: string;
-  isRead: boolean;
-  targetType: string | null;  // "FESTIVAL" | "NOTICE" | "COMMUNITY"
-  targetId: number | null;
-  createdAt: string;   // ISO datetime
-}
-
-interface NotificationsResponse {
-  unreadCount: number;
-  notifications: Notification[];
-}
 
 interface Props {
   onClose: () => void;
@@ -58,96 +41,16 @@ function getTargetUrl(n: Notification) {
 
 /* ===== 컴포넌트 ===== */
 export default function NotificationDropdown({ onClose, refreshKey, onUnreadChange }: Props) {
-  const [data, setData] = useState<NotificationsResponse | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, loading, error, handleReadAll, handleItemClick, handleDeleteClick } = useNotificationDropdown({
+    refreshKey,
+    onUnreadChange,
+    onClose,
+  });
 
-  /* 알림 목록 조회 */
-  const fetchNotifications = useCallback(async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await api.get("/api/users/me/notifications");
-      setData(res.data.data); // ApiResponse<data>
-    } catch (err: any) {
-      if (err.response?.status === 401) {
-        setError("로그인이 필요합니다.");
-      } else {
-        setError("알림을 불러올 수 없습니다.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    fetchNotifications();
-  }, [fetchNotifications, refreshKey]);
-
-  /* 모두 읽음 처리 */
-  const handleReadAll = async () => {
-    try {
-      await api.patch("/api/users/me/notifications/read");
-      // 로컬 상태 업데이트
-      if (data) {
-        setData({
-          unreadCount: 0,
-          notifications: data.notifications.map((n) => ({ ...n, isRead: true })),
-        });
-      }
-      onUnreadChange?.(false);
-    } catch {
-      // 에러 무시 (이미 보여주고 있는 리스트 유지)
-    }
-  };
-
-  /* 개별 알림 클릭 */
-  const handleItemClick = async (notification: Notification) => {
-    // 읽지 않은 알림이면 읽음 처리
-    if (!notification.isRead) {
-      try {
-        await api.patch("/api/users/me/notifications/read", {
-          notificationIds: [notification.id],
-        });
-        const newUnread = Math.max(0, (data?.unreadCount ?? 1) - 1);
-        if (data) {
-          setData({
-            unreadCount: newUnread,
-            notifications: data.notifications.map((n) =>
-              n.id === notification.id ? { ...n, isRead: true } : n
-            ),
-          });
-        }
-        onUnreadChange?.(newUnread > 0);
-      } catch {
-        // 에러 무시
-      }
-    }
-
-    // 해당 페이지로 이동
-    const url = getTargetUrl(notification);
-    if (url !== "#") {
-      window.location.href = url;
-    }
-    onClose();
-  };
-
-  /* 개별 알림 삭제 */
-  const handleDeleteClick = async (e: React.MouseEvent, notification: Notification) => {
+  /* 개별 알림 삭제 클릭 */
+  const onDeleteClick = (e: React.MouseEvent, notification: any) => {
     e.stopPropagation(); // 부모 항목 클릭 이벤트 방지
-    try {
-      await api.delete(`/api/users/me/notifications/${notification.id}`);
-      if (data) {
-        const newUnread = notification.isRead ? data.unreadCount : Math.max(0, data.unreadCount - 1);
-        setData({
-          unreadCount: newUnread,
-          notifications: data.notifications.filter((n) => n.id !== notification.id),
-        });
-        onUnreadChange?.(newUnread > 0);
-      }
-    } catch {
-      // 에러 무시
-    }
+    handleDeleteClick(notification);
   };
 
   /* ===== 렌더링 ===== */
@@ -208,7 +111,7 @@ export default function NotificationDropdown({ onClose, refreshKey, onUnreadChan
                     <button
                       type="button"
                       className={styles.deleteBtn}
-                      onClick={(e) => handleDeleteClick(e, n)}
+                      onClick={(e) => onDeleteClick(e, n)}
                       title="알림 삭제"
                     >
                       ✕
