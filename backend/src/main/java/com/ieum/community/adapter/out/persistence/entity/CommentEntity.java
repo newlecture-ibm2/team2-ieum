@@ -39,6 +39,7 @@ public class CommentEntity {
 
     @OneToMany(mappedBy = "parent", fetch = FetchType.LAZY)
     @OrderBy("createdAt ASC")
+    @org.hibernate.annotations.SQLRestriction("user_id NOT IN (SELECT u.user_id FROM users u WHERE u.status = 'DELETED')")
     @Builder.Default
     private List<CommentEntity> children = new ArrayList<>();
 
