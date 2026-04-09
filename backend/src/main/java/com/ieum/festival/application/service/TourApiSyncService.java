@@ -2,9 +2,9 @@ package com.ieum.festival.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
-import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
 import com.ieum.festival.application.port.in.SyncFestivalUseCase;
+import com.ieum.festival.application.port.out.FestivalPersistencePort;
+import com.ieum.festival.domain.model.Festival;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,23 +15,28 @@ import org.springframework.web.client.RestTemplate;
 import java.net.URI;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.scheduling.annotation.Scheduled;
 
 /**
  * 공공데이터 동기화 서비스
  * - SyncFestivalUseCase 구현
- * 
- * NOTE: 이 서비스는 외부 API 데이터를 대량 적재하는 배치 작업이므로
- *       성능상의 이유로 JpaRepository를 직접 사용합니다.
- *       (Port를 통한 개별 매핑 오버헤드 회피)
+ *
+ * ✅ Port + Domain Model 기반으로 리팩토링
+ *    - Entity/JpaRepository 직접 참조 제거
+ *    - 도메인 팩토리 메서드(Festival.createFromApiData, updateFromApiData) 사용
  */
 @Slf4j
 @Service
 @RequiredArgsConstructor
 public class TourApiSyncService implements SyncFestivalUseCase {
 
-    private final FestivalJpaRepository repository;
+    private final FestivalPersistencePort festivalPersistencePort;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper mapper = new ObjectMapper();
 
@@ -44,7 +49,6 @@ public class TourApiSyncService implements SyncFestivalUseCase {
     @Scheduled(cron = "0 0 4 * * ?") // 매일 04시에 자동 수행
     public void scheduledSync() {
         log.info("⏰ 스케줄러 작동: 공공데이터 자동 동기화 시작");
-        // 오늘 날짜 기준 2년 전부터의 축제 데이터를 모두 수집
         String twoYearsAgo = LocalDate.now().minusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
         syncFestivals(twoYearsAgo);
     }
@@ -57,7 +61,6 @@ public class TourApiSyncService implements SyncFestivalUseCase {
             int totalSynced = 0;
 
             while (true) {
-                // 안전하고 명확하게 수동 문자열 결합 방식으로 URL 구성
                 String url = baseUrl + "/searchFestival2"
                         + "?serviceKey=" + serviceKey
                         + "&MobileOS=ETC"
@@ -75,14 +78,15 @@ public class TourApiSyncService implements SyncFestivalUseCase {
                 JsonNode root = mapper.readTree(response);
 
                 JsonNode itemsNode = root.path("response").path("body").path("items").path("item");
-                
-                // 더 이상 가져올 데이터가 없으면 루프 탈출
+
                 if (itemsNode.isMissingNode() || !itemsNode.isArray() || itemsNode.isEmpty()) {
                     log.info("모든 페이지를 순회했습니다. (최종 페이지: {})", pageNo - 1);
                     break;
                 }
 
                 int count = 0;
+                DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
+
                 for (JsonNode item : itemsNode) {
                     String contentId = item.path("contentid").asText();
                     String title = item.path("title").asText();
@@ -93,48 +97,60 @@ public class TourApiSyncService implements SyncFestivalUseCase {
                     String endDt = item.path("eventenddate").asText();
                     double mapX = item.path("mapx").asDouble(0);
                     double mapY = item.path("mapy").asDouble(0);
-                    
+
                     String areaCode = item.path("areacode").asText();
                     String sigunguCode = item.path("sigungucode").asText();
                     String cat1 = item.path("cat1").asText();
                     String cat2 = item.path("cat2").asText();
                     String cat3 = item.path("cat3").asText();
 
-                    FestivalEntity entity = repository.findBySourceId(contentId)
-                            .orElseGet(() -> FestivalEntity.builder()
-                                    .sourceId(contentId)
-                                    .source("API")
-                                    .status("UPCOMING") // 기본값
-                                    .build());
-
-                    entity.setTitle(title);
-                    entity.setAddress(addr1);
-                    entity.setImageUrl(firstImage.isEmpty() ? null : firstImage);
-                    entity.setThumbnailUrl(firstImage2.isEmpty() ? null : firstImage2);
-
-                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyyMMdd");
+                    // 날짜 파싱
+                    LocalDate startDate = null;
+                    LocalDate endDate = null;
                     try {
-                        if (!startDt.isEmpty()) entity.setStartDate(LocalDate.parse(startDt, dtf));
-                        if (!endDt.isEmpty()) entity.setEndDate(LocalDate.parse(endDt, dtf));
-                    } catch (Exception e) {}
-                    
-                    entity.setLongitude(mapX == 0 ? null : mapX);
-                    entity.setLatitude(mapY == 0 ? null : mapY);
+                        if (!startDt.isEmpty()) startDate = LocalDate.parse(startDt, dtf);
+                        if (!endDt.isEmpty()) endDate = LocalDate.parse(endDt, dtf);
+                    } catch (Exception e) {
+                        // 날짜 파싱 실패 시 무시
+                    }
 
-                    entity.setAreaCode(areaCode.isEmpty() ? null : areaCode);
-                    entity.setSigunguCode(sigunguCode.isEmpty() ? null : sigunguCode);
-                    entity.setCategory(cat1.isEmpty() ? null : cat1);
-                    entity.setCategoryMid(cat2.isEmpty() ? null : cat2);
-                    entity.setCategorySub(cat3.isEmpty() ? null : cat3);
+                    // 좌표 처리
+                    Double longitude = mapX == 0 ? null : mapX;
+                    Double latitude = mapY == 0 ? null : mapY;
 
-                    repository.save(entity);
+                    // 빈 문자열 → null 변환
+                    String parsedAreaCode = areaCode.isEmpty() ? null : areaCode;
+                    String parsedSigunguCode = sigunguCode.isEmpty() ? null : sigunguCode;
+                    String parsedCat1 = cat1.isEmpty() ? null : cat1;
+                    String parsedCat2 = cat2.isEmpty() ? null : cat2;
+                    String parsedCat3 = cat3.isEmpty() ? null : cat3;
+                    String parsedImage = firstImage.isEmpty() ? null : firstImage;
+                    String parsedThumb = firstImage2.isEmpty() ? null : firstImage2;
+
+                    // 도메인 모델 기반 upsert
+                    Optional<Festival> existing = festivalPersistencePort.findBySourceId(contentId);
+                    Festival festival;
+
+                    if (existing.isPresent()) {
+                        festival = existing.get();
+                        festival.updateFromApiData(title, addr1, parsedImage, parsedThumb,
+                                startDate, endDate, latitude, longitude,
+                                parsedAreaCode, parsedSigunguCode,
+                                parsedCat1, parsedCat2, parsedCat3);
+                    } else {
+                        festival = Festival.createFromApiData(contentId, title, addr1,
+                                parsedImage, parsedThumb, startDate, endDate,
+                                latitude, longitude, parsedAreaCode, parsedSigunguCode,
+                                parsedCat1, parsedCat2, parsedCat3);
+                    }
+
+                    festivalPersistencePort.save(festival);
                     count++;
                 }
-                
+
                 totalSynced += count;
                 pageNo++;
 
-                // 무한 루프 방지 (안전망: 최대 100페이지 = 10,000개 수집)
                 if (pageNo > 100) {
                     log.warn("안전망 도달: 최대 지정된 페이지(100)를 초과하여 동기화를 중단합니다.");
                     break;
@@ -150,19 +166,19 @@ public class TourApiSyncService implements SyncFestivalUseCase {
     /**
      * 특정 축제의 상세 정보(개요, 전화번호, 이용요금)를 TourAPI에서 실시간 조회
      */
-    public java.util.Map<String, Object> fetchFestivalDetail(String contentId) {
-        java.util.Map<String, Object> details = new java.util.HashMap<>();
+    public Map<String, Object> fetchFestivalDetail(String contentId) {
+        Map<String, Object> details = new HashMap<>();
         try {
             // 1. 공통정보 (overview, tel, title)
             String commonUrl = baseUrl + "/detailCommon2"
                     + "?serviceKey=" + serviceKey
                     + "&MobileOS=ETC&MobileApp=ieum&_type=json"
                     + "&contentId=" + contentId;
-            
+
             JsonNode commonRoot = mapper.readTree(restTemplate.getForObject(URI.create(commonUrl), String.class));
             JsonNode commonItem = commonRoot.path("response").path("body").path("items").path("item").get(0);
             if (commonItem != null) {
-                details.put("overview", commonItem.path("overview").asText().replaceAll("<[^>]*>", "")); // HTML 태그 제거
+                details.put("overview", commonItem.path("overview").asText().replaceAll("<[^>]*>", ""));
                 details.put("tel", commonItem.path("tel").asText().replaceAll("<[^>]*>", ""));
             }
 
@@ -171,23 +187,24 @@ public class TourApiSyncService implements SyncFestivalUseCase {
                     + "?serviceKey=" + serviceKey
                     + "&MobileOS=ETC&MobileApp=ieum&_type=json"
                     + "&contentId=" + contentId
-                    + "&contentTypeId=15"; // 행사/공연/축제 타입
-            
+                    + "&contentTypeId=15";
+
             JsonNode introRoot = mapper.readTree(restTemplate.getForObject(URI.create(introUrl), String.class));
             JsonNode introItem = introRoot.path("response").path("body").path("items").path("item").get(0);
             if (introItem != null) {
                 details.put("fee", introItem.path("usetimefestival").asText().replaceAll("<[^>]*>", ""));
             }
+
             // 3. 사진 정보 (detailImage2)
             String imageUrlReq = baseUrl + "/detailImage2"
                     + "?serviceKey=" + serviceKey
                     + "&MobileOS=ETC&MobileApp=ieum&_type=json"
                     + "&contentId=" + contentId;
-            
+
             JsonNode imageRoot = mapper.readTree(restTemplate.getForObject(URI.create(imageUrlReq), String.class));
             JsonNode imageItems = imageRoot.path("response").path("body").path("items").path("item");
-            
-            java.util.List<String> images = new java.util.ArrayList<>();
+
+            List<String> images = new ArrayList<>();
             if (imageItems != null && imageItems.isArray()) {
                 for (JsonNode imgItem : imageItems) {
                     String originImgUrl = imgItem.path("originimgurl").asText();

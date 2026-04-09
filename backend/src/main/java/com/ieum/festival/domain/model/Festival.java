@@ -55,6 +55,8 @@ public class Festival {
 
     private Festival() {}
 
+    // ── 팩토리 메서드: 영속화 계층에서 복원 ──
+
     public static Festival reconstitute(
             Long id, String sourceId, String title, String address,
             String imageUrl, String thumbnailUrl, String overview, String description,
@@ -110,6 +112,74 @@ public class Festival {
         return f;
     }
 
+    // ── 팩토리 메서드: 공공데이터 API 동기화 시 신규 생성 ──
+
+    public static Festival createFromApiData(
+            String sourceId, String title, String address,
+            String imageUrl, String thumbnailUrl,
+            LocalDate startDate, LocalDate endDate,
+            Double latitude, Double longitude,
+            String areaCode, String sigunguCode,
+            String category, String categoryMid, String categorySub
+    ) {
+        Festival f = new Festival();
+        f.sourceId = sourceId;
+        f.source = "API";
+        f.status = "UPCOMING";
+        f.title = title;
+        f.address = address;
+        f.imageUrl = imageUrl;
+        f.thumbnailUrl = thumbnailUrl;
+        f.startDate = startDate;
+        f.endDate = endDate;
+        f.latitude = latitude;
+        f.longitude = longitude;
+        f.areaCode = areaCode;
+        f.sigunguCode = sigunguCode;
+        f.category = category;
+        f.categoryMid = categoryMid;
+        f.categorySub = categorySub;
+        f.extraImages = new ArrayList<>();
+        f.isCustom = false;
+        f.isVisible = true;
+        f.avgRating = 0.0;
+        f.reviewCount = 0;
+        f.favoriteCount = 0;
+        f.viewCount = 0;
+        return f;
+    }
+
+    // ── 비즈니스 메서드 ──
+
+    /**
+     * 공공데이터 API 동기화 시 기존 축제 정보 갱신
+     */
+    public void updateFromApiData(
+            String title, String address,
+            String imageUrl, String thumbnailUrl,
+            LocalDate startDate, LocalDate endDate,
+            Double latitude, Double longitude,
+            String areaCode, String sigunguCode,
+            String category, String categoryMid, String categorySub
+    ) {
+        this.title = title;
+        this.address = address;
+        this.imageUrl = imageUrl;
+        this.thumbnailUrl = thumbnailUrl;
+        this.startDate = startDate;
+        this.endDate = endDate;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.areaCode = areaCode;
+        this.sigunguCode = sigunguCode;
+        this.category = category;
+        this.categoryMid = categoryMid;
+        this.categorySub = categorySub;
+    }
+
+    /**
+     * 날짜 기준 상태 계산 (진행중/진행예정/종료)
+     */
     public String calculateStatus() {
         if (startDate == null || endDate == null) {
             return status;
@@ -124,6 +194,22 @@ public class Festival {
         }
     }
 
+    /**
+     * 날짜 기반 상태 갱신 (DB status 컬럼 동기화용)
+     * @return 상태가 변경되었으면 true
+     */
+    public boolean refreshStatus() {
+        String newStatus = calculateStatus();
+        if (!newStatus.equals(this.status)) {
+            this.status = newStatus;
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 공공 API 상세 정보 보강 (Lazy Caching)
+     */
     public void enrichWithApiDetail(String overview, String tel, String useFee, List<String> images) {
         this.overview = overview;
         this.tel = tel;
@@ -133,6 +219,9 @@ public class Festival {
         }
     }
 
+    /**
+     * 공공 API 소스이면서 아직 상세 정보가 없는 경우
+     */
     public boolean needsApiDetailEnrichment() {
         return "API".equals(this.source) && this.overview == null;
     }
@@ -148,6 +237,8 @@ public class Festival {
         }
         return new ArrayList<>(Arrays.asList(commaSeparated.split(",")));
     }
+
+    // ── Getter ──
 
     public Long getId() { return id; }
     public String getSourceId() { return sourceId; }

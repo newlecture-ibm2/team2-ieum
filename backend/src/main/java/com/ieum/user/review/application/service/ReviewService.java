@@ -1,5 +1,6 @@
 package com.ieum.user.review.application.service;
 
+import com.ieum.global.common.PagedResult;
 import com.ieum.user.review.application.port.in.CreateReviewUseCase;
 import com.ieum.user.review.application.port.in.DeleteReviewUseCase;
 import com.ieum.user.review.application.port.in.GetReviewsUseCase;
@@ -10,10 +11,6 @@ import com.ieum.user.review.application.port.out.UpdateFestivalStatsPort;
 import com.ieum.user.review.application.result.ReviewListResult;
 import com.ieum.user.review.domain.model.Review;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +24,9 @@ import java.util.stream.Collectors;
  * - Port IN 인터페이스를 구현
  * - Port OUT 인터페이스에만 의존 (adapter 직접 참조 없음)
  * - 비즈니스 로직은 도메인 모델(Review)에 위임
+ *
+ * ✅ Spring Data 타입(Page, Pageable, Sort, PageRequest) 의존 제거
+ *    - 정렬/페이징 파라미터는 primitive로 전달하고 Adapter에서 변환
  */
 @Service
 @RequiredArgsConstructor
@@ -42,12 +42,13 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     @Override
     @Transactional(readOnly = true)
     public ReviewListResult getReviews(Long festivalId, int page, int size, String sort) {
-        Sort sortObj = "rating".equals(sort)
-                ? Sort.by(Sort.Direction.DESC, "rating")
-                : Sort.by(Sort.Direction.DESC, "createdAt");
-        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size, sortObj);
+        // 정렬 조건을 primitive 값으로 결정 (프레임워크 독립)
+        String sortField = "rating".equals(sort) ? "rating" : "createdAt";
+        String sortDirection = "DESC";
+        int zeroBasedPage = page > 0 ? page - 1 : 0;
 
-        Page<Review> reviewPage = reviewPersistencePort.findActiveReviewsByFestivalId(festivalId, pageable);
+        PagedResult<Review> reviewPage = reviewPersistencePort.findActiveReviewsByFestivalId(
+                festivalId, zeroBasedPage, size, sortField, sortDirection);
         Double avgRating = reviewPersistencePort.getAverageRating(festivalId);
         Long totalCount = reviewPersistencePort.countActiveByFestivalId(festivalId);
 

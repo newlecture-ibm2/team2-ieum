@@ -6,6 +6,7 @@ import com.ieum.festival.application.port.in.RefreshFestivalStatusUseCase;
 import com.ieum.festival.application.port.in.SyncFestivalUseCase;
 import com.ieum.festival.application.result.FestivalDetailResult;
 import com.ieum.festival.application.result.FestivalPageResult;
+import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -18,6 +19,7 @@ import java.util.Map;
 /**
  * 축제 컨트롤러 (Input Adapter)
  * - UseCase 인터페이스에만 의존 (구체 서비스 참조 없음)
+ * - 응답 형식을 프로젝트 공통 ApiResponse로 통일
  */
 @Tag(name = "축제", description = "축제 조회 / 검색 / 공공데이터 동기화")
 @RestController
@@ -35,10 +37,9 @@ public class FestivalController {
      */
     @Operation(summary = "축제 상태 일괄 갱신 (개발용)", description = "모든 축제의 status를 오늘 날짜 기준으로 DB에 일괄 업데이트합니다.")
     @PatchMapping("/refresh-status")
-    public ResponseEntity<?> refreshStatus() {
+    public ApiResponse<Map<String, Object>> refreshStatus() {
         int updated = refreshFestivalStatusUseCase.refreshAllStatuses();
-        return ResponseEntity.ok(Map.of(
-                "success", true,
+        return ApiResponse.success(Map.of(
                 "message", "축제 상태 일괄 갱신 완료",
                 "updatedCount", updated
         ));
@@ -54,7 +55,7 @@ public class FestivalController {
             "- 진행예정(upcoming): startDate > 오늘, 시작일 가까운 순\n" +
             "- 종료(ended): endDate < 오늘, 최근 종료순")
     @GetMapping
-    public ResponseEntity<?> getFestivals(
+    public ApiResponse<FestivalPageResult> getFestivals(
             @Parameter(description = "필터 상태 (all, ongoing, upcoming, ended)", example = "ongoing") @RequestParam(required = false) String status,
             @Parameter(description = "검색 키워드 (축제명, 지역명)", example = "벚꽃") @RequestParam(required = false) String keyword,
             @Parameter(description = "지역 코드 (1=서울, 31=경기 등)", example = "1") @RequestParam(required = false) String areaCode,
@@ -63,7 +64,7 @@ public class FestivalController {
             @RequestParam(defaultValue = "12") int size) {
 
         FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, page, size);
-        return ResponseEntity.ok(Map.of("success", true, "data", data));
+        return ApiResponse.success(data);
     }
 
     /**
@@ -71,25 +72,21 @@ public class FestivalController {
      */
     @Operation(summary = "공공데이터 동기화 (수동 배치)", description = "한국관광공사 TourAPI를 호출하여 DB를 업데이트합니다. 기본값: 오늘 기준 2년 전")
     @PostMapping("/sync")
-    public ResponseEntity<?> syncTourApi(
+    public ApiResponse<String> syncTourApi(
             @Parameter(description = "시작일 (YYYYMMDD, 미입력 시 2년 전)", example = "20240401") @RequestParam(required = false) String eventStartDate) {
         if (eventStartDate == null || eventStartDate.isBlank()) {
             eventStartDate = java.time.LocalDate.now().minusYears(2)
                     .format(java.time.format.DateTimeFormatter.ofPattern("yyyyMMdd"));
         }
-        try {
-            syncFestivalUseCase.syncFestivals(eventStartDate);
-            return ResponseEntity.ok(Map.of("success", true, "message", "동기화 스케줄이 완료되었습니다. (로그를 확인하세요)"));
-        } catch (Exception e) {
-            return ResponseEntity.internalServerError().body(Map.of("success", false, "error", e.getMessage()));
-        }
+        syncFestivalUseCase.syncFestivals(eventStartDate);
+        return ApiResponse.success("동기화 스케줄이 완료되었습니다. (로그를 확인하세요)");
     }
 
     /**
      * 축제 상세 조회
      */
     @Operation(
-            summary = "축제 상세 조회", 
+            summary = "축제 상세 조회",
             description = "축제 ID로 상세 정보를 조회합니다. (최초 1회 한국관광공사 TourAPI 연동 후 DB 자동 캐싱)\n\n" +
                           "**[공공데이터 연동 상세 항목 (TourAPI)]**\n" +
                           "- `overview` (개요): 축제에 대한 상세 설명 및 텍스트 묘사\n" +
@@ -99,11 +96,13 @@ public class FestivalController {
                           "- `homepage`, `sponsor`, `playTime` 등 부가 정보"
     )
     @GetMapping("/{festivalId}")
-    public ResponseEntity<?> getFestivalDetail(@PathVariable Long festivalId) {
+    public ResponseEntity<ApiResponse<?>> getFestivalDetail(@PathVariable Long festivalId) {
         FestivalDetailResult detail = loadFestivalDetailUseCase.loadDetail(festivalId);
         if (detail == null) {
-            return ResponseEntity.status(404).body(Map.of("success", false, "error", "Not Found"));
+            return ResponseEntity.status(404).body(
+                    ApiResponse.error(ApiResponse.ErrorResponse.of("FEST_001", 404, "축제 데이터를 찾을 수 없습니다.", "Festival not found for id=" + festivalId))
+            );
         }
-        return ResponseEntity.ok(Map.of("success", true, "data", detail));
+        return ResponseEntity.ok(ApiResponse.success(detail));
     }
 }

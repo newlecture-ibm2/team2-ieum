@@ -7,10 +7,8 @@ import com.ieum.festival.application.result.FestivalDetailResult;
 import com.ieum.festival.application.result.FestivalListItemResult;
 import com.ieum.festival.application.result.FestivalPageResult;
 import com.ieum.festival.domain.model.Festival;
+import com.ieum.global.common.PagedResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * 축제 조회 서비스 (UseCase 구현체)
  * - 도메인 모델(Festival)과 Port에만 의존
- * - Entity, adapter DTO에 대한 의존성 없음
+ * - Entity, adapter DTO, Spring Data 타입에 대한 의존성 없음
  */
 @Service
 @RequiredArgsConstructor
@@ -38,26 +36,25 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
     @Override
     public FestivalPageResult loadFestivals(String status, String keyword, String areaCode,
                                              Integer month, int page, int size) {
-        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
         String searchKeyword = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
 
-        Page<Festival> festivalPage;
+        PagedResult<Festival> result;
 
         if ("ongoing".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCode, month, pageable);
+            result = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCode, month, page, size);
         } else if ("upcoming".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCode, month, pageable);
+            result = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCode, month, page, size);
         } else if ("ended".equalsIgnoreCase(status)) {
-            festivalPage = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCode, month, pageable);
+            result = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCode, month, page, size);
         } else {
-            festivalPage = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCode, month, pageable);
+            result = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCode, month, page, size);
         }
 
-        List<FestivalListItemResult> items = festivalPage.getContent().stream()
+        List<FestivalListItemResult> items = result.getContent().stream()
                 .map(FestivalListItemResult::from)
                 .collect(Collectors.toList());
 
-        return new FestivalPageResult(items, festivalPage.getTotalElements(), festivalPage.getTotalPages(), page);
+        return new FestivalPageResult(items, result.getTotalElements(), result.getTotalPages(), page);
     }
 
     // ───────────────────────────────────

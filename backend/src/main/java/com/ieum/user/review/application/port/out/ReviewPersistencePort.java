@@ -1,8 +1,7 @@
 package com.ieum.user.review.application.port.out;
 
+import com.ieum.global.common.PagedResult;
 import com.ieum.user.review.domain.model.Review;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.Optional;
 
@@ -10,6 +9,7 @@ import java.util.Optional;
  * 리뷰 영속성 포트 (Port OUT)
  * - Application 계층이 이 인터페이스에 의존
  * - adapter.out.persistence 에서 구현
+ * - 프레임워크 독립적: Spring Data 타입(Page, Pageable) 미사용
  */
 public interface ReviewPersistencePort {
 
@@ -25,8 +25,15 @@ public interface ReviewPersistencePort {
 
     /**
      * 특정 축제의 활성 리뷰 목록 (닉네임 포함) 페이징 조회
+     *
+     * @param festivalId 축제 ID
+     * @param page       페이지 번호 (0-based)
+     * @param size       페이지 크기
+     * @param sortField  정렬 필드 (예: "createdAt", "rating")
+     * @param sortDirection 정렬 방향 ("ASC" | "DESC")
      */
-    Page<Review> findActiveReviewsByFestivalId(Long festivalId, Pageable pageable);
+    PagedResult<Review> findActiveReviewsByFestivalId(Long festivalId, int page, int size,
+                                                       String sortField, String sortDirection);
 
     /**
      * 특정 축제의 활성 리뷰 평균 평점

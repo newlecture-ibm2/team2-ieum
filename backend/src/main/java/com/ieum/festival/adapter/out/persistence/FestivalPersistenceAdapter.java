@@ -4,17 +4,22 @@ import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
 import com.ieum.festival.adapter.out.persistence.repository.FestivalJpaRepository;
 import com.ieum.festival.application.port.out.FestivalPersistencePort;
 import com.ieum.festival.domain.model.Festival;
+import com.ieum.global.common.PagedResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 축제 영속성 어댑터 (Output Adapter)
  * - JPA Repository를 감싸서 Port OUT 구현
  * - Entity ↔ Domain 매핑 담당
+ * - Spring Data Page → PagedResult 변환 담당
  */
 @Component
 @RequiredArgsConstructor
@@ -22,29 +27,37 @@ public class FestivalPersistenceAdapter implements FestivalPersistencePort {
 
     private final FestivalJpaRepository repository;
 
+    // ── 목록 조회 (페이징) ──
+
     @Override
-    public Page<Festival> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, Pageable pageable) {
-        return repository.findAllWithDynamicOrder(keyword, areaCode, month, pageable)
-                .map(this::toDomain);
+    public PagedResult<Festival> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, int page, int size) {
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
+        Page<FestivalEntity> entityPage = repository.findAllWithDynamicOrder(keyword, areaCode, month, pageable);
+        return toPagedResult(entityPage);
     }
 
     @Override
-    public Page<Festival> findOngoingFestivals(String keyword, String areaCode, Integer month, Pageable pageable) {
-        return repository.findOngoingFestivals(keyword, areaCode, month, pageable)
-                .map(this::toDomain);
+    public PagedResult<Festival> findOngoingFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
+        Page<FestivalEntity> entityPage = repository.findOngoingFestivals(keyword, areaCode, month, pageable);
+        return toPagedResult(entityPage);
     }
 
     @Override
-    public Page<Festival> findUpcomingFestivals(String keyword, String areaCode, Integer month, Pageable pageable) {
-        return repository.findUpcomingFestivals(keyword, areaCode, month, pageable)
-                .map(this::toDomain);
+    public PagedResult<Festival> findUpcomingFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
+        Page<FestivalEntity> entityPage = repository.findUpcomingFestivals(keyword, areaCode, month, pageable);
+        return toPagedResult(entityPage);
     }
 
     @Override
-    public Page<Festival> findEndedFestivals(String keyword, String areaCode, Integer month, Pageable pageable) {
-        return repository.findEndedFestivals(keyword, areaCode, month, pageable)
-                .map(this::toDomain);
+    public PagedResult<Festival> findEndedFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
+        Page<FestivalEntity> entityPage = repository.findEndedFestivals(keyword, areaCode, month, pageable);
+        return toPagedResult(entityPage);
     }
+
+    // ── 단건 조회 ──
 
     @Override
     public Optional<Festival> findById(Long id) {
@@ -52,21 +65,51 @@ public class FestivalPersistenceAdapter implements FestivalPersistencePort {
     }
 
     @Override
+    public Optional<Festival> findBySourceId(String sourceId) {
+        return repository.findBySourceId(sourceId).map(this::toDomain);
+    }
+
+    // ── 전체 조회 (배치용) ──
+
+    @Override
+    public List<Festival> findAll() {
+        return repository.findAll().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+    }
+
+    // ── 저장 ──
+
+    @Override
     public Festival save(Festival festival) {
         FestivalEntity entity;
 
         if (festival.getId() != null) {
             entity = repository.findById(festival.getId())
-                    .orElseGet(() -> new FestivalEntity());
+                    .orElseGet(FestivalEntity::new);
         } else {
             entity = new FestivalEntity();
         }
 
-        // Domain → Entity 매핑
         toEntity(festival, entity);
-
         FestivalEntity saved = repository.save(entity);
         return toDomain(saved);
+    }
+
+    @Override
+    public void saveAll(List<Festival> festivals) {
+        for (Festival festival : festivals) {
+            save(festival);
+        }
+    }
+
+    // ── Page → PagedResult 변환 (Adapter 내부에서만 사용) ──
+
+    private PagedResult<Festival> toPagedResult(Page<FestivalEntity> page) {
+        List<Festival> content = page.getContent().stream()
+                .map(this::toDomain)
+                .collect(Collectors.toList());
+        return new PagedResult<>(content, page.getTotalElements(), page.getTotalPages());
     }
 
     // ── Entity → Domain 매핑 ──
