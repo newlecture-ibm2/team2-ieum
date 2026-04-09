@@ -1,11 +1,25 @@
 'use client';
 
 import { useRef } from 'react';
+import type ReactQuillType from 'react-quill-new';
+import dynamic from 'next/dynamic';
 import { Modal } from '@/_component/common/Modal';
 import common from '@/app/admin/_styles/admin-common.module.css';
 import type { AdminNoticeItem } from '@/types/admin-notice';
 import { useNoticeForm } from './useNoticeForm';
 import s from './NoticeFormModal.module.css';
+import 'react-quill-new/dist/quill.snow.css';
+
+const ReactQuill = dynamic(async () => {
+  const { default: RQ } = await import('react-quill-new');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return function Comp({ forwardedRef, ...props }: any) {
+    return <RQ ref={forwardedRef} {...props} />;
+  };
+}, {
+  ssr: false,
+  loading: () => <div style={{ height: '260px', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '8px' }}>에디터를 불러오는 중입니다...</div>
+});
 
 interface Props {
   mode: 'create' | 'edit';
@@ -17,6 +31,8 @@ interface Props {
 export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Props) {
   const {
     isEdit,
+    quillRefHolder,
+    quillModules,
     formState,
     errors,
     processing,
@@ -24,6 +40,8 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
   } = useNoticeForm({ mode, notice, onSaved });
 
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const quillRef = useRef<ReactQuillType | null>(null);
+  quillRefHolder.current = quillRef.current;
 
   return (
     <Modal
@@ -84,21 +102,21 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
           <p className={s.fieldDesc}>게시 기간 미설정 시 즉시 노출되며, 종료일 미설정 시 수동 비활성 전까지 노출됩니다.</p>
         </div>
 
-        {/* 내용 */}
+        {/* 내용 (Quill 에디터) */}
         <div className={s.fieldGroup}>
           <label className={s.fieldLabel}>
             <span className={s.requiredStar}>*</span> 내용
           </label>
           <div className={s.textareaWrap}>
-            <textarea
-              className={`${s.fieldTextarea} ${errors.contentError ? s.fieldInputError : ''}`}
+            <ReactQuill
+              forwardedRef={quillRef}
+              theme="snow"
               value={formState.content}
-              onChange={(e) => { formState.setContent(e.target.value); if (errors.contentError) errors.setContentError(''); }}
-              placeholder="공지사항 내용을 작성하세요"
-              maxLength={5000}
-              rows={10}
+              onChange={(val: string) => { formState.setContent(val); if (errors.contentError) errors.setContentError(''); }}
+              modules={quillModules}
+              placeholder="공지사항 내용을 작성하세요 (이미지 삽입 가능)"
             />
-            <span className={s.charCount}>{formState.content.length} / 5000</span>
+            <span className={s.charCount}>{formState.content.replace(/<[^>]*>?/gm, '').length} / 5000 (태그 제외)</span>
           </div>
           {errors.contentError && <span className={s.errorText}>⚠ {errors.contentError}</span>}
         </div>

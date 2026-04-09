@@ -1,4 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import type ReactQuill from 'react-quill-new';
 import { useToast } from '@/_component/common/Toast';
 import adminApi from '@/lib/adminApi';
 import api from '@/lib/api';
@@ -13,6 +14,7 @@ interface UseNoticeFormProps {
 export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
   const isEdit = mode === 'edit' && notice !== null;
   const { toast } = useToast();
+  const quillRefHolder = useRef<ReactQuill | null>(null);
 
   // 폼 상태
   const [title, setTitle] = useState(isEdit ? notice!.title : '');
@@ -114,8 +116,64 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
     }
   };
 
+  // Quill 에디터 이미지 핸들러
+  const imageHandler = useCallback(() => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const res = await api.post('/api/attachments?targetType=NOTICE&targetId=0', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+
+        if (res.data?.success) {
+          const attachmentId = res.data.data.id;
+          const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attachmentId}/download`;
+
+          const quill = quillRefHolder.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', url);
+            quill.setSelection(range.index + 1);
+          }
+        } else {
+          toast('이미지 업로드에 실패했습니다.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        toast('이미지 업로드 중 오류가 발생했습니다.', 'error');
+      }
+    };
+  }, [toast]);
+
+  const quillModules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image'],
+        ['clean'],
+      ],
+      handlers: {
+        image: imageHandler,
+      },
+    },
+  }), [imageHandler]);
+
   return {
     isEdit,
+    quillRefHolder,
+    quillModules,
     formState: {
       title, setTitle,
       content, setContent,
