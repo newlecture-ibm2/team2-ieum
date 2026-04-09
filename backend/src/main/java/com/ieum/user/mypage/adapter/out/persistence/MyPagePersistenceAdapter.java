@@ -135,16 +135,27 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
 
         List<ActivityItemResult> items = reportPage.getContent().stream()
                 .map(report -> {
-                    Long targetParentId = null;
                     String targetType = report.getTargetType();
+                    Long targetParentId = null;
+                    String targetContent = null;
 
                     if (Report.TARGET_COMMENT.equalsIgnoreCase(targetType)) {
                         targetParentId = commentRepository.findById(report.getTargetId())
                                 .map(CommentEntity::getPostId)
                                 .orElse(null);
+                        targetContent = commentRepository.findById(report.getTargetId())
+                                .map(CommentEntity::getContent)
+                                .orElse(null);
                     } else if (Report.TARGET_REVIEW.equalsIgnoreCase(targetType)) {
                         targetParentId = reviewRepository.findById(report.getTargetId())
                                 .map(ReviewEntity::getFestivalId)
+                                .orElse(null);
+                        targetContent = reviewRepository.findById(report.getTargetId())
+                                .map(ReviewEntity::getContent)
+                                .orElse(null);
+                    } else if (Report.TARGET_POST.equalsIgnoreCase(targetType)) {
+                        targetContent = postRepository.findById(report.getTargetId())
+                                .map(PostEntity::getContent)
                                 .orElse(null);
                     }
 
@@ -160,6 +171,8 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
                         .targetType(targetType)
                         .targetId(report.getTargetId())
                         .targetParentId(targetParentId)
+                        .reason(report.getReason())
+                        .targetContent(targetContent)
                         .build();
                 })
                 .collect(Collectors.toList());

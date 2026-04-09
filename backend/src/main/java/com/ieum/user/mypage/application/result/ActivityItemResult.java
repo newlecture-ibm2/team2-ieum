@@ -35,4 +35,6 @@ public class ActivityItemResult {
     private final String targetType;
     private final Long targetId;
     private final Long targetParentId;
+    private final String reason;
+    private final String targetContent;
 }

@@ -29,7 +29,11 @@ export interface MyActivity {
   status?: string;
   answer?: string;
   answeredAt?: string;
+  targetType?: string;
   targetId?: number;
+  targetParentId?: number;
+  reason?: string;
+  targetContent?: string;
 }
 
 // --- 각 목록에서 사용하기 편하도록 Alias 제공 ---
@@ -57,6 +61,7 @@ export interface MyReport extends Pick<MyActivity, 'id' | 'title' | 'content' | 
   targetId?: number;
   targetParentId?: number;
   reason?: string;
+  targetContent?: string;
   description?: string;
   status: 'PENDING' | 'RESOLVED' | 'REJECTED';
   action?: string;

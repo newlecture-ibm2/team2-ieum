@@ -157,9 +157,25 @@ export default function ReportList() {
                 </button>
               </div>
   
-              <p className={`${styles.cardBody} ${isExpanded ? styles.cardBodyExpanded : styles.cardBodyCollapsed}`}>
-                {report.content || '상세 신고 내용이 없습니다.'}
-              </p>
+              <div className={styles.reportDetailBox}>
+                {/* 1. 신고 대상 원문 (가장 중요) */}
+                <div className={styles.detailSection}>
+                  <div className={styles.detailLabel}>[신고 대상 원문]</div>
+                  <div className={styles.detailContent}>
+                    {report.targetContent || '원문 내용을 불러올 수 없습니다.'}
+                  </div>
+                </div>
+
+                {/* 2. 신고자 상세 사유 (작성한 경우만) */}
+                {report.content && (
+                  <div className={styles.detailSection} style={{ marginTop: '12px', borderTop: '1px dashed #e2e8f0', paddingTop: '12px' }}>
+                    <div className={styles.detailLabel}>[신고 상세 사유]</div>
+                    <div className={styles.detailContent} style={{ color: '#64748b', fontSize: '0.85rem' }}>
+                      {report.content}
+                    </div>
+                  </div>
+                )}
+              </div>
   
               {isExpanded && report.adminNote && (
                 <div className={styles.adminResponse}>
