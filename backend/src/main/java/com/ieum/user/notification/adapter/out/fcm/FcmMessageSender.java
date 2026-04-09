@@ -3,6 +3,8 @@ package com.ieum.user.notification.adapter.out.fcm;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.WebpushConfig;
+import com.google.firebase.messaging.WebpushNotification;
 import com.ieum.user.notification.application.port.out.FcmPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,11 @@ public class FcmMessageSender implements FcmPort {
                     .setNotification(Notification.builder()
                             .setTitle(title)
                             .setBody(body)
+                            .build())
+                    .setWebpushConfig(WebpushConfig.builder()
+                            .setNotification(WebpushNotification.builder()
+                                    .setIcon("/favicon/favicon-ieum-transparent.png")
+                                    .build())
                             .build())
                     .build();
 

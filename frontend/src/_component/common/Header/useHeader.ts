@@ -70,7 +70,7 @@ export function useHeader() {
       if (typeof Notification !== "undefined" && Notification.permission === "granted") {
         new Notification(payload.notification?.title || "이음 알림", {
           body: payload.notification?.body || "새로운 알림이 있습니다.",
-          icon: "/favicon.ico",
+          icon: "/favicon/favicon-ieum-transparent.png",
         });
       }
     });

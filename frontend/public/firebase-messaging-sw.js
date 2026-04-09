@@ -19,19 +19,12 @@ firebase.initializeApp(firebaseConfig);
 
 const messaging = firebase.messaging();
 
-// 백그라운드 메시지 수신 핸들러
+// 백그라운드 메시지 수신 핸들러 (FCM SDK가 notification 객체를 만나면 자동 알림을 띄우므로 중복 호출 방지)
 messaging.onBackgroundMessage((payload) => {
-  console.log("[firebase-messaging-sw.js] 백그라운드 메시지 수신:", payload);
-
-  const notificationTitle = payload.notification?.title || "이음 알림";
-  const notificationOptions = {
-    body: payload.notification?.body || "새로운 알림이 있습니다.",
-    icon: "/favicon.ico",
-    badge: "/favicon.ico",
-    data: payload.data || {}
-  };
-
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  console.log("[firebase-messaging-sw.js] 백그라운드 메시지 수신 (데이터 페이로드 통과):", payload);
+  // FCM Web SDK는 payload에 'notification' 키가 존재하면 브라우저에 네이티브 알림을 자동으로 보여줍니다.
+  // 이곳에서 self.registration.showNotification()을 한 번 더 호출하면 알림이 2번 오게 되므로 주석/삭제 처리합니다.
+  // 알림 아이콘은 백엔드의 WebpushConfig에서 설정한 값으로 보여집니다.
 });
 
 // 알림 클릭 시 해당 페이지로 이동
