@@ -8,6 +8,8 @@ import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.attachment.application.port.in.DeleteAttachmentUseCase;
 import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
+import com.ieum.global.exception.BusinessException;
+import com.ieum.global.exception.ErrorCode;
 import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -76,7 +78,7 @@ public class NoticeAdminService
             List<MultipartFile> newFiles, List<Long> deleteFileIds) {
 
         AdminNotice notice = adminNoticePort.findById(noticeId)
-                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOTICE_001, "noticeId=" + noticeId));
 
         AdminNotice updated = AdminNotice.builder()
                 .id(notice.getId())
@@ -116,7 +118,7 @@ public class NoticeAdminService
     @Override
     public void delete(Long noticeId) {
         adminNoticePort.findById(noticeId)
-                .orElseThrow(() -> new IllegalArgumentException("공지사항을 찾을 수 없습니다. id=" + noticeId));
+                .orElseThrow(() -> new BusinessException(ErrorCode.NOTICE_001, "noticeId=" + noticeId));
 
         // 첨부파일 전체 삭제 (attachment 공통 모듈 사용)
         deleteAttachmentUseCase.deleteAllByTarget("NOTICE", noticeId);
