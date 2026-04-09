@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../login.module.css';
 
@@ -105,7 +105,7 @@ export default function LoginForm() {
         <div className={styles.inputGroup}>
           <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
-            <Mail className={styles.inputIcon} />
+            <User className={styles.inputIcon} />
             <input 
               id="id"
               type="text" 

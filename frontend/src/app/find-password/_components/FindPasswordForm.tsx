@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { User, Phone, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
 import styles from '../find-password.module.css';
 
@@ -13,7 +13,8 @@ export default function FindPasswordForm() {
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(1);
-  const [email, setEmail] = useState('');
+  const [id, setId] = useState('');
+  const [phone, setPhone] = useState('');
   const [code, setCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -26,19 +27,20 @@ export default function FindPasswordForm() {
   // 1단계: 인증 코드 요청
   const handleRequestCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setError('이메일을 입력해주세요.');
+    if (!id || !phone) {
+      setError('아이디와 전화번호를 모두 입력해주세요.');
       return;
     }
 
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'request', email });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/request { id: string, phone: string }
+      await axios.post('/api/auth/password-recovery/request', { id, phone });
       setStep(2);
-      setSuccessMsg('인증 코드가 발송되었습니다. (서버 로그 확인)');
+      setSuccessMsg('인증 코드가 생성되었습니다. (콘솔 로그를 확인하세요)');
     } catch (err: any) {
-      setError(err.response?.data?.message || '가입된 이메일을 찾을 수 없습니다.');
+      setError(err.response?.data?.message || '가입 정보를 찾을 수 없거나 인증 요청에 실패했습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -55,11 +57,12 @@ export default function FindPasswordForm() {
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'verify', email, code });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/verify { id: string, code: string }
+      await axios.post('/api/auth/password-recovery/verify', { id, code });
       setStep(3);
       setSuccessMsg('');
     } catch (err: any) {
-      setError(err.response?.data?.message || '인증 코드가 올바르지 않습니다.');
+      setError(err.response?.data?.message || '인증 코드가 올바르지 않거나 만료되었습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +83,8 @@ export default function FindPasswordForm() {
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'reset', email, newPassword });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/reset { id: string, newPassword: string }
+      await axios.post('/api/auth/password-recovery/reset', { id, newPassword });
       setStep(4);
     } catch (err: any) {
       setError(err.response?.data?.message || '비밀번호 재설정에 실패했습니다.');
@@ -91,7 +95,7 @@ export default function FindPasswordForm() {
 
   const renderProgress = () => {
     const steps = [
-      { id: 1, label: '이메일 입력' },
+      { id: 1, label: '정보 입력' },
       { id: 2, label: '인증 확인' },
       { id: 3, label: '비밀번호 재설정' }
     ];
@@ -135,15 +139,29 @@ export default function FindPasswordForm() {
       {step === 1 && (
         <form className={styles.form} onSubmit={handleRequestCode}>
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>이메일 주소</label>
+            <label className={styles.inputLabel}>아이디</label>
             <div className={styles.inputWrapper}>
-              <Mail className={styles.inputIcon} />
+              <User className={styles.inputIcon} />
               <input 
-                type="email" 
+                type="text" 
                 className={styles.input} 
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="아이디를 입력하세요"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel}>전화번호</label>
+            <div className={styles.inputWrapper}>
+              <Phone className={styles.inputIcon} />
+              <input 
+                type="tel" 
+                className={styles.input} 
+                placeholder="연락처(예: 01012345678)"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
                 required
               />
             </div>
