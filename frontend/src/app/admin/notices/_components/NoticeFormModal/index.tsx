@@ -125,17 +125,46 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
               }
             }}
           />
+          {/* 기존 첨부파일 목록 (수정 모드) */}
+          {formState.existingFiles.length > 0 && (
+            <ul className={s.fileList} style={{ marginBottom: '8px' }}>
+              {formState.existingFiles.map((file) => (
+                <li key={file.id} className={s.fileItem}>
+                  <span className={s.fileName}>기존 📄 {file.fileName}</span>
+                  {file.fileSize && (
+                    <span className={s.fileSize}>
+                      {(file.fileSize / 1024).toFixed(1)} KB
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    className={s.fileRemoveBtn}
+                    title="기존 첨부파일 삭제"
+                    onClick={() => {
+                      formState.setDeleteFileIds(prev => [...prev, file.id]);
+                      formState.setExistingFiles(prev => prev.filter(f => f.id !== file.id));
+                    }}
+                  >
+                    ✕
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          {/* 새로 추가하는 파일 목록 */}
           {formState.files.length > 0 && (
             <ul className={s.fileList}>
               {formState.files.map((file, idx) => (
                 <li key={idx} className={s.fileItem}>
-                  <span className={s.fileName}>📄 {file.name}</span>
+                  <span className={s.fileName}>새로 📄 {file.name}</span>
                   <span className={s.fileSize}>
                     {(file.size / 1024).toFixed(1)} KB
                   </span>
                   <button
                     type="button"
                     className={s.fileRemoveBtn}
+                    title="새 파일 삭제"
                     onClick={() => formState.setFiles((prev) => prev.filter((_, i) => i !== idx))}
                   >
                     ✕

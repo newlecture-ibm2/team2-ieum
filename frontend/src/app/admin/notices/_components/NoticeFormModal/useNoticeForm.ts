@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useToast } from '@/_component/common/Toast';
 import adminApi from '@/lib/adminApi';
 import type { AdminNoticeItem } from '@/types/admin-notice';
@@ -24,11 +24,28 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
   const [startDate, setStartDate] = useState(isEdit ? (notice!.startDate?.slice(0, 16) || '') : '');
   const [endDate, setEndDate] = useState(isEdit ? (notice!.endDate?.slice(0, 16) || '') : '');
   const [files, setFiles] = useState<File[]>([]);
+  
+  // 기존 업로드된 첨부파일 (수정 모드일 때 조회)
+  const [existingFiles, setExistingFiles] = useState<{ id: number; fileName: string; fileSize?: number }[]>([]);
+  const [deleteFileIds, setDeleteFileIds] = useState<number[]>([]);
 
   // 에러 및 진행 상태
   const [titleError, setTitleError] = useState('');
   const [contentError, setContentError] = useState('');
   const [processing, setProcessing] = useState(false);
+
+  // 수정 모드이면 기존 첨부파일 목록 불러오기
+  useEffect(() => {
+    if (isEdit && notice?.id) {
+      adminApi.get(`/api/attachments?targetType=NOTICE&targetId=${notice.id}`)
+        .then(res => {
+          setExistingFiles(res.data.data || []);
+        })
+        .catch(err => {
+          console.error("기존 첨부파일 로드 실패:", err);
+        });
+    }
+  }, [isEdit, notice?.id]);
 
   const validate = (): boolean => {
     let valid = true;
@@ -69,6 +86,11 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
       const fileKey = isEdit ? 'newFiles' : 'files';
       files.forEach((file) => formData.append(fileKey, file));
 
+      // 삭제할 파일이 있다면 (수정 모드)
+      if (isEdit && deleteFileIds.length > 0) {
+        deleteFileIds.forEach(id => formData.append('deleteFileIds', String(id)));
+      }
+
       if (isEdit) {
         await adminApi.put(`/notices/${notice!.id}`, formData, {
           headers: { 'Content-Type': 'multipart/form-data' },
@@ -103,7 +125,9 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
       sendPush, setSendPush,
       startDate, setStartDate,
       endDate, setEndDate,
-      files, setFiles
+      files, setFiles,
+      existingFiles, setExistingFiles,
+      deleteFileIds, setDeleteFileIds
     },
     errors: {
       titleError, setTitleError,
