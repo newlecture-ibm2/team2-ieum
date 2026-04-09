@@ -8,8 +8,11 @@ import com.ieum.user.review.application.port.in.UpdateReviewUseCase;
 import com.ieum.user.review.application.port.out.LoadReviewUserPort;
 import com.ieum.user.review.application.port.out.ReviewPersistencePort;
 import com.ieum.user.review.application.port.out.UpdateFestivalStatsPort;
+import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.user.review.application.result.ReviewListResult;
 import com.ieum.user.review.domain.model.Review;
+import com.ieum.global.exception.BusinessException;
+import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,6 +39,17 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     private final ReviewPersistencePort reviewPersistencePort;
     private final LoadReviewUserPort loadReviewUserPort;
     private final UpdateFestivalStatsPort updateFestivalStatsPort;
+    private final CheckUserSuspensionUseCase checkUserSuspensionUseCase;
+
+    /**
+     * 정지 회원 검증 — WRITE 작업 전 호출
+     */
+    private void validateNotSuspended(Long userId) {
+        if (userId != null && checkUserSuspensionUseCase.isSuspended(userId)) {
+            throw new BusinessException(ErrorCode.USER_001,
+                    "Suspended user attempted review operation. userId=" + userId);
+        }
+    }
 
     // ── 리뷰 목록 조회 ──
 
@@ -77,6 +91,7 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     @Transactional
     public void createReview(Long festivalId, String loginId, Integer rating, String content) {
         Long userId = loadReviewUserPort.resolveUserId(loginId);
+        validateNotSuspended(userId);
 
         // 도메인 모델에서 생성 + 검증
         Review review = Review.create(userId, festivalId, rating, content);
@@ -91,6 +106,7 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     @Transactional
     public void updateReview(Long reviewId, String loginId, Integer rating, String content) {
         Long userId = loadReviewUserPort.resolveUserId(loginId);
+        validateNotSuspended(userId);
 
         Review review = reviewPersistencePort.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
@@ -108,6 +124,7 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     @Transactional
     public void deleteReview(Long reviewId, String loginId) {
         Long userId = loadReviewUserPort.resolveUserId(loginId);
+        validateNotSuspended(userId);
 
         Review review = reviewPersistencePort.findById(reviewId)
                 .orElseThrow(() -> new IllegalArgumentException("리뷰를 찾을 수 없습니다."));
