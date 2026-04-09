@@ -13,8 +13,10 @@ import ReportList from './ReportList';
 import SettingsForm from './SettingsForm';
 
 interface UserInfo {
-  id: string;
+  userId: number;
+  id: string; // loginId
   nickname: string;
+  name?: string;
   role: string;
 }
 
@@ -33,17 +35,28 @@ export default function MyPageContent() {
   };
 
   useEffect(() => {
-    fetch('/api/auth/me')
-      .then((res) => res.json())
+    // 🛡️ API 경로를 /api/users/me로 수정하고, ApiResponse 규격이 아닌 UserDto 직접 응답을 처리합니다.
+    fetch('/api/users/me')
+      .then((res) => {
+        if (!res.ok) {
+          throw new Error('인증 실패');
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (!data.success) {
+        // 백엔드 AuthRes.UserDto 규격 반영 (userId 필드 포함)
+        if (!data || !data.userId) {
           router.push('/login');
           return;
         }
-        setUser(data.data);
+        setUser(data);
+      })
+      .catch((err) => {
+        console.error('MyPage auth check failed:', err);
+        router.push('/login');
       })
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [router]);
 
   if (isLoading) return <div className={styles.loading}>사용자 정보를 불러오는 중...</div>;
   if (!user) return null;
