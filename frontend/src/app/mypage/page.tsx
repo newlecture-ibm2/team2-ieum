@@ -1,4 +1,4 @@
-import React from 'react';
+import { Suspense } from 'react';
 import MyPageContent from './_components/MyPageContent';
 import styles from './mypage.module.css';
 
@@ -10,7 +10,9 @@ export const metadata = {
 export default function MyPage() {
   return (
     <main className={styles.container}>
-      <MyPageContent />
+      <Suspense fallback={<div className={styles.loading}>정보를 불러오는 중...</div>}>
+        <MyPageContent />
+      </Suspense>
     </main>
   );
 }

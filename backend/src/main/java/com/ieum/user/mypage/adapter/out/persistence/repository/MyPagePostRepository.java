@@ -11,5 +11,5 @@ import org.springframework.stereotype.Repository;
  */
 @Repository
 public interface MyPagePostRepository extends JpaRepository<PostEntity, Long> {
-    Page<PostEntity> findByAuthorId(Long authorId, Pageable pageable);
+    Page<PostEntity> findByAuthorIdAndStatus(Long authorId, String status, Pageable pageable);
 }

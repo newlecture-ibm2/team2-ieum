@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from '../mypage.module.css';
 import MyPageSidebar, { MenuType } from './MyPageSidebar';
 import PostList from './PostList';
@@ -18,19 +19,28 @@ interface UserInfo {
 }
 
 export default function MyPageContent() {
+  const router = useRouter();
+  const pathname = usePathname();
   const [user, setUser] = useState<UserInfo | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [activeMenu, setActiveMenu] = useState<MenuType>('posts');
+
+  // 메뉴 변경 시 URL의 페이지 파라미터 초기화
+  const handleMenuChange = (menu: MenuType) => {
+    setActiveMenu(menu);
+    // 메뉴가 바뀔 때 page query param이 남아있으면 엉뚱한 페이지의 데이터를 요청하게 되므로 초기화
+    router.replace(pathname, { scroll: false });
+  };
 
   useEffect(() => {
     fetch('/api/auth/me')
       .then((res) => res.json())
       .then((data) => {
-        if (data.isLoggedIn) {
-          setUser(data.user);
-        } else {
-          window.location.href = '/login';
+        if (!data.success) {
+          router.push('/login');
+          return;
         }
+        setUser(data.data);
       })
       .finally(() => setIsLoading(false));
   }, []);
@@ -68,7 +78,7 @@ export default function MyPageContent() {
       <MyPageSidebar 
         user={user} 
         activeMenu={activeMenu} 
-        onMenuChange={setActiveMenu} 
+        onMenuChange={handleMenuChange} 
       />
 
       {/* 2. 컨텐츠 영역 */}
