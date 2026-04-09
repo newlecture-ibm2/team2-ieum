@@ -2,6 +2,7 @@ package com.ieum.notice.application.service;
 
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
+import com.ieum.notice.adapter.in.web.dto.NoticeDetailResponse;
 import com.ieum.notice.application.port.in.GetNoticeDetailUseCase;
 import com.ieum.notice.application.port.in.GetNoticeListUseCase;
 import com.ieum.notice.application.port.in.GetPopupNoticeUseCase;
@@ -15,9 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 사용자용 공지사항 서비스 (UseCase 구현체)
@@ -40,7 +39,7 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
 
     @Override
     @Transactional
-    public Map<String, Object> getNoticeDetail(Long noticeId) {
+    public NoticeDetailResponse getNoticeDetail(Long noticeId) {
         Notice notice = noticePort.findById(noticeId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOTICE_001, "noticeId=" + noticeId));
 
@@ -61,18 +60,18 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
                 .viewCount(notice.getViewCount() + 1)
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())
+                .isActive(notice.getIsActive())
                 .startDate(notice.getStartDate())
                 .endDate(notice.getEndDate())
                 .createdAt(notice.getCreatedAt())
                 .build();
         noticePort.save(updated);
 
-        Map<String, Object> result = new HashMap<>();
-        result.put("notice", notice);
-        result.put("prevNotice", noticePort.findPrevious(noticeId).orElse(null));
-        result.put("nextNotice", noticePort.findNext(noticeId).orElse(null));
-
-        return result;
+        return new NoticeDetailResponse(
+                notice,
+                noticePort.findPrevious(noticeId).orElse(null),
+                noticePort.findNext(noticeId).orElse(null)
+        );
     }
 
     @Override
@@ -80,3 +79,4 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
         return noticePort.findPopupNotices();
     }
 }
+

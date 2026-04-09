@@ -1,11 +1,13 @@
 package com.ieum.user.notification.application.service;
 
+import com.ieum.user.notification.adapter.in.web.dto.NotificationListResponse;
 import com.ieum.user.notification.application.port.in.GetMyNotificationsUseCase;
 import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCase;
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
 import com.ieum.user.notification.application.port.in.DeleteNotificationUseCase;
 import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
+import com.ieum.user.notification.application.port.out.FcmPort;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
 import com.ieum.user.notification.domain.model.Notification;
@@ -16,9 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 알림/FCM 서비스 (UseCase 구현체)
@@ -31,23 +31,26 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
         UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase, SendNotificationUseCase {
 
     private final NotificationPort notificationPort;
-    private final FcmMessageSender fcmMessageSender;
+    private final FcmPort fcmPort;
 
     // ── API_USR_0040: 내 알림 목록 조회 ──
 
     @Override
     @Transactional(readOnly = true)
-    public Map<String, Object> getMyNotifications(Long userId) {
-        Map<String, Object> result = new HashMap<>();
-        result.put("unreadCount", notificationPort.countUnread(userId));
-        result.put("notifications", notificationPort.findByUserId(userId));
-        return result;
+    public NotificationListResponse getMyNotifications(Long userId) {
+        long unreadCount = notificationPort.countUnread(userId);
+        List<Notification> notifications = notificationPort.findByUserId(userId);
+        return new NotificationListResponse(unreadCount, notifications);
     }
 
     // ── API_USR_0050: FCM 토큰 등록 ──
 
     @Override
     public void register(Long userId, String token) {
+        // 토큰 유효성 검증 (컨트롤러에서 이동)
+        if (token == null || token.isBlank()) {
+            return;
+        }
         // 이미 등록된 토큰이면 갱신(updatedAt 자동 변경), 없으면 신규 저장
         notificationPort.findTokenByUserIdAndToken(userId, token)
                 .ifPresentOrElse(
@@ -143,14 +146,11 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
         notificationPort.saveAllNotifications(List.of(notification));
 
         // 3. FCM 발송
-        // targetUserId에 해당하는 모든 토큰(기기)으로 전송
-        List<FcmToken> tokens = notificationPort.findAllTokens().stream()
-                .filter(t -> t.getUserId().equals(targetUserId))
-                .toList();
+        List<FcmToken> tokens = notificationPort.findTokensByUserId(targetUserId);
 
         for (FcmToken tokenInfo : tokens) {
             try {
-                fcmMessageSender.sendPush(tokenInfo.getToken(), title, message);
+                fcmPort.sendPush(tokenInfo.getToken(), title, message);
             } catch (Exception e) {
                 log.warn("사용자 {} 에게 FCM 발송 실패 (token={}): {}", targetUserId, tokenInfo.getToken(), e.getMessage());
             }

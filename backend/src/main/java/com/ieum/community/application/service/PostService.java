@@ -3,6 +3,7 @@ package com.ieum.community.application.service;
 import com.ieum.community.application.port.in.*;
 import com.ieum.community.application.port.out.PostPort;
 import com.ieum.community.application.port.out.PostLikePort;
+import com.ieum.community.application.port.out.UserSuspensionCheckPort;
 import com.ieum.community.domain.model.Post;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
@@ -25,6 +26,17 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
 
     private final PostPort postPort;
     private final PostLikePort postLikePort;
+    private final UserSuspensionCheckPort userSuspensionCheckPort;
+
+    /**
+     * 정지 회원 검증 — WRITE 작업 전 호출
+     */
+    private void validateNotSuspended(Long userId) {
+        if (userId != null && userSuspensionCheckPort.isSuspended(userId)) {
+            throw new BusinessException(ErrorCode.USER_001,
+                    "Suspended user attempted write operation. userId=" + userId);
+        }
+    }
 
     // ──── CreatePostUseCase ────
 
@@ -35,6 +47,7 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
         if (authorId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "Author ID is null");
         }
+        validateNotSuspended(authorId);
         if (title == null || title.length() < 2 || title.length() > 200) {
             throw new BusinessException(ErrorCode.COMMON_001, "제목은 2자 이상 200자 이하로 작성해주세요.");
         }
@@ -91,6 +104,7 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
     public Post updatePost(Long postId, String category, String title, String content,
                            String areaCode, String festivalId, String festivalName,
                            Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
         if (title == null || title.length() < 2 || title.length() > 200) {
             throw new BusinessException(ErrorCode.COMMON_001, "제목은 2자 이상 200자 이하로 작성해주세요.");
         }
@@ -114,6 +128,7 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
 
     @Override
     public void deletePost(Long postId, Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
         Post post = postPort.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
@@ -132,6 +147,7 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("로그인이 필요합니다.");
         }
+        validateNotSuspended(userId);
 
         Post post = postPort.findActiveById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));

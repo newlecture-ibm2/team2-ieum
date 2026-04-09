@@ -27,6 +27,7 @@ function CommunityWriteContent() {
   const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSuspended, setIsSuspended] = useState(false);
   const quillRef = useRef<any>(null);
 
   // 커스텀 이미지 핸들러 - 에디터 툴바에서 이미지 아이콘 클릭 시 동작
@@ -96,6 +97,9 @@ function CommunityWriteContent() {
       .then(data => {
         if (!data.isLoggedIn) {
           setShowLoginModal(true);
+        } else if (data.user?.status === 'SUSPENDED') {
+          setIsSuspended(true);
+          setAuthChecked(true);
         } else {
           setAuthChecked(true);
         }
@@ -196,6 +200,33 @@ function CommunityWriteContent() {
           />
         )}
       </>
+    );
+  }
+
+  // 정지 회원은 글쓰기/수정 불가
+  if (isSuspended) {
+    return (
+      <main style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '12px' }}>활동 정지 안내</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px' }}>
+          활동이 정지된 계정입니다. 정지 해제 후 게시글을 작성할 수 있습니다.
+        </p>
+        <button
+          style={{
+            padding: '10px 24px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+          }}
+          onClick={() => router.replace('/community')}
+        >
+          커뮤니티로 돌아가기
+        </button>
+      </main>
     );
   }
 

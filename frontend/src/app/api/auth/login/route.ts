@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     id: data.data.user.id,
     nickname: data.data.user.nickname,
     role: data.data.user.role,
+    status: data.data.user.status || "ACTIVE",
   };
   await session.save();  // ← 쿠키에 암호화해서 저장
 

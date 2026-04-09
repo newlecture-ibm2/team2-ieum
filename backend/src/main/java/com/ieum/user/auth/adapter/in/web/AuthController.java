@@ -1,6 +1,7 @@
 package com.ieum.user.auth.adapter.in.web;
 
 import com.ieum.global.response.ApiResponse;
+import com.ieum.global.security.CurrentUserId;
 import com.ieum.user.auth.adapter.in.web.dto.AuthReq;
 import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
@@ -69,10 +70,10 @@ public class AuthController {
 
     @Operation(summary = "회원 탈퇴", description = "비밀번호 확인 후 30일간의 유예 기간을 두고 계정을 탈퇴(Soft Delete) 처리합니다.")
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> deleteAccount(@RequestBody AuthReq.Withdraw request) {
-        // 현재 로그인한 사용자 ID 추출 (Spring Security 연동)
-        String userIdStr = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-        authUseCase.withdraw(Long.valueOf(userIdStr), request.getPassword());
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
+            @CurrentUserId Long userId,
+            @RequestBody AuthReq.Withdraw request) {
+        authUseCase.withdraw(userId, request.getPassword());
         return ResponseEntity.ok(ApiResponse.success());
     }
 }

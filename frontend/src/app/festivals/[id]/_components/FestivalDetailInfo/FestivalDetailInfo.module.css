@@ -32,38 +32,84 @@
   white-space: pre-wrap;
 }
 
-.descImageGallery {
+/* ── 이미지 갤러리 ── */
+
+.gallery {
   margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* 메인 이미지 영역 */
 .mainImageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16 / 9;
   background: var(--color-gray-100);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
-.extraImageGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+/* 서브 썸네일 스트립 */
+.thumbnailStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  /* 가로 스크롤 시 스크롤바 스타일 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
 }
 
-.extraImageWrapper {
+.thumbnailStrip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.thumbnailStrip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thumbnailStrip::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 2px;
+}
+
+/* 개별 썸네일 버튼 */
+.thumbnailBtn {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--color-gray-100);
-  transition: opacity 0.2s;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s, transform 0.15s;
 }
 
-.extraImageWrapper:hover {
-  opacity: 0.8;
+.thumbnailBtn:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+/* 선택된 썸네일 강조 */
+.thumbnailActive {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* ── 반응형 ── */
+
+@media (max-width: 768px) {
+  .section {
+    padding: 20px 16px;
+  }
+
+  .thumbnailBtn {
+    width: 72px;
+    height: 72px;
+  }
 }

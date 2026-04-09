@@ -2,12 +2,12 @@ package com.ieum.user.inquiry.adapter.in.web;
 
 import com.ieum.user.inquiry.domain.model.UserInquiry;
 import com.ieum.global.response.ApiResponse;
+import com.ieum.global.security.CurrentUserId;
 import com.ieum.user.inquiry.application.port.in.GetMyInquiriesUseCase;
 import com.ieum.user.inquiry.application.port.in.RegisterInquiryUseCase;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,16 +27,7 @@ public class UserInquiryController {
 
     @Operation(summary = "내 1:1 문의 내역 조회", description = "로그인한 유저가 본인의 문의 내역을 조회합니다. (API_USR_0036)")
     @GetMapping
-    public ApiResponse<Map<String, Object>> getMyInquiries() {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        Long userId;
-        try {
-            userId = Long.valueOf(userIdStr);
-        } catch (NumberFormatException e) {
-            // 관리자 계정 등이 문자열 식별자를 가질 경우 임시 ID(예: 0) 혹은 예외 처리
-            userId = 0L; 
-        }
-
+    public ApiResponse<Map<String, Object>> getMyInquiries(@CurrentUserId Long userId) {
         List<UserInquiry> inquiries = getMyInquiriesUseCase.getMyInquiries(userId);
 
         return ApiResponse.success(Map.of(
@@ -46,17 +37,9 @@ public class UserInquiryController {
 
     @Operation(summary = "1:1 문의 등록", description = "사용자가 신규 문의를 등록합니다. (API_USR_0035)")
     @PostMapping
-    public ApiResponse<Map<String, Object>> registerInquiry(@RequestBody Map<String, String> request) {
-        String userIdStr = SecurityContextHolder.getContext().getAuthentication().getName();
-        Long userId;
-        
-        try {
-            userId = Long.valueOf(userIdStr);
-        } catch (NumberFormatException e) {
-            // 관리자 계정 식별자가 문자열일 경우 처리 (테스트 및 기능 지원을 위해 0L 할당 혹은 관리자용 매핑 필요)
-            userId = 0L; 
-        }
-        
+    public ApiResponse<Map<String, Object>> registerInquiry(
+            @CurrentUserId Long userId,
+            @RequestBody Map<String, String> request) {
         RegisterInquiryUseCase.Command command = RegisterInquiryUseCase.Command.builder()
                 .userId(userId)
                 .title(request.get("title"))
