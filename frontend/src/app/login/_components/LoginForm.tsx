@@ -66,6 +66,12 @@ export default function LoginForm() {
           localStorage.removeItem('savedId');
         }
 
+        // 🌟 백엔드에서 전달된 메시지(예: 계정 복구 안내)가 있으면 알림 표시
+        const successMsg = response.data?.data?.message;
+        if (successMsg) {
+          alert(successMsg);
+        }
+
         window.location.href = '/';
       } else {
         setGlobalError(response.data.message || '로그인에 실패했습니다.');

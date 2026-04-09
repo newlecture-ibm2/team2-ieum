@@ -4,8 +4,9 @@ import com.ieum.community.adapter.in.web.dto.CommentRequest;
 import com.ieum.community.adapter.in.web.dto.CommentResponse;
 import com.ieum.community.adapter.in.web.dto.PostRequest;
 import com.ieum.community.adapter.in.web.dto.PostResponse;
-import com.ieum.community.application.service.CommentService;
-import com.ieum.community.application.service.PostService;
+import com.ieum.community.application.port.in.*;
+import com.ieum.community.domain.model.Comment;
+import com.ieum.community.domain.model.Post;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -18,6 +19,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Tag(name = "커뮤니티", description = "게시글 CRUD / 댓글")
 @RestController
@@ -25,13 +27,15 @@ import java.util.List;
 @RequestMapping("/api/community/posts")
 public class PostController {
 
-    private final PostService postService;
-    private final CommentService commentService;
+    private final CreatePostUseCase createPostUseCase;
+    private final LoadPostUseCase loadPostUseCase;
+    private final UpdatePostUseCase updatePostUseCase;
+    private final DeletePostUseCase deletePostUseCase;
+    private final ToggleLikeUseCase toggleLikeUseCase;
 
-    /**
-     * Authentication 객체에서 userId 추출
-     * - 로그인 구현 완료 전까지는 임시로 1L 반환
-     */
+    private final CreateCommentUseCase createCommentUseCase;
+    private final LoadCommentUseCase loadCommentUseCase;
+
     private Long getUserId(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
             return null;
@@ -69,8 +73,12 @@ public class PostController {
     public ApiResponse<PostResponse> createPost(
             @RequestBody PostRequest request,
             Authentication authentication) {
-        PostResponse response = postService.createPost(request, getUserId(authentication), getUserName(authentication));
-        return ApiResponse.success(response);
+        Post post = createPostUseCase.createPost(
+                request.getCategory(), request.getTitle(), request.getContent(),
+                request.getAreaCode(), request.getFestivalId(), request.getFestivalName(),
+                getUserId(authentication), getUserName(authentication)
+        );
+        return ApiResponse.success(PostResponse.fromDomain(post));
     }
 
     @Operation(summary = "게시글 목록 조회", description = "게시판 타입별 게시글 목록을 조회합니다. 비회원 이용 가능.")
@@ -105,7 +113,9 @@ public class PostController {
                 sortObj = Sort.by(Sort.Direction.DESC, "createdAt");
                 break;
         }
-        Page<PostResponse> result = postService.getPosts(category, areaCode, keyword, PageRequest.of(page, size, sortObj));
+        
+        Page<PostResponse> result = loadPostUseCase.getPosts(category, areaCode, keyword, PageRequest.of(page, size, sortObj))
+                                                   .map(PostResponse::fromDomain);
         return ApiResponse.success(result);
     }
 
@@ -114,8 +124,8 @@ public class PostController {
     public ApiResponse<PostResponse> getPostDetail(
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
             Authentication authentication) {
-        PostResponse response = postService.getPostDetail(postId, getUserId(authentication));
-        return ApiResponse.success(response);
+        Post post = loadPostUseCase.getPostDetail(postId, getUserId(authentication));
+        return ApiResponse.success(PostResponse.fromDomain(post));
     }
 
     @Operation(summary = "게시글 수정", description = "본인이 작성한 게시글을 수정합니다.")
@@ -124,8 +134,12 @@ public class PostController {
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
             @RequestBody PostRequest request,
             Authentication authentication) {
-        PostResponse response = postService.updatePost(postId, request, getUserId(authentication), isAdmin(authentication));
-        return ApiResponse.success(response);
+        Post post = updatePostUseCase.updatePost(
+                postId, request.getCategory(), request.getTitle(), request.getContent(),
+                request.getAreaCode(), request.getFestivalId(), request.getFestivalName(),
+                getUserId(authentication), isAdmin(authentication)
+        );
+        return ApiResponse.success(PostResponse.fromDomain(post));
     }
 
     @Operation(summary = "게시글 삭제", description = "본인이 작성한 게시글을 삭제합니다.")
@@ -133,7 +147,7 @@ public class PostController {
     public ApiResponse<Void> deletePost(
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
             Authentication authentication) {
-        postService.deletePost(postId, getUserId(authentication), isAdmin(authentication));
+        deletePostUseCase.deletePost(postId, getUserId(authentication), isAdmin(authentication));
         return ApiResponse.success();
     }
 
@@ -142,7 +156,7 @@ public class PostController {
     public ApiResponse<Boolean> toggleLike(
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
             Authentication authentication) {
-        boolean isLiked = postService.toggleLike(postId, getUserId(authentication));
+        boolean isLiked = toggleLikeUseCase.toggleLike(postId, getUserId(authentication));
         return ApiResponse.success(isLiked);
     }
 
@@ -152,7 +166,9 @@ public class PostController {
     @GetMapping("/{postId}/comments")
     public ApiResponse<List<CommentResponse>> getComments(
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId) {
-        List<CommentResponse> result = commentService.getCommentsByPostId(postId);
+        List<CommentResponse> result = loadCommentUseCase.getCommentsByPostId(postId).stream()
+                                                         .map(CommentResponse::fromDomain)
+                                                         .collect(Collectors.toList());
         return ApiResponse.success(result);
     }
 
@@ -162,8 +178,10 @@ public class PostController {
             @Parameter(description = "게시글 ID", required = true) @PathVariable Long postId,
             @RequestBody CommentRequest request,
             Authentication authentication) {
-        CommentResponse response = commentService.createComment(
-                postId, request, getUserId(authentication), getUserName(authentication));
-        return ApiResponse.success(response);
+        Comment comment = createCommentUseCase.createComment(
+                postId, request.getContent(), request.getParentId(),
+                getUserId(authentication), getUserName(authentication)
+        );
+        return ApiResponse.success(CommentResponse.fromDomain(comment));
     }
 }

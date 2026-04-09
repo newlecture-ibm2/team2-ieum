@@ -1,70 +1,74 @@
 package com.ieum.community.application.service;
 
-import com.ieum.community.adapter.in.web.dto.CommentRequest;
-import com.ieum.community.adapter.in.web.dto.CommentResponse;
-import com.ieum.community.adapter.out.persistence.entity.CommentEntity;
-import com.ieum.community.adapter.out.persistence.repository.CommentJpaRepository;
-import com.ieum.community.adapter.out.persistence.repository.PostJpaRepository;
+import com.ieum.community.application.port.in.*;
+import com.ieum.community.application.port.out.CommentPort;
+import com.ieum.community.application.port.out.PostPort;
+import com.ieum.community.domain.model.Comment;
+import com.ieum.community.domain.model.Post;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
+import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
-import com.ieum.community.adapter.out.persistence.entity.PostEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+/**
+ * 댓글 서비스 (UseCase 구현체)
+ * - Input Port(UseCase) 인터페이스를 구현
+ * - Output Port(CommentPort, PostPort)만 의존 (JPA Repository 직접 참조 없음)
+ * - adapter.in.web 패키지의 DTO를 알지 못함
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class CommentService {
+@Transactional
+public class CommentService implements CreateCommentUseCase, LoadCommentUseCase, UpdateCommentUseCase, DeleteCommentUseCase {
 
-    private final CommentJpaRepository commentJpaRepository;
-    private final PostJpaRepository postJpaRepository;
+    private final CommentPort commentPort;
+    private final PostPort postPort;
     private final SendNotificationUseCase sendNotificationUseCase;
 
-    /**
-     * 댓글 작성 (대댓글 포함)
-     * - parentId가 null이면 최상위 댓글
-     * - parentId가 있으면 해당 댓글에 대한 대댓글
-     */
-    @Transactional
-    public CommentResponse createComment(Long postId, CommentRequest request, Long userId, String userName) {
+    // ──── CreateCommentUseCase ────
+
+    @Override
+    public Comment createComment(Long postId, String content, Long parentId, Long userId, String userName) {
         if (userId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "Comment creation requires authentication");
         }
+        if (content == null || content.trim().isEmpty() || content.length() > 500) {
+            throw new BusinessException(ErrorCode.COMMON_001, "댓글은 1자 이상 500자 이하로 작성해주세요.");
+        }
 
         // 게시글 존재 여부 확인
-        PostEntity post = postJpaRepository.findById(postId)
+        Post post = postPort.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
-        CommentEntity.CommentEntityBuilder builder = CommentEntity.builder()
-                .postId(postId)
-                .userId(userId)
-                .userName(userName)
-                .content(request.getContent());
-
-        CommentEntity parentComment = null;
-
+        Comment parentComment = null;
         // 대댓글인 경우 부모 댓글 확인
-        if (request.getParentId() != null) {
-            parentComment = commentJpaRepository.findById(request.getParentId())
+        if (parentId != null) {
+            parentComment = commentPort.findById(parentId)
                     .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001,
-                            "Parent comment ID: " + request.getParentId()));
+                            "Parent comment ID: " + parentId));
 
-            // 부모 댓글이 같은 게시글에 속하는지 검증
             if (!parentComment.getPostId().equals(postId)) {
                 throw new BusinessException(ErrorCode.COMMON_001,
                         "Parent comment does not belong to post ID: " + postId);
             }
-
-            builder.parent(parentComment);
         }
 
-        CommentEntity saved = commentJpaRepository.save(builder.build());
+        Comment comment = Comment.builder()
+                .postId(postId)
+                .userId(userId)
+                .userName(userName)
+                .parentId(parentId)
+                .content(content)
+                .status("ACTIVE")
+                .build();
+
+        Comment saved = commentPort.save(comment);
 
         // 알림 전송 로직
         // 대댓글인 경우: 부모 댓글 작성자에게 알림
@@ -78,7 +82,7 @@ public class CommentService {
             if (targetUserId != null && !targetUserId.equals(userId)) {
                 String title = (parentComment != null) ? "새로운 대댓글이 달렸습니다." : "새로운 댓글이 달렸습니다.";
                 String msg = "작성자 " + userName + ": " + 
-                             (request.getContent().length() > 20 ? request.getContent().substring(0, 20) + "..." : request.getContent());
+                             (content.length() > 20 ? content.substring(0, 20) + "..." : content);
                 
                 log.info("알림 발송 조건 충족: 발송 시작...");
                 sendNotificationUseCase.sendNotification(
@@ -97,32 +101,35 @@ public class CommentService {
             // 알림 발송 실패가 댓글 작성 자체를 롤백시키지 않도록 예외 처리
         }
 
-        return CommentResponse.fromEntity(saved);
+        return saved;
     }
 
-    /**
-     * 특정 게시글의 댓글 트리 조회
-     * - 최상위 댓글을 먼저 가져오고, children이 JPA 연관관계로 자동 로딩됨
-     */
+    // ──── LoadCommentUseCase ────
+
+    @Override
     @Transactional(readOnly = true)
-    public List<CommentResponse> getCommentsByPostId(Long postId) {
-        // 게시글 존재 여부 확인
-        postJpaRepository.findById(postId)
+    public List<Comment> getCommentsByPostId(Long postId) {
+        postPort.findById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
-        List<CommentEntity> rootComments = commentJpaRepository.findRootCommentsByPostId(postId);
-
-        return rootComments.stream()
-                .map(CommentResponse::fromEntity)
-                .collect(Collectors.toList());
+        return commentPort.findRootCommentsByPostId(postId);
     }
 
-    /**
-     * 댓글 수정 (본인만 가능)
-     */
-    @Transactional
-    public CommentResponse updateComment(Long commentId, String content, Long requesterId, boolean isAdmin) {
-        CommentEntity comment = commentJpaRepository.findById(commentId)
+    @Override
+    @Transactional(readOnly = true)
+    public long getCommentCount(Long postId) {
+        return commentPort.countActiveByPostId(postId);
+    }
+
+    // ──── UpdateCommentUseCase ────
+
+    @Override
+    public Comment updateComment(Long commentId, String content, Long requesterId, boolean isAdmin) {
+        if (content == null || content.trim().isEmpty() || content.length() > 500) {
+            throw new BusinessException(ErrorCode.COMMON_001, "댓글은 1자 이상 500자 이하로 작성해주세요.");
+        }
+
+        Comment comment = commentPort.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001, "Comment ID: " + commentId));
 
         if (!comment.isActive()) {
@@ -135,17 +142,14 @@ public class CommentService {
         }
 
         comment.updateContent(content);
-        return CommentResponse.fromEntity(comment);
+        return commentPort.save(comment);
     }
 
-    /**
-     * 댓글 삭제 (소프트 삭제)
-     * - 대댓글이 있는 경우 "삭제된 댓글입니다." 로 표시되고 실제 삭제되지 않음
-     * - 대댓글이 없는 경우에도 소프트 삭제 처리
-     */
-    @Transactional
+    // ──── DeleteCommentUseCase ────
+
+    @Override
     public void deleteComment(Long commentId, Long requesterId, boolean isAdmin) {
-        CommentEntity comment = commentJpaRepository.findById(commentId)
+        Comment comment = commentPort.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001, "Comment ID: " + commentId));
 
         if (!isAdmin && !comment.getUserId().equals(requesterId)) {
@@ -154,13 +158,6 @@ public class CommentService {
         }
 
         comment.softDelete();
-    }
-
-    /**
-     * 특정 게시글의 활성 댓글 수
-     */
-    @Transactional(readOnly = true)
-    public long getCommentCount(Long postId) {
-        return commentJpaRepository.countActiveByPostId(postId);
+        commentPort.save(comment);
     }
 }

@@ -14,4 +14,7 @@ public interface MyPageUseCase {
 
     /** 설계서 API_USR_0020: 프로필 정보 수정 */
     MyPageRes.ProfileUpdate updateProfile(Long userId, MyPageReq.UpdateProfile request, MultipartFile profileImg);
+
+    /** 설계서 API_USR_0011: 프로필 이미지 전용 수정 */
+    MyPageRes.ProfileUpdate updateProfileImage(Long userId, MultipartFile profileImg);
 }

@@ -2,7 +2,9 @@ package com.ieum.community.adapter.in.web;
 
 import com.ieum.community.adapter.in.web.dto.CommentRequest;
 import com.ieum.community.adapter.in.web.dto.CommentResponse;
-import com.ieum.community.application.service.CommentService;
+import com.ieum.community.application.port.in.DeleteCommentUseCase;
+import com.ieum.community.application.port.in.UpdateCommentUseCase;
+import com.ieum.community.domain.model.Comment;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -17,7 +19,8 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/api/community/comments")
 public class CommentController {
 
-    private final CommentService commentService;
+    private final UpdateCommentUseCase updateCommentUseCase;
+    private final DeleteCommentUseCase deleteCommentUseCase;
 
     private Long getUserId(Authentication auth) {
         if (auth == null || !auth.isAuthenticated() || "anonymousUser".equals(auth.getName())) {
@@ -42,9 +45,9 @@ public class CommentController {
             @Parameter(description = "댓글 ID", required = true, example = "1") @PathVariable Long commentId,
             @RequestBody CommentRequest request,
             Authentication authentication) {
-        CommentResponse response = commentService.updateComment(
+        Comment comment = updateCommentUseCase.updateComment(
                 commentId, request.getContent(), getUserId(authentication), isAdmin(authentication));
-        return ApiResponse.success(response);
+        return ApiResponse.success(CommentResponse.fromDomain(comment));
     }
 
     @Operation(summary = "댓글 삭제", description = "본인이 작성한 댓글을 삭제합니다. (소프트 삭제)")
@@ -52,7 +55,7 @@ public class CommentController {
     public ApiResponse<Void> deleteComment(
             @Parameter(description = "댓글 ID", required = true, example = "1") @PathVariable Long commentId,
             Authentication authentication) {
-        commentService.deleteComment(commentId, getUserId(authentication), isAdmin(authentication));
+        deleteCommentUseCase.deleteComment(commentId, getUserId(authentication), isAdmin(authentication));
         return ApiResponse.success();
     }
 }

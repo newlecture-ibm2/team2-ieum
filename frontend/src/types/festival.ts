@@ -17,8 +17,8 @@ export interface Festival {
   avgStar?: number;
   avgRating?: number;
   reviewCount?: number;
-  viewCount?: number;
-  isScrapped?: boolean;
+  favoriteCount: number;
+  isFavorited: boolean;
   ldongCode?: string;
 }
 
