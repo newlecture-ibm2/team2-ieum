@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useToast } from '@/_component/common/Toast';
 import adminApi from '@/lib/adminApi';
+import api from '@/lib/api';
 import type { AdminNoticeItem } from '@/types/admin-notice';
 
 interface UseNoticeFormProps {
@@ -37,7 +38,7 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
   // 수정 모드이면 기존 첨부파일 목록 불러오기
   useEffect(() => {
     if (isEdit && notice?.id) {
-      adminApi.get(`/api/attachments?targetType=NOTICE&targetId=${notice.id}`)
+      api.get(`/api/attachments?targetType=NOTICE&targetId=${notice.id}`)
         .then(res => {
           setExistingFiles(res.data.data || []);
         })
