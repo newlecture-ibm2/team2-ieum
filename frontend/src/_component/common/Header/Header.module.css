@@ -25,6 +25,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   text-decoration: none;
+  flex-shrink: 0; /* ✔️ 제일 중요한 속성: 화면이 좁아져도 절대 자기 사이즈를 지킴 */
 }
 
 .logoPin {
@@ -52,9 +53,10 @@
 }
 
 .logoImg {
-  width: 150px;
-  /* 여기서 넓이를 자유롭게 늘렸다 줄였다 하세요! */
+  width: 100px;
+  /* 로고 가로 크기를 시원하게 확장 (원하시면 이 값을 더 키우셔도 됩니다!) */
   height: auto;
+  /* 비율에 맞춰 자연스럽게 세로도 커짐 */
   object-fit: contain;
 }
 
@@ -163,7 +165,8 @@
   height: 34px;
   padding: 2px 14px 2px 3px;
   border-radius: 20px;
-  background: white; /* 닉네임 배경 */
+  background: white;
+  /* 닉네임 배경 */
   border: 1px solid var(--color-gray-100);
   display: flex;
   align-items: center;
@@ -326,8 +329,15 @@
 }
 
 @keyframes modal-fade-in {
-  from { opacity: 0; transform: scale(0.95) translateY(10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .modalText {
