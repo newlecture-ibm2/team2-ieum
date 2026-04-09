@@ -8,7 +8,7 @@ import com.ieum.user.review.application.port.in.UpdateReviewUseCase;
 import com.ieum.user.review.application.port.out.LoadReviewUserPort;
 import com.ieum.user.review.application.port.out.ReviewPersistencePort;
 import com.ieum.user.review.application.port.out.UpdateFestivalStatsPort;
-import com.ieum.user.review.application.port.out.UserSuspensionCheckPort;
+import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.user.review.application.result.ReviewListResult;
 import com.ieum.user.review.domain.model.Review;
 import com.ieum.global.exception.BusinessException;
@@ -39,13 +39,13 @@ public class ReviewService implements GetReviewsUseCase, CreateReviewUseCase,
     private final ReviewPersistencePort reviewPersistencePort;
     private final LoadReviewUserPort loadReviewUserPort;
     private final UpdateFestivalStatsPort updateFestivalStatsPort;
-    private final UserSuspensionCheckPort userSuspensionCheckPort;
+    private final CheckUserSuspensionUseCase checkUserSuspensionUseCase;
 
     /**
      * 정지 회원 검증 — WRITE 작업 전 호출
      */
     private void validateNotSuspended(Long userId) {
-        if (userId != null && userSuspensionCheckPort.isSuspended(userId)) {
+        if (userId != null && checkUserSuspensionUseCase.isSuspended(userId)) {
             throw new BusinessException(ErrorCode.USER_001,
                     "Suspended user attempted review operation. userId=" + userId);
         }
