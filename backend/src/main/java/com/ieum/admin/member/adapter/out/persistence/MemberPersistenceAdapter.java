@@ -52,9 +52,39 @@ public class MemberPersistenceAdapter implements MemberPort {
     public void updateStatus(Long userId, String status) {
         repository.findById(userId).ifPresent(entity -> {
             entity.setStatus(status);
+            if ("ACTIVE".equalsIgnoreCase(status)) {
+                entity.setSuspendedUntil(null); // 정지 해제 시 해제일 초기화
+            }
             if ("DELETED".equalsIgnoreCase(status)) {
                 entity.setDeletedAt(LocalDateTime.now());
             }
+            repository.save(entity);
+        });
+    }
+
+    @Override
+    public void suspendMember(Long userId, int days) {
+        repository.findById(userId).ifPresent(entity -> {
+            entity.setStatus("SUSPENDED");
+            entity.setSuspendedUntil(LocalDateTime.now().plusDays(days));
+            repository.save(entity);
+        });
+    }
+
+    @Override
+    public void updateRole(Long userId, String role) {
+        repository.findById(userId).ifPresent(entity -> {
+            entity.setRole(role);
+            entity.setUpdatedAt(LocalDateTime.now());
+            repository.save(entity);
+        });
+    }
+
+    @Override
+    public void deleteMember(Long userId) {
+        repository.findById(userId).ifPresent(entity -> {
+            entity.setStatus("DELETED");
+            entity.setDeletedAt(LocalDateTime.now());
             repository.save(entity);
         });
     }

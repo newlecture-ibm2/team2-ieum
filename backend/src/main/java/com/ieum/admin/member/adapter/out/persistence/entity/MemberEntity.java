@@ -46,6 +46,9 @@ public class MemberEntity {
     @Column(nullable = false, length = 10)
     private String status;
 
+    @Column(name = "suspended_until")
+    private LocalDateTime suspendedUntil;
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
@@ -72,6 +75,7 @@ public class MemberEntity {
                 .profileImage(profileImage)
                 .role(role)
                 .status(status)
+                .suspendedUntil(suspendedUntil)
                 .createdAt(createdAt)
                 .updatedAt(updatedAt)
                 .deletedAt(deletedAt)

@@ -123,9 +123,38 @@
   border-color: #fecdd3;
 }
 
+.reportWarning {
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
 .reportHighlightValue {
   color: #dc2626;
   font-weight: 700;
+}
+
+.suspendBadge {
+  display: inline-block;
+  margin-left: 8px;
+  padding: 2px 8px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: #dc2626;
+  border-radius: 10px;
+  vertical-align: middle;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* ── 정지 정보 강조 ── */
+.suspendedInfo {
+  background: #fef9c3;
+  border-color: #fde68a;
 }
 
 /* ── 모달 하단 버튼 ── */
@@ -136,4 +165,42 @@
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid #e2e8f0;
+  flex-wrap: wrap;
 }
+
+/* ── 역할 변경 버튼 ── */
+.btnRole {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #4338ca;
+  background: #eef2ff;
+  border: 1px solid #c7d2fe;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnRole:hover {
+  background: #e0e7ff;
+  border-color: #a5b4fc;
+}
+
+/* ── 강제 탈퇴 버튼 ── */
+.btnDeleteMember {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #991b1b;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btnDeleteMember:hover {
+  background: #fee2e2;
+  border-color: #fca5a5;
+}
+

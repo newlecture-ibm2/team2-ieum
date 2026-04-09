@@ -20,6 +20,7 @@ public class Member {
     private String profileImage;     // 프로필 이미지 URL
     private String role;             // USER / ADMIN
     private String status;           // ACTIVE / SUSPENDED / DELETED
+    private LocalDateTime suspendedUntil; // 정지 해제 예정일 (7일 정지)
     private LocalDateTime createdAt; // 가입일
     private LocalDateTime updatedAt; // 수정일
     private LocalDateTime deletedAt; // 탈퇴일

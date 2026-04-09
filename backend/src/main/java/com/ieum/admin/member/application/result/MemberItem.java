@@ -19,6 +19,7 @@ public class MemberItem {
     private String profileImage;
     private String role;
     private String status;
+    private LocalDateTime suspendedUntil;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;

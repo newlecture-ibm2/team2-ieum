@@ -12,6 +12,7 @@ export interface MemberItem {
   profileImage: string | null;
   role: string;              // USER | ADMIN
   status: string;            // ACTIVE | SUSPENDED | DELETED
+  suspendedUntil: string | null; // 정지 해제 예정일 (7일 정지)
   createdAt: string;
   updatedAt: string | null;
   deletedAt: string | null;

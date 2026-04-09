@@ -25,15 +25,30 @@ interface Props {
   onStatusChanged: () => void;
 }
 
+/* ── 확인 액션 타입 ── */
+type ConfirmActionType = 'SUSPENDED' | 'ACTIVE' | 'DELETE' | 'ROLE_USER' | 'ROLE_ADMIN' | null;
+
 export default function MemberDetailModal({ member, onClose, onStatusChanged }: Props) {
   const [processing, setProcessing] = useState(false);
-  const [confirmAction, setConfirmAction] = useState<string | null>(null);
+  const [confirmAction, setConfirmAction] = useState<ConfirmActionType>(null);
 
   const isSuspended = member.status === 'SUSPENDED';
   const isDeleted = member.status === 'DELETED';
   const isActive = member.status === 'ACTIVE';
+  const canSuspend = isActive && member.reportedCount >= 4;
 
-  /* ── 상태 변경 ── */
+  /* ── 정지 해제 남은 일수 계산 ── */
+  const getSuspensionRemainingDays = (): number | null => {
+    if (!isSuspended || !member.suspendedUntil) return null;
+    const until = new Date(member.suspendedUntil);
+    const now = new Date();
+    const diff = Math.ceil((until.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+    return diff > 0 ? diff : 0;
+  };
+
+  const remainingDays = getSuspensionRemainingDays();
+
+  /* ── 상태 변경 (정지/해제) ── */
   const handleStatusChange = async (newStatus: string) => {
     setProcessing(true);
     try {
@@ -47,6 +62,88 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
       setConfirmAction(null);
     }
   };
+
+  /* ── 강제 탈퇴 ── */
+  const handleDelete = async () => {
+    setProcessing(true);
+    try {
+      await adminApi.delete(`/members/${member.userId}`);
+      onStatusChanged();
+    } catch (err) {
+      console.error('강제 탈퇴 실패:', err);
+      alert('강제 탈퇴에 실패했습니다.');
+    } finally {
+      setProcessing(false);
+      setConfirmAction(null);
+    }
+  };
+
+  /* ── 역할 변경 ── */
+  const handleRoleChange = async (newRole: string) => {
+    setProcessing(true);
+    try {
+      await adminApi.patch(`/members/${member.userId}/role`, { role: newRole });
+      onStatusChanged();
+    } catch (err) {
+      console.error('역할 변경 실패:', err);
+      alert('역할 변경에 실패했습니다.');
+    } finally {
+      setProcessing(false);
+      setConfirmAction(null);
+    }
+  };
+
+  /* ── 확인 액션 실행 ── */
+  const executeConfirmAction = () => {
+    if (!confirmAction) return;
+    switch (confirmAction) {
+      case 'SUSPENDED': handleStatusChange('SUSPENDED'); break;
+      case 'ACTIVE': handleStatusChange('ACTIVE'); break;
+      case 'DELETE': handleDelete(); break;
+      case 'ROLE_USER': handleRoleChange('USER'); break;
+      case 'ROLE_ADMIN': handleRoleChange('ADMIN'); break;
+    }
+  };
+
+  /* ── 확인 모달 메시지 ── */
+  const getConfirmMessage = () => {
+    switch (confirmAction) {
+      case 'SUSPENDED':
+        return {
+          title: '⚠️ 이 회원을 7일간 정지하시겠습니까?',
+          desc: '정지된 회원은 서비스 이용이 제한됩니다. (신고 횟수: ' + member.reportedCount + '건)',
+          bg: '#fef9c3', border: '#fde68a', btnClass: common.btnDanger,
+        };
+      case 'ACTIVE':
+        return {
+          title: '✅ 이 회원의 정지를 해제하시겠습니까?',
+          desc: '정지 해제 후 해당 회원은 다시 정상적으로 서비스를 이용할 수 있습니다.',
+          bg: '#dcfce7', border: '#bbf7d0', btnClass: common.btnSubmit,
+        };
+      case 'DELETE':
+        return {
+          title: '🚨 이 회원을 강제 탈퇴시키겠습니까?',
+          desc: '강제 탈퇴된 회원은 더 이상 서비스를 이용할 수 없습니다. 이 작업은 되돌릴 수 없습니다.',
+          bg: '#fef2f2', border: '#fecaca', btnClass: common.btnDanger,
+        };
+      case 'ROLE_USER':
+        return {
+          title: '🔄 이 회원을 일반 회원으로 변경하시겠습니까?',
+          desc: '관리자 권한이 해제되어 관리자 페이지에 접근할 수 없게 됩니다.',
+          bg: '#eff6ff', border: '#bfdbfe', btnClass: common.btnSubmit,
+        };
+      case 'ROLE_ADMIN':
+        return {
+          title: '🔄 이 회원에게 관리자 권한을 부여하시겠습니까?',
+          desc: '관리자 권한이 부여되어 관리자 페이지에 접근할 수 있게 됩니다.',
+          bg: '#eff6ff', border: '#bfdbfe', btnClass: common.btnSubmit,
+        };
+      default:
+        return null;
+    }
+  };
+
+  const confirmMsg = getConfirmMessage();
 
   return (
     <>
@@ -115,12 +212,28 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                   <span className={s.infoLabel}>가입일</span>
                   <span className={s.infoValue}>{member.createdAt?.replace('T', ' ').slice(0, 16)}</span>
                 </div>
-                <div className={`${s.infoItem} ${member.reportedCount >= 3 ? s.reportHighlight : ''}`}>
+                <div className={`${s.infoItem} ${member.reportedCount >= 4 ? s.reportHighlight : member.reportedCount >= 2 ? s.reportWarning : ''}`}>
                   <span className={s.infoLabel}>신고횟수</span>
-                  <span className={`${s.infoValue} ${member.reportedCount >= 3 ? s.reportHighlightValue : ''}`}>
+                  <span className={`${s.infoValue} ${member.reportedCount >= 4 ? s.reportHighlightValue : ''}`}>
                     {member.reportedCount}건
+                    {member.reportedCount >= 4 && <span className={s.suspendBadge}>정지 가능</span>}
                   </span>
                 </div>
+
+                {/* ── 정지 중인 경우: 남은 일수 표시 ── */}
+                {isSuspended && remainingDays !== null && (
+                  <div className={`${s.infoItem} ${s.suspendedInfo}`} style={{ gridColumn: '1 / -1' }}>
+                    <span className={s.infoLabel}>정지 해제일</span>
+                    <span className={s.infoValue}>
+                      {member.suspendedUntil?.replace('T', ' ').slice(0, 16)}
+                      <strong style={{ color: '#dc2626', marginLeft: 8, fontSize: 13 }}>
+                        {remainingDays > 0 ? `(D-${remainingDays})` : '(만료됨 — 수동 해제 필요)'}
+                      </strong>
+                    </span>
+                  </div>
+                )}
+
+                {/* ── 탈퇴 신청일 표시 ── */}
                 {member.deletedAt && (() => {
                   const deletedDate = new Date(member.deletedAt);
                   const expiryDate = new Date(deletedDate);
@@ -146,23 +259,17 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
             <div className={s.divider} />
 
             {/* ── 확인 모달(인라인) ── */}
-            {confirmAction && (
+            {confirmAction && confirmMsg && (
               <div className={s.section}>
                 <div style={{
-                  background: confirmAction === 'SUSPENDED' ? '#fef9c3' : '#dcfce7',
-                  border: `1px solid ${confirmAction === 'SUSPENDED' ? '#fde68a' : '#bbf7d0'}`,
+                  background: confirmMsg.bg,
+                  border: `1px solid ${confirmMsg.border}`,
                   borderRadius: 10, padding: '16px 20px',
                   fontSize: 14, color: '#1e293b',
                 }}>
-                  <strong>
-                    {confirmAction === 'SUSPENDED'
-                      ? '⚠️ 이 회원을 정지하시겠습니까?'
-                      : '✅ 이 회원의 정지를 해제하시겠습니까?'}
-                  </strong>
+                  <strong>{confirmMsg.title}</strong>
                   <p style={{ margin: '8px 0 0', fontSize: 13, color: '#64748b' }}>
-                    {confirmAction === 'SUSPENDED'
-                      ? '정지된 회원은 서비스 이용이 제한됩니다.'
-                      : '정지 해제 후 해당 회원은 다시 정상적으로 서비스를 이용할 수 있습니다.'}
+                    {confirmMsg.desc}
                   </p>
                   <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
                     <button
@@ -173,10 +280,10 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                       취소
                     </button>
                     <button
-                      className={confirmAction === 'SUSPENDED' ? common.btnDanger : common.btnSubmit}
+                      className={confirmMsg.btnClass}
                       style={{ padding: '6px 16px', fontSize: 12 }}
                       disabled={processing}
-                      onClick={() => handleStatusChange(confirmAction)}
+                      onClick={executeConfirmAction}
                     >
                       {processing ? '처리 중...' : '확인'}
                     </button>
@@ -193,13 +300,24 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
             </button>
             {!isDeleted && !confirmAction && (
               <>
-                {isActive && (
+                {/* ── 정지/해제 버튼 ── */}
+                {isActive && canSuspend && (
                   <button
                     className={common.btnDanger}
                     style={{ padding: '8px 20px', fontSize: 13 }}
                     onClick={() => setConfirmAction('SUSPENDED')}
                   >
-                    회원 정지
+                    🚫 7일 정지
+                  </button>
+                )}
+                {isActive && !canSuspend && (
+                  <button
+                    className={common.btnDanger}
+                    style={{ padding: '8px 20px', fontSize: 13, opacity: 0.5, cursor: 'not-allowed' }}
+                    disabled
+                    title="신고 4건 이상일 때 정지할 수 있습니다"
+                  >
+                    🚫 정지 (신고 4건↑)
                   </button>
                 )}
                 {isSuspended && (
@@ -208,9 +326,34 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                     style={{ padding: '8px 20px', fontSize: 13 }}
                     onClick={() => setConfirmAction('ACTIVE')}
                   >
-                    정지 해제
+                    ✅ 정지 해제
                   </button>
                 )}
+
+                {/* ── 역할 변경 버튼 ── */}
+                {member.role === 'USER' ? (
+                  <button
+                    className={s.btnRole}
+                    onClick={() => setConfirmAction('ROLE_ADMIN')}
+                  >
+                    👑 관리자 부여
+                  </button>
+                ) : (
+                  <button
+                    className={s.btnRole}
+                    onClick={() => setConfirmAction('ROLE_USER')}
+                  >
+                    👤 일반 회원으로
+                  </button>
+                )}
+
+                {/* ── 강제 탈퇴 버튼 ── */}
+                <button
+                  className={s.btnDeleteMember}
+                  onClick={() => setConfirmAction('DELETE')}
+                >
+                  🗑️ 강제 탈퇴
+                </button>
               </>
             )}
           </div>

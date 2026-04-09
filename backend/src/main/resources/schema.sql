@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS users (
     terms_agreed    BOOLEAN         NOT NULL DEFAULT FALSE,
     marketing_agreed BOOLEAN        NOT NULL DEFAULT FALSE,
     status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
+    suspended_until TIMESTAMP,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
     deleted_at      TIMESTAMP
