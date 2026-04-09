@@ -87,6 +87,15 @@
   transform: scale(1.1);
 }
 
+.heartActive {
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.4);
+}
+
+.heartActive:hover {
+  background: rgba(255,255,255,1);
+}
+
 .heartIcon {
   stroke-width: 2.5px;
 }
@@ -120,6 +129,22 @@
   gap: 6px;
   padding-top: 12px;
   border-top: 1px solid var(--color-gray-100);
+}
+
+.favInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gray-400);
+}
+
+.favIcon {
+  color: var(--color-accent-500);
+  fill: var(--color-accent-500);
+  opacity: 0.7;
 }
 
 .stars {

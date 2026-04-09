@@ -65,7 +65,7 @@ public class FavoriteController {
     @Operation(summary = "찜 여부 확인", description = "해당 축제를 이미 찜했는지 단건 조회합니다.")
     @GetMapping("/check")
     public ResponseEntity<ApiResponse<Map<String, Boolean>>> checkFavorite(
-            @AuthenticationPrincipal(expression = "null") String loginId,
+            @AuthenticationPrincipal String loginId,
             @RequestParam Long festivalId) {
         boolean isFavorite = checkFavoriteUseCase.checkFavorite(loginId, festivalId);
         return ResponseEntity.ok(ApiResponse.success(Map.of("isFavorite", isFavorite)));

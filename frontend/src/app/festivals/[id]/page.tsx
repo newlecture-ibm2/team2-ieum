@@ -55,14 +55,35 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
         setLoading(false);
       }
     };
+
+    const checkFavoriteStatus = async () => {
+      try {
+        const res = await api.get(`/api/favorites/check?festivalId=${fid}`);
+        if (res.data?.success) {
+          setIsBookmarked(res.data.data.isFavorite);
+        }
+      } catch (error) {
+        console.error('Failed to check favorite status', error);
+      }
+    };
+
     fetchFestival();
     fetchReviews();
+    checkFavoriteStatus();
   }, [fid]);
 
   // --- 이벤트 핸들러 ---
-  const toggleBookmark = () => {
-    setIsBookmarked(prev => !prev);
-    // TODO: API_FES_0040 연동
+  const toggleBookmark = async () => {
+    try {
+      await api.post('/api/favorites', { festivalId: Number(fid) });
+      setIsBookmarked(prev => !prev);
+    } catch (err: any) {
+      if (err.response?.status === 401) {
+        showPopup('회원만 사용 가능한 기능입니다.');
+      } else {
+        console.error('Failed to toggle bookmark', err);
+      }
+    }
   };
 
   const showPopup = (msg: string) => setPopupMsg(msg);
