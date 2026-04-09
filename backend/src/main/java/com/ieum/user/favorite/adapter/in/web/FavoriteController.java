@@ -5,9 +5,13 @@ import com.ieum.user.favorite.application.port.in.CheckFavoriteUseCase;
 import com.ieum.user.favorite.application.port.in.GetFavoritesUseCase;
 import com.ieum.user.favorite.application.port.in.ToggleFavoriteUseCase;
 import com.ieum.user.favorite.application.result.FavoriteListResult;
+import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -18,6 +22,7 @@ import java.util.Map;
 @Tag(name = "찜", description = "즐겨찾기(찜) 관련 API")
 @RestController
 @RequestMapping("/api/favorites")
+@RequiredArgsConstructor
 @RequiredArgsConstructor
 public class FavoriteController {
 
@@ -30,8 +35,7 @@ public class FavoriteController {
     public ResponseEntity<ApiResponse<FavoriteListResult>> getFavorites(
             @AuthenticationPrincipal String loginId,
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size
-    ) {
+            @RequestParam(defaultValue = "10") int size) {
         FavoriteListResult result = getFavoritesUseCase.getFavorites(loginId, page, size);
         return ResponseEntity.ok(ApiResponse.success(result));
     }
@@ -40,8 +44,7 @@ public class FavoriteController {
     @PostMapping
     public ResponseEntity<ApiResponse<Void>> toggleFavorite(
             @AuthenticationPrincipal String loginId,
-            @RequestBody Map<String, Long> request
-    ) {
+            @RequestBody Map<String, Long> request) {
         Long festivalId = request.get("festivalId");
         toggleFavoriteUseCase.execute(loginId, festivalId);
         return ResponseEntity.ok(ApiResponse.success());
@@ -51,9 +54,7 @@ public class FavoriteController {
     @DeleteMapping("/{festivalId}")
     public ResponseEntity<ApiResponse<Void>> deleteFavorite(
             @AuthenticationPrincipal String loginId,
-            @Parameter(description = "축제 ID", required = true)
-            @PathVariable Long festivalId
-    ) {
+            @Parameter(description = "축제 ID", required = true) @PathVariable Long festivalId) {
         if (checkFavoriteUseCase.checkFavorite(loginId, festivalId)) {
             toggleFavoriteUseCase.execute(loginId, festivalId);
         }
@@ -64,8 +65,7 @@ public class FavoriteController {
     @GetMapping("/check")
     public ResponseEntity<ApiResponse<Map<String, Boolean>>> checkFavorite(
             @AuthenticationPrincipal(expression = "null") String loginId,
-            @RequestParam Long festivalId
-    ) {
+            @RequestParam Long festivalId) {
         boolean isFavorite = checkFavoriteUseCase.checkFavorite(loginId, festivalId);
         return ResponseEntity.ok(ApiResponse.success(Map.of("isFavorite", isFavorite)));
     }

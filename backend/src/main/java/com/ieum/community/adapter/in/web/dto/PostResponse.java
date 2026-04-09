@@ -1,6 +1,6 @@
 package com.ieum.community.adapter.in.web.dto;
 
-import com.ieum.community.adapter.out.persistence.entity.PostEntity;
+import com.ieum.community.domain.model.Post;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -25,43 +25,23 @@ public class PostResponse {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
-    public static PostResponse fromEntity(PostEntity entity) {
+    public static PostResponse fromDomain(Post post) {
         return PostResponse.builder()
-                .id(entity.getId())
-                .category(entity.getCategory())
-                .title(entity.getTitle())
-                .content(entity.getContent())
-                .areaCode(entity.getAreaCode())
-                .festivalId(entity.getFestivalId())
-                .festivalName(entity.getFestivalName())
-                .authorId(entity.getAuthorId())
-                .authorName(entity.getAuthorName())
-                .viewCount(entity.getViewCount())
-                .likeCount(entity.getLikeCount())
-                .commentCount(entity.getCommentCount())
-                .isLiked(false) // 기본값, Service에서 덮어씀
-                .createdAt(entity.getCreatedAt())
-                .updatedAt(entity.getUpdatedAt())
-                .build();
-    }
-
-    public PostResponse withIsLiked(boolean isLiked) {
-        return PostResponse.builder()
-                .id(this.id)
-                .category(this.category)
-                .title(this.title)
-                .content(this.content)
-                .areaCode(this.areaCode)
-                .festivalId(this.festivalId)
-                .festivalName(this.festivalName)
-                .authorId(this.authorId)
-                .authorName(this.authorName)
-                .viewCount(this.viewCount)
-                .likeCount(this.likeCount)
-                .commentCount(this.commentCount)
-                .isLiked(isLiked)
-                .createdAt(this.createdAt)
-                .updatedAt(this.updatedAt)
+                .id(post.getId())
+                .category(post.getCategory())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .areaCode(post.getAreaCode())
+                .festivalId(post.getFestivalId())
+                .festivalName(post.getFestivalName())
+                .authorId(post.getAuthorId())
+                .authorName(post.getAuthorName())
+                .viewCount(post.getViewCount())
+                .likeCount(post.getLikeCount())
+                .commentCount(post.getCommentCount())
+                .isLiked(post.isLiked())
+                .createdAt(post.getCreatedAt())
+                .updatedAt(post.getUpdatedAt())
                 .build();
     }
 }

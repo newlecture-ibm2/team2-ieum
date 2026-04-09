@@ -5,7 +5,9 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, User, LogOut, Shield } from "lucide-react";
+import { onMessage } from "firebase/messaging";
 import api from "@/lib/api";
+import { messaging } from "@/lib/firebase";
 import NotificationDropdown from "../NotificationDropdown";
 import styles from "./Header.module.css";
 
@@ -44,12 +46,14 @@ export default function Header() {
 
   /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
   const [hasUnread, setHasUnread] = useState(false);
+  /* ===== FCM 포그라운드 수신 시 드롭다운 갱신 키 ===== */
+  const [notiRefreshKey, setNotiRefreshKey] = useState(0);
 
   useEffect(() => {
     // 1) 로그인 상태 확인 — iron-session 세션 쿠키 기반
     fetch("/api/auth/me")
       .then((res) => res.json())
-      .then((data) => {
+      .then(async (data) => {
         setIsLoggedIn(data.isLoggedIn);
         setUserNickname(data.user?.nickname ?? null);
         setUserRole(data.user?.role ?? null);
@@ -63,9 +67,51 @@ export default function Header() {
               setHasUnread(unreadCount > 0);
             })
             .catch(() => {}); // 에러 무시
+
+          // 3) FCM 토큰 자동 등록 — 알림 권한 요청 → 토큰 발급 → 백엔드 전송
+          try {
+            if (typeof Notification !== "undefined" && Notification.permission === "default") {
+              await Notification.requestPermission();
+            }
+            if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+              const { requestFcmToken } = await import("@/lib/firebase");
+              const fcmToken = await requestFcmToken();
+              if (fcmToken) {
+                await api.post("/api/users/me/fcm-token", { token: fcmToken });
+                console.log("✅ FCM 토큰 백엔드 등록 완료");
+              }
+            }
+          } catch (err) {
+            console.warn("FCM 토큰 등록 실패 (무시):", err);
+          }
         }
       })
       .catch(() => {}); // 비로그인 or 에러 무시
+  }, []);
+
+  /* ===== FCM 포그라운드 메시지 수신 리스너 ===== */
+  useEffect(() => {
+    if (!messaging) return;
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("🔔 포그라운드 알림 수신:", payload);
+
+      // 1) 헤더 알림 빨간 점 즉시 활성화
+      setHasUnread(true);
+
+      // 2) 드롭다운이 열려있으면 자동 갱신 트리거
+      setNotiRefreshKey((prev) => prev + 1);
+
+      // 3) 브라우저 네이티브 알림 표시 (권한이 허용된 경우)
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        new Notification(payload.notification?.title || "이음 알림", {
+          body: payload.notification?.body || "새로운 알림이 있습니다.",
+          icon: "/favicon.ico",
+        });
+      }
+    });
+
+    return () => unsubscribe();
   }, []);
 
   if (pathname.startsWith("/admin")) return null;
@@ -145,7 +191,7 @@ export default function Header() {
 
               {/* 알림 드롭다운 */}
               {isNotiOpen && (
-                <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
+                <NotificationDropdown onClose={() => setIsNotiOpen(false)} refreshKey={notiRefreshKey} onUnreadChange={setHasUnread} />
               )}
             </div>
           )}
@@ -165,7 +211,7 @@ export default function Header() {
           {isLoggedIn ? (
             <>
               <Link
-                href="/myPage"
+                href="/mypage"
                 className={styles.userBtn}
                 aria-label="마이페이지"
               >

@@ -39,6 +39,8 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
 
         {/* 뱃지 & 찜하기 */}
         <span className={`${styles.badge} ${badgeClass}`}>
+          {/* 찜 수 표시 (코드상 favoriteCount 유지) */}
+          <span className="text-gray-500">{festival.favoriteCount}</span>
           {badgeText}
         </span>
 
@@ -46,7 +48,7 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
           className={styles.heartBtn}
           onClick={(e) => {
             e.preventDefault();
-            // TODO: Zustand 상태 및 Scrap 토글 API 호출
+            // TODO: Zustand 상태 및 Favorite 토글 API 호출
             alert('찜하기 토글 (로그인 필요)');
           }}
         >

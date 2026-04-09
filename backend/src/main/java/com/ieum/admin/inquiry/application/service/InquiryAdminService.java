@@ -26,7 +26,9 @@ public class InquiryAdminService implements GetInquiryListUseCase, AnswerInquiry
 
     @Override
     public InquiryListResult getInquiries(int page, int size, String status, String searchType, String keyword) {
-        Page<Inquiry> inquiries = inquiryPort.findAll(status, searchType, keyword, PageRequest.of(page - 1, size));
+        java.time.LocalDateTime todayStart = java.time.LocalDate.now().atStartOfDay();
+        java.time.LocalDateTime todayEnd = todayStart.plusDays(1);
+        Page<Inquiry> inquiries = inquiryPort.findAll(status, searchType, keyword, todayStart, todayEnd, PageRequest.of(page - 1, size));
 
         return InquiryListResult.builder()
                 .content(inquiries.getContent().stream().map(this::toItem).toList())
@@ -34,6 +36,7 @@ public class InquiryAdminService implements GetInquiryListUseCase, AnswerInquiry
                 .totalElements(inquiries.getTotalElements())
                 .pendingCount(inquiryPort.countByStatus("PENDING"))
                 .answeredCount(inquiryPort.countByStatus("ANSWERED"))
+                .newTodayCount(inquiryPort.countCreatedToday(todayStart, todayEnd))
                 .build();
     }
 

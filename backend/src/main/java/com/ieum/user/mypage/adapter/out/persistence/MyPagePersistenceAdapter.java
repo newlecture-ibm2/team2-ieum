@@ -35,11 +35,13 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<PostEntity> postPage = postRepository.findByAuthorId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
         
         return MyPageRes.ActivityList.builder()
-                .items(postPage.getContent().stream()
+                .activities(postPage.getContent().stream()
                         .map(post -> MyPageRes.ActivityDto.builder()
                                 .id(post.getId())
-                                .summary(post.getTitle()) // 게시글은 제목을 요약으로 사용
-                                .createdAt(post.getCreatedAt().format(formatter))
+                                .title(post.getTitle())
+                                .content(post.getContent())
+                                .summary(post.getTitle()) 
+                                .createdAt(post.getCreatedAt() != null ? post.getCreatedAt().format(formatter) : "")
                                 .type("posts")
                                 .build())
                         .collect(Collectors.toList()))
@@ -53,11 +55,13 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<ReviewEntity> reviewPage = reviewRepository.findByUserId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         return MyPageRes.ActivityList.builder()
-                .items(reviewPage.getContent().stream()
+                .activities(reviewPage.getContent().stream()
                         .map(review -> MyPageRes.ActivityDto.builder()
                                 .id(review.getId())
-                                .summary(getSummary(review.getContent())) // 리뷰 본문 요약
-                                .createdAt(review.getCreatedAt().format(formatter))
+                                .title("리뷰 내역")
+                                .content(review.getContent())
+                                .summary(getSummary(review.getContent()))
+                                .createdAt(review.getCreatedAt() != null ? review.getCreatedAt().format(formatter) : "")
                                 .type("reviews")
                                 .build())
                         .collect(Collectors.toList()))
@@ -71,11 +75,13 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
         Page<CommentEntity> commentPage = commentRepository.findByUserId(userId, PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         return MyPageRes.ActivityList.builder()
-                .items(commentPage.getContent().stream()
+                .activities(commentPage.getContent().stream()
                         .map(comment -> MyPageRes.ActivityDto.builder()
-                                .id(comment.getId())
-                                .summary(getSummary(comment.getContent())) // 댓글 본문 요약
-                                .createdAt(comment.getCreatedAt().format(formatter))
+                                .id(Long.valueOf(comment.getId()))
+                                .title("댓글 내역")
+                                .content(comment.getContent())
+                                .summary(getSummary(comment.getContent())) 
+                                .createdAt(comment.getCreatedAt() != null ? comment.getCreatedAt().format(formatter) : "")
                                 .type("comments")
                                 .build())
                         .collect(Collectors.toList()))

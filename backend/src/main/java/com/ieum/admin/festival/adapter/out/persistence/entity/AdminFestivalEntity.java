@@ -119,15 +119,18 @@ public class AdminFestivalEntity {
 
     @Column(name = "review_count", nullable = false)
     @ColumnDefault("0")
-    private Integer reviewCount;
+    @Builder.Default
+    private Integer reviewCount = 0;
 
     @Column(name = "favorite_count", nullable = false)
     @ColumnDefault("0")
-    private Integer favoriteCount;
+    @Builder.Default
+    private Integer favoriteCount = 0;
 
     @Column(name = "view_count", nullable = false)
     @ColumnDefault("0")
-    private Integer viewCount;
+    @Builder.Default
+    private Integer viewCount = 0;
 
     @Column(name = "api_modified_at")
     private LocalDateTime apiModifiedAt;

@@ -1,5 +1,6 @@
 package com.ieum.community.adapter.out.persistence.entity;
 
+import com.ieum.community.domain.model.Post;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -22,7 +23,7 @@ public class PostEntity {
     @Column(nullable = false, length = 20)
     private String category; // QNA, TIP, REVIEW
 
-    @Column(nullable = false, length = 100)
+    @Column(nullable = false, length = 200)
     private String title;
 
     @Column(nullable = false, columnDefinition = "TEXT")
@@ -65,6 +66,53 @@ public class PostEntity {
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
+
+    // ─── Domain ↔ Entity 변환 ───
+
+    /**
+     * JPA Entity → 도메인 모델 변환
+     */
+    public Post toDomain() {
+        return Post.builder()
+                .id(this.id)
+                .category(this.category)
+                .title(this.title)
+                .content(this.content)
+                .areaCode(this.areaCode)
+                .festivalId(this.festivalId)
+                .festivalName(this.festivalName)
+                .authorId(this.authorId)
+                .authorName(this.authorName)
+                .viewCount(this.viewCount)
+                .likeCount(this.likeCount)
+                .commentCount(this.commentCount)
+                .status(this.status)
+                .createdAt(this.createdAt)
+                .updatedAt(this.updatedAt)
+                .build();
+    }
+
+    /**
+     * 도메인 모델 → JPA Entity 변환
+     */
+    public static PostEntity fromDomain(Post post) {
+        return PostEntity.builder()
+                .id(post.getId())
+                .category(post.getCategory())
+                .title(post.getTitle())
+                .content(post.getContent())
+                .areaCode(post.getAreaCode())
+                .festivalId(post.getFestivalId())
+                .festivalName(post.getFestivalName())
+                .authorId(post.getAuthorId())
+                .authorName(post.getAuthorName())
+                .viewCount(post.getViewCount())
+                .likeCount(post.getLikeCount())
+                .status(post.getStatus())
+                .build();
+    }
+
+    // ─── JPA 세션 내 직접 변경용 (PersistenceAdapter에서 사용) ───
 
     public void update(String category, String title, String content, String areaCode, String festivalId, String festivalName) {
         this.category = category;
