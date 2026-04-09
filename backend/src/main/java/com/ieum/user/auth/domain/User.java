@@ -28,6 +28,7 @@ public class User {
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final LocalDateTime deletedAt;
+    private final LocalDateTime suspendedUntil;
 
     /**
      * 비밀번호 검증 비즈니스 로직
@@ -64,5 +65,13 @@ public class User {
             return false;
         }
         return this.deletedAt.plusDays(30).isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * 정지 상태 여부 확인
+     * 배치 스케쥴러가 정지 해제 시 status를 ACTIVE로 변경하므로 status만 확인
+     */
+    public boolean isSuspended() {
+        return "SUSPENDED".equals(this.status);
     }
 }

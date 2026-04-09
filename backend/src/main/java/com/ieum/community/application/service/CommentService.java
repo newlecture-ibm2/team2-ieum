@@ -3,6 +3,7 @@ package com.ieum.community.application.service;
 import com.ieum.community.application.port.in.*;
 import com.ieum.community.application.port.out.CommentPort;
 import com.ieum.community.application.port.out.PostPort;
+import com.ieum.community.application.port.out.UserSuspensionCheckPort;
 import com.ieum.community.domain.model.Comment;
 import com.ieum.community.domain.model.Post;
 import com.ieum.global.exception.BusinessException;
@@ -30,6 +31,17 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
     private final CommentPort commentPort;
     private final PostPort postPort;
     private final SendNotificationUseCase sendNotificationUseCase;
+    private final UserSuspensionCheckPort userSuspensionCheckPort;
+
+    /**
+     * 정지 회원 검증 — WRITE 작업 전 호출
+     */
+    private void validateNotSuspended(Long userId) {
+        if (userId != null && userSuspensionCheckPort.isSuspended(userId)) {
+            throw new BusinessException(ErrorCode.USER_001,
+                    "Suspended user attempted write operation. userId=" + userId);
+        }
+    }
 
     // ──── CreateCommentUseCase ────
 
@@ -38,6 +50,7 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
         if (userId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "Comment creation requires authentication");
         }
+        validateNotSuspended(userId);
         if (content == null || content.trim().isEmpty() || content.length() > 500) {
             throw new BusinessException(ErrorCode.COMMON_001, "댓글은 1자 이상 500자 이하로 작성해주세요.");
         }
@@ -125,6 +138,7 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
 
     @Override
     public Comment updateComment(Long commentId, String content, Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
         if (content == null || content.trim().isEmpty() || content.length() > 500) {
             throw new BusinessException(ErrorCode.COMMON_001, "댓글은 1자 이상 500자 이하로 작성해주세요.");
         }
@@ -149,6 +163,7 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
 
     @Override
     public void deleteComment(Long commentId, Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
         Comment comment = commentPort.findById(commentId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMENT_001, "Comment ID: " + commentId));
 

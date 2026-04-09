@@ -27,6 +27,7 @@ public class AuthRes {
         private String name;
         private String nickname;
         private String role;
+        private String status;
         private boolean marketingAgreed;
 
         /**
@@ -39,6 +40,7 @@ public class AuthRes {
                     .name(user.getName())
                     .nickname(user.getNickname())
                     .role(user.getRole())
+                    .status(user.getStatus())
                     .marketingAgreed(user.isMarketingAgreed())
                     .build();
         }

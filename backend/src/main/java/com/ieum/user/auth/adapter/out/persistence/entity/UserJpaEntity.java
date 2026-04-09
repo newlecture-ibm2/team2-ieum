@@ -63,8 +63,11 @@ public class UserJpaEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
+    @Column(name = "suspended_until")
+    private LocalDateTime suspendedUntil;
+
     @Builder
-    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status, LocalDateTime deletedAt) {
+    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status, LocalDateTime deletedAt, LocalDateTime suspendedUntil) {
         this.userId = userId;
         this.loginId = loginId;
         this.password = password;
@@ -77,6 +80,7 @@ public class UserJpaEntity {
         this.marketingAgreed = marketingAgreed;
         this.status = status != null ? status : "ACTIVE";
         this.deletedAt = deletedAt;
+        this.suspendedUntil = suspendedUntil;
     }
 
     public User toDomain() {
@@ -95,6 +99,7 @@ public class UserJpaEntity {
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
                 .deletedAt(this.deletedAt)
+                .suspendedUntil(this.suspendedUntil)
                 .build();
     }
 
@@ -112,6 +117,7 @@ public class UserJpaEntity {
                 .marketingAgreed(user.isMarketingAgreed())
                 .status(user.getStatus())
                 .deletedAt(user.getDeletedAt())
+                .suspendedUntil(user.getSuspendedUntil())
                 .build();
     }
 }

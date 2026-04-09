@@ -63,6 +63,7 @@ export default function CommunityDetailPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   const { post, setPost, comments, loading, error, fetchDetail, attachments } = usePostDetail(postId, authChecked && isLoggedIn);
 
@@ -91,6 +92,7 @@ export default function CommunityDetailPage() {
         setIsLoggedIn(data.isLoggedIn);
         if (data.isLoggedIn && data.user) {
           setCurrentUserId(data.user.userId);
+          setIsSuspended(data.user.status === 'SUSPENDED');
 
           // 이미 신고했는지 확인
           api.get(`/api/reports/check?targetType=POST&targetId=${postId}`)
@@ -238,6 +240,33 @@ export default function CommunityDetailPage() {
           />
         )}
       </>
+    );
+  }
+
+  // 정지 회원 — 비회원처럼 상세 페이지 접근 차단 (READ 제한)
+  if (isSuspended) {
+    return (
+      <main style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '12px' }}>활동 정지 안내</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px' }}>
+          활동이 정지된 계정입니다.<br />정지 해제 후 이용할 수 있습니다.
+        </p>
+        <button
+          style={{
+            padding: '10px 24px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+          }}
+          onClick={() => router.replace('/community')}
+        >
+          커뮤니티로 돌아가기
+        </button>
+      </main>
     );
   }
 
