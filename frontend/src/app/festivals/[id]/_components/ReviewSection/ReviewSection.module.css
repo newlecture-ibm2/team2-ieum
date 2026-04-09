@@ -190,6 +190,24 @@
   cursor: not-allowed;
 }
 
+.reportBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+  color: #a0aec0;
+}
+
+.reportBtn:hover:not(:disabled) {
+  background-color: #fff1f2;
+  color: #ef4444;
+}
+
 .rcText {
   font-size: 14px;
   color: var(--color-gray-600);

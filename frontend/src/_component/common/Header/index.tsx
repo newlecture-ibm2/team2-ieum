@@ -157,9 +157,10 @@ export default function Header() {
             onClick={async () => {
               try {
                 const res = await api.patch('/api/festivals/refresh-status');
-                const data = res.data;
+                // 백엔드 ApiResponse 공통 포맷 대응 (res.data.data 내부에 실제 데이터 존재)
+                const payload = res.data.data || res.data;
                 setPopupConfig({
-                  msg: `✅ ${data.message} (${data.updatedCount}건 변경)`,
+                  msg: `✅ ${payload.message} (${payload.updatedCount}건 변경)`,
                   reload: true,
                 });
               } catch (err) {

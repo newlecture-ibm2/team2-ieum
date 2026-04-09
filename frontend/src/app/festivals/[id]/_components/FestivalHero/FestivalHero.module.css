@@ -17,6 +17,41 @@
   padding: 0 var(--spacing-lg);
 }
 
+.topNav {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  padding-top: 24px;
+}
+
+.topNavInner {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.backButton:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+
 .badgeWrap {
   margin-bottom: 12px;
 }
