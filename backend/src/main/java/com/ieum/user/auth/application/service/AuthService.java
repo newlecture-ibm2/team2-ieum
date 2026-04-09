@@ -37,13 +37,15 @@ public class AuthService implements AuthUseCase {
                 .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
 
         // 🛡️ 탈퇴 유예 정책 체크
+        String successMessage = null;
         if ("WITHDRAWAL".equals(user.getStatus())) {
             if (user.isWithdrawalExpired()) {
-                throw new BadCredentialsException("탈퇴 후 30일이 경과하여 삭제된 계정입니다.");
+                throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않거나 가입된 정보가 없습니다.");
             }
             // 30일 이내라면 자동 복구
             user = user.reactivate();
             saveUserPort.saveUser(user);
+            successMessage = "탈퇴 유예 기간 내에 접속하여 계정이 성공적으로 복구되었습니다.";
         }
 
         if (!user.checkPassword(request.getPassword(), passwordEncoder)) {
@@ -59,6 +61,7 @@ public class AuthService implements AuthUseCase {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .expiresIn(jwtProvider.getExpirationSeconds())
+                .message(successMessage)
                 .user(AuthRes.UserDto.from(user))
                 .build();
     }

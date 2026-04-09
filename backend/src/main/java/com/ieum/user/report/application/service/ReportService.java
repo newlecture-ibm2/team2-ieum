@@ -4,6 +4,7 @@ import com.ieum.user.report.application.port.in.CreateReportUseCase;
 import com.ieum.user.report.application.port.in.LoadReportUseCase;
 import com.ieum.user.report.application.port.out.ReportPort;
 import com.ieum.user.report.domain.model.Report;
+import com.ieum.user.report.adapter.in.web.dto.ReportResponse;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -87,5 +88,28 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
         return reportPort.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
             reporterId, targetType, List.of("PENDING", "RESOLVED")
         );
+    }
+
+    /**
+     * 설계서 API_USR_0080: 내 신고 내역 목록 조회
+     */
+    @Transactional(readOnly = true)
+    public List<Report> getMyReports(Long reporterId) {
+        if (reporterId == null) {
+            throw new BusinessException(ErrorCode.AUTH_001, "조회하려면 로그인이 필요합니다.");
+        }
+        return reportPort.findAllByReporterId(reporterId);
+    }
+
+    /**
+     * 설계서 API_USR_0081: 신고 상세 및 답변 조회
+     */
+    @Transactional(readOnly = true)
+    public Report getReportDetail(Long reportId, Long reporterId) {
+        if (reporterId == null) {
+            throw new BusinessException(ErrorCode.AUTH_001, "조회하려면 로그인이 필요합니다.");
+        }
+        return reportPort.findByIdAndReporterId(reportId, reporterId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_001, "해당 신고 내역을 찾을 수 없거나 권한이 없습니다."));
     }
 }

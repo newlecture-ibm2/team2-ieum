@@ -16,8 +16,10 @@ public class ReportResponse {
     private String reason;
     private String description;
     private String status;
-    private LocalDateTime createdAt;
+    private String action;
+    private String adminNote;
     private LocalDateTime processedAt;
+    private LocalDateTime createdAt;
 
     public static ReportResponse fromDomain(Report report) {
         return ReportResponse.builder()
@@ -28,8 +30,10 @@ public class ReportResponse {
                 .reason(report.getReason())
                 .description(report.getDescription())
                 .status(report.getStatus())
-                .createdAt(report.getCreatedAt())
+                .action(report.getAction())
+                .adminNote(report.getAdminNote())
                 .processedAt(report.getProcessedAt())
+                .createdAt(report.getCreatedAt())
                 .build();
     }
 }

@@ -1,6 +1,6 @@
 package com.ieum.user.report.adapter.out.persistence;
 
-import com.ieum.admin.report.adapter.out.persistence.entity.ReportEntity;
+import com.ieum.user.report.adapter.out.persistence.entity.UserReportEntity;
 import com.ieum.user.report.adapter.out.persistence.repository.ReportRepository;
 import com.ieum.user.report.application.port.out.ReportPort;
 import com.ieum.user.report.domain.model.Report;
@@ -18,7 +18,7 @@ public class ReportPersistenceAdapter implements ReportPort {
 
     @Override
     public Report save(Report report) {
-        ReportEntity entity = ReportEntity.builder()
+        UserReportEntity entity = UserReportEntity.builder()
                 .id(report.getId())
                 .reporterId(report.getReporterId())
                 .targetType(report.getTargetType())
@@ -32,7 +32,7 @@ public class ReportPersistenceAdapter implements ReportPort {
                 .processedAt(report.getProcessedAt())
                 .build();
 
-        ReportEntity saved = reportRepository.save(entity);
+        UserReportEntity saved = reportRepository.save(entity);
         return toDomain(saved);
     }
 
@@ -49,7 +49,20 @@ public class ReportPersistenceAdapter implements ReportPort {
         return reportRepository.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(reporterId, targetType, statuses);
     }
 
-    private Report toDomain(ReportEntity entity) {
+    @Override
+    public List<Report> findAllByReporterId(Long reporterId) {
+        return reportRepository.findAllByReporterIdOrderByCreatedAtDesc(reporterId).stream()
+                .map(this::toDomain)
+                .toList();
+    }
+
+    @Override
+    public Optional<Report> findByIdAndReporterId(Long id, Long reporterId) {
+        return reportRepository.findByIdAndReporterId(id, reporterId)
+                .map(this::toDomain);
+    }
+
+    private Report toDomain(UserReportEntity entity) {
         return Report.builder()
                 .id(entity.getId())
                 .reporterId(entity.getReporterId())

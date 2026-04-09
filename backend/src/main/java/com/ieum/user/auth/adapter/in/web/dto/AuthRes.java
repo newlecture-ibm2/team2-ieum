@@ -15,6 +15,7 @@ public class AuthRes {
         private String accessToken;
         private String refreshToken;
         private long expiresIn;
+        private String message;
         private UserDto user;
     }
 

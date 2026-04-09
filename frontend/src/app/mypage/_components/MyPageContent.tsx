@@ -1,0 +1,85 @@
+"use client";
+
+import React, { useState, useEffect } from 'react';
+import styles from '../mypage.module.css';
+import MyPageSidebar, { MenuType } from './MyPageSidebar';
+import PostList from './PostList';
+import FavoriteList from './FavoriteList';
+import ReviewList from './ReviewList';
+import CommentList from './CommentList';
+import InquiryList from './InquiryList';
+import ReportList from './ReportList';
+import SettingsForm from './SettingsForm';
+
+interface UserInfo {
+  id: string;
+  nickname: string;
+  role: string;
+}
+
+export default function MyPageContent() {
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [activeMenu, setActiveMenu] = useState<MenuType>('posts');
+
+  useEffect(() => {
+    fetch('/api/auth/me')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.isLoggedIn) {
+          setUser(data.user);
+        } else {
+          window.location.href = '/login';
+        }
+      })
+      .finally(() => setIsLoading(false));
+  }, []);
+
+  if (isLoading) return <div className={styles.loading}>사용자 정보를 불러오는 중...</div>;
+  if (!user) return null;
+
+  // 메뉴에 따른 컨텐츠 렌더링 매핑
+  const renderContent = () => {
+    switch (activeMenu) {
+      case 'favorites': return <FavoriteList />;
+      case 'posts': return <PostList />;
+      case 'reviews': return <ReviewList />;
+      case 'comments': return <CommentList />;
+      case 'inquiries': return <InquiryList />;
+      case 'reports': return <ReportList />;
+      case 'settings': return <SettingsForm user={user} />;
+      default: return <PostList />;
+    }
+  };
+
+  const menuTitles: Record<MenuType, string> = {
+    favorites: '❤️ 나의 찜 목록',
+    posts: '📝 내 게시글 목록',
+    reviews: '⭐ 내 리뷰 목록',
+    comments: '💬 내 댓글 목록',
+    inquiries: '❓ 내 문의 보기',
+    reports: '🛡️ 내 신고 내역',
+    settings: '⚙️ 설정 관리'
+  };
+
+  return (
+    <div className={styles.mypageContainer}>
+      {/* 1. 사이드바 내비게이션 */}
+      <MyPageSidebar 
+        user={user} 
+        activeMenu={activeMenu} 
+        onMenuChange={setActiveMenu} 
+      />
+
+      {/* 2. 컨텐츠 영역 */}
+      <main className={styles.contentArea}>
+        <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100%' }}>
+          <h2 className={styles.contentTitle}>{menuTitles[activeMenu]}</h2>
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
+            {renderContent()}
+          </div>
+        </div>
+      </main>
+    </div>
+  );
+}

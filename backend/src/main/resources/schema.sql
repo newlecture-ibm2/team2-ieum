@@ -198,7 +198,7 @@ COMMENT ON COLUMN festivals.is_custom           IS '자체 기획 축제 여부'
 COMMENT ON COLUMN festivals.is_visible          IS '노출 여부 (관리자 비공개 처리용)';
 COMMENT ON COLUMN festivals.avg_rating          IS '평균 별점 (캐시)';
 COMMENT ON COLUMN festivals.review_count        IS '리뷰 수 (캐시)';
-COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기 수 (캐시)';
+COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기(찜) 수 (캐시)';
 COMMENT ON COLUMN festivals.view_count          IS '조회수';
 COMMENT ON COLUMN festivals.api_modified_at     IS 'API 수정일 (증분 동기화 변경 감지용)';
 
@@ -245,7 +245,7 @@ CREATE TABLE IF NOT EXISTS favorites (
         UNIQUE (user_id, festival_id)
 );
 
-COMMENT ON TABLE  favorites            IS '축제 즐겨찾기 테이블';
+COMMENT ON TABLE  favorites               IS '축제 즐겨찾기(찜) 테이블';
 
 -- ------------------------------------------------------------
 -- 2-6. 커뮤니티 게시글 (posts)
@@ -309,7 +309,7 @@ CREATE TABLE IF NOT EXISTS reports (
     created_at      TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_reports_reporter
-        FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_reports_reporter_target
         UNIQUE (reporter_id, target_type, target_id)
 );
