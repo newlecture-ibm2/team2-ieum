@@ -4,6 +4,7 @@ import com.ieum.global.security.JwtProvider;
 import com.ieum.user.auth.adapter.in.web.dto.AuthReq;
 import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
+import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
 import com.ieum.user.auth.domain.User;
@@ -19,7 +20,7 @@ import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
-public class AuthService implements AuthUseCase {
+public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
 
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
@@ -225,5 +226,16 @@ public class AuthService implements AuthUseCase {
         User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return AuthRes.UserDto.from(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean isSuspended(Long userId) {
+        if (userId == null) {
+            return false;
+        }
+        return loadUserPort.loadUserById(userId)
+                .map(User::isSuspended)
+                .orElse(false);
     }
 }

@@ -3,7 +3,7 @@ package com.ieum.community.application.service;
 import com.ieum.community.application.port.in.*;
 import com.ieum.community.application.port.out.PostPort;
 import com.ieum.community.application.port.out.PostLikePort;
-import com.ieum.community.application.port.out.UserSuspensionCheckPort;
+import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.community.domain.model.Post;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
@@ -26,13 +26,13 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
 
     private final PostPort postPort;
     private final PostLikePort postLikePort;
-    private final UserSuspensionCheckPort userSuspensionCheckPort;
+    private final CheckUserSuspensionUseCase checkUserSuspensionUseCase;
 
     /**
      * 정지 회원 검증 — WRITE 작업 전 호출
      */
     private void validateNotSuspended(Long userId) {
-        if (userId != null && userSuspensionCheckPort.isSuspended(userId)) {
+        if (userId != null && checkUserSuspensionUseCase.isSuspended(userId)) {
             throw new BusinessException(ErrorCode.USER_001,
                     "Suspended user attempted write operation. userId=" + userId);
         }
