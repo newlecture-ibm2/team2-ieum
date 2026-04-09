@@ -66,7 +66,7 @@ export default function Header() {
               const unreadCount = res.data?.data?.unreadCount || 0;
               setHasUnread(unreadCount > 0);
             })
-            .catch(() => {}); // 에러 무시
+            .catch(() => { }); // 에러 무시
 
           // 3) FCM 토큰 자동 등록 — 알림 권한 요청 → 토큰 발급 → 백엔드 전송
           try {
@@ -86,7 +86,7 @@ export default function Header() {
           }
         }
       })
-      .catch(() => {}); // 비로그인 or 에러 무시
+      .catch(() => { }); // 비로그인 or 에러 무시
   }, []);
 
   /* ===== FCM 포그라운드 메시지 수신 리스너 ===== */
@@ -124,8 +124,8 @@ export default function Header() {
           <Image
             src="/logo/logo-ieum-transparent.png"
             alt="이음 로고"
-            width={110}
-            height={110}
+            width={160}
+            height={80}
             className={styles.logoImg}
             priority
           />
