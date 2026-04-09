@@ -13,6 +13,7 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
 
        @Query("SELECT p FROM PostEntity p WHERE " +
                      "p.status = 'ACTIVE' AND " +
+                     "p.authorId NOT IN (SELECT u.userId FROM com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity u WHERE u.status = 'DELETED') AND " +
                      "(:category IS NULL OR p.category = :category) AND " +
                      "(:areaCode IS NULL OR p.areaCode = :areaCode) AND " +
                      "(:keyword IS NULL OR p.title LIKE %:keyword% OR p.content LIKE %:keyword%)")
@@ -22,6 +23,6 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
                      @Param("keyword") String keyword,
                      Pageable pageable);
 
-       @Query("SELECT p FROM PostEntity p WHERE p.id = :id AND p.status = 'ACTIVE'")
+       @Query("SELECT p FROM PostEntity p WHERE p.id = :id AND p.status = 'ACTIVE' AND p.authorId NOT IN (SELECT u.userId FROM com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity u WHERE u.status = 'DELETED')")
        java.util.Optional<PostEntity> findActiveById(@Param("id") Long id);
 }
