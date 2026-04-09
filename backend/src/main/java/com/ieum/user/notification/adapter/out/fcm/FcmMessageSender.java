@@ -1,20 +1,26 @@
-package com.ieum.user.notification.application.service;
+package com.ieum.user.notification.adapter.out.fcm;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
+import com.ieum.user.notification.application.port.out.FcmPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
+/**
+ * FCM 푸시 발송 어댑터 (Out Adapter)
+ * - Firebase Cloud Messaging API를 호출하는 구현체
+ */
 @Slf4j
-@Service
+@Component
 @RequiredArgsConstructor
-public class FcmMessageSender {
+public class FcmMessageSender implements FcmPort {
 
     /**
      * 특정 토큰(디바이스)으로 FCM 푸시 발송
      */
+    @Override
     public void sendPush(String targetToken, String title, String body) {
         if (targetToken == null || targetToken.trim().isEmpty()) {
             return; // 토큰 없으면 스킵

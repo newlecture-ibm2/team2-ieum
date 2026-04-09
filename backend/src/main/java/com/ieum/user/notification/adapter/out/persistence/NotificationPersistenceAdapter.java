@@ -83,6 +83,13 @@ public class NotificationPersistenceAdapter implements NotificationPort {
                 .toList();
     }
 
+    @Override
+    public List<FcmToken> findTokensByUserId(Long userId) {
+        return fcmTokenJpaRepository.findByUserId(userId).stream()
+                .map(FcmTokenJpaEntity::toDomain)
+                .toList();
+    }
+
     // ── NotificationSetting ──
 
     @Override

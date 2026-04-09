@@ -3,6 +3,7 @@ package com.ieum.user.notification.application.service;
 import com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity;
 import com.ieum.user.auth.adapter.out.persistence.repository.UserJpaRepository;
 import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
+import com.ieum.user.notification.application.port.out.FcmPort;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
 import com.ieum.user.notification.domain.model.Notification;
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Transactional
 public class SystemNotificationService implements SystemNotificationUseCase {
 
-    private final FcmMessageSender fcmMessageSender;
+    private final FcmPort fcmPort;
     private final NotificationPort notificationPort;
     private final UserJpaRepository userJpaRepository;
 
@@ -85,7 +86,7 @@ public class SystemNotificationService implements SystemNotificationUseCase {
             if (userTokens != null) {
                 for (FcmToken tokenInfo : userTokens) {
                     try {
-                        fcmMessageSender.sendPush(tokenInfo.getToken(), "이음 - 새 공지사항", notificationMessage);
+                        fcmPort.sendPush(tokenInfo.getToken(), "이음 - 새 공지사항", notificationMessage);
                     } catch (Exception e) {
                         log.warn("사용자 {} 에게 FCM 발송 실패 (token={}): {}", userId, tokenInfo.getToken(), e.getMessage());
                     }
