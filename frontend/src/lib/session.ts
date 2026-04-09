@@ -10,6 +10,7 @@ export interface SessionData {
     id: string; // loginId
     nickname: string;
     role: "USER" | "ADMIN";
+    status?: string; // ACTIVE | SUSPENDED | WITHDRAWAL
   };
 }
 
