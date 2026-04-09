@@ -2,26 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import api from "@/lib/api";
-
-/** 월별 일자 카운트 응답 타입 */
-export interface DayCount {
-  day: number;
-  cnt: number;
-}
-
-/** 달력용 축제 카드 타입 (GET /api/calendar/festivals 응답 아이템) */
-export interface CalendarFestival {
-  id: number;
-  title: string;
-  address: string;
-  imageUrl: string | null;
-  thumbnailUrl: string | null;
-  startDate: string;
-  endDate: string;
-  status: "UPCOMING" | "ONGOING" | "ENDED";
-  areaCode: string | null;
-  eventPlace: string | null;
-}
+import { DayCount, CalendarFestival } from "@/types/calendar";
 
 interface UseCalendarViewReturn {
   /** 현재 보고 있는 연도 */
