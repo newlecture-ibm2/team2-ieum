@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Trash2, Flag } from 'lucide-react';
+import { User, Trash2, Siren } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import api from '@/lib/api';
-import { Modal } from '@/_component/common/Modal';
+import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import styles from './ReviewSection.module.css';
 
 interface ReviewSectionProps {
@@ -29,6 +29,7 @@ export default function ReviewSection({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [reportingReviewId, setReportingReviewId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
@@ -58,24 +59,31 @@ export default function ReviewSection({
       setRating(0);
       onReviewSubmitted();
     } catch (err: any) {
-      onPopup(err.response?.data?.message || '리뷰 등록에 실패했습니다.');
+      const apiErrorMsg = err.response?.data?.error?.message || err.response?.data?.message;
+      onPopup(apiErrorMsg || '리뷰 등록에 실패했습니다.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const handleDeleteReview = async (reviewId: number) => {
-    if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+  const handleDeleteClick = (reviewId: number) => {
+    setConfirmDeleteId(reviewId);
+  };
+
+  const executeDeleteReview = async () => {
+    if (confirmDeleteId === null) return;
     
-    setDeletingId(reviewId);
+    setDeletingId(confirmDeleteId);
     try {
-      await axios.delete(`/api/reviews/${reviewId}`);
+      await axios.delete(`/api/reviews/${confirmDeleteId}`);
       onPopup('리뷰가 삭제되었습니다.');
       onReviewSubmitted(); // 목록 새로고침
     } catch (err: any) {
-      onPopup(err.response?.data?.message || '리뷰 삭제에 실패했습니다.');
+      const apiErrorMsg = err.response?.data?.error?.message || err.response?.data?.message;
+      onPopup(apiErrorMsg || '리뷰 삭제에 실패했습니다.');
     } finally {
       setDeletingId(null);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -161,7 +169,7 @@ export default function ReviewSection({
                       {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
                         <button 
                           className={styles.deleteReviewBtn} 
-                          onClick={() => handleDeleteReview(review.id)}
+                          onClick={() => handleDeleteClick(review.id)}
                           disabled={deletingId === review.id}
                           title="리뷰 삭제"
                         >
@@ -172,11 +180,11 @@ export default function ReviewSection({
                       {/* 본인의 리뷰가 아닌 경우 신고 버튼 표출 */}
                       {(currentUser && String(currentUser.userId) !== String(review.userId)) && (
                         <button 
-                          className={styles.deleteReviewBtn} 
+                          className={styles.reportBtn} 
                           onClick={() => handleReportReview(review.id)}
                           title="리뷰 신고"
                         >
-                          <Flag size={14} color="#a0aec0" />
+                          <Siren size={15} color="currentColor" strokeWidth={2.2} />
                         </button>
                       )}
                     </div>
@@ -256,7 +264,7 @@ export default function ReviewSection({
                     if (status === 409) {
                       onPopup('이미 신고한 리뷰입니다.');
                     } else {
-                      const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
+                      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || '신고 접수에 실패했습니다.';
                       onPopup(msg);
                     }
                   } finally {
@@ -271,6 +279,19 @@ export default function ReviewSection({
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* 리뷰 삭제 확인 모달 */}
+      {confirmDeleteId !== null && (
+        <ConfirmModal
+          title="리뷰 삭제"
+          message="정말로 이 리뷰를 삭제하시겠습니까?"
+          confirmText="삭제하기"
+          cancelText="취소"
+          danger={true}
+          onConfirm={executeDeleteReview}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </section>
   );

@@ -1,9 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Trash2, Flag } from 'lucide-react';
+import { User, Trash2, Siren } from 'lucide-react';
 import axios from 'axios';
-import { Modal } from '@/_component/common/Modal';
+import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import styles from './ReviewBoard.module.css';
 
 interface ReviewBoardProps {
@@ -15,6 +15,7 @@ interface ReviewBoardProps {
 export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoardProps) {
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [reportingReviewId, setReportingReviewId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
@@ -28,18 +29,24 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
       .catch(console.error);
   }, []);
 
-  const handleDeleteReview = async (reviewId: number) => {
-    if (!confirm('정말로 이 리뷰를 삭제하시겠습니까?')) return;
+  const handleDeleteClick = (reviewId: number) => {
+    setConfirmDeleteId(reviewId);
+  };
+
+  const executeDeleteReview = async () => {
+    if (confirmDeleteId === null) return;
     
-    setDeletingId(reviewId);
+    setDeletingId(confirmDeleteId);
     try {
-      await axios.delete(`/api/reviews/${reviewId}`);
+      await axios.delete(`/api/reviews/${confirmDeleteId}`);
       alert('리뷰가 삭제되었습니다.');
       onRefresh(); // 페이지 컴포넌트에 목록 갱신 요청
     } catch (err: any) {
-      alert(err.response?.data?.message || '리뷰 삭제에 실패했습니다.');
+      const apiErrorMsg = err.response?.data?.error?.message || err.response?.data?.message;
+      alert(apiErrorMsg || '리뷰 삭제에 실패했습니다.');
     } finally {
       setDeletingId(null);
+      setConfirmDeleteId(null);
     }
   };
 
@@ -81,7 +88,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
               {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
               {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
                 <button
-                  onClick={() => handleDeleteReview(review.id)}
+                  onClick={() => handleDeleteClick(review.id)}
                   disabled={deletingId === review.id}
                   title="삭제하기"
                   style={{
@@ -114,12 +121,20 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
+                    transition: 'all 0.2s',
+                    color: '#a0aec0',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9' }}
-                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                  onMouseEnter={(e) => { 
+                    e.currentTarget.style.backgroundColor = '#fff1f2';
+                    e.currentTarget.style.color = '#ef4444'; 
+                  }}
+                  onMouseLeave={(e) => { 
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = '#a0aec0'; 
+                  }}
                 >
-                  <Flag size={14} color="#a0aec0" />
+                  <Siren size={15} color="currentColor" strokeWidth={2.2} />
                 </button>
               )}
             </div>
@@ -191,7 +206,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                     if (status === 409) {
                       alert('이미 신고한 리뷰입니다.');
                     } else {
-                      const msg = err?.response?.data?.message || '신고 처리에 실패했습니다.';
+                      const msg = err?.response?.data?.error?.message || err?.response?.data?.message || '신고 처리에 실패했습니다.';
                       alert(msg);
                     }
                   } finally {
@@ -206,6 +221,19 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
             </div>
           </div>
         </Modal>
+      )}
+
+      {/* 리뷰 삭제 확인 모달 */}
+      {confirmDeleteId !== null && (
+        <ConfirmModal
+          title="리뷰 삭제"
+          message="정말로 이 리뷰를 삭제하시겠습니까?"
+          confirmText="삭제하기"
+          cancelText="취소"
+          danger={true}
+          onConfirm={executeDeleteReview}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
       )}
     </div>
   );

@@ -1,26 +1,36 @@
 package com.ieum.festival.application.port.out;
 
-import com.ieum.festival.adapter.out.persistence.entity.FestivalEntity;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import com.ieum.festival.domain.model.Festival;
+import com.ieum.global.common.PagedResult;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
  * 축제 영속성 포트 (Port OUT)
- * - 서비스 레이어가 Repository가 아닌 이 포트에 의존
+ * - 프레임워크 독립적: Spring Data 타입(Page, Pageable) 미사용
+ * - Adapter 계층에서 구현
  */
 public interface FestivalPersistencePort {
 
-    Page<FestivalEntity> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, Pageable pageable);
+    // ── 목록 조회 (페이징) ──
 
-    Page<FestivalEntity> findOngoingFestivals(String keyword, String areaCode, Integer month, Pageable pageable);
+    PagedResult<Festival> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, int page, int size);
+    PagedResult<Festival> findOngoingFestivals(String keyword, String areaCode, Integer month, int page, int size);
+    PagedResult<Festival> findUpcomingFestivals(String keyword, String areaCode, Integer month, int page, int size);
+    PagedResult<Festival> findEndedFestivals(String keyword, String areaCode, Integer month, int page, int size);
 
-    Page<FestivalEntity> findUpcomingFestivals(String keyword, String areaCode, Integer month, Pageable pageable);
+    // ── 단건 조회 ──
 
-    Page<FestivalEntity> findEndedFestivals(String keyword, String areaCode, Integer month, Pageable pageable);
+    Optional<Festival> findById(Long id);
+    Optional<Festival> findBySourceId(String sourceId);
 
-    Optional<FestivalEntity> findById(Long id);
+    // ── 전체 조회 (배치용) ──
 
-    FestivalEntity save(FestivalEntity entity);
+    List<Festival> findAll();
+
+    // ── 저장 ──
+
+    Festival save(Festival festival);
+    void saveAll(List<Festival> festivals);
 }
