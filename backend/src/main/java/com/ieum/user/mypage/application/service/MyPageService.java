@@ -78,4 +78,29 @@ public class MyPageService implements MyPageUseCase {
                 .updatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
                 .build();
     }
+
+    @Override
+    @Transactional
+    public MyPageRes.ProfileUpdate updateProfileImage(Long userId, MultipartFile profileImg) {
+        User user = loadUserPort.loadUserById(userId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (profileImg == null || profileImg.isEmpty()) {
+            throw new IllegalArgumentException("업로드할 이미지 파일이 없습니다.");
+        }
+
+        // 1. 이미지 업로드 (기존 로직 재활용)
+        String newProfileImage = uploadAttachmentUseCase.upload("USER", userId, profileImg).getFilePath();
+
+        // 2. 엔티티 갱신
+        User updatedUser = user.toBuilder()
+                .profileImage(newProfileImage)
+                .build();
+
+        saveUserPort.saveUser(updatedUser);
+
+        return MyPageRes.ProfileUpdate.builder()
+                .updatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
+    }
 }

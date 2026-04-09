@@ -13,7 +13,7 @@ public class MyPageRes {
     @Getter
     @Builder
     public static class ActivityList {
-        private List<ActivityDto> items;
+        private List<ActivityDto> activities;
         private int totalPages;
         private long totalElements;
     }
@@ -22,6 +22,8 @@ public class MyPageRes {
     @Builder
     public static class ActivityDto {
         private Long id;
+        private String title;
+        private String content;
         private String summary;
         private String createdAt;
         private String type; // posts / reviews / comments

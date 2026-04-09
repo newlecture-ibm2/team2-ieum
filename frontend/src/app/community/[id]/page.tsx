@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { Heart, CornerDownRight, User, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
@@ -8,6 +8,8 @@ import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { Modal } from '@/_component/common/Modal';
+import DOMPurify from 'isomorphic-dompurify';
+import 'react-quill-new/dist/quill.snow.css';
 import ReportModal from '../_components/ReportModal';
 import styles from './detail.module.css';
 
@@ -17,6 +19,41 @@ import { usePostDetail } from './usePostDetail';
 const getCategoryLabel = (code: string) => CATEGORY_OPTIONS.find(c => c.value === code)?.label || code;
 const getRegionLabel = (code: string) => REGION_OPTIONS.find(r => r.value === code)?.label || '전국';
 
+// 본문 영역을 memo로 감싸서 댓글 변경 시 리렌더링(이미지 깜빡임) 방지
+const PostBody = memo(function PostBody({ content, attachments }: { content: string; attachments: any[] }) {
+  const sanitizedHtml = useMemo(() => {
+    if (/<[a-z][\s\S]*>/i.test(content)) {
+      return DOMPurify.sanitize(content);
+    }
+    return null;
+  }, [content]);
+
+  return (
+    <>
+      {attachments && attachments.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '12px', marginBottom: '20px' }}>
+          {attachments.map((attach: any) => (
+            <img
+              key={attach.id}
+              src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attach.id}/download`}
+              alt="첨부 이미지"
+              style={{ maxWidth: '100%', borderRadius: '8px' }}
+            />
+          ))}
+        </div>
+      )}
+      {sanitizedHtml ? (
+        <div
+          className="ql-editor"
+          style={{ padding: 0 }}
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
+      ) : (
+        content
+      )}
+    </>
+  );
+});
 export default function CommunityDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -120,7 +157,7 @@ export default function CommunityDetailPage() {
       });
       if (res.data.success) {
         setNewComment('');
-        fetchDetail(); // 댓글 새로고침
+        fetchDetail(true, 'comments'); // 댓글 새로고침 (silent 모드로 전환, 댓글만)
       }
     } catch (err) {
       console.error(err);
@@ -146,7 +183,7 @@ export default function CommunityDetailPage() {
       if (res.data.success) {
         setReplyContent('');
         setReplyingTo(null);
-        fetchDetail(); // 댓글 새로고침
+        fetchDetail(true, 'comments'); // 댓글 새로고침 (silent, 댓글만)
       }
     } catch (err) {
       console.error(err);
@@ -162,7 +199,7 @@ export default function CommunityDetailPage() {
     try {
       await api.delete(`/api/community/comments/${commentId}`);
       toast('삭제되었습니다.', 'success');
-      fetchDetail();
+      fetchDetail(true, 'comments');
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       toast(errorObj?.response?.data?.message || '삭제에 실패했습니다.', 'error');
@@ -176,7 +213,7 @@ export default function CommunityDetailPage() {
       await api.put(`/api/community/comments/${commentId}`, { content: editContent.trim() });
       toast('수정되었습니다.', 'success');
       setEditingCommentId(null);
-      fetchDetail();
+      fetchDetail(true, 'comments');
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       toast(errorObj?.response?.data?.message || '수정에 실패했습니다.', 'error');
@@ -263,19 +300,7 @@ export default function CommunityDetailPage() {
 
       {/* 글 내용 */}
       <div className={styles.postBody}>
-        {attachments && attachments.length > 0 && (
-          <div className={styles.postImages}>
-            {attachments.map(attach => (
-              <img
-                key={attach.id}
-                src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attach.id}/download`}
-                alt="첨부 이미지"
-                className={styles.postImageItem}
-              />
-            ))}
-          </div>
-        )}
-        {post.content}
+        <PostBody content={post.content} attachments={attachments} />
       </div>
 
       {/* 하단 액션 (공감/상태) */}
@@ -356,34 +381,40 @@ export default function CommunityDetailPage() {
                     </div>
 
                     {editingCommentId === comment.id ? (
-                      <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
-                        <input
-                          type="text"
-                          className={styles.replyInput}
-                          value={editContent}
-                          onChange={e => setEditContent(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                              e.preventDefault();
-                              handleUpdateComment(comment.id);
-                            }
-                          }}
-                          autoFocus
-                        />
-                        <button
-                          className={styles.replySubmitBtn}
-                          onClick={() => handleUpdateComment(comment.id)}
-                          disabled={submitting || !editContent.trim()}
-                        >
-                          저장
-                        </button>
-                        <button
-                          className={styles.replyCancelBtn}
-                          onClick={() => setEditingCommentId(null)}
-                        >
-                          취소
-                        </button>
-                      </div>
+                      <>
+                        <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
+                          <input
+                            type="text"
+                            className={styles.replyInput}
+                            value={editContent}
+                            onChange={e => setEditContent(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                e.preventDefault();
+                                handleUpdateComment(comment.id);
+                              }
+                            }}
+                            maxLength={500}
+                            autoFocus
+                          />
+                          <button
+                            className={styles.replySubmitBtn}
+                            onClick={() => handleUpdateComment(comment.id)}
+                            disabled={submitting || !editContent.trim()}
+                          >
+                            저장
+                          </button>
+                          <button
+                            className={styles.replyCancelBtn}
+                            onClick={() => { setEditingCommentId(null); setEditContent(''); }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                        <span className={styles.countLabel}>
+                          {editContent.length} / 500
+                        </span>
+                      </>
                     ) : (
                       <div className={styles.commentText}>{comment.content}</div>
                     )}
@@ -422,35 +453,41 @@ export default function CommunityDetailPage() {
 
                     {/* 답글 입력 폼 */}
                     {replyingTo === comment.id && (
-                      <div className={styles.replyInputWrap}>
-                        <input
-                          type="text"
-                          className={styles.replyInput}
-                          placeholder={`${comment.userName}님에게 답글 작성...`}
-                          value={replyContent}
-                          onChange={e => setReplyContent(e.target.value)}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                              e.preventDefault();
-                              handleSubmitReply(comment.id);
-                            }
-                          }}
-                          autoFocus
-                        />
-                        <button
-                          className={styles.replySubmitBtn}
-                          onClick={() => handleSubmitReply(comment.id)}
-                          disabled={submitting || !replyContent.trim()}
-                        >
-                          등록
-                        </button>
-                        <button
-                          className={styles.replyCancelBtn}
-                          onClick={() => { setReplyingTo(null); setReplyContent(''); }}
-                        >
-                          취소
-                        </button>
-                      </div>
+                      <>
+                        <div className={styles.replyInputWrap}>
+                          <input
+                            type="text"
+                            className={styles.replyInput}
+                            placeholder={`${comment.userName}님에게 답글 작성...`}
+                            value={replyContent}
+                            onChange={e => setReplyContent(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                e.preventDefault();
+                                handleSubmitReply(comment.id);
+                              }
+                            }}
+                            maxLength={500}
+                            autoFocus
+                          />
+                          <button
+                            className={styles.replySubmitBtn}
+                            onClick={() => handleSubmitReply(comment.id)}
+                            disabled={submitting || !replyContent.trim()}
+                          >
+                            등록
+                          </button>
+                          <button
+                            className={styles.replyCancelBtn}
+                            onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                        <span className={styles.countLabel}>
+                          {replyContent.length} / 500
+                        </span>
+                      </>
                     )}
                   </>
                 )}
@@ -473,34 +510,40 @@ export default function CommunityDetailPage() {
                       </div>
 
                       {editingCommentId === child.id ? (
-                        <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
-                          <input
-                            type="text"
-                            className={styles.replyInput}
-                            value={editContent}
-                            onChange={e => setEditContent(e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                                e.preventDefault();
-                                handleUpdateComment(child.id);
-                              }
-                            }}
-                            autoFocus
-                          />
-                          <button
-                            className={styles.replySubmitBtn}
-                            onClick={() => handleUpdateComment(child.id)}
-                            disabled={submitting || !editContent.trim()}
-                          >
-                            저장
-                          </button>
-                          <button
-                            className={styles.replyCancelBtn}
-                            onClick={() => setEditingCommentId(null)}
-                          >
-                            취소
-                          </button>
-                        </div>
+                        <>
+                          <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
+                            <input
+                              type="text"
+                              className={styles.replyInput}
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                  e.preventDefault();
+                                  handleUpdateComment(child.id);
+                                }
+                              }}
+                              maxLength={500}
+                              autoFocus
+                            />
+                            <button
+                              className={styles.replySubmitBtn}
+                              onClick={() => handleUpdateComment(child.id)}
+                              disabled={submitting || !editContent.trim()}
+                            >
+                              저장
+                            </button>
+                            <button
+                              className={styles.replyCancelBtn}
+                              onClick={() => { setEditingCommentId(null); setEditContent(''); }}
+                            >
+                              취소
+                            </button>
+                          </div>
+                          <span className={styles.countLabel}>
+                            {editContent.length} / 500
+                          </span>
+                        </>
                       ) : (
                         <div className={styles.commentText}>
                           {child.content.match(/^@(\S+)\s/) ? (
@@ -551,35 +594,41 @@ export default function CommunityDetailPage() {
 
                       {/* 대댓글에 대한 답글 입력 폼 (parentId는 최상위 부모 댓글로 전달) */}
                       {replyingTo === child.id && (
-                        <div className={styles.replyInputWrap}>
-                          <input
-                            type="text"
-                            className={styles.replyInput}
-                            placeholder={`${child.userName}님에게 답글 작성...`}
-                            value={replyContent}
-                            onChange={e => setReplyContent(e.target.value)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                                e.preventDefault();
-                                handleSubmitReply(comment.id);
-                              }
-                            }}
-                            autoFocus
-                          />
-                          <button
-                            className={styles.replySubmitBtn}
-                            onClick={() => handleSubmitReply(comment.id)}
-                            disabled={submitting || !replyContent.trim()}
-                          >
-                            등록
-                          </button>
-                          <button
-                            className={styles.replyCancelBtn}
-                            onClick={() => { setReplyingTo(null); setReplyContent(''); }}
-                          >
-                            취소
-                          </button>
-                        </div>
+                        <>
+                          <div className={styles.replyInputWrap}>
+                            <input
+                              type="text"
+                              className={styles.replyInput}
+                              placeholder={`${child.userName}님에게 답글 작성...`}
+                              value={replyContent}
+                              onChange={e => setReplyContent(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                  e.preventDefault();
+                                  handleSubmitReply(comment.id);
+                                }
+                              }}
+                              maxLength={500}
+                              autoFocus
+                            />
+                            <button
+                              className={styles.replySubmitBtn}
+                              onClick={() => handleSubmitReply(comment.id)}
+                              disabled={submitting || !replyContent.trim()}
+                            >
+                              등록
+                            </button>
+                            <button
+                              className={styles.replyCancelBtn}
+                              onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                            >
+                              취소
+                            </button>
+                          </div>
+                          <span className={styles.countLabel}>
+                            {replyContent.length} / 500
+                          </span>
+                        </>
                       )}
                     </>
                   )}
@@ -612,6 +661,9 @@ export default function CommunityDetailPage() {
             등록
           </button>
         </div>
+        <span className={styles.countLabel}>
+          {newComment.length} / 500
+        </span>
       </div>
 
       {/* 삭제 확인 모달 */}

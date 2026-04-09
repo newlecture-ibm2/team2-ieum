@@ -2,6 +2,7 @@ package com.ieum.festival.adapter.out.persistence.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.DynamicUpdate;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
@@ -123,11 +124,13 @@ public class FestivalEntity {
     @Builder.Default
     private Integer reviewCount = 0;
 
-    @Column(name = "favorite_count")
+    @Column(name = "favorite_count", nullable = false)
+    @ColumnDefault("0")
     @Builder.Default
     private Integer favoriteCount = 0;
 
-    @Column(name = "view_count")
+    @Column(name = "view_count", nullable = false)
+    @ColumnDefault("0")
     @Builder.Default
     private Integer viewCount = 0;
 
