@@ -16,4 +16,10 @@ public interface LoadMyActivityPort {
 
     /** 설계서 API_USR_0030: 내가 쓴 댓글 목록 조회 */
     MyPageRes.ActivityList loadMyComments(Long userId, int page, int size);
+
+    /** 설계서 API_USR_0030: 내 문의 내역 목록 조회 */
+    MyPageRes.ActivityList loadMyInquiries(Long userId, int page, int size);
+
+    /** 설계서 API_USR_0030: 내 신고 내역 목록 조회 */
+    MyPageRes.ActivityList loadMyReports(Long userId, int page, int size);
 }

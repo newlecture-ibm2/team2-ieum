@@ -38,6 +38,10 @@ public class MyPageService implements MyPageUseCase {
             return loadMyActivityPort.loadMyReviews(userId, page, size);
         } else if ("comments".equalsIgnoreCase(type)) {
             return loadMyActivityPort.loadMyComments(userId, page, size);
+        } else if ("inquiries".equalsIgnoreCase(type)) {
+            return loadMyActivityPort.loadMyInquiries(userId, page, size);
+        } else if ("reports".equalsIgnoreCase(type)) {
+            return loadMyActivityPort.loadMyReports(userId, page, size);
         }
         
         throw new IllegalArgumentException("유효하지 않은 활동 유형입니다: " + type);
