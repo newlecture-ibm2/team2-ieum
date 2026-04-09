@@ -41,8 +41,8 @@ export default function Header() {
           <Image
             src="/logo/logo-ieum-transparent.png"
             alt="이음 로고"
-            width={110}
-            height={110}
+            width={160}
+            height={80}
             className={styles.logoImg}
             priority
           />
