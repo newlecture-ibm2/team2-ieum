@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Trash2, Siren } from 'lucide-react';
+import { User, Trash2, Siren, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
 import axios from 'axios';
 import api from '@/lib/api';
@@ -28,6 +28,7 @@ export default function ReviewSection({
   const [reviewContent, setReviewContent] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isSuspended, setIsSuspended] = useState(false);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
   const [reportingReviewId, setReportingReviewId] = useState<number | null>(null);
@@ -38,7 +39,12 @@ export default function ReviewSection({
     fetch('/api/auth/me')
       .then(res => res.json())
       .then(data => {
-        if (data.isLoggedIn) setCurrentUser(data.user);
+        if (data.isLoggedIn) {
+          setCurrentUser(data.user);
+          if (data.user?.status === 'SUSPENDED') {
+            setIsSuspended(true);
+          }
+        }
       })
       .catch(console.error);
   }, []);
@@ -120,6 +126,12 @@ export default function ReviewSection({
       </header>
 
       {/* 리뷰 작성 폼 */}
+      {isSuspended ? (
+        <div className={styles.suspendedNotice}>
+          <ShieldAlert size={20} color="#ef4444" />
+          <span>활동이 정지된 계정입니다. 정지 해제 후 리뷰를 작성할 수 있습니다.</span>
+        </div>
+      ) : (
       <div className={styles.reviewForm}>
         <div className={styles.reviewAvatar}>
           <User size={20} color="#a0aec0" strokeWidth={2.5} />
@@ -143,6 +155,7 @@ export default function ReviewSection({
           </div>
         </div>
       </div>
+      )}
 
       {/* 리뷰 목록 (최근 3개) */}
       <div className={styles.reviewList}>
