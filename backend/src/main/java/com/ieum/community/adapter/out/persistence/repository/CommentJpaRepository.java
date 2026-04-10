@@ -11,17 +11,13 @@ import java.util.List;
 @Repository
 public interface CommentJpaRepository extends JpaRepository<CommentEntity, Long> {
 
-    /**
-     * 특정 게시글의 최상위 댓글(parent가 null)만 조회 — 작성일 오름차순.
-     * 대댓글은 CommentEntity.children 필드(OneToMany)로 로딩합니다.
-     */
-    @Query("SELECT c FROM CommentEntity c WHERE c.postId = :postId AND c.parent IS NULL ORDER BY c.createdAt ASC")
+    @Query("SELECT c FROM CommentEntity c WHERE c.postId = :postId AND c.parent IS NULL AND c.userId NOT IN (SELECT u.userId FROM com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity u WHERE u.status = 'DELETED') ORDER BY c.createdAt ASC")
     List<CommentEntity> findRootCommentsByPostId(@Param("postId") Long postId);
 
     /**
      * 특정 게시글의 전체 댓글 수 (ACTIVE 상태만)
      */
-    @Query("SELECT COUNT(c) FROM CommentEntity c WHERE c.postId = :postId AND c.status = 'ACTIVE'")
+    @Query("SELECT COUNT(c) FROM CommentEntity c WHERE c.postId = :postId AND c.status = 'ACTIVE' AND c.userId NOT IN (SELECT u.userId FROM com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity u WHERE u.status = 'DELETED')")
     long countActiveByPostId(@Param("postId") Long postId);
 
     /**

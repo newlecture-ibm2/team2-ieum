@@ -13,6 +13,7 @@ const MENU_ITEMS = [
   { label: '🚨 신고 관리', href: '/admin/reports', id: 'reports' },
   { label: '📢 공지/팝업', href: '/admin/notices', id: 'notices' },
   { label: '💬 문의 관리', href: '/admin/inquiries', id: 'inquiries' },
+  { label: '👥 회원 관리', href: '/admin/members', id: 'members' },
 ];
 
 import { fetchDashboardData } from '@/app/admin/(dashboard)/_api/fetchDashboardData';

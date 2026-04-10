@@ -26,8 +26,10 @@ import java.util.Set;
 public class ReportService implements CreateReportUseCase, LoadReportUseCase {
 
     private final ReportPort reportPort;
+    private final com.ieum.community.application.port.out.CommentPort commentPort;
+    private final com.ieum.user.review.application.port.out.ReviewPersistencePort reviewPersistencePort;
 
-    private static final Set<String> VALID_TARGET_TYPES = Set.of("POST", "COMMENT", "REVIEW");
+    private static final Set<String> VALID_TARGET_TYPES = Set.of(Report.TARGET_POST, Report.TARGET_COMMENT, Report.TARGET_REVIEW);
     private static final Set<String> VALID_REASONS = Set.of("SPAM", "ABUSE", "INAPPROPRIATE", "FALSE_INFO", "OTHER");
 
     @Override
@@ -98,7 +100,9 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
         if (reporterId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "조회하려면 로그인이 필요합니다.");
         }
-        return reportPort.findAllByReporterId(reporterId);
+        List<Report> reports = reportPort.findAllByReporterId(reporterId);
+        reports.forEach(this::populateParentInfo);
+        return reports;
     }
 
     /**
@@ -109,7 +113,35 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
         if (reporterId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "조회하려면 로그인이 필요합니다.");
         }
-        return reportPort.findByIdAndReporterId(reportId, reporterId)
+        Report report = reportPort.findByIdAndReporterId(reportId, reporterId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.COMMON_001, "해당 신고 내역을 찾을 수 없거나 권한이 없습니다."));
+        
+        populateParentInfo(report);
+        return report;
+    }
+
+    private void populateParentInfo(Report report) {
+        // [DEBUG] 상위 ID 보강 시작 로그
+        System.out.println("[ReportService] PopulateParentInfo for Report ID: " + report.getId() + ", TargetType: " + report.getTargetType() + ", TargetId: " + report.getTargetId());
+
+        // COMMENT인 경우 PostId(상위 ID)를 찾아서 채워줌 (대소문자 무시)
+        if (Report.TARGET_COMMENT.equalsIgnoreCase(report.getTargetType())) {
+            commentPort.findById(report.getTargetId()).ifPresentOrElse(comment -> {
+                report.setTargetParentId(comment.getPostId());
+                System.out.println("[ReportService] Successfully found Parent Post ID: " + comment.getPostId() + " for Comment: " + report.getTargetId());
+            }, () -> {
+                System.out.println("[ReportService] Failed to find Comment for ID: " + report.getTargetId());
+            });
+        } 
+        
+        // REVIEW인 경우 FestivalId(상위 ID)를 찾아서 채워줌 (대소문자 무시)
+        if (Report.TARGET_REVIEW.equalsIgnoreCase(report.getTargetType())) {
+            reviewPersistencePort.findById(report.getTargetId()).ifPresentOrElse(review -> {
+                report.setTargetParentId(review.getFestivalId());
+                System.out.println("[ReportService] Successfully found Parent Festival ID: " + review.getFestivalId() + " for Review: " + report.getTargetId());
+            }, () -> {
+                System.out.println("[ReportService] Failed to find Review for ID: " + report.getTargetId());
+            });
+        }
     }
 }

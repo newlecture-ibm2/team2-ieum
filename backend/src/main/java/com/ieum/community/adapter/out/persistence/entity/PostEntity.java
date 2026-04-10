@@ -52,7 +52,7 @@ public class PostEntity {
     @Builder.Default
     private int likeCount = 0;
 
-    @org.hibernate.annotations.Formula("(SELECT count(*) FROM comments c WHERE c.post_id = id AND c.status = 'ACTIVE')")
+    @org.hibernate.annotations.Formula("(SELECT count(*) FROM comments c WHERE c.post_id = id AND c.status = 'ACTIVE' AND c.user_id NOT IN (SELECT u.user_id FROM users u WHERE u.status = 'DELETED'))")
     private int commentCount;
 
     @Column(nullable = false, length = 10)

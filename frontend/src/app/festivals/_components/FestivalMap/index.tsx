@@ -40,6 +40,9 @@ const KOREA_ZOOM = 13;
 // 인트로 애니메이션 단계
 type IntroPhase = "warp" | "fadeout" | "done";
 
+// 별 모양이 들어간 깔끔한 물방울 형태의 보라색 축제 핀 (크기 축소)
+const CUSTOM_MARKER_IMAGE = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 36' width='28' height='42'%3E%3Cpath d='M12 0C5.373 0 0 5.373 0 12c0 8.01 10.155 22.378 11.162 23.774a1.025 1.025 0 0 0 1.676 0C13.845 34.378 24 20.01 24 12c0-6.627-5.373-12-12-12z' fill='%236c4ff5'/%3E%3Cpath d='M12 6.5l1.5 3.5 4 .5-3 2.5 1 4-3.5-2-3.5 2 1-4-3-2.5 4-.5z' fill='%23ffffff'/%3E%3C/svg%3E";
+
 export default function FestivalMap() {
   // ===== 카카오맵 SDK 로드 =====
   const [loading, error] = useKakaoLoader({
@@ -343,10 +346,35 @@ export default function FestivalMap() {
     }
   };
 
+  // ===== 지역명 정규화 헬퍼 (주소 앞머리로 시/도 추출) =====
+  const getMatchableRegion = (addr: string | undefined | null) => {
+    if (!addr) return "";
+    const prefix = addr.trim().split(" ")[0] || ""; // 예: "서울특별시", "충청북도", "세종특별자치시"
+    if (prefix.startsWith("서울")) return "서울";
+    if (prefix.startsWith("인천")) return "인천";
+    if (prefix.startsWith("대전")) return "대전";
+    if (prefix.startsWith("대구")) return "대구";
+    if (prefix.startsWith("광주")) return "광주";
+    if (prefix.startsWith("부산")) return "부산";
+    if (prefix.startsWith("울산")) return "울산";
+    if (prefix.startsWith("세종")) return "세종";
+    if (prefix.startsWith("경기")) return "경기";
+    if (prefix.startsWith("강원")) return "강원";
+    if (prefix.startsWith("충청북") || prefix.startsWith("충북")) return "충북";
+    if (prefix.startsWith("충청남") || prefix.startsWith("충남")) return "충남";
+    if (prefix.startsWith("경상북") || prefix.startsWith("경북")) return "경북";
+    if (prefix.startsWith("경상남") || prefix.startsWith("경남")) return "경남";
+    if (prefix.startsWith("전라북") || prefix.startsWith("전북")) return "전북";
+    if (prefix.startsWith("전라남") || prefix.startsWith("전남")) return "전남";
+    if (prefix.startsWith("제주")) return "제주";
+    return prefix;
+  };
+
   // ===== 필터링 =====
   const filteredFestivals = festivals.filter((f) => {
     if (selectedRegions.length === 0) return true;
-    return selectedRegions.some((region) => f.address?.includes(region));
+    const actualRegion = getMatchableRegion(f.address);
+    return selectedRegions.includes(actualRegion);
   });
 
   const markerFestivals = filteredFestivals.filter(
@@ -461,6 +489,11 @@ export default function FestivalMap() {
                         position={{
                           lat: fest.latitude!,
                           lng: fest.longitude!,
+                        }}
+                        image={{
+                          src: CUSTOM_MARKER_IMAGE,
+                          size: { width: 22, height: 26 },
+                          options: { offset: { x: 11, y: 26 } }
                         }}
                         onClick={() => handleMarkerClick(fest)}
                       />

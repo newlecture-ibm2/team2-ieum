@@ -1,6 +1,8 @@
 package com.ieum.user.report.adapter.out.persistence.repository;
 
 import com.ieum.user.report.adapter.out.persistence.entity.UserReportEntity;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -26,6 +28,9 @@ public interface ReportRepository extends JpaRepository<UserReportEntity, Long> 
             @Param("statuses") List<String> statuses);
 
     List<UserReportEntity> findAllByReporterIdOrderByCreatedAtDesc(Long reporterId);
+
+    // 페이징 처리된 신고 내역 조회
+    Page<UserReportEntity> findAllByReporterId(Long reporterId, Pageable pageable);
 
     Optional<UserReportEntity> findByIdAndReporterId(Long id, Long reporterId);
 }

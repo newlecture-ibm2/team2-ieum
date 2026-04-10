@@ -49,7 +49,8 @@ docker-compose-dev.yml
 docker-compose.dev.yml
 
 # Uploads (로컬 이미지 저장 — 운영은 Nginx 볼륨)
-**/uploads/
+**/uploads/*
+!**/uploads/.gitkeep
 
 # JVM crash logs
 hs_err_pid*

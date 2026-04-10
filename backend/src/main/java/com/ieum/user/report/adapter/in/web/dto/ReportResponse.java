@@ -13,6 +13,7 @@ public class ReportResponse {
     private Long reporterId;
     private String targetType;
     private Long targetId;
+    private Long targetParentId;
     private String reason;
     private String description;
     private String status;
@@ -27,6 +28,7 @@ public class ReportResponse {
                 .reporterId(report.getReporterId())
                 .targetType(report.getTargetType())
                 .targetId(report.getTargetId())
+                .targetParentId(report.getTargetParentId())
                 .reason(report.getReason())
                 .description(report.getDescription())
                 .status(report.getStatus())

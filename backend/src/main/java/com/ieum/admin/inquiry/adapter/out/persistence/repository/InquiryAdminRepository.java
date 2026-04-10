@@ -39,7 +39,7 @@ public interface InquiryAdminRepository extends JpaRepository<InquiryEntity, Lon
     @Query("SELECT i, u.nickname FROM InquiryEntity i " +
            "LEFT JOIN com.ieum.admin.report.adapter.out.persistence.entity.UserRef u ON u.id = i.userId " +
            "WHERE i.id = :id")
-    Optional<Object[]> findInquiryWithNickname(@Param("id") Long id);
+    Optional<Object> findInquiryWithNickname(@Param("id") Long id);
 
     long countByStatus(String status);
 
