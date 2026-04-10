@@ -3,6 +3,7 @@
 import { useState, useEffect, use } from 'react';
 import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 import styles from './FestivalDetail.module.css';
 import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
@@ -25,6 +26,9 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
 
   // 로그인 유도 모달 상태
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 범용 팝업 메시지 상태
+  const [popupMsg, setPopupMsg] = useState<string | null>(null);
 
   // 리뷰 데이터
   const [reviews, setReviews] = useState<any[]>([]);
@@ -87,21 +91,26 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
   }, [fid]);
 
   // --- 이벤트 핸들러 ---
+  const { toast } = useToast();
+
   const toggleBookmark = async () => {
     if (!isLoggedIn) {
       setShowLoginModal(true);
       return;
     }
     try {
+      const wasBookmarked = isBookmarked;
       await api.post('/api/favorites', { festivalId: Number(fid) });
       setIsBookmarked(prev => !prev);
+      toast(wasBookmarked ? '찜 목록에서 삭제했습니다.' : '찜 목록에 추가했습니다.', wasBookmarked ? 'info' : 'success');
     } catch (err: any) {
       console.error('Failed to toggle bookmark', err);
+      toast('찜하기에 실패했습니다.', 'error');
     }
   };
 
-  // ReviewSection 등에서 사용하는 팝업 (로그인 유도)
-  const showPopup = () => setShowLoginModal(true);
+  // ReviewSection 등에서 사용하는 범용 메시지 팝업
+  const showPopup = (msg: string) => setPopupMsg(msg);
 
   // --- 로딩 / 에러 상태 ---
   if (loading) {
@@ -171,6 +180,18 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
         </div>
       </section>
 
+      {/* 범용 팝업 모달 (리뷰 등록/삭제 성공/실패 등) */}
+      {popupMsg && (
+        <div className={styles.modalOverlay}>
+          <div className={styles.modalBox} style={{ border: 'none' }}>
+            <p className={styles.modalText}>{popupMsg}</p>
+            <button className={styles.modalBtn} onClick={() => setPopupMsg(null)}>
+              확인
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 비로그인 유저 로그인 유도 모달 */}
       {showLoginModal && (
         <Modal
@@ -202,3 +223,4 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
     </main>
   );
 }
+
