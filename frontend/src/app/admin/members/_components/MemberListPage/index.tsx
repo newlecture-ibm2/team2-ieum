@@ -21,8 +21,24 @@ const ROLE_MAP: Record<string, string> = {
   ADMIN: '관리자',
 };
 
+/* ── 가입 방식(provider) 표시 매핑 ── */
+const PROVIDER_MAP: Record<string, { label: string; color: string; bg: string }> = {
+  KAKAO:  { label: '카카오 가입', color: '#3B1C0C', bg: '#FEE500' },
+  NAVER:  { label: '네이버 가입', color: '#fff',    bg: '#03C75A' },
+  GOOGLE: { label: '구글 가입',   color: '#fff',    bg: '#4285F4' },
+};
+
+/** provider별 리스트 아이디 컬럼 표시 */
+const getLoginDisplay = (member: MemberItem) => {
+  const provider = member.provider || 'LOCAL';
+  if (provider === 'LOCAL') return member.loginId;
+  const info = PROVIDER_MAP[provider];
+  if (!info) return member.loginId;
+  return info.label;
+};
+
 export default function MemberListPage() {
-  const list = useAdminList({ extraFilterKeys: ['role', 'searchType'] });
+  const list = useAdminList({ extraFilterKeys: ['role', 'searchType', 'provider'] });
   const {
     currentPage, setCurrentPage, totalPages, setTotalPages,
     statusFilter, setStatusFilterAndReset,
@@ -41,6 +57,25 @@ export default function MemberListPage() {
   const [selectedMember, setSelectedMember] = useState<MemberItem | null>(null);
   const [toastMessage, setToastMessage] = useState('');
 
+  /* ── 정렬 상태 ── */
+  const [sortBy, setSortBy] = useState<string>('createdAt');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('desc');
+
+  const handleSort = (field: string) => {
+    if (sortBy === field) {
+      setSortDirection(prev => prev === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(field);
+      setSortDirection('desc');
+    }
+    setCurrentPage(1);
+  };
+
+  const getSortIndicator = (field: string) => {
+    if (sortBy !== field) return ' ↕';
+    return sortDirection === 'asc' ? ' ▲' : ' ▼';
+  };
+
   const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
 
   const onSearchSubmit = () => {
@@ -54,6 +89,22 @@ export default function MemberListPage() {
     }
   };
 
+  const handleReset = () => {
+    setSortBy('createdAt');
+    setSortDirection('desc');
+    setStatusFilterAndReset('');
+    setSearchTerm('');
+    setExtraFilter('provider', '');
+    setExtraFilter('role', '');
+    setExtraFilter('searchType', 'ALL');
+    setLocalSearchType('ALL');
+    
+    // 이 시점에 searchTerm은 아직 상태에 반영이 안될 수 있지만 빈 문자열로 하드 리셋
+    // submitSearch는 searchTerm을 바라보므로 잠시 끕니다. 
+    // fetchMembers는 useEffect 배열에 포함되어 있으니 상태가 변하면 알아서 로드됩니다.
+    // 임시 방편으로 페이지 파라미터를 날리기 위해 location.href 사용 가능하나 SPA 유지 위해 개별 set
+  };
+
   /* ── 데이터 로드 ── */
   const fetchMembers = useCallback(async () => {
     setLoading(true);
@@ -64,8 +115,11 @@ export default function MemberListPage() {
       };
       if (statusFilter) params.status = statusFilter;
       if (extraFilters.role) params.role = extraFilters.role;
+      if (extraFilters.provider) params.provider = extraFilters.provider;
       if (extraFilters.searchType && extraFilters.searchType !== 'ALL') params.searchType = extraFilters.searchType;
       if (keyword) params.keyword = keyword;
+      if (sortBy) params.sortBy = sortBy;
+      if (sortDirection) params.sortDirection = sortDirection;
 
       const { data } = await adminApi.get<{ data: MemberListResponse }>('/members', { params });
       const result = data.data;
@@ -82,7 +136,7 @@ export default function MemberListPage() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, statusFilter, extraFilters.role, extraFilters.searchType, keyword, setLoading, setTotalPages]);
+  }, [currentPage, statusFilter, extraFilters.role, extraFilters.provider, extraFilters.searchType, keyword, sortBy, sortDirection, setLoading, setTotalPages]);
 
   useEffect(() => {
     fetchMembers();
@@ -159,13 +213,14 @@ export default function MemberListPage() {
           <select
             className={common.filterSelect}
             style={{ minWidth: 130 }}
-            value={statusFilter}
-            onChange={(e) => setStatusFilterAndReset(e.target.value)}
+            value={extraFilters.provider || ''}
+            onChange={(e) => setExtraFilter('provider', e.target.value)}
           >
-            <option value="">전체 상태</option>
-            <option value="ACTIVE">정상 회원</option>
-            <option value="SUSPENDED">정지 회원</option>
-            <option value="DELETED">탈퇴 대기</option>
+            <option value="">전체 가입 방식</option>
+            <option value="LOCAL">일반 가입</option>
+            <option value="KAKAO">카카오</option>
+            <option value="NAVER">네이버</option>
+            <option value="GOOGLE">구글</option>
           </select>
 
           <select
@@ -203,6 +258,22 @@ export default function MemberListPage() {
           <button type="button" className={common.searchBtn} onClick={onSearchSubmit}>
             검색
           </button>
+          <button 
+            type="button"
+            style={{ 
+              width: 36, height: 36, padding: 0, 
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: '#f3f4f6', border: '1px solid #e5e7eb', borderRadius: '50%',
+              cursor: 'pointer', fontSize: 18, color: '#4b5563'
+            }}
+            onClick={() => {
+              handleReset();
+              setTimeout(() => submitSearch(), 0);
+            }}
+            title="조건 초기화"
+          >
+            ↻
+          </button>
         </div>
       </div>
 
@@ -227,11 +298,32 @@ export default function MemberListPage() {
             <thead>
               <tr className={common.tableHeaderRow}>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
-                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>닉네임</th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textLeft}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('nickname')}
+                  title="닉네임 기준 정렬"
+                >
+                  닉네임{getSortIndicator('nickname')}
+                </th>
                 <th className={`${common.tableHeaderCell} ${common.textLeft}`}>아이디</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>역할</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>가입일</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>신고</th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textCenter}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('createdAt')}
+                  title="가입일 기준 정렬"
+                >
+                  가입일{getSortIndicator('createdAt')}
+                </th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textCenter}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('reportedCount')}
+                  title="신고수 기준 정렬"
+                >
+                  신고{getSortIndicator('reportedCount')}
+                </th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
                 <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
               </tr>
@@ -261,11 +353,35 @@ export default function MemberListPage() {
                         ) : (
                           <span className={s.profilePlaceholder}>👤</span>
                         )}
-                        {member.nickname}
+                        {(member.provider && member.provider !== 'LOCAL') ? (
+                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
+                            <span style={{
+                              fontSize: 11, fontWeight: 600,
+                              background: '#f1f5f9', color: '#64748b',
+                              padding: '1px 8px', borderRadius: 10,
+                            }}>
+                              소셜 가입자
+                            </span>
+                          </span>
+                        ) : (
+                          member.nickname
+                        )}
                       </div>
                     </td>
                     <td className={`${common.tableCell} ${s.ellipsisCell}`}>
-                      {member.loginId}
+                      {(member.provider && member.provider !== 'LOCAL') ? (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontSize: 11, fontWeight: 600,
+                          background: PROVIDER_MAP[member.provider]?.bg || '#e2e8f0',
+                          color: PROVIDER_MAP[member.provider]?.color || '#334155',
+                          padding: '2px 10px', borderRadius: 12,
+                        }}>
+                          {PROVIDER_MAP[member.provider]?.label || member.provider}
+                        </span>
+                      ) : (
+                        member.loginId
+                      )}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       <span className={`${common.statusBadge} ${member.role === 'ADMIN' ? common.badgeUpcoming : common.badgeDismissed}`}>

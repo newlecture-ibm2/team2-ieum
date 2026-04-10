@@ -5,7 +5,8 @@
 /** 회원 목록 아이템 */
 export interface MemberItem {
   userId: number;
-  loginId: string;           // 이메일(로그인 ID)
+  loginId: string;           // 이메일(로그인 ID) 또는 소셜 식별값
+  provider: string;          // LOCAL | KAKAO | NAVER | GOOGLE (백엔드에서 loginId prefix로 추론)
   name: string;              // 실명
   nickname: string;          // 닉네임
   phone: string | null;
