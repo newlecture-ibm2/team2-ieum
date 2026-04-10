@@ -17,6 +17,16 @@ const nextConfig: NextConfig = {
         protocol: 'http',
         hostname: 'tong.visitkorea.or.kr',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'festa-ieum.com',
+        pathname: '/**',
+      },
+      {
+        protocol: 'http',
+        hostname: 'localhost',
+        pathname: '/**',
       }
     ],
   },
