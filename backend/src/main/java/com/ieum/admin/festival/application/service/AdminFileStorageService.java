@@ -15,7 +15,7 @@ import java.util.UUID;
 @Service
 public class AdminFileStorageService {
 
-    @Value("${file.upload-dir:uploads/festivals}")
+    @Value("${FILE_UPLOAD_DIR:/app/upload}/festivals")
     private String uploadDir;
 
     @PostConstruct
