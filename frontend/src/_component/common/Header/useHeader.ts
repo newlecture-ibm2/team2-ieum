@@ -1,11 +1,32 @@
 import { useState, useEffect } from "react";
+import { usePathname } from "next/navigation";
 import { onMessage } from "firebase/messaging";
 import api from "@/lib/api";
 import { messaging } from "@/lib/firebase";
 
 export function useHeader() {
+  const pathname = usePathname();
   const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
   const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  /* ===== 어두운 히어로 판별 + body data attribute 동기화 ===== */
+  const isDarkHeroPage =
+    !pathname.startsWith("/festivals/map") &&      // 지도 페이지 제외
+    (
+      pathname === "/" ||
+      pathname.startsWith("/festivals") ||
+      pathname.startsWith("/pastFestivals") ||
+      pathname.startsWith("/community")
+    );
+
+  useEffect(() => {
+    if (isDarkHeroPage) {
+      document.body.setAttribute("data-hero-theme", "dark");
+    } else {
+      document.body.removeAttribute("data-hero-theme");
+    }
+    return () => document.body.removeAttribute("data-hero-theme");
+  }, [isDarkHeroPage]);
 
   /* ===== 인증 상태 ===== */
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -119,5 +140,6 @@ export function useHeader() {
     closePopup,
     logout,
     devRefreshFestivals,
+    isDarkHeroPage,
   };
 }
