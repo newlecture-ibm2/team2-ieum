@@ -24,16 +24,24 @@ export function useHeader() {
   };
 
   useEffect(() => {
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then(async (data) => {
-        setIsLoggedIn(data.isLoggedIn);
-        setUserNickname(data.user?.nickname ?? null);
-        setUserRole(data.user?.role ?? null);
+    // 🚀 [v18] 세션 조회 표준화: 로우 레벨 fetch 대신 api 라이브러리 활용
+    api.get("/api/auth/me")
+      .then(async (response) => {
+        // 🚀 [v18-Final] 유연한 데이터 추출:ApiResponse(data.data) 또는 직렬 데이터(data) 모두 대응
+        const responseData = response.data;
+        const sessionData = responseData.data || responseData;
 
-        if (data.isLoggedIn) {
-          api
-            .get("/api/users/me/notifications")
+        if (!sessionData || typeof sessionData.isLoggedIn === 'undefined') return;
+
+        setIsLoggedIn(sessionData.isLoggedIn);
+        
+        if (sessionData.isLoggedIn && sessionData.user) {
+          setUserNickname(sessionData.user.nickname ?? null);
+          setUserRole(sessionData.user.role ?? null);
+          if (sessionData.user.profileImage) setUserProfileImage(sessionData.user.profileImage);
+
+          // 알림 조회 (표준 규격 대응)
+          api.get("/api/users/me/notifications")
             .then((res) => {
               const unreadCount = res.data?.data?.unreadCount || 0;
               setHasUnread(unreadCount > 0);
@@ -41,16 +49,18 @@ export function useHeader() {
             .catch(() => {});
 
           try {
-            // 🚀 [v17] 헤더 프로필 동기화: 사진뿐만 아니라 최신 닉네임도 우리 전용 API에서 가져옵니다.
+            // 🚀 [v17] 헤더 프로필 자가 동기화 (최신 정보 보장)
             const profileRes = await api.get("/api/mypage/profile");
-            if (profileRes.data) {
-              if (profileRes.data.profileImageUrl) setUserProfileImage(profileRes.data.profileImageUrl);
-              if (profileRes.data.nickname) setUserNickname(profileRes.data.nickname);
+            const profileData = profileRes.data.data;
+            if (profileData) {
+              if (profileData.profileImageUrl) setUserProfileImage(profileData.profileImageUrl);
+              if (profileData.nickname) setUserNickname(profileData.nickname);
             }
           } catch (err) {
-            console.error("헤더 프로필 조회 실패:", err);
+            console.error("헤더 프로필 상세 조회 실패:", err);
           }
 
+          // FCM 토큰 등록 로직
           try {
             if (typeof Notification !== "undefined" && Notification.permission === "default") {
               await Notification.requestPermission();
@@ -60,15 +70,15 @@ export function useHeader() {
               const fcmToken = await requestFcmToken();
               if (fcmToken) {
                 await api.post("/api/users/me/fcm-token", { token: fcmToken });
-                console.log("✅ FCM 토큰 백엔드 등록 완료");
               }
             }
-          } catch (err) {
-            console.warn("FCM 토큰 등록 실패 (무시):", err);
-          }
+          } catch (err) {}
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.error("세션 확인 실패:", err);
+        setIsLoggedIn(false);
+      });
   }, []);
 
   useEffect(() => {

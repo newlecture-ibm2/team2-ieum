@@ -8,7 +8,7 @@
 export interface AuthState {
   user: {
     id: number;
-    email: string;
+    loginId: string;
     nickname: string;
     role: "USER" | "ADMIN";
   } | null;

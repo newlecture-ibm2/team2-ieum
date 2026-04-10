@@ -29,7 +29,7 @@ export const MENU_LABELS: Record<MenuType, string> = {
 interface MyPageSidebarProps {
   user: {
     nickname: string;
-    id: string; // email or loginId
+    id: string; // loginId
   };
   activeMenu: MenuType;
   onMenuChange: (menu: MenuType) => void;
@@ -54,9 +54,10 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
     const fetchProfile = async () => {
       try {
         const response = await api.get('/api/mypage/profile');
-        if (response.data) {
-          if (response.data.profileImageUrl) setProfileImageUrl(response.data.profileImageUrl);
-          if (response.data.nickname) setNickname(response.data.nickname);
+        const profileData = response.data.data;
+        if (profileData) {
+          if (profileData.profileImageUrl) setProfileImageUrl(profileData.profileImageUrl);
+          if (profileData.nickname) setNickname(profileData.nickname);
         }
       } catch (error) {
         console.error('사이드바 프로필 조회 실패:', error);
@@ -77,7 +78,7 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
           )}
         </div>
         <div className={styles.nickname}>{nickname}</div>
-        <div className={styles.email}>{user.id}</div>
+        <div className={styles.loginId}>{user.id}</div>
       </div>
 
       {/* 내비게이션 메뉴 */}

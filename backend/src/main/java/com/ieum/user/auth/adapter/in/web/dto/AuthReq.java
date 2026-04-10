@@ -24,7 +24,6 @@ public class AuthReq {
         private String nickname;
         private String phone;
         private boolean termsAgreed;
-        private boolean marketingAgreed;
     }
 
     @Getter
@@ -33,14 +32,15 @@ public class AuthReq {
         private String refreshToken;
     }
 
-    /** 비밀번호 찾기: 1단계 이메일 입력 */
+    /** 비밀번호 찾기: 1단계 아이디 및 전화번호 입력 */
     @Getter
     @Setter
     public static class PasswordRecoveryRequest {
         private String id;
+        private String phone;
     }
 
-    /** 비밀번호 찾기: 2단계 인증 코드 확인 */
+    /** 비밀번호 찾기: 2단계 인증 코드 확인 (아이디 기준) */
     @Getter
     @Setter
     public static class PasswordRecoveryVerify {
@@ -48,7 +48,7 @@ public class AuthReq {
         private String code;
     }
 
-    /** 비밀번호 찾기: 3단계 비밀번호 재설정 */
+    /** 비밀번호 찾기: 3단계 비밀번호 재설정 (아이디 기준) */
     @Getter
     @Setter
     public static class PasswordReset {

@@ -97,10 +97,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 ? request.getPhone().replaceAll("[^0-9]", "") 
                 : null;
 
-        if (normalizedPhone != null && !normalizedPhone.isBlank() && loadUserPort.existsByPhone(normalizedPhone)) {
-            throw new IllegalArgumentException("이미 가입된 전화번호입니다.");
-        }
-
         // 🔍 name이 비어있으면 nickname을 대신 사용 (DB NOT NULL 제약조건 대응)
         String realName = (request.getName() == null || request.getName().isBlank()) ? request.getNickname() : request.getName();
 
@@ -112,7 +108,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .phone(normalizedPhone)
                 .role("USER")
                 .termsAgreed(request.isTermsAgreed())
-                .marketingAgreed(request.isMarketingAgreed())
                 .status("ACTIVE")
                 .build();
 
@@ -160,8 +155,14 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
     @Transactional
     public void requestRecovery(AuthReq.PasswordRecoveryRequest request) {
         String loginId = request.getId();
-        if (!loadUserPort.existsByLoginId(loginId)) {
-            throw new IllegalArgumentException("가입되지 않은 아이디입니다.");
+        String inputPhone = (request.getPhone() != null) ? request.getPhone().replaceAll("[^0-9]", "") : "";
+
+        User user = loadUserPort.loadByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("가입 정보가 일치하지 않습니다."));
+
+        // 📱 등록된 전화번호와 일치하는지 확인 (보안을 위해 에러 메시지 통일)
+        if (user.getPhone() == null || !user.getPhone().equals(inputPhone)) {
+            throw new IllegalArgumentException("가입 정보가 일치하지 않습니다.");
         }
 
         // 6자리 난수 생성
@@ -169,7 +170,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
         recoveryCodes.put(loginId, code);
         verifiedIds.put(loginId, false);
 
-        // TODO: 실제 이메일 발송 로직 연동 (현재는 로그 출력으로 대체)
+        // [PASSWORD RECOVERY] 현재는 SMS 연동 전이므로 로그 출력으로 대체
         System.out.println("================================");
         System.out.println("[PASSWORD RECOVERY] ID: " + loginId);
         System.out.println("[PASSWORD RECOVERY] Code: " + code);
@@ -211,7 +212,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .profileImage(user.getProfileImage())
                 .role(user.getRole())
                 .termsAgreed(user.isTermsAgreed())
-                .marketingAgreed(user.isMarketingAgreed())
                 .status(user.getStatus())
                 .build();
 
@@ -226,6 +226,29 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
         User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
         return AuthRes.UserDto.from(user);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public AuthRes.SessionDto getMySession(Long userId) {
+        if (userId == null) {
+            return AuthRes.SessionDto.builder()
+                    .isLoggedIn(false)
+                    .build();
+        }
+
+        return loadUserPort.loadUserById(userId)
+                .map(user -> AuthRes.SessionDto.builder()
+                        .isLoggedIn(true)
+                        .user(AuthRes.UserInfoDto.builder()
+                                .nickname(user.getNickname())
+                                .role(user.getRole())
+                                .profileImage(user.getProfileImage())
+                                .build())
+                        .build())
+                .orElseGet(() -> AuthRes.SessionDto.builder()
+                        .isLoggedIn(false)
+                        .build());
     }
 
     @Override

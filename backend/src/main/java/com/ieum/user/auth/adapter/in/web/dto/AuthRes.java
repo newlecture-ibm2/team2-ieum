@@ -28,7 +28,6 @@ public class AuthRes {
         private String nickname;
         private String role;
         private String status;
-        private boolean marketingAgreed;
 
         /**
          * 도메인 User 객체를 응답용 DTO로 변환
@@ -41,8 +40,22 @@ public class AuthRes {
                     .nickname(user.getNickname())
                     .role(user.getRole())
                     .status(user.getStatus())
-                    .marketingAgreed(user.isMarketingAgreed())
                     .build();
         }
+    }
+
+    @Getter
+    @Builder
+    public static class SessionDto {
+        private boolean isLoggedIn;
+        private UserInfoDto user;
+    }
+
+    @Getter
+    @Builder
+    public static class UserInfoDto {
+        private String nickname;
+        private String role;
+        private String profileImage;
     }
 }

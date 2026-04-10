@@ -27,9 +27,10 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
     const fetchLatestProfile = async () => {
       try {
         const response = await api.get('/api/mypage/profile');
-        if (response.data) {
-          if (response.data.nickname) setNickname(response.data.nickname);
-          if (response.data.profileImageUrl) setPreviewUrl(response.data.profileImageUrl);
+        const profileData = response.data.data;
+        if (profileData) {
+          if (profileData.nickname) setNickname(profileData.nickname);
+          if (profileData.profileImageUrl) setPreviewUrl(profileData.profileImageUrl);
         }
       } catch (error) {
         console.error('마이페이지 프로필 자가 조회 실패:', error);

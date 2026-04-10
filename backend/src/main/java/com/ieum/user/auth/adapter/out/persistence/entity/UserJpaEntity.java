@@ -34,7 +34,7 @@ public class UserJpaEntity {
     @Column(nullable = false, length = 20, unique = true)
     private String nickname;
 
-    @Column(length = 20, unique = true)
+    @Column(length = 20)
     private String phone;
 
     @Column(name = "profile_image", length = 500)
@@ -45,9 +45,6 @@ public class UserJpaEntity {
 
     @Column(name = "terms_agreed", nullable = false)
     private boolean termsAgreed;
-
-    @Column(name = "marketing_agreed", nullable = false)
-    private boolean marketingAgreed;
 
     @Column(nullable = false, length = 10)
     private String status = "ACTIVE";
@@ -77,7 +74,6 @@ public class UserJpaEntity {
         this.profileImage = profileImage;
         this.role = role != null ? role : "USER";
         this.termsAgreed = termsAgreed;
-        this.marketingAgreed = marketingAgreed;
         this.status = status != null ? status : "ACTIVE";
         this.deletedAt = deletedAt;
         this.suspendedUntil = suspendedUntil;
@@ -94,7 +90,6 @@ public class UserJpaEntity {
                 .profileImage(this.profileImage)
                 .role(this.role)
                 .termsAgreed(this.termsAgreed)
-                .marketingAgreed(this.marketingAgreed)
                 .status(this.status)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
@@ -114,7 +109,6 @@ public class UserJpaEntity {
                 .profileImage(user.getProfileImage())
                 .role(user.getRole())
                 .termsAgreed(user.isTermsAgreed())
-                .marketingAgreed(user.isMarketingAgreed())
                 .status(user.getStatus())
                 .deletedAt(user.getDeletedAt())
                 .suspendedUntil(user.getSuspendedUntil())
