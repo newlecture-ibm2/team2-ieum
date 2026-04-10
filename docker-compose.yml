@@ -24,6 +24,7 @@ services:
       - OAUTH_KAKAO_CLIENT_SECRET=${OAUTH_KAKAO_CLIENT_SECRET}
       - OAUTH_NAVER_CLIENT_ID=${OAUTH_NAVER_CLIENT_ID}
       - OAUTH_NAVER_CLIENT_SECRET=${OAUTH_NAVER_CLIENT_SECRET}
+      - TZ=Asia/Seoul
     restart: unless-stopped
     depends_on:
       - db
@@ -43,6 +44,7 @@ services:
       - API_BASE_URL=http://backend:8080
       - SESSION_SECRET=${SESSION_SECRET}
       - NEXT_PUBLIC_KAKAO_MAP_API_KEY=${NEXT_PUBLIC_KAKAO_MAP_API_KEY}
+      - TZ=Asia/Seoul
     depends_on:
       - backend
     restart: unless-stopped
@@ -55,6 +57,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-ieum-db}
       POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-ieum}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
     ports:
       - "${DB_PORT:-5454}:5432" # 외부 포트:내부 포트(5432) - 팀원 로컬 접속용
     volumes:
