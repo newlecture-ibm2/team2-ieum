@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../login.module.css';
 
@@ -14,7 +14,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  const [autoLogin, setAutoLogin] = useState(false);
   const [saveId, setSaveId] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -105,7 +104,7 @@ export default function LoginForm() {
         <div className={styles.inputGroup}>
           <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
-            <Mail className={styles.inputIcon} />
+            <User className={styles.inputIcon} />
             <input 
               id="id"
               type="text" 
@@ -147,15 +146,6 @@ export default function LoginForm() {
 
         <div className={styles.options}>
           <div className={styles.checkboxGroup}>
-            <label className={styles.checkboxLabel}>
-              <input 
-                type="checkbox" 
-                className={styles.checkbox}
-                checked={autoLogin}
-                onChange={(e) => setAutoLogin(e.target.checked)}
-              />
-              자동 로그인
-            </label>
             <label className={styles.checkboxLabel}>
               <input 
                 type="checkbox" 

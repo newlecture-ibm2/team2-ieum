@@ -23,7 +23,6 @@ public class User {
     private final String profileImage;
     private final String role;
     private final boolean termsAgreed;
-    private final boolean marketingAgreed;
     private final String status;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;

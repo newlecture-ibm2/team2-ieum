@@ -20,18 +20,18 @@ firebase.initializeApp(firebaseConfig);
 const messaging = firebase.messaging();
 
 // 백그라운드 메시지 수신 핸들러
+// data-only 메시지이므로 직접 showNotification을 호출해야 합니다.
 messaging.onBackgroundMessage((payload) => {
   console.log("[firebase-messaging-sw.js] 백그라운드 메시지 수신:", payload);
 
-  const notificationTitle = payload.notification?.title || "이음 알림";
-  const notificationOptions = {
-    body: payload.notification?.body || "새로운 알림이 있습니다.",
-    icon: "/favicon.ico",
-    badge: "/favicon.ico",
-    data: payload.data || {}
+  const title = payload.data?.title || "이음 알림";
+  const options = {
+    body: payload.data?.body || "새로운 알림이 있습니다.",
+    icon: payload.data?.icon || "/favicon/favicon-ieum-transparent.png",
+    data: payload.data,
   };
 
-  self.registration.showNotification(notificationTitle, notificationOptions);
+  self.registration.showNotification(title, options);
 });
 
 // 알림 클릭 시 해당 페이지로 이동
