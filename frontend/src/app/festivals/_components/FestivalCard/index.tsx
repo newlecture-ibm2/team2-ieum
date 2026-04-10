@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Heart, Star } from 'lucide-react';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
 import styles from './FestivalCard.module.css';
@@ -57,6 +58,8 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
       .catch(() => {});
   }, [festId]);
 
+  const { toast } = useToast();
+
   // 찜하기 토글 핸들러
   const handleFavoriteToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -72,10 +75,13 @@ export default function FestivalCard({ festival }: FestivalCardProps) {
 
     try {
       await api.post('/api/favorites', { festivalId: Number(festId) });
+      const wasBookmarked = isFavorited;
       setIsFavorited(prev => !prev);
       setFavCount(prev => isFavorited ? Math.max(0, prev - 1) : prev + 1);
+      toast(wasBookmarked ? '찜 목록에서 삭제했습니다.' : '찜 목록에 추가했습니다.', wasBookmarked ? 'info' : 'success');
     } catch (err) {
       console.error('찜하기 실패:', err);
+      toast('찜하기에 실패했습니다.', 'error');
     } finally {
       setIsToggling(false);
     }

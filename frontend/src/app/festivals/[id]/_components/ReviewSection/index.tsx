@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { User, Trash2, Siren, ShieldAlert } from 'lucide-react';
 import Link from 'next/link';
-import axios from 'axios';
 import api from '@/lib/api';
 import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import styles from './ReviewSection.module.css';
@@ -55,12 +54,11 @@ export default function ReviewSection({
 
     setIsSubmitting(true);
     try {
-      await axios.post(`/api/reviews`, {
+      await api.post(`/api/reviews`, {
         festivalId,
         rating,
         content: reviewContent,
       });
-      onPopup('리뷰가 성공적으로 등록되었습니다.');
       setReviewContent('');
       setRating(0);
       onReviewSubmitted();
@@ -81,7 +79,7 @@ export default function ReviewSection({
     
     setDeletingId(confirmDeleteId);
     try {
-      await axios.delete(`/api/reviews/${confirmDeleteId}`);
+      await api.delete(`/api/reviews/${confirmDeleteId}`);
       onPopup('리뷰가 삭제되었습니다.');
       onReviewSubmitted(); // 목록 새로고침
     } catch (err: any) {
@@ -265,7 +263,7 @@ export default function ReviewSection({
                 disabled={!reportReason}
                 onClick={async () => {
                   try {
-                    await axios.post('/api/reports', {
+                    await api.post('/api/reports', {
                       targetType: 'REVIEW',
                       targetId: reportingReviewId,
                       reason: reportReason,
