@@ -1,0 +1,132 @@
+/* ===== 확장 영역 (날짜 클릭 시 축제 리스트) ===== */
+.expandRow {
+  grid-column: 1 / -1;
+  background: #faf9ff;
+  border-top: 2px solid var(--color-primary-500);
+  padding: 16px 20px;
+  animation: slideDown 0.25s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding: 0 20px;
+  }
+  to {
+    opacity: 1;
+    max-height: 400px;
+    padding: 16px 20px;
+  }
+}
+
+.expandHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.expandTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+}
+
+.expandClose {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gray-200);
+  background: #fff;
+  font-size: 14px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-500);
+  transition: all var(--transition-fast);
+}
+
+.expandClose:hover {
+  background: var(--color-gray-100);
+  color: var(--color-gray-800);
+}
+
+/* 카드 + 버튼 래퍼 */
+.cardsWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* 좌우 스크롤 버튼 */
+.scrollBtn {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 1px solid var(--color-gray-200);
+  background: #fff;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-500);
+  transition: all var(--transition-fast);
+  box-shadow: var(--shadow-sm);
+}
+
+.scrollBtn:hover {
+  border-color: var(--color-primary-500);
+  color: var(--color-primary-500);
+  background: var(--color-primary-50);
+}
+
+/* 축제 카드 가로 스크롤 영역 */
+.expandCards {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+  scroll-snap-type: x mandatory;
+}
+
+.expandCards::-webkit-scrollbar {
+  height: 5px;
+}
+
+.expandCards::-webkit-scrollbar-track {
+  background: var(--color-gray-100);
+  border-radius: 3px;
+}
+
+.expandCards::-webkit-scrollbar-thumb {
+  background: #c4b5fd;
+  border-radius: 3px;
+}
+
+/* 가로 스크롤 안내 */
+.scrollHint {
+  font-size: 11px;
+  color: #a29bfe;
+  text-align: right;
+  margin-top: 6px;
+}
+
+/* 축제 없음 메시지 */
+.emptyMessage {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-gray-400);
+  font-size: 14px;
+}
+
+/* 로딩 중 */
+.loadingText {
+  text-align: center;
+  padding: 24px;
+  color: var(--color-primary-500);
+  font-size: 14px;
+}

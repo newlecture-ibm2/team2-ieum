@@ -78,26 +78,38 @@ END $$;
 -- 2-1. 사용자 (users)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
-    id              BIGSERIAL       PRIMARY KEY,
-    email           VARCHAR(255)    NOT NULL UNIQUE,
+    user_id         BIGSERIAL       PRIMARY KEY,
+    login_id        VARCHAR(100)    NOT NULL UNIQUE,
     password        VARCHAR(255)    NOT NULL,
+    name            VARCHAR(50)     NOT NULL,
     nickname        VARCHAR(20)     NOT NULL UNIQUE,
     phone           VARCHAR(20),
     profile_image   VARCHAR(500),
-    role            user_role       NOT NULL DEFAULT 'USER',
-    is_active       BOOLEAN         NOT NULL DEFAULT TRUE,
+    role            VARCHAR(10)     NOT NULL DEFAULT 'USER',
+    terms_agreed    BOOLEAN         NOT NULL DEFAULT FALSE,
+    marketing_agreed BOOLEAN        NOT NULL DEFAULT FALSE,
+    status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
+    suspended_until TIMESTAMP,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    updated_at      TIMESTAMP
+    updated_at      TIMESTAMP,
+    deleted_at      TIMESTAMP
 );
 
 COMMENT ON TABLE  users                IS '사용자 테이블';
-COMMENT ON COLUMN users.email          IS '로그인용 이메일 (고유)';
-COMMENT ON COLUMN users.password       IS '암호화된 비밀번호';
-COMMENT ON COLUMN users.nickname       IS '닉네임 (2~20자, 고유)';
+COMMENT ON COLUMN users.user_id        IS '회원 고유 ID';
+COMMENT ON COLUMN users.login_id       IS '로그인 아이디 (UK)';
+COMMENT ON COLUMN users.password       IS '암호화된 비밀번호 (BCrypt)';
+COMMENT ON COLUMN users.name           IS '이름 (실명)';
+COMMENT ON COLUMN users.nickname       IS '닉네임 (UK)';
 COMMENT ON COLUMN users.phone          IS '전화번호';
 COMMENT ON COLUMN users.profile_image  IS '프로필 이미지 URL';
-COMMENT ON COLUMN users.role           IS '사용자 역할 (USER, ADMIN)';
-COMMENT ON COLUMN users.is_active      IS '활성 여부 (정지 시 false)';
+COMMENT ON COLUMN users.role           IS '권한 (USER / ADMIN)';
+COMMENT ON COLUMN users.terms_agreed    IS '필수 약관 동의 여부';
+COMMENT ON COLUMN users.marketing_agreed IS '마케팅 활용 동의 여부';
+COMMENT ON COLUMN users.status         IS '회원 상태 (ACTIVE / DELETED)';
+COMMENT ON COLUMN users.created_at     IS '가입일';
+COMMENT ON COLUMN users.updated_at     IS '수정일';
+COMMENT ON COLUMN users.deleted_at     IS '탈퇴일 (소프트 삭제)';
 
 -- ------------------------------------------------------------
 -- 2-2. 리프레시 토큰 (refresh_tokens)
@@ -110,7 +122,7 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_refresh_tokens_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 COMMENT ON TABLE  refresh_tokens       IS 'JWT 리프레시 토큰 저장';
@@ -187,7 +199,7 @@ COMMENT ON COLUMN festivals.is_custom           IS '자체 기획 축제 여부'
 COMMENT ON COLUMN festivals.is_visible          IS '노출 여부 (관리자 비공개 처리용)';
 COMMENT ON COLUMN festivals.avg_rating          IS '평균 별점 (캐시)';
 COMMENT ON COLUMN festivals.review_count        IS '리뷰 수 (캐시)';
-COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기 수 (캐시)';
+COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기(찜) 수 (캐시)';
 COMMENT ON COLUMN festivals.view_count          IS '조회수';
 COMMENT ON COLUMN festivals.api_modified_at     IS 'API 수정일 (증분 동기화 변경 감지용)';
 
@@ -200,13 +212,14 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id         BIGINT          NOT NULL,
     rating          INTEGER         NOT NULL CHECK (rating >= 1 AND rating <= 5),
     content         VARCHAR(500)    NOT NULL,
+    status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
     CONSTRAINT fk_reviews_festival
         FOREIGN KEY (festival_id) REFERENCES festivals(id) ON DELETE CASCADE,
     CONSTRAINT fk_reviews_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_reviews_user_festival
         UNIQUE (user_id, festival_id)
 );
@@ -214,6 +227,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 COMMENT ON TABLE  reviews              IS '축제 리뷰 테이블';
 COMMENT ON COLUMN reviews.rating       IS '별점 (1~5)';
 COMMENT ON COLUMN reviews.content      IS '리뷰 내용 (10~500자)';
+COMMENT ON COLUMN reviews.status       IS '리뷰 상태 (ACTIVE, REMOVED)';
 
 -- ------------------------------------------------------------
 -- 2-5. 즐겨찾기 (favorites)
@@ -225,14 +239,14 @@ CREATE TABLE IF NOT EXISTS favorites (
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_favorites_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_favorites_festival
         FOREIGN KEY (festival_id) REFERENCES festivals(id) ON DELETE CASCADE,
     CONSTRAINT uq_favorites_user_festival
         UNIQUE (user_id, festival_id)
 );
 
-COMMENT ON TABLE  favorites            IS '축제 즐겨찾기 테이블';
+COMMENT ON TABLE  favorites               IS '축제 즐겨찾기(찜) 테이블';
 
 -- ------------------------------------------------------------
 -- 2-6. 커뮤니티 게시글 (posts)
@@ -241,7 +255,7 @@ CREATE TABLE IF NOT EXISTS posts (
     id              BIGSERIAL       PRIMARY KEY,
     user_id         BIGINT          NOT NULL,
     category        board_category  NOT NULL,
-    title           VARCHAR(100)    NOT NULL,
+    title           VARCHAR(200)    NOT NULL,
     content         TEXT            NOT NULL,
     view_count      INTEGER         NOT NULL DEFAULT 0,
     comment_count   INTEGER         NOT NULL DEFAULT 0,
@@ -249,12 +263,12 @@ CREATE TABLE IF NOT EXISTS posts (
     updated_at      TIMESTAMP,
 
     CONSTRAINT fk_posts_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 COMMENT ON TABLE  posts                 IS '커뮤니티 게시글 테이블';
 COMMENT ON COLUMN posts.category        IS '게시판 카테고리 (QNA, TIP, FOOD)';
-COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~100자)';
+COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~200자)';
 COMMENT ON COLUMN posts.content         IS '게시글 내용 (10~5000자)';
 COMMENT ON COLUMN posts.view_count      IS '조회수';
 COMMENT ON COLUMN posts.comment_count   IS '댓글 수 (캐시)';
@@ -266,18 +280,18 @@ CREATE TABLE IF NOT EXISTS comments (
     id              BIGSERIAL       PRIMARY KEY,
     post_id         BIGINT          NOT NULL,
     user_id         BIGINT          NOT NULL,
-    content         VARCHAR(1000)   NOT NULL,
+    content         VARCHAR(500)    NOT NULL,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
     CONSTRAINT fk_comments_post
         FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
     CONSTRAINT fk_comments_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 COMMENT ON TABLE  comments             IS '게시글 댓글 테이블';
-COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~1000자)';
+COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~500자)';
 
 -- ------------------------------------------------------------
 -- 2-8. 신고 (reports)
@@ -296,7 +310,7 @@ CREATE TABLE IF NOT EXISTS reports (
     created_at      TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_reports_reporter
-        FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_reports_reporter_target
         UNIQUE (reporter_id, target_type, target_id)
 );
@@ -313,10 +327,33 @@ COMMENT ON COLUMN reports.admin_note    IS '관리자 메모';
 COMMENT ON COLUMN reports.processed_at  IS '처리 완료 일시';
 
 -- ------------------------------------------------------------
+-- 2-8-1. 신고 처리 답변 (report_responses)
+-- ------------------------------------------------------------
+CREATE TABLE IF NOT EXISTS report_responses (
+    id              BIGSERIAL       PRIMARY KEY,
+    report_id       BIGINT          NOT NULL,
+    admin_id        BIGINT,
+    action_type     VARCHAR(20)     NOT NULL,
+    message         TEXT            NOT NULL,
+    created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT fk_report_responses_report
+        FOREIGN KEY (report_id) REFERENCES reports(id) ON DELETE CASCADE,
+    CONSTRAINT fk_report_responses_admin
+        FOREIGN KEY (admin_id) REFERENCES users(user_id)
+);
+
+COMMENT ON TABLE  report_responses              IS '신고 처리 답변 테이블';
+COMMENT ON COLUMN report_responses.report_id    IS '신고 ID (FK → reports)';
+COMMENT ON COLUMN report_responses.admin_id     IS '처리한 관리자 ID (FK → users)';
+COMMENT ON COLUMN report_responses.action_type  IS '처리 유형 (DISMISS, DELETE)';
+COMMENT ON COLUMN report_responses.message      IS '관리자 답변 내용';
+
+-- ------------------------------------------------------------
 -- 2-9. 공지사항 (notices)
 -- ------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notices (
-    id              BIGSERIAL       PRIMARY KEY,
+    notice_id       BIGSERIAL       PRIMARY KEY,
     title           VARCHAR(255)    NOT NULL,
     content         TEXT            NOT NULL,
     is_pinned       BOOLEAN         NOT NULL DEFAULT FALSE,
@@ -348,9 +385,9 @@ CREATE TABLE IF NOT EXISTS inquiries (
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_inquiries_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT fk_inquiries_answered_by
-        FOREIGN KEY (answered_by) REFERENCES users(id)
+        FOREIGN KEY (answered_by) REFERENCES users(user_id)
 );
 
 COMMENT ON TABLE  inquiries                 IS '1:1 문의 테이블';
@@ -376,7 +413,7 @@ CREATE TABLE IF NOT EXISTS notifications (
     created_at      TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_notifications_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 COMMENT ON TABLE  notifications                 IS '사용자 알림 테이블';
@@ -394,7 +431,7 @@ CREATE TABLE IF NOT EXISTS fcm_tokens (
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_fcm_tokens_user
-        FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_fcm_tokens_user_token
         UNIQUE (user_id, token)
 );
@@ -424,7 +461,7 @@ CREATE TABLE IF NOT EXISTS batch_log (
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_batch_log_triggered_by
-        FOREIGN KEY (triggered_by) REFERENCES users(id)
+        FOREIGN KEY (triggered_by) REFERENCES users(user_id)
 );
 
 COMMENT ON TABLE  batch_log                     IS '배치 실행 로그 테이블';
@@ -448,7 +485,7 @@ COMMENT ON COLUMN batch_log.error_detail        IS '스택 트레이스';
 -- ============================================================
 
 -- users
-CREATE INDEX IF NOT EXISTS idx_users_email         ON users(email);
+CREATE INDEX IF NOT EXISTS idx_users_login_id      ON users(login_id);
 CREATE INDEX IF NOT EXISTS idx_users_role           ON users(role);
 
 -- refresh_tokens
@@ -487,6 +524,9 @@ CREATE INDEX IF NOT EXISTS idx_reports_status       ON reports(status);
 CREATE INDEX IF NOT EXISTS idx_reports_target       ON reports(target_type, target_id);
 CREATE INDEX IF NOT EXISTS idx_reports_reporter     ON reports(reporter_id);
 
+-- report_responses
+CREATE INDEX IF NOT EXISTS idx_report_responses_report ON report_responses(report_id);
+
 -- notices
 CREATE INDEX IF NOT EXISTS idx_notices_pinned       ON notices(is_pinned DESC, created_at DESC);
 
@@ -510,6 +550,6 @@ CREATE INDEX IF NOT EXISTS idx_batch_log_started_at ON batch_log(started_at DESC
 -- 비밀번호: admin1234 (BCrypt 인코딩 필요 — 아래는 플레이스홀더)
 -- 실제 운영 시 DataInitializer 또는 별도 스크립트에서 인코딩된 비밀번호로 삽입
 
--- INSERT INTO users (email, password, nickname, role)
--- VALUES ('admin@ieum.com', '$2a$10$ENCODED_PASSWORD_HERE', '관리자', 'ADMIN')
--- ON CONFLICT (email) DO NOTHING;
+-- INSERT INTO users (login_id, password, nickname, role)
+-- VALUES ('admin', '$2a$10$ENCODED_PASSWORD_HERE', '관리자', 'ADMIN')
+-- ON CONFLICT (login_id) DO NOTHING;

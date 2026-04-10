@@ -1,0 +1,12 @@
+/* ======================================================
+   관리자 > 공공 축제 리스트 — 페이지 고유 스타일
+   공통 스타일은 admin-common.module.css 사용
+   ====================================================== */
+
+/* ── 테이블 컬럼 너비 (공공축제 전용) ── */
+.festivalNameCol { width: auto; }
+.categoryCol { width: 130px; }
+.regionCol { width: 120px; }
+.dateCol { width: 180px; }
+.statusCol { width: 70px; }
+.visibilityCol { width: 130px; }

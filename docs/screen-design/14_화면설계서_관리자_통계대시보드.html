@@ -405,10 +405,12 @@
             <ul class="sidebar-menu">
               <li class="active">🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
-              <li>🎪 자체기획 축제</li>
+              <li>🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
-              <li>💬 문의 관리</li>
+              <li>💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
           </div>
 
@@ -416,7 +418,8 @@
           <div class="content-area">
             <!-- 페이지 타이틀 -->
             <div style="margin-bottom: 20px;">
-              <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🏠 관리자 대시보드</h1>
+              <h1 style="font-size: 22px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">🏠 관리자
+                대시보드</h1>
               <p style="font-size: 13px; color: #94a3b8;">축제 플랫폼 전반을 관리하고 통계를 확인하세요</p>
             </div>
 
@@ -468,159 +471,104 @@
               </div>
             </div>
 
-            <!-- ② 지역별 축제 분포 (막대 그래프) -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">지역별 축제 분포</div>
-              <div
-                style="display: flex; align-items: flex-end; gap: 14px; height: 130px; padding-left: 30px; position: relative;">
+            <!-- ② 사용자 유입 및 활동 추이 (Line & Bar) -->
+            <div style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 20px; border: 1px solid #e2e8f0; min-height: 250px;">
+              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 20px;">월별 신규 가입 및 리뷰 통계</div>
+              <div style="display: flex; align-items: flex-end; gap: 4px; height: 160px; padding-left: 30px; position: relative; border-bottom: 1px solid #e2e8f0;">
                 <!-- Y축 라벨 -->
-                <div style="position: absolute; left: 0; top: 0; font-size: 10px; color: #94a3b8;">60</div>
-                <div style="position: absolute; left: 0; top: 33%; font-size: 10px; color: #94a3b8;">40</div>
-                <div style="position: absolute; left: 0; top: 66%; font-size: 10px; color: #94a3b8;">20</div>
-                <div style="position: absolute; left: 4px; bottom: 0; font-size: 10px; color: #94a3b8;">0</div>
+                <div style="position: absolute; left: 0; top: 0; font-size: 10px; color: #94a3b8;">400</div>
+                <div style="position: absolute; left: 0; top: 25%; font-size: 10px; color: #94a3b8;">300</div>
+                <div style="position: absolute; left: 0; top: 50%; font-size: 10px; color: #94a3b8;">200</div>
+                <div style="position: absolute; left: 0; top: 75%; font-size: 10px; color: #94a3b8;">100</div>
+                
                 <!-- 막대들 -->
                 <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 110px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">서울</span>
+                  <div style="width: 24px; height: 40px; background: rgba(99, 102, 241, 0.4); border-radius: 4px 4px 0 0;"></div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 8px;">1월</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 82px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">부산</span>
+                  <div style="width: 24px; height: 80px; background: rgba(99, 102, 241, 0.4); border-radius: 4px 4px 0 0;"></div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 8px;">2월</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 65px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">강릉</span>
+                  <div style="width: 24px; height: 120px; background: rgba(99, 102, 241, 0.4); border-radius: 4px 4px 0 0;"></div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 8px;">3월</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 55px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">전주</span>
+                  <div style="width: 24px; height: 60px; background: rgba(99, 102, 241, 0.4); border-radius: 4px 4px 0 0;"></div>
+                  <span style="font-size: 10px; color: #64748b; margin-top: 8px;">4월</span>
                 </div>
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 44px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">평창</span>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 38px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">진해</span>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 30px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">광주</span>
-                </div>
-                <div style="display: flex; flex-direction: column; align-items: center; flex: 1;">
-                  <div
-                    style="width: 100%; height: 50px; background: linear-gradient(180deg, #818cf8, #6366f1); border-radius: 4px 4px 0 0;">
-                  </div>
-                  <span style="font-size: 10px; color: #64748b; margin-top: 4px;">기타</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- ③ 사용자 유입 및 활동 추이 (라인 차트) -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 18px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">사용자 유입 및 활동 추이</div>
-              <div
-                style="position: relative; height: 120px; border-left: 1px solid #e2e8f0; border-bottom: 1px solid #e2e8f0; margin-left: 36px;">
-                <!-- Y축 라벨 -->
-                <div style="position: absolute; left: -36px; top: -4px; font-size: 9px; color: #94a3b8;">26000</div>
-                <div style="position: absolute; left: -36px; top: 22%; font-size: 9px; color: #94a3b8;">19500</div>
-                <div style="position: absolute; left: -36px; top: 50%; font-size: 9px; color: #94a3b8;">13000</div>
-                <div style="position: absolute; left: -36px; top: 75%; font-size: 9px; color: #94a3b8;">6500</div>
-                <div style="position: absolute; left: -20px; bottom: -16px; font-size: 9px; color: #94a3b8;">0</div>
-                <!-- X축 라벨 -->
-                <div style="position: absolute; bottom: -16px; left: 2%; font-size: 9px; color: #94a3b8;">1월</div>
-                <div style="position: absolute; bottom: -16px; left: 33%; font-size: 9px; color: #94a3b8;">2월</div>
-                <div style="position: absolute; bottom: -16px; left: 63%; font-size: 9px; color: #94a3b8;">3월</div>
-                <div style="position: absolute; bottom: -16px; right: 2%; font-size: 9px; color: #94a3b8;">4월</div>
+                
                 <!-- 라인 (SVG) -->
-                <svg viewBox="0 0 400 120" style="width: 100%; height: 100%;" preserveAspectRatio="none">
-                  <!-- 사용자 (파란) -->
-                  <polyline points="10,100 130,90 260,70 390,10" fill="none" stroke="#3b82f6" stroke-width="2.5" />
-                  <circle cx="10" cy="100" r="3" fill="#3b82f6" />
-                  <circle cx="130" cy="90" r="3" fill="#3b82f6" />
-                  <circle cx="260" cy="70" r="3" fill="#3b82f6" />
-                  <circle cx="390" cy="10" r="3" fill="#3b82f6" />
-                  <!-- 리뷰 (녹색) -->
-                  <polyline points="10,105 130,80 260,75 390,30" fill="none" stroke="#22c55e" stroke-width="2"
-                    stroke-dasharray="4,3" />
-                  <!-- 채팅 (오렌지) -->
-                  <polyline points="10,95 130,58 260,50 390,5" fill="none" stroke="#f97316" stroke-width="2" />
-                  <circle cx="10" cy="95" r="3" fill="#f97316" />
-                  <circle cx="130" cy="58" r="3" fill="#f97316" />
-                  <circle cx="260" cy="50" r="3" fill="#f97316" />
-                  <circle cx="390" cy="5" r="3" fill="#f97316" />
+                <svg viewBox="0 0 100 100" style="position: absolute; left: 30px; right: 0; bottom: 0; width: calc(100% - 30px); height: 100%; top: 0;" preserveAspectRatio="none">
+                  <!-- 사용자 유입 (Indigo Line) -->
+                  <polyline points="12,85 37,60 62,30 87,70" fill="none" stroke="#6366f1" stroke-width="2.5" />
+                  <circle cx="12" cy="85" r="2" fill="#4f46e5" />
+                  <circle cx="37" cy="60" r="2" fill="#4f46e5" />
+                  <circle cx="62" cy="30" r="2" fill="#4f46e5" />
+                  <circle cx="87" cy="70" r="2" fill="#4f46e5" />
                 </svg>
               </div>
-              <!-- 범례 -->
-              <div
-                style="display: flex; gap: 16px; justify-content: center; margin-top: 22px; font-size: 11px; color: #64748b;">
-                <span>● <span style="color: #3b82f6;">사용자</span></span>
-                <span>● <span style="color: #22c55e;">리뷰</span></span>
-                <span>● <span style="color: #f97316;">채팅</span></span>
+              <div style="display: flex; justify-content: center; gap: 16px; margin-top: 24px;">
+                <div style="font-size: 11px; color: #475569;"><span style="color: #6366f1; font-weight: 800;">─</span> 신규 가입</div>
+                <div style="font-size: 11px; color: #475569;"><span style="color: rgba(99, 102, 241, 0.4); font-weight: 800;">■</span> 작성된 리뷰</div>
               </div>
             </div>
 
-            <!-- ④ 축제 카테고리별 분포 (파이 차트) -->
-            <div style="background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e2e8f0;">
-              <div style="font-weight: 700; font-size: 14px; color: #1e293b; margin-bottom: 16px;">축제 카테고리별 분포</div>
-              <div style="display: flex; align-items: center; justify-content: center; gap: 24px;">
-                <!-- 파이 차트 (SVG) -->
-                <svg width="130" height="130" viewBox="0 0 42 42">
-                  <circle cx="21" cy="21" r="15.9" fill="#3b82f6" />
-                  <!-- 자연/꽃 35% -->
-                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#22c55e" stroke-width="10"
-                    stroke-dasharray="35 65" stroke-dashoffset="25" />
-                  <!-- 문화/예술 28% -->
-                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#3b82f6" stroke-width="10"
-                    stroke-dasharray="28 72" stroke-dashoffset="90" />
-                  <!-- 음식/먹거리 15% -->
-                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#f59e0b" stroke-width="10"
-                    stroke-dasharray="15 85" stroke-dashoffset="62" />
-                  <!-- 나머지 -->
-                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#ef4444" stroke-width="10"
-                    stroke-dasharray="12 88" stroke-dashoffset="47" />
-                  <circle cx="21" cy="21" r="15.9" fill="transparent" stroke="#8b5cf6" stroke-width="10"
-                    stroke-dasharray="10 90" stroke-dashoffset="35" />
-                </svg>
-                <!-- 범례 -->
-                <div style="font-size: 12px; color: #475569; display: flex; flex-direction: column; gap: 6px;">
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 10px; height: 10px; background: #22c55e; border-radius: 2px;"></div>
-                    <span>자연/꽃 <strong>35%</strong></span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 10px; height: 10px; background: #3b82f6; border-radius: 2px;"></div>
-                    <span>문화/예술 <strong>28%</strong></span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 10px; height: 10px; background: #f59e0b; border-radius: 2px;"></div>
-                    <span>음식/먹거리 <strong>15%</strong></span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 10px; height: 10px; background: #ef4444; border-radius: 2px;"></div>
-                    <span>전통/역사 <strong>12%</strong></span>
-                  </div>
-                  <div style="display: flex; align-items: center; gap: 6px;">
-                    <div style="width: 10px; height: 10px; background: #8b5cf6; border-radius: 2px;"></div>
-                    <span>기타 <strong>10%</strong></span>
-                  </div>
+            <!-- ③ 하단 듀얼 테이블 -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+              <!-- 최근 들어온 문의 -->
+              <div style="background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <div style="font-weight: 700; font-size: 14px; color: #1e293b;">💬 최근 들어온 문의</div>
+                  <div style="font-size: 11px; color: #6366f1; cursor: pointer; font-weight: 600;">전체보기</div>
                 </div>
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                  <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #fef3c7; color: #d97706; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">대기중</span></td>
+                      <td style="padding: 10px 0; color: #334155;">축제 등록은 어떻게 하나요?</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">10분 전</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">답변완료</span></td>
+                      <td style="padding: 10px 0; color: #334155;">비밀번호를 까먹었어요</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">1시간 전</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #e0e7ff; color: #4338ca; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">답변완료</span></td>
+                      <td style="padding: 10px 0; color: #334155;">리뷰 삭제 권한 문의드립니다</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">2시간 전</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- 최근 접수된 신고 -->
+              <div style="background: #fff; border-radius: 12px; padding: 18px; border: 1px solid #e2e8f0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <div style="font-weight: 700; font-size: 14px; color: #1e293b;">🚨 최근 접수된 신고</div>
+                  <div style="font-size: 11px; color: #ef4444; cursor: pointer; font-weight: 600;">전체보기</div>
+                </div>
+                <table style="width: 100%; font-size: 11px; border-collapse: collapse;">
+                  <tbody>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">대기중</span></td>
+                      <td style="padding: 10px 0; color: #334155;">욕설이 포함된 영구정지...</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">5분 전</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #fee2e2; color: #dc2626; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">대기중</span></td>
+                      <td style="padding: 10px 0; color: #334155;">스팸 광고글 신고!!</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">30분 전</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid #f1f5f9;">
+                      <td style="padding: 10px 0;"><span style="background: #f1f5f9; color: #64748b; padding: 2px 6px; border-radius: 4px; font-size: 9px; margin-right: 6px;">처리완료</span></td>
+                      <td style="padding: 10px 0; color: #334155;">허위 정보 작성자 신고</td>
+                      <td style="padding: 10px 0; color: #94a3b8; text-align: right;">3시간 전</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
 
@@ -651,7 +599,7 @@
             <td class="desc-text">
               <strong>관리자 사이드바 네비게이션</strong><br>
               · 좌측 고정 사이드바, 다크(#1e293b) 배경<br>
-              · 관리 메뉴: 대시보드, 공공축제 리스트, 자체기획 축제, 신고, 공지/팝업, 문의<br>
+              · 관리 메뉴: 대시보드, 공공축제 리스트, 축제 관리, 신고, 공지/팝업, 문의<br>
               · 현재 메뉴(대시보드)는 파란색(#6c5ce7) 활성 표시
             </td>
           </tr>
@@ -713,11 +661,26 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>대시보드 데이터 로드 (Data Load)</strong><br>· 트리거: 페이지 마운트<br>· 동작: 4개 API 병렬 호출 (KPI + 그래프 3종)<br>· 로딩 중 스켈레톤 UI 적용</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>트래픽 기간 전환 (Period Toggle)</strong><br>· 트리거: period 파라미터 변경 (day/week/month)<br>· 동작: 라인 차트 데이터 갱신<br>· API: <code>GET /api/admin/dashboard/traffic?period={period}</code></td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>대시보드 데이터 로드 (Data Load)</strong><br>· 트리거: 페이지 마운트<br>· 동작: 4개 API 병렬 호출 (KPI
+              + 그래프 3종)<br>· 로딩 중 스켈레톤 UI 적용</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>트래픽 기간 전환 (Period Toggle)</strong><br>· 트리거: period 파라미터 변경
+              (day/week/month)<br>· 동작: 라인 차트 데이터 갱신<br>· API:
+              <code>GET /api/admin/dashboard/traffic?period={period}</code>
+            </td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -786,33 +749,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

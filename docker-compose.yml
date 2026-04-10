@@ -7,7 +7,7 @@ services:
     container_name: ${USER_ID}-backend
     # ports 제거: 외부 노출 차단 (BFF 패턴)
     volumes:
-      - /home/ieum/dist/ieum/backend/upload:/app/upload
+      - /home/ieum/dist/upload:/app/upload
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL 환경변수가 설정되지 않았습니다.}
@@ -15,6 +15,7 @@ services:
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD 환경변수가 설정되지 않았습니다.}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET 환경변수가 설정되지 않았습니다.}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
+      - FILE_UPLOAD_DIR=/app/upload
       - UPLOAD_LOCATION=file:/app/upload/
       - TOUR_API_SERVICE_KEY=${TOUR_API_SERVICE_KEY}
       - TOUR_API_BASE_URL=${TOUR_API_BASE_URL:-https://apis.data.go.kr/B551011/KorService2}

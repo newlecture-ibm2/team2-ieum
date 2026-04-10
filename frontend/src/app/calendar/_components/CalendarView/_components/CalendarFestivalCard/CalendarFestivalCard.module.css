@@ -1,0 +1,96 @@
+/* 축제 카드 */
+.festCard {
+  min-width: 180px;
+  max-width: 180px;
+  background: #fff;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-gray-200);
+  overflow: hidden;
+  flex-shrink: 0;
+  scroll-snap-align: start;
+  transition: box-shadow var(--transition-fast), transform var(--transition-fast);
+}
+
+.festCard:hover {
+  box-shadow: var(--shadow-hover);
+  transform: translateY(-2px);
+}
+
+.festCardImg {
+  height: 100px;
+  background: var(--gradient-primary);
+  position: relative;
+  overflow: hidden;
+}
+
+.festCardImg img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardNum {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  background: var(--color-primary-500);
+  color: #fff;
+  border-radius: 50%;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+.festCardBody {
+  padding: 10px;
+}
+
+.cardTitle {
+  font-weight: 600;
+  font-size: 13px;
+  margin-bottom: 4px;
+  color: var(--color-gray-900);
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardLoc {
+  color: var(--color-gray-500);
+  font-size: 11px;
+  margin-bottom: 2px;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardDate {
+  color: var(--color-gray-400);
+  font-size: 11px;
+  margin-bottom: 8px;
+}
+
+.btnDetail {
+  display: inline-block;
+  border: 1px solid var(--color-primary-500);
+  color: var(--color-primary-500);
+  padding: 3px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  background: none;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.btnDetail:hover {
+  background: var(--color-primary-500);
+  color: #fff;
+}

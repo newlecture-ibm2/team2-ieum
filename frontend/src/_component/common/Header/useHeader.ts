@@ -1,0 +1,133 @@
+import { useState, useEffect } from "react";
+import { onMessage } from "firebase/messaging";
+import api from "@/lib/api";
+import { messaging } from "@/lib/firebase";
+
+export function useHeader() {
+  const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
+  const [isNotiOpen, setIsNotiOpen] = useState(false);
+
+  /* ===== 인증 상태 ===== */
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userNickname, setUserNickname] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userProfileImage, setUserProfileImage] = useState<string | null>(null);
+
+  /* ===== 알림 상태 ===== */
+  const [hasUnread, setHasUnread] = useState(false);
+  const [notiRefreshKey, setNotiRefreshKey] = useState(0);
+
+  const closePopup = () => {
+    const shouldReload = popupConfig?.reload;
+    setPopupConfig(null);
+    if (shouldReload) window.location.reload();
+  };
+
+  useEffect(() => {
+    // 🚀 [v18] 세션 조회 표준화: 로우 레벨 fetch 대신 api 라이브러리 활용
+    api.get("/api/auth/me")
+      .then(async (response) => {
+        // 🚀 [v18-Final] 유연한 데이터 추출:ApiResponse(data.data) 또는 직렬 데이터(data) 모두 대응
+        const responseData = response.data;
+        const sessionData = responseData.data || responseData;
+
+        if (!sessionData || typeof sessionData.isLoggedIn === 'undefined') return;
+
+        setIsLoggedIn(sessionData.isLoggedIn);
+        
+        if (sessionData.isLoggedIn && sessionData.user) {
+          setUserNickname(sessionData.user.nickname ?? null);
+          setUserRole(sessionData.user.role ?? null);
+          if (sessionData.user.profileImage) setUserProfileImage(sessionData.user.profileImage);
+
+          // 알림 조회 (표준 규격 대응)
+          api.get("/api/users/me/notifications")
+            .then((res) => {
+              const unreadCount = res.data?.data?.unreadCount || 0;
+              setHasUnread(unreadCount > 0);
+            })
+            .catch(() => {});
+
+          try {
+            // 🚀 [v17] 헤더 프로필 자가 동기화 (최신 정보 보장)
+            const profileRes = await api.get("/api/mypage/profile");
+            const profileData = profileRes.data.data;
+            if (profileData) {
+              if (profileData.profileImageUrl) setUserProfileImage(profileData.profileImageUrl);
+              if (profileData.nickname) setUserNickname(profileData.nickname);
+            }
+          } catch (err) {
+            console.error("헤더 프로필 상세 조회 실패:", err);
+          }
+
+          // FCM 토큰 등록 로직
+          try {
+            if (typeof Notification !== "undefined" && Notification.permission === "default") {
+              await Notification.requestPermission();
+            }
+            if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+              const { requestFcmToken } = await import("@/lib/firebase");
+              const fcmToken = await requestFcmToken();
+              if (fcmToken) {
+                await api.post("/api/users/me/fcm-token", { token: fcmToken });
+              }
+            }
+          } catch (err) {}
+        }
+      })
+      .catch((err) => {
+        console.error("세션 확인 실패:", err);
+        setIsLoggedIn(false);
+      });
+  }, []);
+
+  useEffect(() => {
+    if (!messaging) return;
+
+    const unsubscribe = onMessage(messaging, (payload) => {
+      console.log("🔔 포그라운드 알림 수신:", payload);
+      setHasUnread(true);
+      setNotiRefreshKey((prev) => prev + 1);
+
+      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+        new Notification(payload.data?.title || "이음 알림", {
+          body: payload.data?.body || "새로운 알림이 있습니다.",
+          icon: payload.data?.icon || "/favicon/favicon-ieum-transparent.png",
+        });
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const logout = async () => {
+    await fetch("/api/auth/logout", { method: "POST" });
+    window.location.href = "/";
+  };
+
+  const devRefreshFestivals = async () => {
+    try {
+      const res = await api.patch('/api/festivals/refresh-status');
+      const payload = res.data.data || res.data;
+      setPopupConfig({ msg: `✅ ${payload.message} (${payload.updatedCount}건 변경)`, reload: true });
+    } catch (err) {
+      setPopupConfig({ msg: '❌ 상태 최신화 실패: ' + err, reload: false });
+    }
+  };
+
+  return {
+    isLoggedIn,
+    userNickname,
+    userRole,
+    userProfileImage,
+    hasUnread,
+    setHasUnread,
+    isNotiOpen,
+    setIsNotiOpen,
+    notiRefreshKey,
+    popupConfig,
+    closePopup,
+    logout,
+    devRefreshFestivals,
+  };
+}

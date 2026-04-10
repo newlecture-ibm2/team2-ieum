@@ -1,0 +1,28 @@
+.pinnedRow {
+  background: rgba(108, 92, 231, 0.03);
+}
+
+.pinnedRow:hover {
+  background: rgba(108, 92, 231, 0.06) !important;
+}
+
+.ellipsisCell {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.pinIcon {
+  margin-right: 6px;
+  font-size: 13px;
+}
+
+.clickableTitle {
+  cursor: pointer;
+}
+
+.clickableTitle:hover {
+  text-decoration: underline;
+  color: #6c5ce7;
+}

@@ -1,0 +1,228 @@
+/* ==========================================================================
+   프리미엄 미니멀 문의 상세 모달 스타일
+   ========================================================================== */
+
+/* ── 모달 사이즈 오버라이드 ── */
+.modalWrap [role="dialog"] {
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+.modalBody {
+  overflow-y: auto;
+  flex: 1;
+  padding: 10px 8px;
+}
+
+/* ── 헤더 (타이틀 및 메타) ── */
+.headerArea {
+  margin-bottom: 24px;
+}
+
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.mainTitle {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  word-break: break-all;
+  
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  flex-shrink: 0;
+  white-space: nowrap;
+  margin-top: 2px;
+}
+
+.metaWrap {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.metaRowBox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.metaDot {
+  color: #e2e8f0;
+}
+
+/* ── 구분선 ── */
+.divider {
+  border: 0;
+  height: 1px;
+  background: #e2e8f0;
+  margin: 16px 0 24px;
+}
+
+/* ── 질의 내용 버블 ── */
+.questionBubble {
+  background: #f8fafc;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 32px;
+}
+
+.bubbleHeader {
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.questionTextScroll {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #334155;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 200px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.questionTextScroll::-webkit-scrollbar {
+  width: 6px;
+}
+.questionTextScroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.questionTextScroll::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+.questionTextScroll::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+
+/* ── 답변 섹션 헤더 ── */
+.answerSectionTitle {
+  font-size: 14px;
+  font-weight: 700;
+  color: #1e293b;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── 답변 이력 버블 (관리자) ── */
+.answerBubble {
+  background: #eff6ff;
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 8px;
+}
+
+.answerMeta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  color: #3b82f6;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.answerContent {
+  font-size: 14px;
+  line-height: 1.7;
+  color: #1e3a8a;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ── 폼 입력 에리어 ── */
+.responseArea {
+  position: relative;
+  margin-bottom: 4px;
+}
+
+.responseTextarea {
+  width: 100%;
+  min-height: 120px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  font-size: 14px;
+  resize: vertical;
+  outline: none;
+  font-family: inherit;
+  line-height: 1.6;
+  background: #ffffff;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.responseTextarea:focus {
+  border-color: #8b5cf6;
+  box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+}
+
+.responseTextareaError {
+  border-color: #ef4444;
+}
+.responseTextareaError:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.1);
+}
+
+.charCount {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 12px;
+  color: #94a3b8;
+  pointer-events: none;
+}
+.charCountError { color: #ef4444; }
+
+.errorText {
+  color: #ef4444;
+  font-size: 13px;
+  margin-top: 8px;
+  display: block;
+}
+
+/* ── 모달 하단 ── */
+.modalFooter {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid #f1f5f9;
+  margin-top: 8px;
+}

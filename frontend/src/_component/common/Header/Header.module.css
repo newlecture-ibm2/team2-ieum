@@ -1,0 +1,365 @@
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: var(--header-height);
+  background: #ffffff;
+  box-shadow: var(--shadow-header);
+  transition: box-shadow var(--transition-normal);
+}
+
+.headerInner {
+  max-width: var(--max-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== 브랜드 로고 ===== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  flex-shrink: 0; /* ✔️ 제일 중요한 속성: 화면이 좁아져도 절대 자기 사이즈를 지킴 */
+}
+
+.logoPin {
+  width: 30px;
+  height: 30px;
+  background: var(--gradient-brand);
+  border-radius: 50% 50% 50% 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg);
+  transition: transform var(--transition-normal);
+}
+
+.logo:hover .logoPin {
+  transform: rotate(-45deg) scale(1.1);
+}
+
+.logoPinInner {
+  width: 13px;
+  height: 13px;
+  background: white;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.logoImg {
+  width: 100px;
+  /* 로고 가로 크기를 시원하게 확장 (원하시면 이 값을 더 키우셔도 됩니다!) */
+  height: auto;
+  /* 비율에 맞춰 자연스럽게 세로도 커짐 */
+  object-fit: contain;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-gray-800);
+  letter-spacing: -1px;
+}
+
+/* ===== 네비게이션 ===== */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+}
+
+.navLink {
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  padding: 4px 0;
+  transition: color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--color-primary-500);
+}
+
+.navLinkActive {
+  color: var(--color-primary-500);
+  font-weight: 700;
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-active);
+  border-radius: 2px;
+}
+
+/* ===== 우측 액션 버튼 ===== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 알림 벨 */
+.bellWrapper {
+  position: relative;
+}
+
+.bellBtn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-gray-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.bellBtn:hover {
+  background: var(--color-primary-50);
+}
+
+.bellBtn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-gray-500);
+}
+
+.bellDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-accent-400);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+/* 사용자 아이콘 및 닉네임 유닛 (Pill 디자인) */
+.userBtn {
+  height: 34px;
+  padding: 2px 14px 2px 3px;
+  border-radius: 20px;
+  background: white;
+  /* 닉네임 배경 */
+  border: 1px solid var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.userBtn:hover {
+  border-color: var(--color-primary-200);
+  background: var(--color-primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.12);
+}
+
+.userIconWrapper {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.userBtn:hover .userIconWrapper {
+  transform: scale(1.05);
+}
+
+.userIconWrapper svg {
+  width: 14px;
+  height: 14px;
+  color: white;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+}
+
+.userBtn:hover .userName {
+  color: var(--color-primary-600);
+}
+
+/* 관리자 버튼 */
+.adminBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.adminBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.adminBtn svg {
+  color: white;
+}
+
+/* 비회원용 버튼 */
+.loginBtn {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.loginBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* 로그아웃 버튼 */
+.logoutBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-gray-100);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--color-error);
+  transform: scale(1.08);
+}
+
+.logoutBtn svg {
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.logoutBtn:hover svg {
+  color: white;
+}
+
+/* ===== [DEV] 상태 최신화 버튼 — 개발 완료 후 제거 ===== */
+.devRefreshBtn {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.devRefreshBtn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.devRefreshBtn:active {
+  transform: scale(0.95);
+}
+
+/* ===== 팝업 모달 ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.modalBox {
+  margin: 0;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 320px;
+  animation: modal-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalText {
+  font-size: 16px;
+  color: var(--color-gray-800);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.modalBtn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modalBtn:hover {
+  opacity: 0.9;
+}

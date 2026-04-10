@@ -1,0 +1,333 @@
+.writeContainer {
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* 히어로 배너 */
+.heroBanner {
+  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
+  padding: 36px 0 28px;
+  position: relative;
+  overflow: hidden;
+}
+
+.heroBanner::before {
+  content: '';
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 160px;
+  height: 160px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 50%;
+}
+
+.heroInner {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 0 24px;
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitle {
+  font-size: 24px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 6px;
+}
+
+.heroSub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+/* 폼 컨테이너 */
+.formContainer {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 36px 24px 60px;
+}
+
+.formHeader {
+  font-size: 20px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 28px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #1e293b;
+}
+
+/* 폼 row */
+.formRow {
+  margin-bottom: 20px;
+}
+
+.formLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: #334155;
+  margin-bottom: 8px;
+}
+
+.formLabel .req {
+  color: #ef4444;
+  margin-left: 2px;
+}
+
+.countLabel {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-align: right;
+}
+
+/* 셀렉트, 인풋 공통 */
+.formInput,
+.formSelect {
+  width: 100%;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #334155;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formSelect {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 16px;
+}
+
+.formInput:focus,
+.formSelect:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+
+/* 2열 그리드 */
+.formMultiCols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+/* 텍스트 영역 */
+.formTextarea {
+  width: 100%;
+  height: 260px;
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+  padding: 16px;
+  font-size: 14px;
+  font-family: 'Noto Sans KR', sans-serif;
+  color: #334155;
+  outline: none;
+  resize: vertical;
+  line-height: 1.6;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.formTextarea:focus {
+  border-color: #6c5ce7;
+  box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+/* React Quill 에디터 오버라이딩 */
+
+.quillWrapper {
+  margin-bottom: 8px;
+}
+
+/* 툴바 스타일 오버라이딩 */
+.quillWrapper :global(.ql-toolbar.ql-snow) {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  padding: 12px 16px;
+  font-family: inherit;
+}
+
+/* 컨테이너 및 에디터 영역 라운딩, 높이 */
+.quillWrapper :global(.ql-container.ql-snow) {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-color: #cbd5e1;
+  min-height: 480px; /* 기존 텍스트박스보다 비약적으로 높이를 늘렸습니다 */
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px;
+  color: #334155;
+  background-color: #fff;
+}
+
+.quillWrapper :global(.ql-editor) {
+  min-height: 480px;
+  padding: 16px;
+  line-height: 1.7;
+  position: relative;
+}
+
+/* 플레이스홀더 기본 스타일 */
+.quillWrapper :global(.ql-editor.ql-blank::before) {
+  font-style: normal;
+  color: #94a3b8;
+  pointer-events: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+}
+
+/* 포커스 시 플레이스홀더 즉시 숨김 (한글 IME 겹침 방지) */
+.quillWrapper :global(.ql-editor:focus::before) {
+  display: none !important;
+}
+
+/* 내용이 있으면 플레이스홀더 숨김 */
+.quillWrapper :global(.ql-editor:not(.ql-blank)::before) {
+  display: none !important;
+}
+
+/* 포커스 시 테두리 효과 */
+.quillWrapper:focus-within :global(.ql-container.ql-snow),
+.quillWrapper:focus-within :global(.ql-toolbar.ql-snow) {
+  border-color: #6c5ce7;
+  transition: border-color 0.2s;
+}
+
+/* 이미지 업로드 영역 */
+.imageUploadBox {
+  border: 2px dashed #cbd5e1;
+  border-radius: 10px;
+  padding: 32px 20px;
+  text-align: center;
+  background: #f8fafc;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.imageUploadBox:hover {
+  border-color: #a78bfa;
+  background: #faf5ff;
+}
+
+.imageUploadIcon {
+  color: #94a3b8;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.imageUploadText {
+  font-size: 13px;
+  color: #64748b;
+  font-weight: 600;
+}
+
+.imageUploadHint {
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+}
+
+/* 미리보기 이미지 */
+.imagePreviewList {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.imagePreviewItem {
+  position: relative;
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+}
+
+.imagePreviewItem img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.imageRemoveBtn {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+/* 하단 버튼 영역 */
+.formActions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 36px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.btnCancel {
+  padding: 12px 28px;
+  border-radius: 8px;
+  border: 1px solid #cbd5e1;
+  background: #fff;
+  color: #64748b;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: background 0.15s;
+}
+
+.btnCancel:hover {
+  background: #f8fafc;
+}
+
+.btnSave {
+  padding: 12px 36px;
+  border-radius: 8px;
+  border: none;
+  background: linear-gradient(135deg, #a55eea, #6c5ce7);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: opacity 0.15s, transform 0.15s;
+}
+
+.btnSave:hover {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.btnSave:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
