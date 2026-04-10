@@ -111,6 +111,25 @@ public class ReportPersistenceAdapter implements ReportPort {
     }
 
     @Override
+    public Long findTargetAuthorId(String targetType, Long targetId) {
+        try {
+            if ("POST".equalsIgnoreCase(targetType)) {
+                return (Long) em.createQuery("SELECT p.authorId FROM PostEntity p WHERE p.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+            } else if ("COMMENT".equalsIgnoreCase(targetType)) {
+                return (Long) em.createQuery("SELECT c.userId FROM CommentEntity c WHERE c.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+            } else if ("REVIEW".equalsIgnoreCase(targetType)) {
+                return (Long) em.createQuery("SELECT r.userId FROM ReviewEntity r WHERE r.id = :id")
+                        .setParameter("id", targetId).getSingleResult();
+            }
+        } catch (Exception e) {
+            return null;
+        }
+        return null;
+    }
+
+    @Override
     public void hideTargetContent(String targetType, Long targetId) {
         if ("POST".equalsIgnoreCase(targetType)) {
             em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")

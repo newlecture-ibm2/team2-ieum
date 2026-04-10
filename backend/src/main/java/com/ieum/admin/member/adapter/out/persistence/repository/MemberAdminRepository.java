@@ -18,21 +18,34 @@ import java.util.List;
 public interface MemberAdminRepository extends JpaRepository<MemberEntity, Long> {
 
     /**
-     * 동적 검색 쿼리 (필터: 상태, 역할, 검색어)
+     * 동적 검색 쿼리 (필터: 상태, 역할, 가입 방식, 검색어)
+     *
+     * <p>provider 필터는 loginId prefix 기반으로 동작한다.
+     * - KAKAO: loginId LIKE 'kakao_%'
+     * - NAVER: loginId LIKE 'naver_%'
+     * - GOOGLE: loginId LIKE 'google_%'
+     * - LOCAL: loginId NOT LIKE 'kakao_%' AND NOT LIKE 'naver_%' AND NOT LIKE 'google_%'
+     * </p>
      */
     @Query("SELECT u FROM MemberEntity u " +
            "WHERE (:status IS NULL OR :status = '' OR u.status = :status) " +
            "AND (:role IS NULL OR :role = '' OR u.role = :role) " +
+           "AND (:provider IS NULL OR :provider = '' " +
+           "  OR (:provider = 'KAKAO' AND u.loginId LIKE 'kakao_%') " +
+           "  OR (:provider = 'NAVER' AND u.loginId LIKE 'naver_%') " +
+           "  OR (:provider = 'GOOGLE' AND u.loginId LIKE 'google_%') " +
+           "  OR (:provider = 'LOCAL' AND u.loginId NOT LIKE 'kakao_%' AND u.loginId NOT LIKE 'naver_%' AND u.loginId NOT LIKE 'google_%') " +
+           ") " +
            "AND (:keyword IS NULL OR :keyword = '' OR " +
            "  ((:searchType IS NULL OR :searchType = 'ALL' OR :searchType = '') AND " +
            "    (u.name LIKE CONCAT('%', :keyword, '%') OR u.nickname LIKE CONCAT('%', :keyword, '%') OR u.loginId LIKE CONCAT('%', :keyword, '%'))) OR " +
            "  (:searchType = 'NAME' AND u.name LIKE CONCAT('%', :keyword, '%')) OR " +
            "  (:searchType = 'NICKNAME' AND u.nickname LIKE CONCAT('%', :keyword, '%')) OR " +
            "  (:searchType = 'LOGIN_ID' AND u.loginId LIKE CONCAT('%', :keyword, '%'))" +
-           ") " +
-           "ORDER BY u.createdAt DESC")
+           ") ")
     Page<MemberEntity> findMembersByConditions(@Param("status") String status,
                                                 @Param("role") String role,
+                                                @Param("provider") String provider,
                                                 @Param("searchType") String searchType,
                                                 @Param("keyword") String keyword,
                                                 Pageable pageable);
@@ -76,4 +89,11 @@ public interface MemberAdminRepository extends JpaRepository<MemberEntity, Long>
     @Modifying(clearAutomatically = true)
     @Query("DELETE FROM MemberEntity u WHERE u.userId = :userId")
     int deletePhysicalMember(@Param("userId") Long userId);
+
+    /**
+     * 관리자가 신고를 '처리 완료(승인)' 할 때, 피신고자(해당 회원의) 신고수를 +1 증가
+     */
+    @Modifying(clearAutomatically = true)
+    @Query("UPDATE MemberEntity m SET m.reportedCount = COALESCE(m.reportedCount, 0) + 1 WHERE m.userId = :userId")
+    int increaseReportedCount(@Param("userId") Long userId);
 }

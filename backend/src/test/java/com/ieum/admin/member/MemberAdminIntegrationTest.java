@@ -11,10 +11,12 @@ public class MemberAdminIntegrationTest {
     @Autowired
     private GetMemberListUseCase getMemberListUseCase;
 
+
+
     @Test
     public void testGetMembers() {
         try {
-            getMemberListUseCase.getMembers(1, 10, "SUSPENDED", null, "ALL", null);
+            getMemberListUseCase.getMembers(1, 10, "SUSPENDED", null, null, "ALL", null, null, null);
             System.out.println("SUCCESS!!");
         } catch (Exception e) {
             e.printStackTrace();
