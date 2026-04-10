@@ -90,9 +90,9 @@ export function useHeader() {
       setNotiRefreshKey((prev) => prev + 1);
 
       if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-        new Notification(payload.notification?.title || "이음 알림", {
-          body: payload.notification?.body || "새로운 알림이 있습니다.",
-          icon: "/favicon.ico",
+        new Notification(payload.data?.title || "이음 알림", {
+          body: payload.data?.body || "새로운 알림이 있습니다.",
+          icon: payload.data?.icon || "/favicon/favicon-ieum-transparent.png",
         });
       }
     });

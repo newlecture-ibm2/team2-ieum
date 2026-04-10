@@ -2,7 +2,6 @@ package com.ieum.user.notification.adapter.out.fcm;
 
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
-import com.google.firebase.messaging.Notification;
 import com.ieum.user.notification.application.port.out.FcmPort;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,10 +28,9 @@ public class FcmMessageSender implements FcmPort {
         try {
             Message message = Message.builder()
                     .setToken(targetToken)
-                    .setNotification(Notification.builder()
-                            .setTitle(title)
-                            .setBody(body)
-                            .build())
+                    .putData("title", title)
+                    .putData("body", body)
+                    .putData("icon", "/favicon/favicon-ieum-transparent.png")
                     .build();
 
             // FirebaseMessaging을 통해 발송
