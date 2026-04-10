@@ -12,28 +12,39 @@ async function processProxyRequest(req: NextRequest) {
   const targetUrl = `${BACKEND_URL}${req.nextUrl.pathname}${req.nextUrl.search}`;
 
   const headers = new Headers(req.headers);
-  // Important to override the host so the backend doesn't reject it
-  headers.set("host", new URL(BACKEND_URL).host);
+  // Remove hop-by-hop and restricted headers that cause Node.js fetch to crash (502 TypeError)
+  headers.delete("host");
+  headers.delete("connection");
+  headers.delete("content-length");
+  headers.delete("content-encoding");
+  headers.delete("transfer-encoding");
+  
+  // Remove Origin/Referer so Spring Boot doesn't block the server-to-server proxy request with its CORS policy
+  headers.delete("origin");
+  headers.delete("referer");
 
   // If user has a valid iron-session access token, append it to Authorization Header
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  // Handle the request body stream safely (requires duplex for streaming bodies)
-  let requestBody = undefined;
+  const fetchOptions: RequestInit = {
+    method: req.method,
+    headers: headers,
+  };
+
+  // Handle the request body stream safely (requires duplex for streaming bodies, but ONLY for POST/PUT/PATCH)
   if (req.method !== "GET" && req.method !== "HEAD") {
-    requestBody = req.body;
+    fetchOptions.body = req.body;
+    // @ts-ignore - 'duplex' is required for Node.js fetch with ReadableStream bodies
+    fetchOptions.duplex = "half";
+  } else {
+    // GET requests should not have a content-type
+    headers.delete("content-type");
   }
 
   try {
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers: headers,
-      body: requestBody,
-      // @ts-ignore - 'duplex' is required for Node.js fetch with ReadableStream bodies
-      duplex: "half",
-    });
+    const response = await fetch(targetUrl, fetchOptions);
 
     const responseHeaders = new Headers(response.headers);
     // Remove content-encoding so Next.js handles it properly
