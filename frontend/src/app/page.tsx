@@ -20,7 +20,7 @@ async function getFestivals(status?: string, page: string = '1', keyword?: strin
     params.append('page', page);
     params.append('size', '12');
 
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
+    const backendUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
     const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
       cache: 'no-store' // SSR 환경이므로 항상 최신 데이터 가져오기
     });

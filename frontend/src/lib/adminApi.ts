@@ -8,7 +8,7 @@ const getBaseUrl = () => {
   if (typeof window !== "undefined") {
     return "/api/admin"; 
   }
-  return (process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080") + "/api/admin";
+  return (process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080") + "/api/admin";
 };
 
 const adminApi = axios.create({
