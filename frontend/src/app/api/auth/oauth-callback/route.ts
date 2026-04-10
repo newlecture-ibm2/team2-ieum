@@ -34,7 +34,7 @@ export async function GET(req: NextRequest) {
     
     session.accessToken = accessToken;
     session.refreshToken = refreshToken;
-    session.user = userData; // { id, email, nickname, role, ... }
+    session.user = userData; // { id, loginId, nickname, role, ... }
 
     await session.save();
 

@@ -24,7 +24,6 @@ public class AuthReq {
         private String nickname;
         private String phone;
         private boolean termsAgreed;
-        private boolean marketingAgreed;
     }
 
     @Getter

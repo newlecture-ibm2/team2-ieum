@@ -14,9 +14,14 @@ export async function POST(req: NextRequest) {
     body: JSON.stringify({ id, password }),
   });
 
-  const data = await backendRes.json();
+  // 🛡️ [v18-Final] 비정상 응답 방어: JSON 파싱 에러 및 비즈니스 로직 에러 통합 처리
+  let data;
+  try {
+    data = await backendRes.json();
+  } catch (e) {
+    return NextResponse.json({ message: "서버로부터 비정상적인 응답을 받았습니다." }, { status: 500 });
+  }
 
-  // 🛡️ 백엔드 응답이 에러거나 success가 false인 경우 처리
   if (!backendRes.ok || !data.success) {
     return NextResponse.json(
       { message: data.message || "아이디 또는 비밀번호가 일치하지 않습니다." }, 
@@ -27,8 +32,8 @@ export async function POST(req: NextRequest) {
   // 2) 성공 시 ApiResponse에서 알맹이(data) 추출
   const loginInfo = data.data; // AuthRes.TokenDto
 
-  if (!loginInfo || !loginInfo.accessToken) {
-    return NextResponse.json({ message: "유효하지 않은 응답 규격입니다." }, { status: 500 });
+  if (!loginInfo || !loginInfo.accessToken || !loginInfo.user) {
+    return NextResponse.json({ message: "유효하지 않은 응답 규격이거나 유저 정보가 없습니다." }, { status: 500 });
   }
 
   // 3) iron-session에 유저 정보 저장

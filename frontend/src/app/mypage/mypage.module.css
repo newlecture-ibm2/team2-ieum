@@ -64,7 +64,7 @@
   color: var(--color-gray-900);
 }
 
-.email {
+.loginId {
   font-size: 0.875rem;
   color: var(--color-gray-500);
   margin-top: 4px;

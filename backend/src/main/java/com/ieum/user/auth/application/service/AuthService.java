@@ -97,10 +97,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 ? request.getPhone().replaceAll("[^0-9]", "") 
                 : null;
 
-        if (normalizedPhone != null && !normalizedPhone.isBlank() && loadUserPort.existsByPhone(normalizedPhone)) {
-            throw new IllegalArgumentException("이미 가입된 전화번호입니다.");
-        }
-
         // 🔍 name이 비어있으면 nickname을 대신 사용 (DB NOT NULL 제약조건 대응)
         String realName = (request.getName() == null || request.getName().isBlank()) ? request.getNickname() : request.getName();
 
@@ -112,7 +108,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .phone(normalizedPhone)
                 .role("USER")
                 .termsAgreed(request.isTermsAgreed())
-                .marketingAgreed(request.isMarketingAgreed())
                 .status("ACTIVE")
                 .build();
 
@@ -175,7 +170,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
         recoveryCodes.put(loginId, code);
         verifiedIds.put(loginId, false);
 
-        // [PASSWORD RECOVERY] 현재는 SMS/Email 연동 전이므로 로그 출력으로 대체
+        // [PASSWORD RECOVERY] 현재는 SMS 연동 전이므로 로그 출력으로 대체
         System.out.println("================================");
         System.out.println("[PASSWORD RECOVERY] ID: " + loginId);
         System.out.println("[PASSWORD RECOVERY] Code: " + code);
@@ -217,7 +212,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .profileImage(user.getProfileImage())
                 .role(user.getRole())
                 .termsAgreed(user.isTermsAgreed())
-                .marketingAgreed(user.isMarketingAgreed())
                 .status(user.getStatus())
                 .build();
 

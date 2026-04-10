@@ -24,7 +24,6 @@ export default function RegisterForm() {
   const [agreements, setAgreements] = useState({
     terms: false,
     privacy: false,
-    marketing: false,
   });
 
   const [errors, setErrors] = useState({
@@ -74,7 +73,6 @@ export default function RegisterForm() {
     setAgreements({
       terms: checked,
       privacy: checked,
-      marketing: checked,
     });
     if (checked) setErrors(prev => ({ ...prev, global: '' }));
   };
@@ -83,7 +81,7 @@ export default function RegisterForm() {
   const handleAgree = (key: keyof typeof agreements) => {
     const newAgreements = { ...agreements, [key]: !agreements[key] };
     setAgreements(newAgreements);
-    setAllAgreed(newAgreements.terms && newAgreements.privacy && newAgreements.marketing);
+    setAllAgreed(newAgreements.terms && newAgreements.privacy);
     if (newAgreements.terms && newAgreements.privacy) setErrors(prev => ({ ...prev, global: '' }));
   };
 
@@ -125,8 +123,7 @@ export default function RegisterForm() {
         id,
         password,
         nickname,
-        phone: phone.replace(/[^0-9]/g, ''), // 📱 백엔드와 정합성을 위해 숫자만 추출해서 전송
-        isMarketingAgreed: agreements.marketing
+        phone: phone.replace(/[^0-9]/g, '') // 📱 백엔드와 정합성을 위해 숫자만 추출해서 전송
       });
 
       if (response.data.status === 'SUCCESS') {
@@ -287,11 +284,6 @@ export default function RegisterForm() {
           <label className={styles.termsItem}>
             <input type="checkbox" className={styles.checkbox} checked={agreements.privacy} onChange={() => handleAgree('privacy')} />
             [필수] 개인정보 처리방침 동의
-            <a href="#">&gt;</a>
-          </label>
-          <label className={styles.termsItem}>
-            <input type="checkbox" className={styles.checkbox} checked={agreements.marketing} onChange={() => handleAgree('marketing')} />
-            [선택] 마케팅 정보 수신 동의
             <a href="#">&gt;</a>
           </label>
         </div>

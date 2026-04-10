@@ -27,8 +27,11 @@ export function useHeader() {
     // 🚀 [v18] 세션 조회 표준화: 로우 레벨 fetch 대신 api 라이브러리 활용
     api.get("/api/auth/me")
       .then(async (response) => {
-        const sessionData = response.data.data;
-        if (!sessionData) return;
+        // 🚀 [v18-Final] 유연한 데이터 추출:ApiResponse(data.data) 또는 직렬 데이터(data) 모두 대응
+        const responseData = response.data;
+        const sessionData = responseData.data || responseData;
+
+        if (!sessionData || typeof sessionData.isLoggedIn === 'undefined') return;
 
         setIsLoggedIn(sessionData.isLoggedIn);
         

@@ -78,7 +78,6 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .profileImage(attributes.getProfileImage())
                 .role("USER")
                 .termsAgreed(true) // 소셜 로그인은 기본적으로 제공처에서 동의됨
-                .marketingAgreed(false)
                 .status("ACTIVE")
                 .build();
 

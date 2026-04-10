@@ -14,7 +14,6 @@ export default function LoginForm() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  const [autoLogin, setAutoLogin] = useState(false);
   const [saveId, setSaveId] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -147,15 +146,6 @@ export default function LoginForm() {
 
         <div className={styles.options}>
           <div className={styles.checkboxGroup}>
-            <label className={styles.checkboxLabel}>
-              <input 
-                type="checkbox" 
-                className={styles.checkbox}
-                checked={autoLogin}
-                onChange={(e) => setAutoLogin(e.target.checked)}
-              />
-              자동 로그인
-            </label>
             <label className={styles.checkboxLabel}>
               <input 
                 type="checkbox" 

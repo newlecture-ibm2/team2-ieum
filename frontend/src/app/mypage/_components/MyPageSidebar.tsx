@@ -29,7 +29,7 @@ export const MENU_LABELS: Record<MenuType, string> = {
 interface MyPageSidebarProps {
   user: {
     nickname: string;
-    id: string; // email or loginId
+    id: string; // loginId
   };
   activeMenu: MenuType;
   onMenuChange: (menu: MenuType) => void;
@@ -78,7 +78,7 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
           )}
         </div>
         <div className={styles.nickname}>{nickname}</div>
-        <div className={styles.email}>{user.id}</div>
+        <div className={styles.loginId}>{user.id}</div>
       </div>
 
       {/* 내비게이션 메뉴 */}
