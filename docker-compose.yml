@@ -7,7 +7,7 @@ services:
     container_name: ${USER_ID}-backend
     # ports 제거: 외부 노출 차단 (BFF 패턴)
     volumes:
-      - /home/ieum/dist/upload:/app/upload
+      - /dist/upload:/app/upload
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL 환경변수가 설정되지 않았습니다.}
