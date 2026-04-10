@@ -230,6 +230,29 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
 
     @Override
     @Transactional(readOnly = true)
+    public AuthRes.SessionDto getMySession(Long userId) {
+        if (userId == null) {
+            return AuthRes.SessionDto.builder()
+                    .isLoggedIn(false)
+                    .build();
+        }
+
+        return loadUserPort.loadUserById(userId)
+                .map(user -> AuthRes.SessionDto.builder()
+                        .isLoggedIn(true)
+                        .user(AuthRes.UserInfoDto.builder()
+                                .nickname(user.getNickname())
+                                .role(user.getRole())
+                                .profileImage(user.getProfileImage())
+                                .build())
+                        .build())
+                .orElseGet(() -> AuthRes.SessionDto.builder()
+                        .isLoggedIn(false)
+                        .build());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public boolean isSuspended(Long userId) {
         if (userId == null) {
             return false;

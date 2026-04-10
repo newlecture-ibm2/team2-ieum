@@ -54,9 +54,10 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
     const fetchProfile = async () => {
       try {
         const response = await api.get('/api/mypage/profile');
-        if (response.data) {
-          if (response.data.profileImageUrl) setProfileImageUrl(response.data.profileImageUrl);
-          if (response.data.nickname) setNickname(response.data.nickname);
+        const profileData = response.data.data;
+        if (profileData) {
+          if (profileData.profileImageUrl) setProfileImageUrl(profileData.profileImageUrl);
+          if (profileData.nickname) setNickname(profileData.nickname);
         }
       } catch (error) {
         console.error('사이드바 프로필 조회 실패:', error);

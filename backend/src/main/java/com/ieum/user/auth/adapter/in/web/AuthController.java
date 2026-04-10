@@ -76,4 +76,12 @@ public class AuthController {
         authUseCase.withdraw(userId, request.getPassword());
         return ResponseEntity.ok(ApiResponse.success());
     }
+
+    @Operation(summary = "세션 정보 조회", description = "현재 로그인된 사용자의 세션 및 간이 프로필 정보를 조회합니다.")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<AuthRes.SessionDto>> getMySession(
+            @CurrentUserId Long userId) {
+        AuthRes.SessionDto sessionDto = authUseCase.getMySession(userId);
+        return ResponseEntity.ok(ApiResponse.success(sessionDto));
+    }
 }

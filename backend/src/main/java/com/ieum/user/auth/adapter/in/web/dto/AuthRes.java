@@ -45,4 +45,19 @@ public class AuthRes {
                     .build();
         }
     }
+
+    @Getter
+    @Builder
+    public static class SessionDto {
+        private boolean isLoggedIn;
+        private UserInfoDto user;
+    }
+
+    @Getter
+    @Builder
+    public static class UserInfoDto {
+        private String nickname;
+        private String role;
+        private String profileImage;
+    }
 }
