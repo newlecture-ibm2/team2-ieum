@@ -31,6 +31,7 @@ async function processProxyRequest(req: NextRequest) {
   const fetchOptions: RequestInit = {
     method: req.method,
     headers: headers,
+    cache: "no-store", // Proxy should strictly never cache Data Cache, always forward to backend real-time
   };
 
   // Handle the request body stream safely (requires duplex for streaming bodies, but ONLY for POST/PUT/PATCH)
