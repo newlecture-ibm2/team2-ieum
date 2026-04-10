@@ -25,6 +25,8 @@ services:
       - OAUTH_NAVER_CLIENT_ID=${OAUTH_NAVER_CLIENT_ID}
       - OAUTH_NAVER_CLIENT_SECRET=${OAUTH_NAVER_CLIENT_SECRET}
       - TZ=Asia/Seoul
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=50MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
     restart: unless-stopped
     depends_on:
       - db
