@@ -1,11 +1,13 @@
 .hero {
-  height: 380px;
+  height: calc(380px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
+  padding-top: var(--header-height);
   background-size: cover;
   background-position: center;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  padding: 40px 0;
+  padding-bottom: 40px;
   position: relative;
   color: white;
 }

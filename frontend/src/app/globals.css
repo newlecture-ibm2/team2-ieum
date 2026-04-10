@@ -128,3 +128,82 @@ img {
   white-space: nowrap;
   border-width: 0;
 }
+
+/* ============================================================
+   어두운 히어로 위 헤더 — body[data-hero-theme="dark"] 적용 시
+   헤더의 모든 텍스트·아이콘을 흰색으로 오버라이드
+   ============================================================ */
+
+/* 로고 전환: 기본은 어두운 로고만, 다크 테마에서는 밝은 로고만 */
+img[data-logo-theme="light"] {
+  display: none !important;
+}
+
+body[data-hero-theme="dark"] img[data-logo-theme="dark"] {
+  display: none !important;
+}
+
+body[data-hero-theme="dark"] img[data-logo-theme="light"] {
+  display: block !important;
+}
+
+body[data-hero-theme="dark"] header > div > nav a {
+  color: rgba(255, 255, 255, 0.85) !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+body[data-hero-theme="dark"] header > div > nav a:hover {
+  color: #ffffff !important;
+}
+
+/* 활성 탭 하단 바 */
+body[data-hero-theme="dark"] header > div > nav a::after {
+  background: #ffffff !important;
+}
+
+/* 벨 아이콘 버튼 */
+body[data-hero-theme="dark"] header button[aria-label="알림"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+body[data-hero-theme="dark"] header button[aria-label="알림"]:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+}
+
+body[data-hero-theme="dark"] header button[aria-label="알림"] svg {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* 마이페이지 유저 버튼 */
+body[data-hero-theme="dark"] header a[aria-label="마이페이지"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+body[data-hero-theme="dark"] header a[aria-label="마이페이지"]:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border-color: rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+body[data-hero-theme="dark"] header a[aria-label="마이페이지"] span {
+  color: #ffffff !important;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* 로그아웃 버튼 */
+body[data-hero-theme="dark"] header button[aria-label="로그아웃"] {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+body[data-hero-theme="dark"] header button[aria-label="로그아웃"] svg {
+  color: #ffffff !important;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
+}
+
+/* 로그인 버튼 */
+body[data-hero-theme="dark"] header a[href="/login"] {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}

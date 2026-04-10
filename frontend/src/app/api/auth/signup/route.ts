@@ -5,7 +5,7 @@ export async function POST(req: NextRequest) {
     const { id, password, nickname, phone, isMarketingAgreed } = await req.json();
  
     // 🚀 [v18] 환경 변수 방어
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const apiBaseUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
  
     // 백엔드에 회원가입(register) 요청 전달
     const backendRes = await fetch(`${apiBaseUrl}/api/auth/signup`, {

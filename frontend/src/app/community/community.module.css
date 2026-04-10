@@ -10,6 +10,8 @@
     linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6)),
     url('/images/community_hero.png') center top / cover no-repeat;
   padding: 64px 0;
+  padding-top: calc(64px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
   text-align: center;
   overflow: hidden;
 }
