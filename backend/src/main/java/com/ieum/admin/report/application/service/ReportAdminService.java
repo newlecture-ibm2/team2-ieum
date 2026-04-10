@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.ieum.admin.report.application.port.in.GetReportTargetUseCase;
 import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
+import com.ieum.admin.member.application.port.out.MemberPort;
 
 /**
  * 신고 관리 서비스 (UseCase 구현체)
@@ -26,6 +27,7 @@ import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 public class ReportAdminService implements GetReportListUseCase, ProcessReportUseCase, GetReportTargetUseCase {
 
     private final ReportPort reportPort;
+    private final MemberPort memberPort;
     private final SendNotificationUseCase sendNotificationUseCase;
     @Override
     public ReportListResult getReports(int page, int size, String status, String targetType, String searchType,
@@ -46,6 +48,13 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
     @Override
     @Transactional
     public void processReport(Long reportId, String action, String message) {
+        Report currentReport = reportPort.findById(reportId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
+
+        if (!"PENDING".equals(currentReport.getStatus())) {
+            throw new IllegalStateException("이미 처리된 신고입니다.");
+        }
+
         String newStatus = "DISMISS".equalsIgnoreCase(action) ? "REJECTED" : "RESOLVED";
         reportPort.updateStatus(reportId, newStatus, action, message);
         // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
@@ -53,6 +62,16 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
 
         if ("DELETE".equalsIgnoreCase(action)) {
             hideTargetContent(reportId);
+        }
+
+        // 신고가 승인(조치)되었을 경우 피신고자의 신고수를 +1 증가
+        if ("RESOLVED".equals(newStatus) || "DELETE".equalsIgnoreCase(action) || "SUSPEND".equalsIgnoreCase(action)) {
+            reportPort.findById(reportId).ifPresent(report -> {
+                Long authorId = reportPort.findTargetAuthorId(report.getTargetType(), report.getTargetId());
+                if (authorId != null) {
+                    memberPort.increaseReportedCount(authorId);
+                }
+            });
         }
 
         // 처리 완료 후 신고자에게 결과 알림 전송

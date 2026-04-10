@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { User, Trash2, Siren } from 'lucide-react';
-import axios from 'axios';
+import api from '@/lib/api';
 import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import styles from './ReviewBoard.module.css';
 
@@ -38,7 +38,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
     
     setDeletingId(confirmDeleteId);
     try {
-      await axios.delete(`/api/reviews/${confirmDeleteId}`);
+      await api.delete(`/api/reviews/${confirmDeleteId}`);
       alert('리뷰가 삭제되었습니다.');
       onRefresh(); // 페이지 컴포넌트에 목록 갱신 요청
     } catch (err: any) {
@@ -194,7 +194,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                 disabled={!reportReason}
                 onClick={async () => {
                   try {
-                    await axios.post('/api/reports', {
+                    await api.post('/api/reports', {
                       targetType: 'REVIEW',
                       targetId: reportingReviewId,
                       reason: reportReason,

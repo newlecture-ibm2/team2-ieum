@@ -13,7 +13,7 @@ import java.util.Optional;
  * 회원 데이터 접근 OutPort
  */
 public interface MemberPort {
-    Page<Member> findAll(String status, String role, String searchType, String keyword, Pageable pageable);
+    Page<Member> findAll(String status, String role, String provider, String searchType, String keyword, Pageable pageable);
     Optional<Member> findById(Long userId);
     void updateStatus(Long userId, String status);
     void suspendMember(Long userId, int days);
@@ -30,12 +30,7 @@ public interface MemberPort {
      */
     int releaseSuspendedMembers(LocalDateTime cutoff);
 
-    /**
-     * 여러 회원의 신고 당한 횟수를 일괄 집계 (N+1 방지)
-     * - 페이지 단위로 호출하여 IN 절 기반 단일 쿼리로 처리
-     * @param userIds 조회 대상 회원 ID 목록
-     * @return Map&lt;userId, reportedCount&gt;
-     */
-    Map<Long, Long> countReportedByUsers(List<Long> userIds);
+    int deletePhysicalMember(Long userId);
+    void increaseReportedCount(Long userId);
 }
 

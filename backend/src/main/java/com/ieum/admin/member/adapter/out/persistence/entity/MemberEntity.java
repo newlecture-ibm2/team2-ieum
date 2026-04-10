@@ -58,9 +58,10 @@ public class MemberEntity {
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt;
 
-    /* ── 신고 당한 횟수 (쿼리에서 채움, DB 컬럼 아님) ── */
-    @Transient
-    private long reportedCount;
+    /* ── 신고 당한 횟수 (승인된 유효 신고만 카운트되는 실제 물리 컬럼) ── */
+    @Column(name = "reported_count", nullable = false)
+    @Builder.Default
+    private long reportedCount = 0L;
 
     /**
      * Entity → Domain 변환

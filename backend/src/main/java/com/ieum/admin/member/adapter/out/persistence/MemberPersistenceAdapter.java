@@ -38,35 +38,20 @@ public class MemberPersistenceAdapter implements MemberPort {
      * - 쿼리 수: 목록 1회 + 신고 집계 1회 = 총 2회
      */
     @Override
-    public Page<Member> findAll(String status, String role, String searchType, String keyword, Pageable pageable) {
-        Page<MemberEntity> page = repository.findMembersByConditions(status, role, searchType, keyword, pageable);
-
-        // 페이지 내 userIds 추출 → 일괄 집계 1회
-        List<Long> userIds = page.getContent().stream()
-                .map(MemberEntity::getUserId)
+    public Page<Member> findAll(String status, String role, String provider, String searchType, String keyword, Pageable pageable) {
+        Page<MemberEntity> page = repository.findMembersByConditions(status, role, provider, searchType, keyword, pageable);
+        List<Member> members = page.getContent().stream()
+                .map(MemberEntity::toDomain)
                 .toList();
-
-        Map<Long, Long> reportCounts = countReportedByUsers(userIds);
-
-        List<Member> members = page.getContent().stream().map(entity -> {
-            entity.setReportedCount(reportCounts.getOrDefault(entity.getUserId(), 0L));
-            return entity.toDomain();
-        }).toList();
-
         return new PageImpl<>(members, pageable, page.getTotalElements());
     }
 
     /**
      * 회원 상세 조회 (단건)
-     * - 단건이므로 기존 countReportedByUser 1회 호출로 충분
      */
     @Override
     public Optional<Member> findById(Long userId) {
-        return repository.findById(userId).map(entity -> {
-            long reportedCount = countReportedByUser(entity.getUserId());
-            entity.setReportedCount(reportedCount);
-            return entity.toDomain();
-        });
+        return repository.findById(userId).map(MemberEntity::toDomain);
     }
 
     @Override
@@ -145,68 +130,14 @@ public class MemberPersistenceAdapter implements MemberPort {
                 cutoff, now, MemberStatus.SUSPENDED, MemberStatus.ACTIVE);
     }
 
-    /**
-     * 여러 회원의 신고 당한 횟수를 일괄 집계 (N+1 방지)
-     * - IN 절 + UNION ALL + GROUP BY로 단일 쿼리 처리
-     * - 페이지 크기(보통 10~20)만큼의 userIds로 호출되므로 IN 절 크기 문제 없음
-     */
     @Override
-    public Map<Long, Long> countReportedByUsers(List<Long> userIds) {
-        if (userIds == null || userIds.isEmpty()) {
-            return Collections.emptyMap();
-        }
-        try {
-            String nativeQuery = """
-                    SELECT sub.user_id, COUNT(sub.report_id)
-                    FROM (
-                        SELECT p.author_id AS user_id, r.id AS report_id
-                        FROM reports r JOIN posts p ON r.target_type = 'POST' AND r.target_id = p.id
-                        WHERE p.author_id IN (:userIds)
-                        UNION ALL
-                        SELECT c.user_id AS user_id, r.id AS report_id
-                        FROM reports r JOIN comments c ON r.target_type = 'COMMENT' AND r.target_id = c.comment_id
-                        WHERE c.user_id IN (:userIds)
-                        UNION ALL
-                        SELECT rv.user_id AS user_id, r.id AS report_id
-                        FROM reports r JOIN reviews rv ON r.target_type = 'REVIEW' AND r.target_id = rv.id
-                        WHERE rv.user_id IN (:userIds)
-                    ) sub
-                    GROUP BY sub.user_id
-                    """;
-            @SuppressWarnings("unchecked")
-            List<Object[]> results = em.createNativeQuery(nativeQuery)
-                    .setParameter("userIds", userIds)
-                    .getResultList();
-            return results.stream().collect(Collectors.toMap(
-                    row -> ((Number) row[0]).longValue(),
-                    row -> ((Number) row[1]).longValue()
-            ));
-        } catch (Exception e) {
-            // 테이블이 아직 없거나 오류 시 빈 Map 반환
-            return Collections.emptyMap();
-        }
+    public int deletePhysicalMember(Long userId) {
+        return repository.deletePhysicalMember(userId);
     }
 
-    /**
-     * 특정 회원이 신고 "당한" 횟수를 집계 (단건 조회용)
-     * - findById() 상세 조회에서 사용
-     * - 목록 조회에서는 countReportedByUsers()를 사용한다
-     */
-    private long countReportedByUser(Long userId) {
-        try {
-            String nativeQuery = """
-                    SELECT COUNT(*) FROM reports r WHERE
-                      (r.target_type = 'POST' AND r.target_id IN (SELECT p.id FROM posts p WHERE p.author_id = :userId))
-                      OR (r.target_type = 'COMMENT' AND r.target_id IN (SELECT c.comment_id FROM comments c WHERE c.user_id = :userId))
-                      OR (r.target_type = 'REVIEW' AND r.target_id IN (SELECT rv.id FROM reviews rv WHERE rv.user_id = :userId))
-                    """;
-            Object result = em.createNativeQuery(nativeQuery)
-                    .setParameter("userId", userId)
-                    .getSingleResult();
-            return ((Number) result).longValue();
-        } catch (Exception e) {
-            return 0;
-        }
+    @Override
+    public void increaseReportedCount(Long userId) {
+        repository.increaseReportedCount(userId);
     }
 }
 
