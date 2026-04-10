@@ -33,11 +33,11 @@ public class InquiryAdminController {
     @GetMapping
     public ResponseEntity<?> getInquiries(
             @Parameter(description = "상태 (PENDING / ANSWERED)")
-            @RequestParam(required = false) String status,
+            @RequestParam(required = false, defaultValue = "") String status,
             @Parameter(description = "검색 기준 (ALL / TITLE / AUTHOR / CONTENT)")
             @RequestParam(required = false, defaultValue = "ALL") String searchType,
             @Parameter(description = "검색어")
-            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false, defaultValue = "") String keyword,
             @Parameter(description = "페이지 번호", example = "1")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 크기", example = "10")

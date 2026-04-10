@@ -49,7 +49,8 @@ public class InquiryPersistenceAdapter implements InquiryPort {
      */
     @Override
     public Optional<Inquiry> findByIdWithNickname(Long id) {
-        return repository.findInquiryWithNickname(id).map(row -> {
+        return repository.findInquiryWithNickname(id).map(res -> {
+            Object[] row = (Object[]) res;
             InquiryEntity entity = (InquiryEntity) row[0];
             String nickname = (String) row[1];
             entity.setAuthorNickname(nickname != null ? nickname : "알 수 없음");
