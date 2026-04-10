@@ -11,13 +11,14 @@ export function useHeader() {
 
   /* ===== 어두운 히어로 판별 + body data attribute 동기화 ===== */
   const isDarkHeroPage =
-    !pathname.startsWith("/festivals/map") &&      // 지도 페이지 제외
-    (
-      pathname === "/" ||
-      pathname.startsWith("/festivals") ||
-      pathname.startsWith("/pastFestivals") ||
-      pathname.startsWith("/community")
-    );
+    // 전국축제 메인 및 상세 (/festivals/map 지도 페이지 제외)
+    pathname === "/" ||
+    (pathname.startsWith("/festivals") && !pathname.startsWith("/festivals/map")) ||
+    // 지난축제
+    pathname === "/pastFestivals" ||
+    // 커뮤니티 메인 및 글쓰기 (상세 페이지 /community/[id] 제외)
+    pathname === "/community" ||
+    pathname === "/community/write";
 
   useEffect(() => {
     if (isDarkHeroPage) {
