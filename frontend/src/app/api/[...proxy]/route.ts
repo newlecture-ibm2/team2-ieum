@@ -14,6 +14,9 @@ async function processProxyRequest(req: NextRequest) {
   const headers = new Headers(req.headers);
   // Important to override the host so the backend doesn't reject it
   headers.set("host", new URL(BACKEND_URL).host);
+  // Remove Origin/Referer so Spring Boot doesn't block the server-to-server proxy request with its CORS policy
+  headers.delete("origin");
+  headers.delete("referer");
 
   // If user has a valid iron-session access token, append it to Authorization Header
   if (token) {
