@@ -7,7 +7,7 @@ const getBaseUrl = () => {
   if (typeof window !== "undefined") {
     return ""; 
   }
-  return process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
+  return process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 };
 
 const api = axios.create({
