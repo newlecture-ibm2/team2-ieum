@@ -26,7 +26,7 @@ const NAV_ITEMS: NavItem[] = [
 export default function Header() {
   const pathname = usePathname();
   const {
-    isLoggedIn, userNickname, userRole, hasUnread, setHasUnread,
+    isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
     isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
     closePopup, logout, devRefreshFestivals
   } = useHeader();
@@ -118,8 +118,12 @@ export default function Header() {
                 className={styles.userBtn}
                 aria-label="마이페이지"
               >
-                <div className={styles.userIconWrapper}>
-                  <User strokeWidth={2.5} />
+                <div className={styles.userIconWrapper} style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {userProfileImage ? (
+                    <img src={userProfileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User strokeWidth={2.5} />
+                  )}
                 </div>
                 {userNickname && (
                   <span className={styles.userName}>{userNickname}님</span>

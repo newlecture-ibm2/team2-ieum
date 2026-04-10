@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 
 interface InquiryModalProps {
   isOpen: boolean;
@@ -11,6 +12,7 @@ interface InquiryModalProps {
 }
 
 export default function InquiryModal({ isOpen, onClose, onSuccess }: InquiryModalProps) {
+  const { toast } = useToast();
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -20,26 +22,30 @@ export default function InquiryModal({ isOpen, onClose, onSuccess }: InquiryModa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !content.trim()) {
-      alert('제목과 내용을 모두 입력해주세요.');
+      toast('제목과 내용을 모두 입력해주세요.', 'error');
       return;
     }
 
     try {
       setIsSubmitting(true);
-      await api.post('/api/users/me/inquiries', {
+      const res = await api.post('/api/users/me/inquiries', {
         title,
         content,
-        type: 'GENERAL' // 기본 문의 유형
+        type: 'GENERAL'
       });
 
-      alert('문의가 정상적으로 접수되었습니다.');
-      setTitle('');
-      setContent('');
-      onSuccess();
-      onClose();
+      if (res.data.success) {
+        toast('문의가 정상적으로 접수되었습니다.', 'success');
+        setTitle('');
+        setContent('');
+        onSuccess();
+        onClose();
+      } else {
+        toast(res.data.message || '문의 등록에 실패했습니다.', 'error');
+      }
     } catch (error) {
       console.error('Failed to submit inquiry:', error);
-      alert('문의 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.');
+      toast('문의 등록 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', 'error');
     } finally {
       setIsSubmitting(false);
     }

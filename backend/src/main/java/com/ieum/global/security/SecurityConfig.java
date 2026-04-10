@@ -88,7 +88,7 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
 
                                                 // 🔒 회원 전용 — 프로필, 알림, FCM
-                                                .requestMatchers("/api/users/me/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers("/api/users/me/**", "/api/mypage/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 리뷰 CUD
                                                 .requestMatchers(HttpMethod.POST, "/api/reviews")

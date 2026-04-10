@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { useToast } from '@/_component/common/Toast';
-import { ActivityType, MyActivity } from '@/types/mypage';
+import api from '@/lib/api';
+import { ActivityType, MyActivity, ApiResponse } from '@/types/mypage';
 
 interface UseMyPageActivityReturn {
   items: MyActivity[];
@@ -16,9 +17,7 @@ interface UseMyPageActivityReturn {
 }
 
 /**
- * 마이페이지 활동 내역(게시글, 리뷰, 댓글 등) 데이터 조회 및 관리를 위한 커스텀 훅
- * @param type 활동 유형 (posts, reviews, comments, inquiries, reports)
- * @param size 한 페이지당 불러올 아이템 개수 (기본값: 6)
+ * 🚀 마이페이지 활동 내역 데이터 조회용 커스텀 훅 (표준화 버전)
  */
 export function useMyPageActivity(type: ActivityType, size = 6): UseMyPageActivityReturn {
   const searchParams = useSearchParams();
@@ -33,34 +32,41 @@ export function useMyPageActivity(type: ActivityType, size = 6): UseMyPageActivi
   const [isLoading, setIsLoading] = useState(true);
 
   /**
-   * 데이터 조회 함수
+   * 데이터 조회 함수 (api 유틸리티 적용)
    */
   const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
-      // 백엔드는 0-based 페이지를 사용하므로 currentPage - 1
-      const res = await fetch(
-        `/api/users/me/activities?type=${type}&page=${currentPage - 1}&size=${size}`,
-        { cache: 'no-store' }
-      );
-      const data = await res.json();
+      
+      const res = await api.get<ApiResponse<{
+        activities: MyActivity[];
+        totalPages: number;
+        totalElements: number;
+      }>>(`/api/mypage/activities`, {
+        params: {
+          type,
+          page: currentPage - 1,
+          size
+        }
+      });
 
-      if (data.success && data.data) {
-        setItems(data.data.activities || []);
-        setTotalPages(data.data.totalPages || 1);
-        setTotalElements(Number(data.data.totalElements) || 0);
-      } else if (!data.success) {
-        toast(data.message || '데이터를 불러오는데 실패했습니다.', 'error');
+      const result = res.data;
+
+      if (result.success && result.data) {
+        setItems(result.data.activities || []);
+        setTotalPages(result.data.totalPages || 1);
+        setTotalElements(Number(result.data.totalElements) || 0);
+      } else {
+        toast(result.message || '데이터를 불러오는데 실패했습니다.', 'error');
       }
     } catch (error) {
       console.error(`Failed to fetch my ${type}:`, error);
-      toast('서버와의 통신 도중 오류가 발생했습니다.', 'error');
+      // 에러 처리는 api interceptor에서 공통 처리되지만, 로컬 알림이 필요한 경우 추가 가능
     } finally {
       setIsLoading(false);
     }
   }, [type, currentPage, size, toast]);
 
-  // 페이지나 타입이 변할 때마다 데이터 다시 불러오기
   useEffect(() => {
     fetchData();
   }, [fetchData]);

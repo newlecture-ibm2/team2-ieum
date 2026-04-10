@@ -7,6 +7,7 @@ import Pagination from '@/_component/common/Pagination';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useMyPageActivity } from '../_hooks/useMyPageActivity';
+import api from '@/lib/api';
 import type { MyComment } from '@/types/mypage';
 import styles from '../mypage.module.css';
 
@@ -17,31 +18,29 @@ export default function CommentList() {
   // 🚀 공통 훅 사용
   const { 
     items: comments, 
-    setItems: setComments, 
     currentPage, 
     totalPages, 
     totalElements, 
-    isLoading 
+    isLoading,
+    refetch
   } = useMyPageActivity('comments');
 
   const [confirmTarget, setConfirmTarget] = useState<number | string | null>(null);
 
   const handleDelete = async (id: number | string) => {
     try {
-      const res = await fetch(`/api/community/comments/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setComments(comments.filter(c => (c as MyComment).id !== id));
-        toast('댓글이 삭제되었습니다.', 'success');
+      // 🚀 표준 api 유틸리티 적용
+      const res = await api.delete(`/api/community/comments/${id}`);
+      
+      if (res.data.success) {
+        toast('댓글이 성공적으로 삭제되었습니다.', 'success');
+        refetch(); // 🔄 목록 및 총 개수 최신화
       } else {
-        toast(data.message || '삭제에 실패했습니다.', 'error');
+        toast(res.data.message || '삭제에 실패했습니다.', 'error');
       }
     } catch (error) {
       console.error('Failed to delete comment:', error);
-      toast('삭제 도중 오류가 발생했습니다.', 'error');
+      toast('댓글 삭제 도중 오류가 발생했습니다.', 'error');
     } finally {
       setConfirmTarget(null);
     }
@@ -51,7 +50,7 @@ export default function CommentList() {
 
   return (
     <div className={styles.listContainer}>
-      <div className={styles.listHeader} style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#64748b' }}>
+      <div className={styles.listSummary}>
         총 <strong>{totalElements}</strong>개의 댓글이 있습니다.
       </div>
       {comments.length === 0 ? (

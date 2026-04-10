@@ -7,6 +7,7 @@ import Pagination from '@/_component/common/Pagination';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useMyPageActivity } from '../_hooks/useMyPageActivity';
+import api from '@/lib/api';
 import type { MyPost } from '@/types/mypage';
 import styles from '../mypage.module.css';
 
@@ -17,31 +18,29 @@ export default function PostList() {
   // 🚀 공통 훅 사용: fetch 로직, 상태 관리 자동화
   const { 
     items: posts, 
-    setItems: setPosts, 
     currentPage, 
     totalPages, 
     totalElements, 
-    isLoading 
+    isLoading,
+    refetch 
   } = useMyPageActivity('posts');
 
   const [confirmTarget, setConfirmTarget] = useState<number | null>(null);
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/community/posts/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setPosts(posts.filter(p => (p as MyPost).id !== id));
-        toast('게시글이 삭제되었습니다.', 'success');
+      // 🚀 표준 api 유틸리티 적용
+      const res = await api.delete(`/api/community/posts/${id}`);
+      
+      if (res.data.success) {
+        toast('게시글이 성공적으로 삭제되었습니다.', 'success');
+        refetch(); // 🔄 목록 및 페이징 정보 새로고침
       } else {
-        toast(data.message || '삭제에 실패했습니다.', 'error');
+        toast(res.data.message || '삭제에 실패했습니다.', 'error');
       }
     } catch (error) {
       console.error('Failed to delete post:', error);
-      toast('삭제 도중 오류가 발생했습니다.', 'error');
+      toast('게시글 삭제 도중 오류가 발생했습니다.', 'error');
     } finally {
       setConfirmTarget(null);
     }
@@ -51,7 +50,7 @@ export default function PostList() {
 
   return (
     <div className={styles.listSection}>
-      <div className={styles.listHeader}>
+      <div className={styles.listSummary}>
         총 <strong>{totalElements}</strong>개의 게시글이 있습니다.
       </div>
 

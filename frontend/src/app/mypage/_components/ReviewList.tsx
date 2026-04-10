@@ -7,6 +7,7 @@ import Pagination from '@/_component/common/Pagination';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useMyPageActivity } from '../_hooks/useMyPageActivity';
+import api from '@/lib/api';
 import type { MyReview } from '@/types/mypage';
 import styles from '../mypage.module.css';
 
@@ -17,11 +18,11 @@ export default function ReviewList() {
   // 🚀 공통 훅 사용
   const { 
     items: reviews, 
-    setItems: setReviews, 
     currentPage, 
     totalPages, 
     totalElements, 
-    isLoading 
+    isLoading,
+    refetch
   } = useMyPageActivity('reviews');
 
   const [confirmTarget, setConfirmTarget] = useState<number | null>(null);
@@ -39,20 +40,18 @@ export default function ReviewList() {
 
   const handleDelete = async (id: number) => {
     try {
-      const res = await fetch(`/api/reviews/${id}`, {
-        method: 'DELETE',
-      });
-      const data = await res.json();
-
-      if (data.success) {
-        setReviews(reviews.filter(r => (r as MyReview).id !== id));
-        toast('리뷰가 삭제되었습니다.', 'success');
+      // 🚀 표준 api 유틸리티 적용 (인증 토큰 자동 포함)
+      const res = await api.delete(`/api/reviews/${id}`);
+      
+      if (res.data.success) {
+        toast('리뷰가 성공적으로 삭제되었습니다.', 'success');
+        refetch(); // 🔄 목록 및 페이징 상태 최신화
       } else {
-        toast(data.message || '삭제에 실패했습니다.', 'error');
+        toast(res.data.message || '삭제에 실패했습니다.', 'error');
       }
     } catch (error) {
       console.error('Failed to delete review:', error);
-      toast('삭제 도중 오류가 발생했습니다.', 'error');
+      toast('리뷰 삭제 도중 오류가 발생했습니다.', 'error');
     } finally {
       setConfirmTarget(null);
     }
@@ -62,7 +61,7 @@ export default function ReviewList() {
 
   return (
     <div className={styles.listContainer}>
-      <div className={styles.listHeader} style={{ marginBottom: '16px', fontSize: '0.9rem', color: '#64748b' }}>
+      <div className={styles.listSummary}>
         총 <strong>{totalElements}</strong>개의 리뷰가 있습니다.
       </div>
       {reviews.length === 0 ? (
