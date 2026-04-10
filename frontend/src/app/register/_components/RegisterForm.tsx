@@ -3,7 +3,7 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Mail, Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Phone, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../register.module.css';
 
@@ -165,7 +165,7 @@ export default function RegisterForm() {
         <div className={styles.inputGroup}>
           <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
-            <Mail className={styles.inputIcon} />
+            <User className={styles.inputIcon} />
             <input 
               id="id"
               type="text" 

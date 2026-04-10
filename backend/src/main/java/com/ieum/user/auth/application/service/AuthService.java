@@ -160,8 +160,14 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
     @Transactional
     public void requestRecovery(AuthReq.PasswordRecoveryRequest request) {
         String loginId = request.getId();
-        if (!loadUserPort.existsByLoginId(loginId)) {
-            throw new IllegalArgumentException("가입되지 않은 아이디입니다.");
+        String inputPhone = (request.getPhone() != null) ? request.getPhone().replaceAll("[^0-9]", "") : "";
+
+        User user = loadUserPort.loadByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("가입 정보가 일치하지 않습니다."));
+
+        // 📱 등록된 전화번호와 일치하는지 확인 (보안을 위해 에러 메시지 통일)
+        if (user.getPhone() == null || !user.getPhone().equals(inputPhone)) {
+            throw new IllegalArgumentException("가입 정보가 일치하지 않습니다.");
         }
 
         // 6자리 난수 생성
@@ -169,7 +175,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
         recoveryCodes.put(loginId, code);
         verifiedIds.put(loginId, false);
 
-        // TODO: 실제 이메일 발송 로직 연동 (현재는 로그 출력으로 대체)
+        // [PASSWORD RECOVERY] 현재는 SMS/Email 연동 전이므로 로그 출력으로 대체
         System.out.println("================================");
         System.out.println("[PASSWORD RECOVERY] ID: " + loginId);
         System.out.println("[PASSWORD RECOVERY] Code: " + code);

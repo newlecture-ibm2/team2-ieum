@@ -47,21 +47,21 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 요청", description = "입력한 아이디로 비밀번호 재설정용 인증 코드를 전송합니다.")
+    @Operation(summary = "비밀번호 찾기 - 인증 코드 요청", description = "입력한 아이디와 전화번호로 비밀번호 재설정용 인증 코드를 생성합니다.")
     @PostMapping("/password-recovery/request")
     public ResponseEntity<ApiResponse<Void>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
         authUseCase.requestRecovery(request);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 검증", description = "아이디 인증 코드를 검증합니다.")
+    @Operation(summary = "비밀번호 찾기 - 인증 코드 검증", description = "아이디와 매칭되는 인증 코드를 검증합니다.")
     @PostMapping("/password-recovery/verify")
     public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryCode(@RequestBody AuthReq.PasswordRecoveryVerify request) {
         authUseCase.verifyCode(request);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 비밀번호 재설정", description = "인증 완료 후 새로운 비밀번호로 변경합니다.")
+    @Operation(summary = "비밀번호 찾기 - 비밀번호 재설정", description = "인증 완료 후 아이디 기준으로 새로운 비밀번호로 변경합니다.")
     @PostMapping("/password-recovery/reset")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody AuthReq.PasswordReset request) {
         authUseCase.resetPassword(request);
