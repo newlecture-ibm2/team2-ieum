@@ -14,7 +14,8 @@ public class UpdateFavoriteFestivalStatsAdapter implements UpdateFavoriteFestiva
     @Override
     public void incrementFavoriteCount(Long festivalId) {
         festivalJpaRepository.findById(festivalId).ifPresent(festival -> {
-            festival.setFavoriteCount(festival.getFavoriteCount() + 1);
+            int currentCount = festival.getFavoriteCount() != null ? festival.getFavoriteCount() : 0;
+            festival.setFavoriteCount(currentCount + 1);
             festivalJpaRepository.save(festival);
         });
     }
@@ -22,9 +23,9 @@ public class UpdateFavoriteFestivalStatsAdapter implements UpdateFavoriteFestiva
     @Override
     public void decrementFavoriteCount(Long festivalId) {
         festivalJpaRepository.findById(festivalId).ifPresent(festival -> {
-            int count = festival.getFavoriteCount();
-            if (count > 0) {
-                festival.setFavoriteCount(count - 1);
+            int currentCount = festival.getFavoriteCount() != null ? festival.getFavoriteCount() : 0;
+            if (currentCount > 0) {
+                festival.setFavoriteCount(currentCount - 1);
                 festivalJpaRepository.save(festival);
             }
         });

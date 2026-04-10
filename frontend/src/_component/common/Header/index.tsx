@@ -1,14 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { Bell, User, LogOut, Shield } from "lucide-react";
-import { onMessage } from "firebase/messaging";
-import api from "@/lib/api";
-import { messaging } from "@/lib/firebase";
 import NotificationDropdown from "../NotificationDropdown";
+import { useHeader } from "./useHeader";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -28,91 +25,11 @@ const NAV_ITEMS: NavItem[] = [
 
 export default function Header() {
   const pathname = usePathname();
-  const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
-
-  const closePopup = () => {
-    const shouldReload = popupConfig?.reload;
-    setPopupConfig(null);
-    if (shouldReload) {
-      window.location.reload();
-    }
-  };
-  const [isNotiOpen, setIsNotiOpen] = useState(false);
-
-  /* ===== 인증 상태 (iron-session 기반) ===== */
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userNickname, setUserNickname] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
-
-  /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
-  const [hasUnread, setHasUnread] = useState(false);
-  /* ===== FCM 포그라운드 수신 시 드롭다운 갱신 키 ===== */
-  const [notiRefreshKey, setNotiRefreshKey] = useState(0);
-
-  useEffect(() => {
-    // 1) 로그인 상태 확인 — iron-session 세션 쿠키 기반
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then(async (data) => {
-        setIsLoggedIn(data.isLoggedIn);
-        setUserNickname(data.user?.nickname ?? null);
-        setUserRole(data.user?.role ?? null);
-
-        // 2) 로그인 상태면 읽지 않은 알림 확인
-        if (data.isLoggedIn) {
-          api
-            .get("/api/users/me/notifications")
-            .then((res) => {
-              const unreadCount = res.data?.data?.unreadCount || 0;
-              setHasUnread(unreadCount > 0);
-            })
-            .catch(() => {}); // 에러 무시
-
-          // 3) FCM 토큰 자동 등록 — 알림 권한 요청 → 토큰 발급 → 백엔드 전송
-          try {
-            if (typeof Notification !== "undefined" && Notification.permission === "default") {
-              await Notification.requestPermission();
-            }
-            if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-              const { requestFcmToken } = await import("@/lib/firebase");
-              const fcmToken = await requestFcmToken();
-              if (fcmToken) {
-                await api.post("/api/users/me/fcm-token", { token: fcmToken });
-                console.log("✅ FCM 토큰 백엔드 등록 완료");
-              }
-            }
-          } catch (err) {
-            console.warn("FCM 토큰 등록 실패 (무시):", err);
-          }
-        }
-      })
-      .catch(() => {}); // 비로그인 or 에러 무시
-  }, []);
-
-  /* ===== FCM 포그라운드 메시지 수신 리스너 ===== */
-  useEffect(() => {
-    if (!messaging) return;
-
-    const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("🔔 포그라운드 알림 수신:", payload);
-
-      // 1) 헤더 알림 빨간 점 즉시 활성화
-      setHasUnread(true);
-
-      // 2) 드롭다운이 열려있으면 자동 갱신 트리거
-      setNotiRefreshKey((prev) => prev + 1);
-
-      // 3) 브라우저 네이티브 알림 표시 (권한이 허용된 경우)
-      if (typeof Notification !== "undefined" && Notification.permission === "granted") {
-        new Notification(payload.notification?.title || "이음 알림", {
-          body: payload.notification?.body || "새로운 알림이 있습니다.",
-          icon: "/favicon.ico",
-        });
-      }
-    });
-
-    return () => unsubscribe();
-  }, []);
+  const {
+    isLoggedIn, userNickname, userRole, hasUnread, setHasUnread,
+    isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
+    closePopup, logout, devRefreshFestivals
+  } = useHeader();
 
   if (pathname.startsWith("/admin")) return null;
 
@@ -124,8 +41,8 @@ export default function Header() {
           <Image
             src="/logo/logo-ieum-transparent.png"
             alt="이음 로고"
-            width={110}
-            height={110}
+            width={160}
+            height={80}
             className={styles.logoImg}
             priority
           />
@@ -154,22 +71,7 @@ export default function Header() {
           {/* ⚙️ [DEV] 축제 상태 최신화 버튼 — 개발 완료 후 제거 */}
           <button
             className={styles.devRefreshBtn}
-            onClick={async () => {
-              try {
-                const res = await api.patch('/api/festivals/refresh-status');
-                // 백엔드 ApiResponse 공통 포맷 대응 (res.data.data 내부에 실제 데이터 존재)
-                const payload = res.data.data || res.data;
-                setPopupConfig({
-                  msg: `✅ ${payload.message} (${payload.updatedCount}건 변경)`,
-                  reload: true,
-                });
-              } catch (err) {
-                setPopupConfig({
-                  msg: '❌ 상태 최신화 실패: ' + err,
-                  reload: false,
-                });
-              }
-            }}
+            onClick={devRefreshFestivals}
             title="[DEV] 축제 status DB 일괄 갱신"
           >
             🔄 상태 최신화
@@ -228,10 +130,7 @@ export default function Header() {
                 className={styles.logoutBtn}
                 aria-label="로그아웃"
                 title="로그아웃"
-                onClick={async () => {
-                  await fetch("/api/auth/logout", { method: "POST" });
-                  window.location.href = "/";
-                }}
+                onClick={logout}
               >
                 <LogOut strokeWidth={2} size={20} />
               </button>

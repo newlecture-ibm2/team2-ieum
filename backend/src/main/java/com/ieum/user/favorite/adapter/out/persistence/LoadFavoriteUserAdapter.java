@@ -13,8 +13,14 @@ public class LoadFavoriteUserAdapter implements LoadFavoriteUserPort {
 
     @Override
     public Long resolveUserId(String loginId) {
-        return userJpaRepository.findByLoginId(loginId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."))
-                .getUserId();
+        // JWT principal에는 userId(숫자)가 저장되어 있음
+        // 먼저 숫자로 파싱 시도, 실패 시 loginId로 조회
+        try {
+            return Long.valueOf(loginId);
+        } catch (NumberFormatException e) {
+            return userJpaRepository.findByLoginId(loginId)
+                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."))
+                    .getUserId();
+        }
     }
 }

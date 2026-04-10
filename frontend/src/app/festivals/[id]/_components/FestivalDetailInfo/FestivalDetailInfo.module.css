@@ -78,9 +78,8 @@
 /* 개별 썸네일 버튼 */
 .thumbnailBtn {
   position: relative;
-  flex-shrink: 0;
-  width: 88px;
-  height: 88px;
+  flex: 0 0 calc((100% - 32px) / 5); /* 최대 5개 노출 (gap 8px * 4 = 32px) */
+  aspect-ratio: 1 / 1; /* 가로세로 정사각형 유지 */
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--color-gray-100);
@@ -106,10 +105,5 @@
 @media (max-width: 768px) {
   .section {
     padding: 20px 16px;
-  }
-
-  .thumbnailBtn {
-    width: 72px;
-    height: 72px;
   }
 }

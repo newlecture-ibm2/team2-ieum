@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import Image from 'next/image';
 import styles from './FestivalDetailInfo.module.css';
 
@@ -29,6 +29,35 @@ export default function FestivalDetailInfo({
   const [selectedIndex, setSelectedIndex] = useState(0);
   const mainImage = allImages[selectedIndex] || imageSrc;
 
+  // 드래그 스크롤 처리
+  const stripRef = useRef<HTMLDivElement>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(0);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (!stripRef.current) return;
+    setIsDragging(true);
+    setStartX(e.pageX - stripRef.current.offsetLeft);
+    setScrollLeft(stripRef.current.scrollLeft);
+  };
+
+  const handleMouseLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDragging || !stripRef.current) return;
+    e.preventDefault();
+    const x = e.pageX - stripRef.current.offsetLeft;
+    const walk = (x - startX) * 2; // 스크롤 속도
+    stripRef.current.scrollLeft = scrollLeft - walk;
+  };
+
   return (
     <div className={styles.section}>
       <h2 className={styles.sectionTitle}>축제 상세 정보</h2>
@@ -51,29 +80,37 @@ export default function FestivalDetailInfo({
           />
         </div>
 
-        {/* 서브 썸네일 스트립 (모든 이미지가 가로 나열) */}
-        {allImages.length > 1 && (
-          <div className={styles.thumbnailStrip}>
-            {allImages.map((img, idx) => (
-              <button
-                key={idx}
-                className={`${styles.thumbnailBtn} ${idx === selectedIndex ? styles.thumbnailActive : ''}`}
-                onClick={() => setSelectedIndex(idx)}
-                type="button"
-                aria-label={`이미지 ${idx + 1} 보기`}
-              >
-                <Image
-                  src={img}
-                  alt={`축제 이미지 ${idx + 1}`}
-                  fill
-                  sizes="100px"
-                  style={{ objectFit: 'cover' }}
-                />
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
+      {/* 서브 썸네일 스트립 (모든 이미지가 가로 나열) */}
+      {allImages.length > 1 && (
+        <div 
+          className={styles.thumbnailStrip}
+          ref={stripRef}
+          onMouseDown={handleMouseDown}
+          onMouseLeave={handleMouseLeave}
+          onMouseUp={handleMouseUp}
+          onMouseMove={handleMouseMove}
+        >
+          {allImages.map((img, idx) => (
+            <button
+              key={idx}
+              className={`${styles.thumbnailBtn} ${idx === selectedIndex ? styles.thumbnailActive : ''}`}
+              onClick={() => setSelectedIndex(idx)}
+              type="button"
+              aria-label={`이미지 ${idx + 1} 보기`}
+            >
+              <Image
+                src={img}
+                alt={`축제 이미지 ${idx + 1}`}
+                fill
+                sizes="100px"
+                style={{ objectFit: 'cover' }}
+                draggable={false}
+              />
+            </button>
+          ))}
+        </div>
+      )}
     </div>
+  </div>
   );
 }

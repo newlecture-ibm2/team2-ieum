@@ -1,9 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkBreaks from 'remark-breaks';
+
 import api from '@/lib/api';
 import type { Notice } from '@/types/notice';
 import s from './NoticePopup.module.css';
@@ -16,7 +14,6 @@ export default function NoticePopup() {
   useEffect(() => {
     const hideUntil = localStorage.getItem('hideNoticePopupUntil');
     if (hideUntil && new Date().getTime() < parseInt(hideUntil, 10)) {
-      console.log('NoticePopup: 숨김 처리 중 (만료: ' + new Date(parseInt(hideUntil, 10)).toLocaleString() + ')');
       return; // "오늘 하루 안보기" 상태
     }
 
@@ -24,7 +21,6 @@ export default function NoticePopup() {
     const fetchPopup = async () => {
       try {
         const { data } = await api.get<{ data: Notice[] }>('/api/notices/popup');
-        console.log('NoticePopup fetched data:', data); // 디버깅 용
         if (data && data.data && data.data.length > 0) {
           setNotices(data.data);
           setIsOpen(true);
@@ -68,11 +64,10 @@ export default function NoticePopup() {
           <h2 className={s.title}>{currentNotice.title}</h2>
           <button className={s.closeBtn} onClick={handleClose}>&times;</button>
         </div>
-        <div className={`${s.body} ${s.markdownBody}`}>
-          <ReactMarkdown remarkPlugins={[remarkGfm, remarkBreaks]}>
-            {currentNotice.content}
-          </ReactMarkdown>
-        </div>
+        <div
+          className={`${s.body} ${s.markdownBody}`}
+          dangerouslySetInnerHTML={{ __html: currentNotice.content }}
+        />
 
         {notices.length > 1 && (
           <div className={s.carouselControls}>
