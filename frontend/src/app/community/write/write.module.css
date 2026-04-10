@@ -7,6 +7,8 @@
 .heroBanner {
   background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
   padding: 36px 0 28px;
+  padding-top: calc(36px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
   position: relative;
   overflow: hidden;
 }

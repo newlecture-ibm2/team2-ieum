@@ -4,8 +4,7 @@ import { getSession } from "@/lib/session";
 export async function POST(req: NextRequest) {
   const { id, password } = await req.json();
 
-  // 🚀 [v18] 환경 변수 방어: NEXT_PUBLIC_API_URL이 없으면 로컬 백엔드로 시도
-  const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const apiBaseUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
   // 1) 백엔드에 로그인 요청
   const backendRes = await fetch(`${apiBaseUrl}/api/auth/login`, {

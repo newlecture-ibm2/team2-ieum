@@ -28,7 +28,7 @@ export default function Header() {
   const {
     isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
     isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
-    closePopup, logout, devRefreshFestivals
+    closePopup, logout, devRefreshFestivals, isDarkHeroPage
   } = useHeader();
 
   if (pathname.startsWith("/admin")) return null;
@@ -38,13 +38,19 @@ export default function Header() {
       <div className={styles.headerInner}>
         {/* ① 브랜드 로고 — E1: 클릭 시 홈 이동 */}
         <Link href="/" className={styles.logo} aria-label="이음 홈으로 이동">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/logo/logo-ieum-transparent.png"
             alt="이음 로고"
-            width={160}
-            height={80}
             className={styles.logoImg}
-            priority
+            data-logo-theme="dark"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo/logo-ieum-white.png"
+            alt="이음 로고"
+            className={styles.logoImg}
+            data-logo-theme="light"
           />
           <span className={styles.srOnly}>이음</span>
         </Link>

@@ -9,6 +9,8 @@
   position: relative;
   background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
   padding: 56px 0;
+  padding-top: calc(56px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
   text-align: center;
   overflow: hidden;
 }

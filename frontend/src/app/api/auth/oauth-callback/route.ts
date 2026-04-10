@@ -16,7 +16,7 @@ export async function GET(req: NextRequest) {
     }
 
     // 👤 백엔드에 사용자 정보 요청 (하드코딩 없이 환경 변수 활용)
-    const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const apiBaseUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
     const userResponse = await fetch(`${apiBaseUrl}/api/users/me`, {
       headers: {
         Authorization: `Bearer ${accessToken}`,
