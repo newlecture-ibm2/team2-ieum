@@ -58,8 +58,12 @@ export default function NoticePopup() {
   };
 
   return (
-    <div className={s.overlay}>
-      <div className={s.popupContainer}>
+    <div className={s.overlay} onClick={handleClose}>
+      <div
+        className={s.popupContainer}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+      >
         <div className={s.header}>
           <h2 className={s.title}>{currentNotice.title}</h2>
           <button className={s.closeBtn} onClick={handleClose}>&times;</button>
