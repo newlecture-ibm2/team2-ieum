@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -57,7 +58,7 @@ public class MyPageController {
     @PutMapping
     public ApiResponse<ProfileUpdateResult> updateProfile(
             @CurrentUserId Long userId,
-            @RequestBody MyPageReq.UpdateProfile request
+            @Valid @RequestBody MyPageReq.UpdateProfile request
     ) {
         ProfileUpdateResult data = myPageUseCase.updateProfile(userId, request);
         return ApiResponse.success(data);

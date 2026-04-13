@@ -24,6 +24,9 @@ public class OAuth2Attributes {
         if ("naver".equals(registrationId)) {
             return ofNaver(userNameAttributeName, attributes);
         }
+        if ("google".equals(registrationId)) {
+            return ofGoogle(userNameAttributeName, attributes);
+        }
         return null;
     }
 
@@ -76,6 +79,24 @@ public class OAuth2Attributes {
                 .nickname(nickname != null ? nickname : "u_" + id)
                 .name("KakaoUser") // 카카오는 이름 권한이 따로 필요하므로 기본값 설정
                 .profileImage(profileImage)
+                .build();
+    }
+
+    private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+        String sub = (String) attributes.get("sub");
+        String loginId = "google_" + sub;
+        
+        Map<String, Object> mutableAttributes = new HashMap<>(attributes);
+        mutableAttributes.put("loginId", loginId);
+
+        return OAuth2Attributes.builder()
+                .attributes(mutableAttributes)
+                .nameAttributeKey(userNameAttributeName)
+                .socialId(sub)
+                .loginId(loginId)
+                .nickname((String) attributes.get("name"))
+                .name((String) attributes.get("name"))
+                .profileImage((String) attributes.get("picture"))
                 .build();
     }
 }

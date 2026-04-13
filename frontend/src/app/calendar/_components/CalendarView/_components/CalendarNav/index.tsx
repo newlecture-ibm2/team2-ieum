@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Dropdown from '@/_component/common/Dropdown';
 import styles from "./CalendarNav.module.css";
 
 interface Props {
@@ -19,26 +20,20 @@ export default function CalendarNav({
     <div className={styles.monthNav}>
       {/* 좌측: 년/월 드롭다운 */}
       <div className={styles.dropdowns}>
-        <select
-          className={styles.yearSelect}
-          value={year}
-          onChange={(e) => onChangeYear(Number(e.target.value))}
-          aria-label="연도 선택"
-        >
-          {yearOptions.map((y) => (
-            <option key={y} value={y}>{y}년</option>
-          ))}
-        </select>
-        <select
-          className={styles.monthSelect}
-          value={month}
-          onChange={(e) => onChangeMonth(Number(e.target.value))}
-          aria-label="월 선택"
-        >
-          {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
-            <option key={m} value={m}>{m}월</option>
-          ))}
-        </select>
+        <Dropdown
+          options={yearOptions.map(y => ({ value: String(y), label: `${y}년` }))}
+          value={String(year)}
+          onChange={(v) => onChangeYear(Number(v))}
+          ariaLabel="연도 선택"
+          minWidth={100}
+        />
+        <Dropdown
+          options={Array.from({ length: 12 }, (_, i) => ({ value: String(i + 1), label: `${i + 1}월` }))}
+          value={String(month)}
+          onChange={(v) => onChangeMonth(Number(v))}
+          ariaLabel="월 선택"
+          minWidth={76}
+        />
       </div>
 
       {/* 중앙: 이전/현재월/다음 네비게이션 */}

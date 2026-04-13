@@ -1,30 +1,39 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { MapPin, Calendar, Heart, ExternalLink } from 'lucide-react';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
+import Pagination from '@/_component/common/Pagination';
 import api from '@/lib/api';
-import type { MyFavorite, ApiResponse } from '@/types/mypage';
+import type { MyFavorite, MyFavoriteResponse, ApiResponse } from '@/types/mypage';
 import styles from '../../mypage.module.css';
 
 export default function FavoriteList() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { toast } = useToast();
   const [favorites, setFavorites] = useState<MyFavorite[]>([]);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalElements, setTotalElements] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [confirmTarget, setConfirmTarget] = useState<number | null>(null);
+
+  // 🚀 URL 파라미터에서 현재 페이지 번호 추출 (기본값 1)
+  const currentPage = Number(searchParams.get('page')) || 1;
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
         setIsLoading(true);
-        // 🚀 표준 api 유틸리티 적용 (인증 가드 포함)
-        const res = await api.get<ApiResponse<{ content: MyFavorite[] }>>('/api/favorites');
+        // 🚀 페이징 파라미터 적용 (한 페이지에 4개씩)
+        const res = await api.get<ApiResponse<MyFavoriteResponse>>(`/api/favorites?page=${currentPage}&size=4`);
         
         if (res.data.success && res.data.data) {
           setFavorites(res.data.data.content || []);
+          setTotalPages(res.data.data.totalPages || 0);
+          setTotalElements(res.data.data.totalElements || 0);
         } else {
           toast(res.data.message || '찜 목록을 불러오는데 실패했습니다.', 'error');
         }
@@ -37,7 +46,7 @@ export default function FavoriteList() {
     };
 
     fetchFavorites();
-  }, [toast]);
+  }, [toast, currentPage]);
 
   const handleUnfavorite = async (festivalId: number) => {
     try {
@@ -61,7 +70,7 @@ export default function FavoriteList() {
   return (
     <div className={styles.favoriteWrapper}>
       <div className={styles.listSummary}>
-        총 <strong>{favorites.length}</strong>개의 찜한 축제가 있습니다.
+        총 <strong>{totalElements}</strong>개의 찜한 축제가 있습니다.
       </div>
 
       {favorites.length === 0 ? (
@@ -79,13 +88,22 @@ export default function FavoriteList() {
       ) : (
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           {favorites.map((item: MyFavorite) => (
-            <div key={item.id} className={styles.dataCard} style={{ padding: '12px', display: 'flex', flexDirection: 'column' }}>
+            <div 
+              key={item.id} 
+              className={styles.dataCard} 
+              style={{ 
+                padding: '0', 
+                display: 'flex', 
+                flexDirection: 'column',
+                overflow: 'hidden',
+                cursor: 'pointer'
+              }}
+              onClick={() => router.push(`/festivals/${item.festivalId}`)}
+            >
               <div 
                 style={{ 
-                  height: '140px', 
+                  height: '200px', 
                   backgroundColor: '#f1f5f9', 
-                  borderRadius: '10px', 
-                  marginBottom: '12px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -95,40 +113,93 @@ export default function FavoriteList() {
                   overflow: 'hidden'
                 }}
               >
-                <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', background: 'linear-gradient(rgba(0,0,0,0), rgba(0,0,0,0.05))' }} />
                 {item.imageUrl ? (
-                  <img src={item.imageUrl} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  <img 
+                    src={item.imageUrl} 
+                    alt={item.title} 
+                    style={{ 
+                      width: '100%', 
+                      height: '100%', 
+                      objectFit: 'cover',
+                      transition: 'transform 0.5s ease'
+                    }} 
+                    onMouseOver={(e) => (e.currentTarget.style.transform = 'scale(1.08)')}
+                    onMouseOut={(e) => (e.currentTarget.style.transform = 'scale(1)')}
+                  />
                 ) : (
                   `[이미지: ${item.title}]`
                 )}
-                <div style={{ position: 'absolute', top: '10px', right: '10px', backgroundColor: 'rgba(255,255,255,0.8)', padding: '4px', borderRadius: '50%', cursor: 'pointer' }}>
+                <div 
+                  style={{ 
+                    position: 'absolute', 
+                    top: '12px', 
+                    right: '12px', 
+                    backgroundColor: 'rgba(255,255,255,0.9)', 
+                    padding: '6px', 
+                    borderRadius: '50%', 
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    router.push(`/festivals/${item.festivalId}`);
+                  }}
+                >
                    <ExternalLink size={14} color="#64748b" />
                 </div>
               </div>
 
-              <div style={{ flex: 1 }}>
-                <h4 style={{ fontSize: '1.05rem', fontWeight: 800, marginBottom: '8px', color: '#1e293b' }}>{item.title}</h4>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#64748b' }}>
-                    <MapPin size={12} color="var(--color-primary-500)" /> {item.address}
+              <div style={{ padding: '16px', flex: 1 }}>
+                <h4 style={{ fontSize: '1.1rem', fontWeight: 800, marginBottom: '10px', color: '#1e293b', letterSpacing: '-0.02em' }}>{item.title}</h4>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#64748b' }}>
+                    <MapPin size={13} color="var(--color-primary-500)" /> {item.address}
                   </div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem', color: '#64748b' }}>
-                    <Calendar size={12} color="var(--color-primary-500)" /> {item.startDate} ~ {item.endDate}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', color: '#64748b' }}>
+                    <Calendar size={13} color="var(--color-primary-500)" /> {item.startDate} ~ {item.endDate}
                   </div>
                 </div>
               </div>
 
-              <div style={{ marginTop: '16px', textAlign: 'right' }}>
+              <div style={{ padding: '0 16px 16px', textAlign: 'right' }}>
                 <button 
                   className={styles.btnDelete} 
-                  style={{ padding: '6px 12px', border: 'none', background: '#fef2f2', color: '#ef4444', fontWeight: 700, borderRadius: '6px', cursor: 'pointer' }}
-                  onClick={() => setConfirmTarget(item.festivalId)}
+                  style={{ 
+                    padding: '8px 16px', 
+                    border: 'none', 
+                    background: '#fff1f2', 
+                    color: '#f43f5e', 
+                    fontWeight: 700, 
+                    borderRadius: '8px', 
+                    cursor: 'pointer',
+                    fontSize: '0.85rem',
+                    transition: 'all 0.2s'
+                  }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setConfirmTarget(item.festivalId);
+                  }}
+                  onMouseOver={(e) => (e.currentTarget.style.background = '#ffe4e6')}
+                  onMouseOut={(e) => (e.currentTarget.style.background = '#fff1f2')}
                 >
                   ❤️ 해제
                 </button>
               </div>
             </div>
           ))}
+        </div>
+      )}
+
+      {/* 5. 페이지네이션 (Pager) 추가 */}
+      {!isLoading && favorites.length > 0 && (
+        <div style={{ marginTop: '40px' }}>
+          <Pagination 
+            currentPage={currentPage} 
+            totalPages={totalPages} 
+          />
         </div>
       )}
 
