@@ -55,9 +55,13 @@
 
 
 .sortSelect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
   border: 1px solid #e5e7eb;
   border-radius: 8px;
-  padding: 7px 32px 7px 12px;
+  padding: 7px 12px;
   font-size: 13px;
   font-weight: 600;
   color: #333;
@@ -65,15 +69,52 @@
   font-family: 'Noto Sans KR', sans-serif;
   outline: none;
   cursor: pointer;
-  appearance: none;
-  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20width%3D%2212%22%20height%3D%227%22%20viewBox%3D%220%200%2012%207%22%20fill%3D%22none%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%3E%3Cpath%20d%3D%22M1%201L6%206L11%201%22%20stroke%3D%22%236B7280%22%20stroke-width%3D%221.5%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%2F%3E%3C%2Fsvg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
   transition: all 0.2s;
+  min-width: 90px;
 }
 
 .sortSelect:focus, .sortSelect:hover {
   border-color: #c7d2fe;
+}
+
+.chevronIcon {
+  color: #6b7280;
+}
+
+/* Custom Dropdown Panel for Sort */
+.sortDropdownPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 140px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  list-style: none;
+  margin: 0;
+}
+
+.sortDropdownPanel li {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sortDropdownPanel li:hover {
+  background: #f8fafc;
+  color: #6c5ce7;
+}
+
+.activeSort {
+  color: #6c5ce7 !important;
+  font-weight: 700 !important;
+  background: #f3e8ff;
 }
 
 .inputWrap {
@@ -313,3 +354,91 @@
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  /* wrapper들을 제거하고 Grid 자식으로 편입 */
+  .searchLeft, .searchRight {
+    display: contents;
+  }
+
+  .searchBar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px 10px;
+    padding: 14px 12px;
+    margin: 10px 0 16px;
+  }
+
+  /* 공지사항 탭용 셀렉트바: 필요시 맨 윗줄 전체 차지 */
+  .searchTypeSelect {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* 1열: 왼쪽 (입력창) */
+  .inputWrap {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  /* 1열: 오른쪽 (검색 버튼) */
+  .searchBtn {
+    grid-column: 2;
+    width: auto;
+    padding: 9px 18px;
+    white-space: nowrap;
+  }
+
+  /* 2열: 왼쪽 (상세 필터) */
+  .filterRelative {
+    grid-column: 1;
+    justify-self: start;
+    width: auto;
+  }
+
+  .filterBtn {
+    width: auto;
+    padding: 7px 14px;
+  }
+
+  /* 2열: 오른쪽 (정렬) */
+  .sortSelect {
+    grid-column: 2;
+    justify-self: end;
+    width: auto;
+    /* 정렬 텍스트 길이에 맞춰 최소 너비 제공 */
+    min-width: 90px;
+  }
+
+  /* --- 상세 필터 팝업 --- */
+  .filterPanel {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    /* 고정 너비와 최대 너비를 설정하여 화면을 넘지 않는 카드 형태로 유지 */
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    transform: none;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  /* 다시 화살표 표시 (상세 필터 버튼 아래를 가리키도록 위치 조정) */
+  .filterPanel::before {
+    display: block;
+    left: 24px;
+  }
+
+  .customDateInputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customDateInputs input {
+    width: 100%;
+  }
+}
+
+
