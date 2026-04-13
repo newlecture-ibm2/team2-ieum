@@ -243,6 +243,96 @@
 }
 
 .loginLink:hover {
-  color: var(--color-primary-600);
   text-decoration: underline;
+}
+
+/* 추가: 소셜 로그인용 스타일 */
+.divider {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  color: var(--color-gray-400);
+  font-size: 12px;
+  margin: var(--spacing-sm) 0;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.divider span {
+  padding: 0 10px;
+}
+
+.socialGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.socialBtn {
+  width: 100%;
+  padding: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: var(--transition-fast);
+  border: 1px solid transparent;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.googleBtn {
+  background-color: #FFFFFF;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.googleBtn:hover {
+  background-color: #f8f9fa;
+  border-color: #d2d2d2;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.kakaoBtn {
+  background-color: #FEE500;
+  color: #000000;
+}
+
+.kakaoBtn:hover {
+  background-color: #F4DC00;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.naverBtn {
+  background-color: #03C75A;
+  color: #FFFFFF;
+}
+
+.naverBtn:hover {
+  background-color: #02b351;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
+.socialIcon {
+  width: 17px;
+  height: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.naverBtn .socialIcon {
+  width: 15.5px;
+  height: 15.5px;
 }

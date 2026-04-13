@@ -79,6 +79,12 @@ export interface MyFavorite {
   imageUrl: string;
 }
 
+export interface MyFavoriteResponse {
+  content: MyFavorite[];
+  totalPages: number;
+  totalElements: number;
+}
+
 // --- API 응답 규격 ---
 export interface ApiResponse<T> {
   success: boolean;
