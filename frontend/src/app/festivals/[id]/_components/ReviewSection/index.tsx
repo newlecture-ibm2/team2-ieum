@@ -143,6 +143,11 @@ export default function ReviewSection({
             placeholder="이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)"
             value={reviewContent}
             onChange={(e) => setReviewContent(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                handleSubmitReview();
+              }
+            }}
           />
           <div className={styles.reviewActions}>
             <span className={styles.reviewStars}>{renderFormStars()}</span>

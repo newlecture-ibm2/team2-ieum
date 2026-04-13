@@ -88,7 +88,49 @@
   background: var(--color-primary-50);
 }
 
-/* 우측 여백 (좌우 대칭용) */
 .navSpacer {
   flex: 1;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .monthNav {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .dropdowns {
+    order: 2;
+    flex: unset;
+    width: 100%;
+  }
+
+  .yearSelect,
+  .monthSelect {
+    flex: 1;
+    font-size: 13px;
+    padding: 6px 28px 6px 10px;
+  }
+
+  .centerNav {
+    order: 1;
+    flex: unset;
+    width: 100%;
+    justify-content: center;
+  }
+
+  .yearMonth {
+    font-size: 17px;
+    min-width: 100px;
+  }
+
+  .arrowBtn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .navSpacer {
+    display: none;
+  }
+}
+

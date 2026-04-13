@@ -236,3 +236,18 @@
 .footerLink:hover {
   opacity: 0.7;
 }
+
+/* ===== 반응형 (모바일 대응) ===== */
+@media (max-width: 768px) {
+  .dropdown {
+    width: 310px;
+    right: -45px; /* 좌측 화면이 잘리는 것을 방지하기 위해 드롭다운을 조금 밀어냄 */
+  }
+}
+
+@media (max-width: 380px) {
+  .dropdown {
+    width: 290px;
+    right: -55px;
+  }
+}

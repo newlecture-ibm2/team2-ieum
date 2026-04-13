@@ -357,6 +357,11 @@
 
 /* ===== 반응형: 768px 이하 ===== */
 @media (max-width: 768px) {
+  /* 모바일에서는 히어로 배너 안의 텍스트를 가리지 않도록 마진 위치를 살짝 내림 */
+  .wrapper {
+    margin-top: -10px;
+  }
+
   /* wrapper들을 제거하고 Grid 자식으로 편입 */
   .searchLeft, .searchRight {
     display: contents;

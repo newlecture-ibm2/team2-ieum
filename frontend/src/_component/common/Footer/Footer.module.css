@@ -159,3 +159,11 @@
   background: var(--color-gray-300);
   border-radius: 4px;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}
+

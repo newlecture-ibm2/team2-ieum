@@ -25,7 +25,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private final SaveUserPort saveUserPort;
 
     // TODO: 운영 환경에서는 별도 환경변수로 분리 권장
-    @Value("${NEXT_PUBLIC_FRONTEND_URL:http://localhost:3333}")
+    @Value("${NEXT_PUBLIC_FRONTEND_URL:http://localhost:3000}")
     private String frontendUrl;
 
     @Override

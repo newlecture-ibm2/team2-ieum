@@ -123,3 +123,20 @@
 .starIcon {
   font-size: 20px;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .infoBox,
+  .ratingBox {
+    padding: 20px;
+  }
+
+  .ratingBig {
+    font-size: 36px;
+  }
+
+  .infoVal {
+    font-size: 13px;
+  }
+}
+
