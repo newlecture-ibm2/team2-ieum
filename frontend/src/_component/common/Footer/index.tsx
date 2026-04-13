@@ -37,22 +37,13 @@ export default function Footer() {
               전국의 다양한 축제 정보를 하나로 연결합니다.<br />
               지역 축제의 매력을 발견하고, 특별한 경험을 만들어 보세요.
             </p>
-          </div>
-
-          {/* 링크 컬럼 (문의하기) */}
-          <div className={styles.links}>
-            <div className={styles.linkCol}>
-              <h4>문의하기</h4>
-              <ul>
-                <li>이메일: ieum@festival.kr</li>
-                <li>전화: 02-1234-5678</li>
-              </ul>
-            </div>
-          </div>
         </div>
 
-        {/* ===== 하단: 저작권 ===== */}
+        {/* ===== 하단: 연락처 & 저작권 ===== */}
         <div className={styles.footerBottom}>
+          <div className={styles.contactInfo}>
+            이메일 : ieum@festival.kr  |  전화 : 02-1234-5678
+          </div>
           <p className={styles.copyright}>
             © 2026 이음(IEUM). All rights reserved. |{" "}
             <button
