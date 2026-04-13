@@ -642,3 +642,129 @@
   white-space: pre-wrap;
   word-break: break-all;
 }
+
+/* ===== 모바일 다이얼 메뉴 기본 (데스크톱 숨김) ===== */
+.radialMenuWrapper {
+  display: none;
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 0 32px;
+  }
+
+  .mypageContainer {
+    flex-direction: column;
+    border-radius: 0;
+    box-shadow: none;
+    border: none;
+    min-height: auto;
+  }
+
+  .sidebar {
+    display: none; /* 모바일에서 데스크톱 사이드바 숨김 */
+  }
+
+  .contentArea {
+    padding: 24px 16px;
+    background: transparent;
+  }
+
+  .contentTitle {
+    font-size: 1.25rem;
+    margin-bottom: 24px;
+    text-align: center;
+  }
+
+  .settingsGrid {
+    grid-template-columns: 1fr;
+  }
+
+  /* 모바일 다이얼 메뉴 표시 (플로팅 버튼 스타일) */
+  .radialMenuWrapper {
+    display: block;
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 1000;
+  }
+
+  .radialOverlay {
+    position: fixed;
+    top: -50vh;
+    left: 0;
+    width: 100vw;
+    height: 200vh;
+    background: rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(4px);
+    z-index: -1;
+    animation: fadeIn 0.3s ease;
+  }
+
+  .radialItemsContainer {
+    position: absolute;
+    top: 50%;
+    left: 50%; /* 메인 버튼 정중앙 기준 */
+    width: 0;
+    height: 0;
+  }
+
+  .radialItem {
+    position: absolute;
+    top: -24px;
+    left: -24px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-gray-500);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .radialOpen .radialItem {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .radialItemActive {
+    background: var(--gradient-primary);
+    color: white;
+    border-color: transparent;
+  }
+
+  .radialMainBtn {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: var(--gradient-primary);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(108, 92, 231, 0.4);
+    border: none;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+  }
+
+  .radialMainBtnActive {
+    background: white;
+    color: var(--color-primary-600);
+    transform: rotate(90deg); /* 열릴 때 90도 회전하는 디테일 */
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

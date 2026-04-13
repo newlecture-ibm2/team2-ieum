@@ -22,3 +22,14 @@
   font-weight: 700;
   color: var(--color-gray-900);
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .calendarContainer {
+    padding: var(--spacing-md) 16px 40px;
+  }
+
+  .titleText {
+    font-size: 18px;
+  }
+}

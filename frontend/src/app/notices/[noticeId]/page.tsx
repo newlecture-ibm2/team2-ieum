@@ -1,6 +1,6 @@
 'use client';
 
-import { Calendar, Eye, User, FileWarning, Paperclip, Download } from 'lucide-react';
+import { Calendar, Eye, User, FileWarning, Paperclip, Download, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
 
@@ -113,18 +113,23 @@ export default function NoticeDetailPage() {
 
       <div className={styles.detailNav}>
         {prevNotice ? (
-          <button className={styles.navLink} onClick={() => router.push(`/notices/${prevNotice.id}`)}>
-            ◀ 이전글: {prevNotice.title}
+          <button className={`${styles.navLink} ${styles.prevNavLink}`} onClick={() => router.push(`/notices/${prevNotice.id}`)}>
+            <ArrowDownLeft size={16} /> 이전글
           </button>
         ) : (
-          <span className={`${styles.navLink} ${styles.navDisabled}`}>◀ 이전글 없음</span>
+          <span className={`${styles.navLink} ${styles.prevNavLink} ${styles.navDisabled}`}>
+            <ArrowDownLeft size={16} /> 이전글
+          </span>
         )}
+        
         {nextNotice ? (
-          <button className={styles.navLink} onClick={() => router.push(`/notices/${nextNotice.id}`)}>
-            다음글: {nextNotice.title} ▶
+          <button className={`${styles.navLink} ${styles.nextNavLink}`} onClick={() => router.push(`/notices/${nextNotice.id}`)}>
+            다음글 <ArrowUpRight size={16} />
           </button>
         ) : (
-          <span className={`${styles.navLink} ${styles.navDisabled}`}>다음글 없음 ▶</span>
+          <span className={`${styles.navLink} ${styles.nextNavLink} ${styles.navDisabled}`}>
+            다음글 <ArrowUpRight size={16} />
+          </span>
         )}
       </div>
 

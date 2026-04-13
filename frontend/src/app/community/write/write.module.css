@@ -333,3 +333,53 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .heroBanner {
+    padding: 24px 0 20px;
+    padding-top: calc(24px + var(--header-height));
+  }
+
+  .heroInner {
+    padding: 0 16px;
+  }
+
+  .heroTitle {
+    font-size: 20px;
+  }
+
+  .formContainer {
+    padding: 24px 16px 40px;
+  }
+
+  .formHeader {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  .formMultiCols {
+    grid-template-columns: 1fr;
+  }
+
+  .quillWrapper :global(.ql-container.ql-snow),
+  .quillWrapper :global(.ql-editor) {
+    min-height: 300px;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+    text-align: center;
+  }
+
+  .imagePreviewItem {
+    width: 64px;
+    height: 64px;
+  }
+}
+

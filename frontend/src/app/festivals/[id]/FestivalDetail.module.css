@@ -89,6 +89,48 @@
 /* 반응형 */
 @media (max-width: 992px) {
   .contentInner {
-    grid-template-columns: 1fr;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  /* 모바일/태블릿 등 1단 레이아웃일 때 순서 변경을 위해 그룹 컨테이너(leftCol) 해제 */
+  .leftCol {
+    display: contents;
+  }
+
+  /* 순서(order) 지정용 유틸리티 클래스 */
+  .orderDetail { order: 1; }
+  .orderSidebar { order: 2; width: 100%; margin-top: -8px; } /* 사이드바 위 여백 살짝 줄임 */
+  .orderReview { order: 3; }
+}
+
+@media (max-width: 768px) {
+  .contentWrap {
+    padding: 24px 0;
+    min-height: auto;
+  }
+
+  .contentInner {
+    padding: 0 16px;
+    gap: 24px;
+  }
+
+  .leftCol {
+    gap: 24px;
+  }
+
+  .loadingContainer, .errorContainer {
+    min-height: 400px;
+    font-size: 15px;
+  }
+
+  .modalBox {
+    min-width: unset;
+    width: calc(100% - 32px);
+    padding: 24px;
+  }
+
+  .modalText {
+    font-size: 14px;
   }
 }

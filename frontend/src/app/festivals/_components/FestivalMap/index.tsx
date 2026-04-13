@@ -472,7 +472,7 @@ export default function FestivalMap() {
             ) : (
               <Map
                 center={center}
-                style={{ width: "100%", height: "100%" }}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                 level={level}
                 onZoomChanged={(map) => {
                   if (introComplete) setLevel(map.getLevel());
