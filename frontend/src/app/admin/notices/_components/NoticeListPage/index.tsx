@@ -20,7 +20,7 @@ export default function NoticeListPage() {
     editTarget, setEditTarget,
     deleteTarget, setDeleteTarget,
     detailTarget, setDetailTarget,
-    fetchNotices, handleDelete
+    fetchNotices, fetchKpiCounts, handleDelete
   } = useAdminNoticeList();
 
   return (
@@ -84,6 +84,7 @@ export default function NoticeListPage() {
             setFormMode(null);
             setEditTarget(null);
             fetchNotices();
+            fetchKpiCounts();
           }}
         />
       )}
