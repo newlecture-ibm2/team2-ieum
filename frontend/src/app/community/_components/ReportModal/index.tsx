@@ -5,15 +5,17 @@ import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
 import api from '@/lib/api';
 import styles from './ReportModal.module.css';
+import { REPORT_REASON, REPORT_REASON_OPTIONS } from '@/constants/reportOptions';
+import { TARGET_TYPE } from '@/constants/targetType';
 
 interface ReportModalProps {
   targetId: number | string;
-  targetType?: 'POST' | 'COMMENT'; // 기본값은 'POST'로 처리
+  targetType?: typeof TARGET_TYPE.POST | typeof TARGET_TYPE.COMMENT; // 기본값은 'POST'로 처리
   onClose: () => void;
   onSuccess: () => void;
 }
 
-export default function ReportModal({ targetId, targetType = 'POST', onClose, onSuccess }: ReportModalProps) {
+export default function ReportModal({ targetId, targetType = TARGET_TYPE.POST, onClose, onSuccess }: ReportModalProps) {
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
   const { toast } = useToast();
@@ -24,7 +26,7 @@ export default function ReportModal({ targetId, targetType = 'POST', onClose, on
         targetType: targetType,
         targetId: Number(targetId),
         reason: reportReason,
-        description: reportReason === 'OTHER' ? reportDescription : null,
+        description: reportReason === REPORT_REASON.OTHER ? reportDescription : null,
       });
       toast('신고가 접수되었습니다.', 'success');
       onSuccess();
@@ -32,7 +34,7 @@ export default function ReportModal({ targetId, targetType = 'POST', onClose, on
       const errorObj = err as { response?: { status?: number; data?: { message?: string } } };
       const status = errorObj?.response?.status;
       if (status === 409) {
-        toast(`이미 신고한 ${targetType === 'COMMENT' ? '댓글' : '게시글'}입니다.`, 'info');
+        toast(`이미 신고한 ${targetType === TARGET_TYPE.COMMENT ? '댓글' : '게시글'}입니다.`, 'info');
         onSuccess();
       } else {
         const msg = errorObj?.response?.data?.message || '신고 접수에 실패했습니다.';
@@ -44,17 +46,11 @@ export default function ReportModal({ targetId, targetType = 'POST', onClose, on
   };
 
   return (
-    <Modal title={targetType === 'COMMENT' ? '댓글 신고' : '게시글 신고'} size="small" onClose={onClose}>
+    <Modal title={targetType === TARGET_TYPE.COMMENT ? '댓글 신고' : '게시글 신고'} size="small" onClose={onClose}>
       <div className={styles.reportModal}>
         <p className={styles.reportDesc}>신고 사유를 선택해주세요.</p>
         <div className={styles.reportOptions}>
-          {[
-            { value: 'SPAM', label: '스팸/광고' },
-            { value: 'ABUSE', label: '욕설/비방' },
-            { value: 'INAPPROPRIATE', label: '부적절한 내용' },
-            { value: 'FALSE_INFO', label: '허위 정보' },
-            { value: 'OTHER', label: '기타' },
-          ].map(opt => (
+          {REPORT_REASON_OPTIONS.map(opt => (
             <label key={opt.value} className={styles.reportOption}>
               <input
                 type="radio"
@@ -67,7 +63,7 @@ export default function ReportModal({ targetId, targetType = 'POST', onClose, on
             </label>
           ))}
         </div>
-        {reportReason === 'OTHER' && (
+        {reportReason === REPORT_REASON.OTHER && (
           <textarea
             className={styles.reportTextarea}
             placeholder="상세 사유를 입력해주세요 (최대 500자)"

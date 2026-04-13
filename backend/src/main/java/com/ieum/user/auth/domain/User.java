@@ -1,5 +1,6 @@
 package com.ieum.user.auth.domain;
 
+import com.ieum.global.common.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -41,7 +42,7 @@ public class User {
      */
     public User withdraw() {
         return this.toBuilder()
-                .status("WITHDRAWAL")
+                .status(UserStatus.WITHDRAWAL.name())
                 .deletedAt(LocalDateTime.now())
                 .build();
     }
@@ -51,7 +52,7 @@ public class User {
      */
     public User reactivate() {
         return this.toBuilder()
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE.name())
                 .deletedAt(null)
                 .build();
     }
@@ -60,7 +61,7 @@ public class User {
      * 탈퇴 유예 기간(30일) 만료 여부 확인
      */
     public boolean isWithdrawalExpired() {
-        if (!"WITHDRAWAL".equals(this.status) || this.deletedAt == null) {
+        if (!UserStatus.WITHDRAWAL.name().equals(this.status) || this.deletedAt == null) {
             return false;
         }
         return this.deletedAt.plusDays(30).isBefore(LocalDateTime.now());

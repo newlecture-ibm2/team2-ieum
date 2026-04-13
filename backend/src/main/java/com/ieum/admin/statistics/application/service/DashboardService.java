@@ -5,6 +5,8 @@ import com.ieum.admin.statistics.application.port.out.DashboardQueryPort;
 import com.ieum.admin.statistics.application.result.DashboardRecentItem;
 import com.ieum.admin.statistics.application.result.DashboardResult;
 import com.ieum.admin.statistics.application.result.DashboardTrendItem;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
+import com.ieum.global.common.enums.ReportStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,8 @@ public class DashboardService implements GetDashboardUseCase {
         DashboardResult.KpiData kpi = DashboardResult.KpiData.builder()
                 .ongoingPublicFestivals(port.countOngoingPublicFestivals())
                 .ongoingCustomFestivals(port.countOngoingCustomFestivals())
-                .pendingReports(port.countReportsByStatus("PENDING"))
-                .pendingInquiries(port.countInquiriesByStatus("PENDING"))
+                .pendingReports(port.countReportsByStatus(ReportStatus.PENDING.name()))
+                .pendingInquiries(port.countInquiriesByStatus(ReportStatus.PENDING.name()))
                 .build();
 
         // 2. 추이
@@ -44,9 +46,9 @@ public class DashboardService implements GetDashboardUseCase {
 
         // 4. 운영 요약 — "처리 결과"
         DashboardResult.OperationSummary operation = DashboardResult.OperationSummary.builder()
-                .resolvedReports(port.countReportsByStatus("RESOLVED"))
+                .resolvedReports(port.countReportsByStatus(ReportStatus.RESOLVED.name()))
                 .answeredInquiries(port.countAnsweredInquiries())
-                .endedFestivals(port.countFestivalsByStatus("ENDED"))
+                .endedFestivals(port.countFestivalsByStatus(FestivalStatus.ENDED.name()))
                 .hiddenFestivals(port.countHiddenFestivals())
                 .lastUpdated(LocalDateTime.now().format(DT_FMT))
                 .build();

@@ -83,3 +83,12 @@ export const FESTIVAL_STATUS_OPTIONS = [
   { value: 'ongoing', label: '진행 중' },
   { value: 'upcoming', label: '진행 예정' },
 ];
+
+/** 축제 상태 값 상수 (관리자용) */
+export const FESTIVAL_STATUS = {
+  ONGOING: 'ONGOING',
+  UPCOMING: 'UPCOMING',
+  ENDED: 'ENDED',
+} as const;
+
+export type FestivalStatusType = typeof FESTIVAL_STATUS[keyof typeof FESTIVAL_STATUS];

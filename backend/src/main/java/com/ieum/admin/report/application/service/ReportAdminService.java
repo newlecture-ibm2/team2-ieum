@@ -6,6 +6,9 @@ import com.ieum.admin.report.application.port.out.ReportPort;
 import com.ieum.admin.report.application.result.ReportItem;
 import com.ieum.admin.report.application.result.ReportListResult;
 import com.ieum.admin.report.domain.model.Report;
+import com.ieum.global.common.enums.NotificationType;
+import com.ieum.global.common.enums.ReportAction;
+import com.ieum.global.common.enums.ReportStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -39,9 +42,9 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
                 .content(reports.getContent().stream().map(this::toItem).toList())
                 .totalPages(reports.getTotalPages())
                 .totalElements(reports.getTotalElements())
-                .pendingCount(reportPort.countByStatus("PENDING"))
-                .resolvedCount(reportPort.countByStatus("RESOLVED"))
-                .rejectedCount(reportPort.countByStatus("REJECTED"))
+                .pendingCount(reportPort.countByStatus(ReportStatus.PENDING.name()))
+                .resolvedCount(reportPort.countByStatus(ReportStatus.RESOLVED.name()))
+                .rejectedCount(reportPort.countByStatus(ReportStatus.REJECTED.name()))
                 .build();
     }
 
@@ -51,21 +54,21 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
         Report currentReport = reportPort.findById(reportId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 신고입니다."));
 
-        if (!"PENDING".equals(currentReport.getStatus())) {
+        if (!ReportStatus.PENDING.name().equals(currentReport.getStatus())) {
             throw new IllegalStateException("이미 처리된 신고입니다.");
         }
 
-        String newStatus = "DISMISS".equalsIgnoreCase(action) ? "REJECTED" : "RESOLVED";
+        String newStatus = ReportAction.DISMISS.name().equalsIgnoreCase(action) ? ReportStatus.REJECTED.name() : ReportStatus.RESOLVED.name();
         reportPort.updateStatus(reportId, newStatus, action, message);
         // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
         reportPort.saveResponse(reportId, null, action, message);
 
-        if ("DELETE".equalsIgnoreCase(action)) {
+        if (ReportAction.DELETE.name().equalsIgnoreCase(action)) {
             hideTargetContent(reportId);
         }
 
         // 신고가 승인(조치)되었을 경우 피신고자의 신고수를 +1 증가
-        if ("RESOLVED".equals(newStatus) || "DELETE".equalsIgnoreCase(action) || "SUSPEND".equalsIgnoreCase(action)) {
+        if (ReportStatus.RESOLVED.name().equals(newStatus) || ReportAction.DELETE.name().equalsIgnoreCase(action) || ReportAction.SUSPEND.name().equalsIgnoreCase(action)) {
             reportPort.findById(reportId).ifPresent(report -> {
                 Long authorId = reportPort.findTargetAuthorId(report.getTargetType(), report.getTargetId());
                 if (authorId != null) {
@@ -79,7 +82,7 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
             if (report.getReporterId() != null) {
                 try {
                     String title = "회원님의 신고 처리 결과 안내";
-                    String notifyMessage = "RESOLVED".equals(newStatus) 
+                    String notifyMessage = ReportStatus.RESOLVED.name().equals(newStatus) 
                             ? "신고가 정상 처리(완료)되었습니다." 
                             : "신고가 반려(미조치)되었습니다.";
                     
@@ -89,7 +92,7 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
 
                     sendNotificationUseCase.sendNotification(
                             report.getReporterId(),
-                            "NOTICE",  // 공지와 유사한 시스템 알림 타입으로 분류 (아이콘 표시용)
+                            NotificationType.NOTICE.name(),  // 공지와 유사한 시스템 알림 타입으로 분류 (아이콘 표시용)
                             report.getTargetType(), // REVIEW, POST, COMMENT 등
                             report.getTargetId(),
                             title,

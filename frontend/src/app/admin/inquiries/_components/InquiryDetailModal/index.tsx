@@ -7,6 +7,7 @@ import adminApi from '@/lib/adminApi';
 import type { InquiryItem } from '@/types/admin-inquiry';
 import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import { INQUIRY_STATUS } from '@/constants/statusLabels';
 
 /* ── Props ── */
 interface Props {
@@ -20,7 +21,7 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
   const [detail, setDetail] = useState<InquiryItem>(inquiry);
   const [detailLoading, setDetailLoading] = useState(true);
 
-  const isPending = detail.status === 'PENDING';
+  const isPending = detail.status === INQUIRY_STATUS.PENDING;
 
   const { toast } = useToast();
 

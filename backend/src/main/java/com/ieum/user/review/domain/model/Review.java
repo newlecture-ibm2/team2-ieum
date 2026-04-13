@@ -1,5 +1,7 @@
 package com.ieum.user.review.domain.model;
 
+import com.ieum.global.common.enums.ContentStatus;
+
 import java.time.LocalDateTime;
 
 /**
@@ -36,7 +38,7 @@ public class Review {
         review.festivalId = festivalId;
         review.rating = rating;
         review.content = content;
-        review.status = "ACTIVE";
+        review.status = ContentStatus.ACTIVE.name();
         return review;
     }
 
@@ -79,11 +81,11 @@ public class Review {
      */
     public void softDelete(Long requestUserId) {
         validateOwnership(requestUserId);
-        this.status = "REMOVED";
+        this.status = ContentStatus.REMOVED.name();
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.status);
+        return ContentStatus.ACTIVE.name().equals(this.status);
     }
 
     // ── 검증 로직 ──
