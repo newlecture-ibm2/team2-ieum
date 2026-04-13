@@ -3,6 +3,7 @@
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, X, SlidersHorizontal, MapPin, XCircle, ChevronDown } from 'lucide-react';
+import Dropdown from '@/_component/common/Dropdown';
 import styles from './SearchFilter.module.css';
 import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
@@ -215,15 +216,16 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
       <div className={styles.searchBar}>
         <div className={styles.searchLeft}>
           {filterType === 'notice' && (
-            <select
-              className={styles.searchTypeSelect}
+            <Dropdown
+              options={[
+                { value: 'all', label: '전체' },
+                { value: 'title', label: '제목' },
+                { value: 'content', label: '내용' },
+              ]}
               value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-            >
-              <option value="all">전체</option>
-              <option value="title">제목</option>
-              <option value="content">내용</option>
-            </select>
+              onChange={(v) => setSearchType(v)}
+              ariaLabel="검색 유형"
+            />
           )}
           <div className={styles.inputWrap}>
             <Search size={14} className={styles.searchIcon} />
