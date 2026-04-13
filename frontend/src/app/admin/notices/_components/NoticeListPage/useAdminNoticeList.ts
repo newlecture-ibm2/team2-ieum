@@ -47,6 +47,24 @@ export function useAdminNoticeList() {
     setCurrentPage(1);
   };
 
+  /* ── KPI 카운트 로드 (전체 데이터 기준) ── */
+  const fetchKpiCounts = useCallback(async () => {
+    try {
+      const [allRes, pinnedRes, popupRes, pushedRes] = await Promise.all([
+        adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params: { page: 1, size: 1 } }),
+        adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params: { page: 1, size: 1, isPinned: true } }),
+        adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params: { page: 1, size: 1, isPopup: true } }),
+        adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params: { page: 1, size: 1, isPushed: true } }),
+      ]);
+      setAllCount(allRes.data.data.totalElements);
+      setPinnedCount(pinnedRes.data.data.totalElements);
+      setPopupCount(popupRes.data.data.totalElements);
+      setPushedCount(pushedRes.data.data.totalElements);
+    } catch (err) {
+      console.error('KPI 카운트 조회 실패:', err);
+    }
+  }, []);
+
   /* ── 데이터 로드 ── */
   const fetchNotices = useCallback(async () => {
     setLoading(true);
@@ -69,18 +87,6 @@ export function useAdminNoticeList() {
       setNotices(result.content);
       setTotalPages(result.totalPages || 1);
       setTotalElements(result.totalElements);
-
-      // 전체 카운트 처리 (검색 안할때만 로컬 집계)
-      const pinned = result.content.filter(n => n.isPinned).length;
-      const popup = result.content.filter(n => n.isPopup).length;
-      const pushed = result.content.filter(n => n.isPushed).length;
-      
-      if (filterType === 'all') {
-        setAllCount(result.totalElements);
-        setPinnedCount(pinned);
-        setPopupCount(popup);
-        setPushedCount(pushed);
-      }
     } catch (err) {
       console.error('공지사항 목록 조회 실패:', err);
       setNotices([]);
@@ -93,6 +99,11 @@ export function useAdminNoticeList() {
     fetchNotices();
   }, [fetchNotices]);
 
+  /* KPI 카운트는 최초 마운트 시 + 데이터 변경(작성/수정/삭제) 시 갱신 */
+  useEffect(() => {
+    fetchKpiCounts();
+  }, [fetchKpiCounts]);
+
   /* ── 삭제 처리 ── */
   const handleDelete = async () => {
     if (!deleteTarget) return;
@@ -101,6 +112,7 @@ export function useAdminNoticeList() {
       toast('공지사항이 삭제되었습니다.', 'success');
       setDeleteTarget(null);
       fetchNotices();
+      fetchKpiCounts();
     } catch (err) {
       console.error('공지사항 삭제 실패:', err);
       toast('삭제 중 오류가 발생했습니다.', 'error');
@@ -137,6 +149,7 @@ export function useAdminNoticeList() {
     
     // 액션
     fetchNotices,
+    fetchKpiCounts,
     handleDelete
   };
 }

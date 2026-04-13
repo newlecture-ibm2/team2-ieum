@@ -13,7 +13,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ActivityPageResult {
     private final List<ActivityItemResult> activities;
-    private final long total;
+    private final long totalElements;
     private final int totalPages;
     private final int currentPage;
 }

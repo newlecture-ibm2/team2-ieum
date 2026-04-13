@@ -38,8 +38,8 @@ interface MyPageSidebarProps {
 const MENU_ITEMS = [
   { id: 'favorites' as MenuType, label: '찜', icon: Heart },
   { id: 'posts' as MenuType, label: '내 게시글 목록', icon: FileText },
-  { id: 'reviews' as MenuType, label: '내 리뷰 목록', icon: Star },
   { id: 'comments' as MenuType, label: '내 댓글 목록', icon: MessageSquare },
+  { id: 'reviews' as MenuType, label: '내 리뷰 목록', icon: Star },
   { id: 'inquiries' as MenuType, label: '내 문의 보기', icon: HelpCircle },
   { id: 'reports' as MenuType, label: '내 신고 내역', icon: ShieldCheck },
   { id: 'settings' as MenuType, label: '설정 관리', icon: Settings },
@@ -78,7 +78,17 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
           )}
         </div>
         <div className={styles.nickname}>{nickname}</div>
-        <div className={styles.loginId}>{user.id}</div>
+        <div className={styles.loginId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+          {user.id.startsWith('naver_') ? (
+            <><span style={{ fontSize: '10px', marginTop: '-1px' }}>🟢</span> <span style={{ color: '#03c75a', fontWeight: 600 }}>네이버 인증 계정</span></>
+          ) : user.id.startsWith('kakao_') ? (
+            <><span style={{ fontSize: '10px', marginTop: '-1px' }}>🟡</span> <span style={{ color: '#E2C300', fontWeight: 600 }}>카카오 인증 계정</span></>
+          ) : user.id.startsWith('google_') ? (
+            <><span style={{ fontSize: '10px', marginTop: '-1px' }}>🔵</span> <span style={{ color: '#4285F4', fontWeight: 600 }}>구글 인증 계정</span></>
+          ) : (
+            user.id
+          )}
+        </div>
       </div>
 
       {/* 내비게이션 메뉴 */}
