@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import api from '@/lib/api';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { Notice } from '@/types/notice';
 import s from './NoticePopup.module.css';
 
@@ -66,31 +67,34 @@ export default function NoticePopup() {
       >
         <div className={s.header}>
           <h2 className={s.title}>{currentNotice.title}</h2>
-          <button className={s.closeBtn} onClick={handleClose}>&times;</button>
+          <button className={s.closeBtn} onClick={handleClose}>
+            <X size={20} />
+          </button>
         </div>
         <div
           className={`${s.body} ${s.markdownBody}`}
           dangerouslySetInnerHTML={{ __html: currentNotice.content }}
         />
 
-        {notices.length > 1 && (
-          <div className={s.carouselControls}>
-            <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>
-              &lt; 이전
-            </button>
-            <span className={s.carouselIndicator}>
-              {currentIndex + 1} / {notices.length}
-            </span>
-            <button className={s.carouselBtn} onClick={handleNext} disabled={currentIndex === notices.length - 1}>
-              다음 &gt;
-            </button>
-          </div>
-        )}
-
         <div className={s.footer}>
           <button className={s.hideTodayBtn} onClick={handleHideToday}>
             오늘 하루 보지 않기
           </button>
+
+          {notices.length > 1 && (
+            <div className={s.carouselControls}>
+              <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>
+                <ChevronLeft size={16} />
+              </button>
+              <span className={s.carouselIndicator}>
+                {currentIndex + 1} / {notices.length}
+              </span>
+              <button className={s.carouselBtn} onClick={handleNext} disabled={currentIndex === notices.length - 1}>
+                <ChevronRight size={16} />
+              </button>
+            </div>
+          )}
+
           <button className={s.confirmBtn} onClick={handleClose}>
             닫기
           </button>

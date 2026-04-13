@@ -141,26 +141,27 @@
 .carouselControls {
   display: flex;
   justify-content: center;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
-  padding: 12px 24px;
-  background-color: var(--color-gray-50);
-  border-top: 1px solid var(--color-gray-200);
 }
 
 .carouselBtn {
-  background: #fff;
-  border: 1px solid var(--color-gray-300);
-  border-radius: var(--radius-sm);
-  padding: 6px 14px;
-  font-size: 13px;
-  color: var(--color-gray-700);
+  background: var(--color-gray-100);
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-gray-600);
   cursor: pointer;
-  transition: all var(--transition-fast);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 .carouselBtn:hover:not(:disabled) {
-  background-color: var(--color-gray-100);
+  background-color: var(--color-gray-200);
+  color: var(--color-gray-800);
 }
 
 .carouselBtn:disabled {
