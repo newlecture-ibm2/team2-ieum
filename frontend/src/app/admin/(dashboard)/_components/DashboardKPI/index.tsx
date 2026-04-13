@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import type { DashboardKpiData } from '@/types/admin-dashboard';
 import s from '../DashboardPage/DashboardPage.module.css';
+import { REPORT_STATUS } from '@/constants/statusLabels';
 
 interface Props {
   kpi: DashboardKpiData;
@@ -29,7 +30,7 @@ const KPI_ITEMS = [
     icon: '🚨',
     sub: '즉시 처리 필요',
     color: 'kpiCardRed',
-    href: '/admin/reports?status=PENDING',
+    href: `/admin/reports?status=${REPORT_STATUS.PENDING}`,
   },
   {
     key: 'pendingInquiries',
@@ -37,7 +38,7 @@ const KPI_ITEMS = [
     icon: '💬',
     sub: '미답변 문의',
     color: 'kpiCardAmber',
-    href: '/admin/inquiries?status=PENDING',
+    href: `/admin/inquiries?status=${REPORT_STATUS.PENDING}`,
   },
 ] as const;
 

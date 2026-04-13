@@ -1,0 +1,132 @@
+/* ===== 공통 드롭다운 컨테이너 ===== */
+.container {
+  position: relative;
+  display: inline-block;
+}
+
+.containerBlock {
+  display: block;
+}
+
+/* ===== 트리거 버튼 ===== */
+.trigger {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  background: #fff;
+  font-family: inherit;
+  outline: none;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  white-space: nowrap;
+  min-width: 80px;
+}
+
+.trigger:hover,
+.trigger:focus {
+  border-color: var(--color-primary-300);
+}
+
+.triggerOpen {
+  border-color: var(--color-primary-400);
+}
+
+/* full width 변형 */
+.triggerFull {
+  width: 100%;
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.chevron {
+  color: var(--color-gray-400);
+  flex-shrink: 0;
+  transition: transform var(--transition-fast);
+}
+
+.chevronOpen {
+  transform: rotate(180deg);
+}
+
+/* ===== 드롭다운 패널 ===== */
+.panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 100%;
+  background: #fff;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 6px 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  list-style: none;
+  margin: 0;
+  max-height: 240px;
+  overflow-y: auto;
+  animation: dropIn 0.15s ease-out;
+}
+
+.panelRight {
+  left: auto;
+  right: 0;
+}
+
+@keyframes dropIn {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== 옵션 아이템 ===== */
+.option {
+  padding: 9px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--color-gray-600);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.option:hover {
+  background: var(--color-gray-50);
+  color: var(--color-primary-500);
+}
+
+.optionActive {
+  color: var(--color-primary-500) !important;
+  font-weight: 700 !important;
+  background: #f3e8ff;
+}
+
+.optionDisabled {
+  color: var(--color-gray-400);
+  cursor: not-allowed;
+}
+
+.optionDisabled:hover {
+  background: transparent;
+  color: var(--color-gray-400);
+}
+
+/* ===== 패널 스크롤바 ===== */
+.panel::-webkit-scrollbar {
+  width: 4px;
+}
+
+.panel::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 4px;
+}

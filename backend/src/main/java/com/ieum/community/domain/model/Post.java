@@ -1,5 +1,6 @@
 package com.ieum.community.domain.model;
 
+import com.ieum.global.common.enums.ContentStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -58,11 +59,11 @@ public class Post {
     }
 
     public void softDelete() {
-        this.status = "REMOVED";
+        this.status = ContentStatus.REMOVED.name();
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.status);
+        return ContentStatus.ACTIVE.name().equals(this.status);
     }
 
     public Post withIsLiked(boolean isLiked) {

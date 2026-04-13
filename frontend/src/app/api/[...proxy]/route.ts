@@ -18,7 +18,7 @@ async function processProxyRequest(req: NextRequest) {
   headers.delete("content-length");
   headers.delete("content-encoding");
   headers.delete("transfer-encoding");
-  
+
   // Remove Origin/Referer so Spring Boot doesn't block the server-to-server proxy request with its CORS policy
   headers.delete("origin");
   headers.delete("referer");
@@ -34,11 +34,11 @@ async function processProxyRequest(req: NextRequest) {
     cache: "no-store", // Proxy should strictly never cache Data Cache, always forward to backend real-time
   };
 
-  // Handle the request body stream safely (requires duplex for streaming bodies, but ONLY for POST/PUT/PATCH)
+  // POST/PUT/PATCH: body를 버퍼로 읽어서 전달 (스트리밍 전송 시 백엔드가 인증 거부 등으로
+  // body를 다 읽기 전에 응답을 끊으면 Node.js fetch가 ECONNRESET으로 throw하는 문제 방지)
   if (req.method !== "GET" && req.method !== "HEAD") {
-    fetchOptions.body = req.body;
-    // @ts-ignore - 'duplex' is required for Node.js fetch with ReadableStream bodies
-    fetchOptions.duplex = "half";
+    const body = await req.arrayBuffer();
+    fetchOptions.body = body;
   } else {
     // GET requests should not have a content-type
     headers.delete("content-type");

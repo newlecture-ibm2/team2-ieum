@@ -1,6 +1,7 @@
 package com.ieum.community.adapter.out.persistence.entity;
 
 import com.ieum.community.domain.model.Post;
+import com.ieum.global.common.enums.ContentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -57,7 +58,7 @@ public class PostEntity {
 
     @Column(nullable = false, length = 10)
     @Builder.Default
-    private String status = "ACTIVE"; // ACTIVE / REMOVED
+    private String status = ContentStatus.ACTIVE.name(); // ACTIVE / REMOVED
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -138,10 +139,10 @@ public class PostEntity {
     }
 
     public void softDelete() {
-        this.status = "REMOVED";
+        this.status = ContentStatus.REMOVED.name();
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.status);
+        return ContentStatus.ACTIVE.name().equals(this.status);
     }
 }

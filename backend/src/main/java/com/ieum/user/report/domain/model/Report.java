@@ -1,5 +1,6 @@
 package com.ieum.user.report.domain.model;
 
+import com.ieum.global.common.enums.ReportStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -32,7 +33,7 @@ public class Report {
     private LocalDateTime processedAt;
 
     public void updateForRejection(String reason, String description) {
-        this.status = "PENDING";
+        this.status = ReportStatus.PENDING.name();
         this.reason = reason;
         this.description = description;
         this.createdAt = LocalDateTime.now();

@@ -6,6 +6,7 @@ import { Heart, CornerDownRight, User, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
 import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
+import { USER_STATUS } from '@/constants/userStatus';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { Modal } from '@/_component/common/Modal';
 import DOMPurify from 'isomorphic-dompurify';
@@ -92,7 +93,7 @@ export default function CommunityDetailPage() {
         setIsLoggedIn(data.isLoggedIn);
         if (data.isLoggedIn && data.user) {
           setCurrentUserId(data.user.userId);
-          setIsSuspended(data.user.status === 'SUSPENDED');
+          setIsSuspended(data.user.status === USER_STATUS.SUSPENDED);
 
           // 이미 신고했는지 확인
           api.get(`/api/reports/check?targetType=POST&targetId=${postId}`)

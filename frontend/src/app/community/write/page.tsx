@@ -7,7 +7,9 @@ import { ImagePlus, X } from 'lucide-react';
 import api from '@/lib/api';
 import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
+import { USER_STATUS } from '@/constants/userStatus';
 import { ConfirmModal } from '@/_component/common/Modal';
+import Dropdown from '@/_component/common/Dropdown';
 import 'react-quill-new/dist/quill.snow.css';
 import styles from './write.module.css';
 
@@ -97,7 +99,7 @@ function CommunityWriteContent() {
       .then(data => {
         if (!data.isLoggedIn) {
           setShowLoginModal(true);
-        } else if (data.user?.status === 'SUSPENDED') {
+        } else if (data.user?.status === USER_STATUS.SUSPENDED) {
           setIsSuspended(true);
           setAuthChecked(true);
         } else {
@@ -257,32 +259,24 @@ function CommunityWriteContent() {
             <label className={styles.formLabel}>
               말머리<span className={styles.req}>*</span>
             </label>
-            <select
-              className={styles.formSelect}
+            <Dropdown
+              options={CATEGORY_OPTIONS.map(opt => ({ value: opt.value, label: opt.label, disabled: opt.value === '' }))}
               value={category}
-              onChange={e => setCategory(e.target.value)}
-            >
-              {CATEGORY_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value} disabled={opt.value === ''}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setCategory(v)}
+              ariaLabel="말머리 선택"
+              fullWidth
+            />
           </div>
 
           <div className={styles.formRow}>
             <label className={styles.formLabel}>지역 분류</label>
-            <select
-              className={styles.formSelect}
+            <Dropdown
+              options={REGION_OPTIONS.map(opt => ({ value: opt.value, label: opt.label }))}
               value={areaCode}
-              onChange={e => setAreaCode(e.target.value)}
-            >
-              {REGION_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setAreaCode(v)}
+              ariaLabel="지역 선택"
+              fullWidth
+            />
           </div>
         </div>
 

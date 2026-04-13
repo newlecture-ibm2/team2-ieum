@@ -66,6 +66,11 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
   };
 
   const handleSaveProfile = async () => {
+    if (nickname.length < 2 || nickname.length > 8) {
+      alert('닉네임은 2자 이상 8자 이하로 입력 가능합니다.');
+      return;
+    }
+
     if (!isNicknameChecked) {
       alert('닉네임 중복 확인이 필요합니다.');
       return;
@@ -140,6 +145,8 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
               setIsNicknameChecked(false);
             }}
             disabled={isSaving}
+            maxLength={8}
+            placeholder="2~8자 사이로 입력"
           />
           <button 
             className={styles.btnEdit} 
@@ -150,7 +157,12 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
             중복확인
           </button>
         </div>
-        {isNicknameChecked && (
+        {(nickname.length > 0 && (nickname.length < 2 || nickname.length > 8)) && (
+          <p style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px' }}>
+            닉네임은 2자 이상 8자 이하로 입력해주세요.
+          </p>
+        )}
+        {isNicknameChecked && nickname.length >= 2 && nickname.length <= 8 && (
           <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-500)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
             <Check size={12} /> 사용 가능한 닉네임입니다.
           </p>
@@ -158,9 +170,35 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
       </div>
 
       <div style={{ marginBottom: '30px' }}>
-        <label className={styles.sectionLabel}>등록된 이메일 계정</label>
-        <div className={styles.inputField} style={{ backgroundColor: '#f8fafc', color: '#94a3b8', border: '1px solid #e2e8f0' }}>
-          {user.id}
+        <label className={styles.sectionLabel}>연동된 계정 정보</label>
+        <div className={styles.inputField} style={{ 
+          backgroundColor: '#f8fafc', 
+          color: '#334155', 
+          border: '1px solid #e2e8f0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '10px',
+          fontWeight: 600,
+          minHeight: '48px' /* 일반 input과 높이 통일 */
+        }}>
+          {user.id.startsWith('naver_') ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '12px', display: 'inline-flex', alignItems: 'center' }}>🟢</span> 
+              <span style={{ color: '#03c75a' }}>네이버 인증 계정</span>
+            </div>
+          ) : user.id.startsWith('kakao_') ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '12px', display: 'inline-flex', alignItems: 'center' }}>🟡</span> 
+              <span style={{ color: '#E2C300' }}>카카오 인증 계정</span>
+            </div>
+          ) : user.id.startsWith('google_') ? (
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '12px', display: 'inline-flex', alignItems: 'center' }}>🔵</span> 
+              <span style={{ color: '#4285F4' }}>구글 인증 계정</span>
+            </div>
+          ) : (
+            user.id
+          )}
         </div>
       </div>
 

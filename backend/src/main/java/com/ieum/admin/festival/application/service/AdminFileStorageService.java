@@ -15,7 +15,7 @@ import java.util.UUID;
 @Service
 public class AdminFileStorageService {
 
-    @Value("${FILE_UPLOAD_DIR:/app/upload}/festivals")
+    @Value("${FILE_UPLOAD_DIR:./uploads}/festivals")
     private String uploadDir;
 
     @PostConstruct
@@ -39,9 +39,9 @@ public class AdminFileStorageService {
             }
             String newFilename = UUID.randomUUID().toString() + extension;
             Path destinationFile = Paths.get(uploadDir).resolve(Paths.get(newFilename)).normalize().toAbsolutePath();
-            
+
             file.transferTo(destinationFile.toFile());
-            
+
             // Web accessible path
             return "/uploads/festivals/" + newFilename;
         } catch (IOException e) {

@@ -8,6 +8,7 @@ import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
 import com.ieum.attachment.application.port.in.DeleteAttachmentUseCase;
 import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
+import com.ieum.global.common.enums.TargetType;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
@@ -55,7 +56,7 @@ public class NoticeAdminService
 
         // 첨부파일 업로드 (attachment 공통 모듈 사용)
         if (command.getFiles() != null && !command.getFiles().isEmpty()) {
-            uploadAttachmentUseCase.uploadAll("NOTICE", saved.getId(), command.getFiles());
+            uploadAttachmentUseCase.uploadAll(TargetType.NOTICE.name(), saved.getId(), command.getFiles());
         }
 
         // 푸시 알림 발송
@@ -94,7 +95,7 @@ public class NoticeAdminService
 
         // 새 파일 업로드
         if (command.getNewFiles() != null && !command.getNewFiles().isEmpty()) {
-            uploadAttachmentUseCase.uploadAll("NOTICE", command.getNoticeId(), command.getNewFiles());
+            uploadAttachmentUseCase.uploadAll(TargetType.NOTICE.name(), command.getNoticeId(), command.getNewFiles());
         }
 
         AdminNotice saved = adminNoticePort.save(updated);
@@ -113,7 +114,7 @@ public class NoticeAdminService
                 .orElseThrow(() -> new BusinessException(ErrorCode.NOTICE_001, "noticeId=" + noticeId));
 
         // 첨부파일 전체 삭제 (attachment 공통 모듈 사용)
-        deleteAttachmentUseCase.deleteAllByTarget("NOTICE", noticeId);
+        deleteAttachmentUseCase.deleteAllByTarget(TargetType.NOTICE.name(), noticeId);
         adminNoticePort.deleteById(noticeId);
     }
 

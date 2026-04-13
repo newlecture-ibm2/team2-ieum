@@ -7,18 +7,19 @@ import adminApi from '@/lib/adminApi';
 import type { MemberItem, MemberListResponse } from '@/types/admin-member';
 import MemberDetailModal from '../MemberDetailModal';
 import s from './MemberListPage.module.css';
+import { USER_STATUS, USER_ROLE } from '@/constants/userStatus';
 
 /* ── 상태 배지 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  ACTIVE:    { label: '정상 회원', className: 'badgeOngoing' },
-  SUSPENDED: { label: '정지 회원', className: 'badgePending' },
-  DELETED:   { label: '탈퇴 대기', className: 'badgeEnded' },
+  [USER_STATUS.ACTIVE]:    { label: '정상 회원', className: 'badgeOngoing' },
+  [USER_STATUS.SUSPENDED]: { label: '정지 회원', className: 'badgePending' },
+  [USER_STATUS.DELETED]:   { label: '탈퇴 대기', className: 'badgeEnded' },
 };
 
 /* ── 역할 매핑 ── */
 const ROLE_MAP: Record<string, string> = {
-  USER:  '일반회원',
-  ADMIN: '관리자',
+  [USER_ROLE.USER]:  '일반회원',
+  [USER_ROLE.ADMIN]: '관리자',
 };
 
 /* ── 가입 방식(provider) 표시 매핑 ── */
@@ -184,22 +185,22 @@ export default function MemberListPage() {
             <div className={common.statValue}>{totalCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'ACTIVE' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('ACTIVE')}
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === USER_STATUS.ACTIVE ? common.statActive : ''}`}
+            onClick={() => handleStatClick(USER_STATUS.ACTIVE)}
           >
             <div className={common.statLabel}>정상 회원</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{activeCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'SUSPENDED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('SUSPENDED')}
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === USER_STATUS.SUSPENDED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(USER_STATUS.SUSPENDED)}
           >
             <div className={common.statLabel}>정지 회원</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{suspendedCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === 'DELETED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('DELETED')}
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === USER_STATUS.DELETED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(USER_STATUS.DELETED)}
           >
             <div className={common.statLabel}>탈퇴 대기</div>
             <div className={`${common.statValue} ${common.textGray}`}>{deletedCount}</div>
@@ -339,7 +340,7 @@ export default function MemberListPage() {
                 members.map((member, idx) => (
                   <tr
                     key={member.userId}
-                    className={`${common.tableRow} ${common.tableRowHover} ${member.status === 'DELETED' ? common.hiddenRow : ''}`}
+                    className={`${common.tableRow} ${common.tableRowHover} ${member.status === USER_STATUS.DELETED ? common.hiddenRow : ''}`}
                     style={{ cursor: 'pointer' }}
                     onClick={() => setSelectedMember(member)}
                   >
@@ -384,7 +385,7 @@ export default function MemberListPage() {
                       )}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${member.role === 'ADMIN' ? common.badgeUpcoming : common.badgeDismissed}`}>
+                      <span className={`${common.statusBadge} ${member.role === USER_ROLE.ADMIN ? common.badgeUpcoming : common.badgeDismissed}`}>
                         {ROLE_MAP[member.role] || member.role}
                       </span>
                     </td>

@@ -3,6 +3,7 @@ package com.ieum.admin.statistics.adapter.out.persistence;
 import com.ieum.admin.statistics.application.port.out.DashboardQueryPort;
 import com.ieum.admin.statistics.application.result.DashboardRecentItem;
 import com.ieum.admin.statistics.application.result.DashboardTrendItem;
+import com.ieum.global.common.enums.ReportReason;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -155,12 +156,10 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
 
     private String reasonLabel(String reason) {
         if (reason == null) return "신고";
-        return switch (reason) {
-            case "SPAM" -> "스팸 신고";
-            case "ABUSE" -> "욕설/비방 신고";
-            case "INAPPROPRIATE" -> "부적절한 콘텐츠 신고";
-            case "FALSE_INFO" -> "허위 정보 신고";
-            default -> "기타 신고";
-        };
+        try {
+            return ReportReason.valueOf(reason).getDisplayName();
+        } catch (IllegalArgumentException e) {
+            return "기타 신고";
+        }
     }
 }

@@ -6,6 +6,9 @@ import com.ieum.community.application.port.out.PostPort;
 import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.community.domain.model.Comment;
 import com.ieum.community.domain.model.Post;
+import com.ieum.global.common.enums.ContentStatus;
+import com.ieum.global.common.enums.NotificationType;
+import com.ieum.global.common.enums.TargetType;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
@@ -78,7 +81,7 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
                 .userName(userName)
                 .parentId(parentId)
                 .content(content)
-                .status("ACTIVE")
+                .status(ContentStatus.ACTIVE.name())
                 .build();
 
         Comment saved = commentPort.save(comment);
@@ -100,8 +103,8 @@ public class CommentService implements CreateCommentUseCase, LoadCommentUseCase,
                 log.info("알림 발송 조건 충족: 발송 시작...");
                 sendNotificationUseCase.sendNotification(
                         targetUserId,
-                        "COMMENT",
-                        "COMMUNITY",
+                        NotificationType.COMMENT.name(),
+                        TargetType.COMMUNITY.name(),
                         postId,
                         title,
                         msg

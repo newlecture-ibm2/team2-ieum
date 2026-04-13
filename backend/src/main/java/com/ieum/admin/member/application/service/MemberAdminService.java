@@ -7,6 +7,7 @@ import com.ieum.admin.member.application.result.MemberItem;
 import com.ieum.admin.member.application.result.MemberListResult;
 import com.ieum.admin.member.domain.model.Member;
 import com.ieum.admin.member.domain.model.MemberStatus;
+import com.ieum.user.auth.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -154,7 +155,7 @@ public class MemberAdminService implements
      */
     private void guardAdminTarget(Long targetId, String message) {
         memberPort.findById(targetId).ifPresent(target -> {
-            if ("ADMIN".equals(target.getRole())) {
+            if (Role.ADMIN.name().equals(target.getRole())) {
                 throw new IllegalArgumentException(message);
             }
         });

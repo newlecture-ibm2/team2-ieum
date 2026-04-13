@@ -2,7 +2,8 @@
 
 import { Suspense, useState, useRef, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Search, X, SlidersHorizontal, MapPin, XCircle } from 'lucide-react';
+import { Search, X, SlidersHorizontal, MapPin, XCircle, ChevronDown } from 'lucide-react';
+import Dropdown from '@/_component/common/Dropdown';
 import styles from './SearchFilter.module.css';
 import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
@@ -41,6 +42,9 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
   const [keyword, setKeyword] = useState(currentKeyword);
   const [filterOpen, setFilterOpen] = useState(false);
   const filterRef = useRef<HTMLDivElement>(null);
+  
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortRef = useRef<HTMLDivElement>(null);
 
   const [areaCode, setAreaCode] = useState(currentAreaCode);
   const [month, setMonth] = useState(currentMonth);
@@ -70,14 +74,17 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
       if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
         setFilterOpen(false);
       }
+      if (sortRef.current && !sortRef.current.contains(event.target as Node)) {
+        setSortOpen(false);
+      }
     }
-    if (filterOpen) {
+    if (filterOpen || sortOpen) {
       document.addEventListener('mousedown', handleClickOutside);
     }
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [filterOpen]);
+  }, [filterOpen, sortOpen]);
 
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -209,15 +216,16 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
       <div className={styles.searchBar}>
         <div className={styles.searchLeft}>
           {filterType === 'notice' && (
-            <select
-              className={styles.searchTypeSelect}
+            <Dropdown
+              options={[
+                { value: 'all', label: '전체' },
+                { value: 'title', label: '제목' },
+                { value: 'content', label: '내용' },
+              ]}
               value={searchType}
-              onChange={(e) => setSearchType(e.target.value)}
-            >
-              <option value="all">전체</option>
-              <option value="title">제목</option>
-              <option value="content">내용</option>
-            </select>
+              onChange={(v) => setSearchType(v)}
+              ariaLabel="검색 유형"
+            />
           )}
           <div className={styles.inputWrap}>
             <Search size={14} className={styles.searchIcon} />
@@ -359,24 +367,38 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
           )}
         </div>
         
-        <div className={styles.searchRight}>
-          <select 
+        <div className={styles.searchRight} ref={sortRef} style={{ position: 'relative' }}>
+          <button 
+            type="button"
             className={styles.sortSelect} 
-            value={sort} 
-            onChange={(e) => handleSortChange(e.target.value)}
+            onClick={() => setSortOpen(!sortOpen)}
           >
-            <option value="latest">최신순</option>
-            {filterType !== 'notice' && <option value="popular">인기순</option>}
-            <option value="views">조회순</option>
-            {filterType === 'community' ? (
-              <option value="comments">댓글순</option>
-            ) : filterType !== 'notice' ? (
-              <option value="reviews">리뷰순</option>
-            ) : null}
-            {filterType === 'festival' && (
-              <option value="distance">거리순</option>
-            )}
-          </select>
+            {sort === 'latest' ? '최신순' : 
+             sort === 'popular' ? '인기순' : 
+             sort === 'views' ? '조회순' : 
+             sort === 'comments' ? '댓글순' : 
+             sort === 'reviews' ? '리뷰순' : 
+             sort === 'distance' ? '거리순' : '정렬'}
+            <ChevronDown size={14} className={styles.chevronIcon} />
+          </button>
+          
+          {sortOpen && (
+            <ul className={styles.sortDropdownPanel}>
+              <li className={sort === 'latest' ? styles.activeSort : ''} onClick={() => { handleSortChange('latest'); setSortOpen(false); }}>최신순</li>
+              {filterType !== 'notice' && (
+                <li className={sort === 'popular' ? styles.activeSort : ''} onClick={() => { handleSortChange('popular'); setSortOpen(false); }}>인기순</li>
+              )}
+              <li className={sort === 'views' ? styles.activeSort : ''} onClick={() => { handleSortChange('views'); setSortOpen(false); }}>조회순</li>
+              {filterType === 'community' ? (
+                <li className={sort === 'comments' ? styles.activeSort : ''} onClick={() => { handleSortChange('comments'); setSortOpen(false); }}>댓글순</li>
+              ) : filterType !== 'notice' ? (
+                <li className={sort === 'reviews' ? styles.activeSort : ''} onClick={() => { handleSortChange('reviews'); setSortOpen(false); }}>리뷰순</li>
+              ) : null}
+              {filterType === 'festival' && (
+                <li className={sort === 'distance' ? styles.activeSort : ''} onClick={() => { handleSortChange('distance'); setSortOpen(false); }}>거리순</li>
+              )}
+            </ul>
+          )}
         </div>
       </div>
 

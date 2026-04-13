@@ -8,20 +8,15 @@ import type { ReportItem } from '@/types/admin-report';
 import { Modal } from '@/_component/common/Modal';
 import ConfirmModal from '@/_component/common/Modal/ConfirmModal';
 import { useToast } from '@/_component/common/Toast';
+import { REPORT_REASON_LABELS, REPORT_ACTION } from '@/constants/reportOptions';
+import { REPORT_STATUS } from '@/constants/statusLabels';
+import { TARGET_TYPE } from '@/constants/targetType';
 
 /* ── 매핑 상수 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
-  REVIEW:  '리뷰',
-  POST:    '게시글',
-  COMMENT: '댓글',
-};
-
-const REASON_MAP: Record<string, string> = {
-  SPAM:          '스팸',
-  ABUSE:         '욕설/비방',
-  INAPPROPRIATE: '부적절한 콘텐츠',
-  FALSE_INFO:    '허위 정보',
-  OTHER:         '기타',
+  [TARGET_TYPE.REVIEW]:  '리뷰',
+  [TARGET_TYPE.POST]:    '게시글',
+  [TARGET_TYPE.COMMENT]: '댓글',
 };
 
 /* ── 답변 템플릿 부분은 하단에서 동적으로 렌더링 ── */
@@ -41,11 +36,11 @@ interface Props {
 }
 
 export default function ReportDetailModal({ report, onClose, onProcessed }: Props) {
-  const isPending = report.status === 'PENDING';
+  const isPending = report.status === REPORT_STATUS.PENDING;
   const targetLabel = TARGET_TYPE_MAP[report.targetType] || report.targetType;
 
   const { toast } = useToast();
-  const [confirmTarget, setConfirmTarget] = useState<'DISMISS' | 'DELETE' | null>(null);
+  const [confirmTarget, setConfirmTarget] = useState<typeof REPORT_ACTION.DISMISS | typeof REPORT_ACTION.DELETE | null>(null);
 
   /* ── 답변 상태 ── */
   const [message, setMessage] = useState('');
@@ -85,7 +80,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
   }, [report.id]);
 
   /* ── 처리 로직 ── */
-  const executeProcess = async (actionType: 'DISMISS' | 'DELETE') => {
+  const executeProcess = async (actionType: typeof REPORT_ACTION.DISMISS | typeof REPORT_ACTION.DELETE) => {
     if (!isPending) return;
 
     const trimmed = message.trim();
@@ -117,7 +112,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
     }
   };
 
-  const handleProcessClick = (actionType: 'DISMISS' | 'DELETE') => {
+  const handleProcessClick = (actionType: typeof REPORT_ACTION.DISMISS | typeof REPORT_ACTION.DELETE) => {
     const trimmed = message.trim();
     if (!trimmed) {
       setMessageError('처리 답변을 입력해주세요.');
@@ -138,7 +133,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
 
   /* ── 아웃링크 계산 ── */
   const getOutlink = () => {
-    if (report.targetType === 'POST') return `/community/${report.targetId}`;
+    if (report.targetType === TARGET_TYPE.POST) return `/community/${report.targetId}`;
     if (report.targetType === 'FESTIVAL') return `/festivals/${report.targetId}`; // 리뷰의 상위 축제를 직접 알기는 로직상 까다로워 대안 경로 처리 (필요시 수정)
     return null;
   };
@@ -154,7 +149,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
             <div className={s.infoSummaryCard}>
               <div className={s.infoHeader}>
                 <div className={s.reasonBadge}>
-                  🚨 {REASON_MAP[report.reason] || report.reason}
+                  🚨 {REPORT_REASON_LABELS[report.reason] || report.reason}
                 </div>
                 <div className={s.targetBadge}>
                   {targetLabel} #{report.targetId}
@@ -225,14 +220,14 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
               <div className={s.templateRow}>
                 <button
                   className={`${s.templateBtn} ${s.templateBtnAccept}`}
-                  onClick={() => applyTemplate(`신고하신 콘텐츠를 확인한 결과, [${REASON_MAP[report.reason] || report.reason}] 사유가 명확히 확인되어 해당 ${targetLabel}을(를) 규제(숨김) 처리하였습니다. 건전한 커뮤니티 조성을 위한 신고에 진심으로 감사드립니다.`)}
+                  onClick={() => applyTemplate(`신고하신 콘텐츠를 확인한 결과, [${REPORT_REASON_LABELS[report.reason] || report.reason}] 사유가 명확히 확인되어 해당 ${targetLabel}을(를) 규제(숨김) 처리하였습니다. 건전한 커뮤니티 조성을 위한 신고에 진심으로 감사드립니다.`)}
                   type="button"
                 >
-                  ✅ {REASON_MAP[report.reason] || report.reason} 인정 (구제 템플릿)
+                  ✅ {REPORT_REASON_LABELS[report.reason] || report.reason} 인정 (구제 템플릿)
                 </button>
                 <button
                   className={`${s.templateBtn} ${s.templateBtnReject}`}
-                  onClick={() => applyTemplate(`접수해주신 [${REASON_MAP[report.reason] || report.reason}] 사유에 대해 면밀히 검토하였으나, 현재 커뮤니티 운영 정책상 명백한 위반 사항을 발견하기 어려워 부득이하게 신고를 반려 처리합니다. 추가적인 다른 문제가 있다면 언제든 다시 신고해 주시기 바랍니다.`)}
+                  onClick={() => applyTemplate(`접수해주신 [${REPORT_REASON_LABELS[report.reason] || report.reason}] 사유에 대해 면밀히 검토하였으나, 현재 커뮤니티 운영 정책상 명백한 위반 사항을 발견하기 어려워 부득이하게 신고를 반려 처리합니다. 추가적인 다른 문제가 있다면 언제든 다시 신고해 주시기 바랍니다.`)}
                   type="button"
                 >
                   ↩️ 정책 위반 없음 (반려 템플릿)
@@ -263,10 +258,10 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
               <div className={s.sectionTitle}>
                 <span className={s.sectionIcon}>📑</span> 처리 이력
               </div>
-              <div className={`${s.historyCard} ${report.status === 'REJECTED' ? s.historyCardRejected : ''}`}>
+              <div className={`${s.historyCard} ${report.status === REPORT_STATUS.REJECTED ? s.historyCardRejected : ''}`}>
                 <div className={s.historyMeta}>
-                  <span className={`${s.historyStatus} ${report.status === 'RESOLVED' ? s.historyStatusResolved : s.historyStatusRejected}`}>
-                    {report.status === 'RESOLVED' ? '✅ 처리완료' : '↩️ 반려'}
+                  <span className={`${s.historyStatus} ${report.status === REPORT_STATUS.RESOLVED ? s.historyStatusResolved : s.historyStatusRejected}`}>
+                    {report.status === REPORT_STATUS.RESOLVED ? '✅ 처리완료' : '↩️ 반려'}
                   </span>
                   <span>처리자: 관리자</span>
                   <span>{report.processedAt?.replace('T', ' ').slice(0, 19) || '-'}</span>
@@ -293,7 +288,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
                   color: '#0284c7',
                   opacity: message.trim().length < 10 ? 0.5 : 1,
                 }}
-                onClick={() => handleProcessClick('DISMISS')}
+                onClick={() => handleProcessClick(REPORT_ACTION.DISMISS)}
                 disabled={processing || message.trim().length < 10}
               >
                 {processing ? '처리 중...' : '신고 반려'}
@@ -301,7 +296,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
               <button
                 className={common.btnDanger}
                 style={{ opacity: message.trim().length < 10 ? 0.5 : 1 }}
-                onClick={() => handleProcessClick('DELETE')}
+                onClick={() => handleProcessClick(REPORT_ACTION.DELETE)}
                 disabled={processing || message.trim().length < 10}
               >
                 {processing ? '처리 중...' : `신고 대상 ${targetLabel} 삭제`}
@@ -316,12 +311,12 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
         <ConfirmModal
           title="신고 처리 확인"
           message={
-            confirmTarget === 'DELETE'
+            confirmTarget === REPORT_ACTION.DELETE
               ? `신고 대상 ${targetLabel}을(를) 정말 삭제하시겠습니까?\n(삭제 후에는 복구가 불가합니다.)`
               : '신고를 반려 처리하시겠습니까?'
           }
-          confirmText={confirmTarget === 'DELETE' ? '삭제' : '반려'}
-          danger={confirmTarget === 'DELETE'}
+          confirmText={confirmTarget === REPORT_ACTION.DELETE ? '삭제' : '반려'}
+          danger={confirmTarget === REPORT_ACTION.DELETE}
           onConfirm={() => executeProcess(confirmTarget)}
           onCancel={() => setConfirmTarget(null)}
         />

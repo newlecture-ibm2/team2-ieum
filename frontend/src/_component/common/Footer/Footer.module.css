@@ -58,44 +58,19 @@
   color: #969faa;
 }
 
-/* 링크 컬럼 */
-.links {
-  display: flex;
-  gap: 48px;
-}
-
-.linkCol h4 {
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 8px;
-}
-
-.linkCol ul {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  font-size: 12px;
-}
-
-.linkCol a {
-  font-size: 12px;
-  color: #969faa;
-  transition: color var(--transition-fast);
-}
-
-.linkCol a:hover {
-  color: var(--color-primary-400);
-}
-
-/* 하단 바 */
+/* 하단 바 (연락처 & 저작권) */
 .footerBottom {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 12px var(--spacing-xl);
+  padding: 16px var(--spacing-xl);
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
+}
+
+.contactInfo {
+  font-size: 11px;
+  color: var(--color-gray-500);
 }
 
 .copyright {

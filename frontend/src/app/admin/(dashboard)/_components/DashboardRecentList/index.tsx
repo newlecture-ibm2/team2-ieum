@@ -3,6 +3,7 @@ import { ChevronRight } from 'lucide-react';
 import type { DashboardRecentItem } from '@/types/admin-dashboard';
 import common from '@/app/admin/_styles/admin-common.module.css';
 import s from '../DashboardPage/DashboardPage.module.css';
+import { REPORT_STATUS, REPORT_STATUS_LABELS, INQUIRY_STATUS, INQUIRY_STATUS_LABELS } from '@/constants/statusLabels';
 
 const TYPE_LABEL: Record<string, string> = {
   REPORT:  '신고',
@@ -10,10 +11,8 @@ const TYPE_LABEL: Record<string, string> = {
 };
 
 const STATUS_LABEL: Record<string, { label: string; className: string }> = {
-  PENDING:  { label: '대기중',   className: 'badgePending' },
-  RESOLVED: { label: '처리완료', className: 'badgeOngoing' },
-  ANSWERED: { label: '답변완료', className: 'badgeOngoing' },
-  REJECTED: { label: '반려',     className: 'badgeDismissed' },
+  ...REPORT_STATUS_LABELS,
+  ...INQUIRY_STATUS_LABELS,
 };
 
 interface Props {
@@ -59,10 +58,10 @@ export default function DashboardRecentList({ type, title, items }: Props) {
           </thead>
           <tbody>
             {items.map((item) => {
-              const badge = STATUS_LABEL[item.status] || STATUS_LABEL.PENDING;
+              const badge = STATUS_LABEL[item.status] || STATUS_LABEL[REPORT_STATUS.PENDING];
               
               // 완료/반려 상태는 너무 튀지 않게 투명도 조절 (UX 가이드)
-              const isResolved = item.status === 'RESOLVED' || item.status === 'ANSWERED' || item.status === 'REJECTED';
+              const isResolved = item.status === REPORT_STATUS.RESOLVED || item.status === INQUIRY_STATUS.ANSWERED || item.status === REPORT_STATUS.REJECTED;
               
               return (
                 <tr key={`${item.type}-${item.id}`}>
