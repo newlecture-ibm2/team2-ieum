@@ -29,6 +29,8 @@ jobs:
           echo "FRONTEND_PORT=${FRONTEND_PORT:-3333}" >> .env
           echo "BACKEND_URL=${BACKEND_URL:-http://backend:8080}" >> .env
           echo "NEXT_PUBLIC_KAKAO_MAP_API_KEY=${NEXT_PUBLIC_KAKAO_MAP_API_KEY}" >> .env
+          echo "NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}" >> .env
+          echo "NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}" >> .env
           echo "OAUTH_KAKAO_CLIENT_ID=${OAUTH_KAKAO_CLIENT_ID}" >> .env
           echo "OAUTH_KAKAO_CLIENT_SECRET=${OAUTH_KAKAO_CLIENT_SECRET}" >> .env
           echo "OAUTH_NAVER_CLIENT_ID=${OAUTH_NAVER_CLIENT_ID}" >> .env
@@ -50,6 +52,8 @@ jobs:
           FRONTEND_PORT: ${{ vars.FRONTEND_PORT }}
           BACKEND_URL: ${{ vars.BACKEND_URL }}
           NEXT_PUBLIC_KAKAO_MAP_API_KEY: ${{ secrets.NEXT_PUBLIC_KAKAO_MAP_API_KEY }}
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
+          NEXT_PUBLIC_FRONTEND_URL: ${{ vars.NEXT_PUBLIC_FRONTEND_URL }}
           OAUTH_KAKAO_CLIENT_ID: ${{ secrets.OAUTH_KAKAO_CLIENT_ID }}
           OAUTH_KAKAO_CLIENT_SECRET: ${{ secrets.OAUTH_KAKAO_CLIENT_SECRET }}
           OAUTH_NAVER_CLIENT_ID: ${{ secrets.OAUTH_NAVER_CLIENT_ID }}
