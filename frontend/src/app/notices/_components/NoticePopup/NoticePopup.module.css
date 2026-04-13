@@ -83,8 +83,7 @@
   font-size: 15px;
   line-height: 1.6;
   color: var(--color-gray-800);
-  min-height: 100px;
-  max-height: 480px;
+  height: 320px;
   overflow-y: auto;
   white-space: pre-wrap;
 }
