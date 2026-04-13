@@ -76,25 +76,24 @@ export default function NoticePopup() {
           dangerouslySetInnerHTML={{ __html: currentNotice.content }}
         />
 
+        {notices.length > 1 && (
+          <div className={s.carouselControls}>
+            <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>
+              <ChevronLeft size={16} />
+            </button>
+            <span className={s.carouselIndicator}>
+              {currentIndex + 1} / {notices.length}
+            </span>
+            <button className={s.carouselBtn} onClick={handleNext} disabled={currentIndex === notices.length - 1}>
+              <ChevronRight size={16} />
+            </button>
+          </div>
+        )}
+
         <div className={s.footer}>
           <button className={s.hideTodayBtn} onClick={handleHideToday}>
             오늘 하루 보지 않기
           </button>
-
-          {notices.length > 1 && (
-            <div className={s.carouselControls}>
-              <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>
-                <ChevronLeft size={16} />
-              </button>
-              <span className={s.carouselIndicator}>
-                {currentIndex + 1} / {notices.length}
-              </span>
-              <button className={s.carouselBtn} onClick={handleNext} disabled={currentIndex === notices.length - 1}>
-                <ChevronRight size={16} />
-              </button>
-            </div>
-          )}
-
           <button className={s.confirmBtn} onClick={handleClose}>
             닫기
           </button>
