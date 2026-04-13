@@ -39,45 +39,13 @@ export default function Footer() {
             </p>
           </div>
 
-          {/* ②③④ 링크 컬럼 */}
+          {/* 링크 컬럼 (문의하기) */}
           <div className={styles.links}>
-            {/* ② 서비스 */}
-            <div className={styles.linkCol}>
-              <h4>서비스</h4>
-              <ul>
-                <li><Link href="/">전국축제</Link></li>
-                <li><Link href="/pastFestivals">지난축제</Link></li>
-                <li><Link href="/calendar">축제 달력</Link></li>
-                <li><Link href="/community">커뮤니티</Link></li>
-              </ul>
-            </div>
-
-            {/* ③ 고객지원 */}
-            <div className={styles.linkCol}>
-              <h4>고객지원</h4>
-              <ul>
-                <li><Link href="/notices">공지사항</Link></li>
-                <li><Link href="/inquiry">1:1 문의</Link></li>
-                <li>
-                  <button
-                    type="button"
-                    className={styles.modalLink}
-                    onClick={() => setOpenModal("terms")}
-                  >
-                    이용약관
-                  </button>
-                </li>
-              </ul>
-            </div>
-
-            {/* ④ 문의하기 */}
             <div className={styles.linkCol}>
               <h4>문의하기</h4>
               <ul>
                 <li>이메일: ieum@festival.kr</li>
                 <li>전화: 02-1234-5678</li>
-                <li>평일 09:00 ~ 18:00</li>
-                <li>주말 및 공휴일 휴무</li>
               </ul>
             </div>
           </div>
