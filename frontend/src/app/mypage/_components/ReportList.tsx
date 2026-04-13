@@ -8,6 +8,9 @@ import { useToast } from '@/_component/common/Toast';
 import { useMyPageActivity } from '../_hooks/useMyPageActivity';
 import type { MyReport } from '@/types/mypage';
 import styles from '../mypage.module.css';
+import { REPORT_REASON_LABELS, REPORT_ACTION } from '@/constants/reportOptions';
+import { REPORT_STATUS } from '@/constants/statusLabels';
+import { TARGET_TYPE } from '@/constants/targetType';
 
 // 🛡️ 매핑 및 라우팅 설정 (컴포넌트 외부로 분리하여 유지보수성 향상)
 const ROUTES = {
@@ -16,19 +19,12 @@ const ROUTES = {
 };
 
 const TARGET_MAP: Record<string, string> = {
-  'REVIEW': '축제 리뷰',
-  'POST': '커뮤니티 게시글',
-  'COMMENT': '댓글',
+  [TARGET_TYPE.REVIEW]: '축제 리뷰',
+  [TARGET_TYPE.POST]: '커뮤니티 게시글',
+  [TARGET_TYPE.COMMENT]: '댓글',
 };
 
-const REASON_MAP: Record<string, string> = {
-  'SPAM': '스팸/홍보',
-  'ABUSE': '욕설/비하',
-  'INAPPROPRIATE': '부적절한 내용',
-  'FALSE_INFO': '잘못된 정보',
-  'OTHER': '기타',
-  'AD': '광고성 컨텐츠'
-};
+
 
 export default function ReportList() {
   const router = useRouter();
@@ -50,7 +46,7 @@ export default function ReportList() {
   const getDisplayTitle = (report: MyReport) => {
     // 1. 백엔드에서 전용 필드가 있다면 우선적으로 사용
     const targetLabel = TARGET_MAP[report.targetType || ''] || '';
-    const reasonLabel = REASON_MAP[report.reason || ''] || '';
+    const reasonLabel = REPORT_REASON_LABELS[report.reason || ''] || '';
     
     if (targetLabel && reasonLabel) return `${targetLabel} - ${reasonLabel}`;
     if (report.title) return report.title;
@@ -65,7 +61,7 @@ export default function ReportList() {
     e.stopPropagation(); 
     
     // 이미 삭제된 게시물인 경우
-    if (report.action === 'DELETE') {
+    if (report.action === REPORT_ACTION.DELETE) {
       toast('이미 삭제된 게시물은 원문을 확인할 수 없습니다.', 'error');
       return;
     }
@@ -79,11 +75,11 @@ export default function ReportList() {
     }
 
     switch(targetType) {
-      case 'REVIEW':
+      case TARGET_TYPE.REVIEW:
         router.push(`${ROUTES.FESTIVAL}/${targetId}`);
         break;
-      case 'POST':
-      case 'COMMENT':
+      case TARGET_TYPE.POST:
+      case TARGET_TYPE.COMMENT:
         router.push(`${ROUTES.COMMUNITY}/${targetId}`);
         break;
       default:
@@ -97,18 +93,18 @@ export default function ReportList() {
 
   const getStatusStyle = (status: MyReport['status']) => {
     switch (status) {
-      case 'PENDING': return styles.statusPending;
-      case 'RESOLVED': return styles.statusResolved;
-      case 'REJECTED': return styles.statusRejected;
+      case REPORT_STATUS.PENDING: return styles.statusPending;
+      case REPORT_STATUS.RESOLVED: return styles.statusResolved;
+      case REPORT_STATUS.REJECTED: return styles.statusRejected;
       default: return '';
     }
   };
 
   const getStatusLabel = (status: MyReport['status']) => {
     switch (status) {
-      case 'PENDING': return '접수 대기';
-      case 'RESOLVED': return '처리 완료';
-      case 'REJECTED': return '반려';
+      case REPORT_STATUS.PENDING: return '접수 대기';
+      case REPORT_STATUS.RESOLVED: return '처리 완료';
+      case REPORT_STATUS.REJECTED: return '반려';
       default: return status;
     }
   };

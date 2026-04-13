@@ -8,6 +8,7 @@ import InquiryModal from './InquiryModal';
 import { useMyPageActivity } from '../_hooks/useMyPageActivity';
 import { formatDate } from '@/lib/utils';
 import type { MyInquiry } from '@/types/mypage';
+import { INQUIRY_STATUS } from '@/constants/statusLabels';
 
 export default function InquiryList() {
   // 🚀 공통 훅 사용
@@ -70,8 +71,8 @@ export default function InquiryList() {
                 style={{ cursor: 'pointer' }}
               >
                 <div className={styles.cardHeader}>
-                  <span className={`${styles.statusBadge} ${inquiry.status === 'ANSWERED' ? styles.statusAnswered : styles.statusPending}`}>
-                    {inquiry.status === 'ANSWERED' ? '답변 완료' : '접수 대기'}
+                  <span className={`${styles.statusBadge} ${inquiry.status === INQUIRY_STATUS.ANSWERED ? styles.statusAnswered : styles.statusPending}`}>
+                    {inquiry.status === INQUIRY_STATUS.ANSWERED ? '답변 완료' : '접수 대기'}
                   </span>
                   <span className={styles.cardMeta}>{formatDate(inquiry.createdAt)}</span>
                 </div>

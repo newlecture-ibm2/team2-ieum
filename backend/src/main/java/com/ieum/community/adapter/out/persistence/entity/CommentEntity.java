@@ -1,6 +1,7 @@
 package com.ieum.community.adapter.out.persistence.entity;
 
 import com.ieum.community.domain.model.Comment;
+import com.ieum.global.common.enums.ContentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -48,7 +49,7 @@ public class CommentEntity {
 
     @Column(nullable = false, length = 10)
     @Builder.Default
-    private String status = "ACTIVE"; // ACTIVE / REMOVED
+    private String status = ContentStatus.ACTIVE.name(); // ACTIVE / REMOVED
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
@@ -90,7 +91,7 @@ public class CommentEntity {
                 .userId(comment.getUserId())
                 .userName(comment.getUserName())
                 .content(comment.getContent())
-                .status(comment.getStatus() != null ? comment.getStatus() : "ACTIVE")
+                .status(comment.getStatus() != null ? comment.getStatus() : ContentStatus.ACTIVE.name())
                 .build();
     }
 
@@ -101,11 +102,11 @@ public class CommentEntity {
     }
 
     public void softDelete() {
-        this.status = "REMOVED";
+        this.status = ContentStatus.REMOVED.name();
         this.content = "삭제된 댓글입니다.";
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.status);
+        return ContentStatus.ACTIVE.name().equals(this.status);
     }
 }

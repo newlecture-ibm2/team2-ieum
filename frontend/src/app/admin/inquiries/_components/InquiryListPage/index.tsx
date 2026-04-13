@@ -7,12 +7,9 @@ import adminApi from '@/lib/adminApi';
 import type { InquiryItem, InquiryListResponse } from '@/types/admin-inquiry';
 import InquiryDetailModal from '../InquiryDetailModal';
 import s from './InquiryListPage.module.css';
+import { INQUIRY_STATUS, INQUIRY_STATUS_LABELS } from '@/constants/statusLabels';
 
-/* ── 상태 배지 매핑 ── */
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  PENDING:  { label: '대기중',   className: 'badgePending' },
-  ANSWERED: { label: '답변완료', className: 'badgeOngoing' },
-};
+
 
 export default function InquiryListPage() {
   const list = useAdminList({ extraFilterKeys: ['searchType'] });
@@ -131,15 +128,15 @@ export default function InquiryListPage() {
             <div className={common.statValue} style={{ color: '#2563eb' }}>{newTodayCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('PENDING')}
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === INQUIRY_STATUS.PENDING ? common.statActive : ''}`}
+            onClick={() => handleStatClick(INQUIRY_STATUS.PENDING)}
           >
             <div className={common.statLabel}>대기중</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pendingCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'ANSWERED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('ANSWERED')}
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === INQUIRY_STATUS.ANSWERED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(INQUIRY_STATUS.ANSWERED)}
           >
             <div className={common.statLabel}>답변완료</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{answeredCount}</div>
@@ -243,17 +240,17 @@ export default function InquiryListPage() {
                       {inquiry.createdAt?.slice(0, 10)}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[STATUS_MAP[inquiry.status]?.className || 'badgePending'] || ''}`}>
-                        {STATUS_MAP[inquiry.status]?.label || inquiry.status}
+                      <span className={`${common.statusBadge} ${common[INQUIRY_STATUS_LABELS[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                        {INQUIRY_STATUS_LABELS[inquiry.status]?.label || inquiry.status}
                       </span>
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       <button
-                        className={inquiry.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        className={inquiry.status === INQUIRY_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
                         style={{ padding: '4px 12px', fontSize: 11 }}
                         onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
                       >
-                        {inquiry.status === 'PENDING' ? '답변' : '보기'}
+                        {inquiry.status === INQUIRY_STATUS.PENDING ? '답변' : '보기'}
                       </button>
                     </td>
                   </tr>

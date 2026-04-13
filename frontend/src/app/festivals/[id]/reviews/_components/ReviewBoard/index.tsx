@@ -5,6 +5,8 @@ import { User, Trash2, Siren } from 'lucide-react';
 import api from '@/lib/api';
 import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import styles from './ReviewBoard.module.css';
+import { REPORT_REASON, REPORT_REASON_OPTIONS } from '@/constants/reportOptions';
+import { TARGET_TYPE } from '@/constants/targetType';
 
 interface ReviewBoardProps {
   reviews: any[];
@@ -150,13 +152,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
           <div className={styles.reportModal}>
             <p className={styles.reportDesc}>신고 사유를 선택해주세요.</p>
             <div className={styles.reportOptions}>
-              {[
-                { value: 'SPAM', label: '스팸/광고' },
-                { value: 'ABUSE', label: '욕설/비방' },
-                { value: 'INAPPROPRIATE', label: '부적절한 내용' },
-                { value: 'FALSE_INFO', label: '허위 정보' },
-                { value: 'OTHER', label: '기타' },
-              ].map(opt => (
+              {REPORT_REASON_OPTIONS.map(opt => (
                 <label key={opt.value} className={styles.reportOption}>
                   <input
                     type="radio"
@@ -169,7 +165,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                 </label>
               ))}
             </div>
-            {reportReason === 'OTHER' && (
+            {reportReason === REPORT_REASON.OTHER && (
               <textarea
                 className={styles.reportTextarea}
                 placeholder="상세 사유를 입력해주세요 (최대 500자)"
@@ -195,10 +191,10 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                 onClick={async () => {
                   try {
                     await api.post('/api/reports', {
-                      targetType: 'REVIEW',
+                      targetType: TARGET_TYPE.REVIEW,
                       targetId: reportingReviewId,
                       reason: reportReason,
-                      description: reportReason === 'OTHER' ? reportDescription : null,
+                      description: reportReason === REPORT_REASON.OTHER ? reportDescription : null,
                     });
                     alert('신고가 성공적으로 접수되었습니다.');
                   } catch (err: any) {
