@@ -7,28 +7,15 @@ import adminApi from '@/lib/adminApi';
 import type { ReportItem, ReportListResponse } from '@/types/admin-report';
 import ReportDetailModal from '../ReportDetailModal';
 import s from './ReportListPage.module.css';
-
-/* ── 상태 배지 매핑 ── */
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  PENDING:  { label: '대기중',   className: 'badgePending' },
-  RESOLVED: { label: '처리완료', className: 'badgeOngoing' },
-  REJECTED: { label: '반려',     className: 'badgeDismissed' },
-};
+import { REPORT_REASON_LABELS } from '@/constants/reportOptions';
+import { REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/statusLabels';
+import { TARGET_TYPE } from '@/constants/targetType';
 
 /* ── 대상 타입 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
-  REVIEW:  '리뷰',
-  POST:    '게시글',
-  COMMENT: '댓글',
-};
-
-/* ── 신고 사유 ── */
-const REASON_MAP: Record<string, string> = {
-  SPAM:          '스팸',
-  ABUSE:         '욕설/비방',
-  INAPPROPRIATE: '부적절한 콘텐츠',
-  FALSE_INFO:    '허위 정보',
-  OTHER:         '기타',
+  [TARGET_TYPE.REVIEW]:  '리뷰',
+  [TARGET_TYPE.POST]:    '게시글',
+  [TARGET_TYPE.COMMENT]: '댓글',
 };
 
 export default function ReportListPage() {
@@ -137,22 +124,22 @@ export default function ReportListPage() {
             <div className={common.statValue}>{totalCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('PENDING')}
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.PENDING ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.PENDING)}
           >
             <div className={common.statLabel}>대기중</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pendingCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'RESOLVED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('RESOLVED')}
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.RESOLVED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.RESOLVED)}
           >
             <div className={common.statLabel}>처리완료</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{resolvedCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === 'REJECTED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('REJECTED')}
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.REJECTED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.REJECTED)}
           >
             <div className={common.statLabel}>반려</div>
             <div className={`${common.statValue} ${common.textGray}`}>{rejectedCount}</div>
@@ -271,7 +258,7 @@ export default function ReportListPage() {
                       </span>
                     </td>
                     <td className={common.tableCell}>
-                      {REASON_MAP[report.reason] || report.reason}
+                      {REPORT_REASON_LABELS[report.reason] || report.reason}
                     </td>
                     <td className={`${common.tableCell} ${s.ellipsisCell}`}>
                       {report.description || '-'}
@@ -280,17 +267,17 @@ export default function ReportListPage() {
                       {report.createdAt?.slice(0, 10)}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[STATUS_MAP[report.status]?.className || 'badgePending'] || ''}`}>
-                        {STATUS_MAP[report.status]?.label || report.status}
+                      <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                        {REPORT_STATUS_LABELS[report.status]?.label || report.status}
                       </span>
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       <button
-                        className={report.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        className={report.status === REPORT_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
                         style={{ padding: '4px 12px', fontSize: 11 }}
                         onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
                       >
-                        {report.status === 'PENDING' ? '처리하기' : '이력 보기'}
+                        {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
                       </button>
                     </td>
                   </tr>

@@ -5,17 +5,18 @@ import common from '@/app/admin/_styles/admin-common.module.css';
 import s from './MemberDetailModal.module.css';
 import adminApi from '@/lib/adminApi';
 import type { MemberItem } from '@/types/admin-member';
+import { USER_STATUS, USER_ROLE } from '@/constants/userStatus';
 
 /* ── 상태 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  ACTIVE:    { label: '정상 회원', className: 'badgeOngoing' },
-  SUSPENDED: { label: '정지 회원', className: 'badgePending' },
-  DELETED:   { label: '탈퇴 대기', className: 'badgeEnded' },
+  [USER_STATUS.ACTIVE]:    { label: '정상 회원', className: 'badgeOngoing' },
+  [USER_STATUS.SUSPENDED]: { label: '정지 회원', className: 'badgePending' },
+  [USER_STATUS.DELETED]:   { label: '탈퇴 대기', className: 'badgeEnded' },
 };
 
 const ROLE_MAP: Record<string, string> = {
-  USER:  '일반회원',
-  ADMIN: '관리자',
+  [USER_ROLE.USER]:  '일반회원',
+  [USER_ROLE.ADMIN]: '관리자',
 };
 
 /* ── 가입 방식(provider) 표시 매핑 ── */
@@ -40,9 +41,9 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
   const [confirmAction, setConfirmAction] = useState<ConfirmActionType>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
 
-  const isSuspended = member.status === 'SUSPENDED';
-  const isDeleted = member.status === 'DELETED';
-  const isActive = member.status === 'ACTIVE';
+  const isSuspended = member.status === USER_STATUS.SUSPENDED;
+  const isDeleted = member.status === USER_STATUS.DELETED;
+  const isActive = member.status === USER_STATUS.ACTIVE;
   const canSuspend = isActive && member.reportedCount >= 4;
 
   /* ── 현재 로그인 사용자 정보 가져오기 ── */
@@ -59,7 +60,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
 
   /* ── 자기 자신 또는 관리자 대상 차단 판정 ── */
   const isSelf = currentUserId !== null && currentUserId === member.userId;
-  const isTargetAdmin = member.role === 'ADMIN';
+  const isTargetAdmin = member.role === USER_ROLE.ADMIN;
   const isProtected = isSelf || isTargetAdmin;
 
   /* ── 차단 사유 메시지 ── */
@@ -150,8 +151,8 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
   const executeConfirmAction = () => {
     if (!confirmAction) return;
     switch (confirmAction) {
-      case 'SUSPENDED': handleStatusChange('SUSPENDED'); break;
-      case 'ACTIVE': handleStatusChange('ACTIVE'); break;
+      case 'SUSPENDED': handleStatusChange(USER_STATUS.SUSPENDED); break;
+      case 'ACTIVE': handleStatusChange(USER_STATUS.ACTIVE); break;
       case 'DELETE':
         // 1차 확인 → 2차 확인으로 전환
         setConfirmAction('DELETE_FINAL');
@@ -160,8 +161,8 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
         // 2차 최종 확인 → 실행
         handleDelete();
         break;
-      case 'ROLE_USER': handleRoleChange('USER'); break;
-      case 'ROLE_ADMIN': handleRoleChange('ADMIN'); break;
+      case 'ROLE_USER': handleRoleChange(USER_ROLE.USER); break;
+      case 'ROLE_ADMIN': handleRoleChange(USER_ROLE.ADMIN); break;
     }
   };
 
@@ -277,7 +278,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                     }
                   </div>
                   <div className={s.profileBadges}>
-                    <span className={`${common.statusBadge} ${member.role === 'ADMIN' ? common.badgeUpcoming : common.badgeDismissed}`}>
+                    <span className={`${common.statusBadge} ${member.role === USER_ROLE.ADMIN ? common.badgeUpcoming : common.badgeDismissed}`}>
                       {ROLE_MAP[member.role] || member.role}
                     </span>
                     <span className={`${common.statusBadge} ${common[STATUS_MAP[member.status]?.className || 'badgeEnded'] || ''}`}>
@@ -516,7 +517,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
 
                 {/* ── 역할 변경 버튼 ── */}
                 {!isProtected ? (
-                  member.role === 'USER' ? (
+                  member.role === USER_ROLE.USER ? (
                     <button
                       className={s.btnRole}
                       onClick={() => setConfirmAction('ROLE_ADMIN')}
@@ -538,7 +539,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                     disabled
                     title={getBlockReasonMessage() || ''}
                   >
-                    {member.role === 'USER' ? '👑 관리자 부여' : '👤 일반 회원으로'}
+                    {member.role === USER_ROLE.USER ? '👑 관리자 부여' : '👤 일반 회원으로'}
                   </button>
                 )}
 

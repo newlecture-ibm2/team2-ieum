@@ -5,6 +5,7 @@ import com.ieum.community.application.port.out.PostPort;
 import com.ieum.community.application.port.out.PostLikePort;
 import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.community.domain.model.Post;
+import com.ieum.global.common.enums.ContentStatus;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -64,7 +65,7 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
                 .festivalName(festivalName)
                 .authorId(authorId)
                 .authorName(authorName)
-                .status("ACTIVE")
+                .status(ContentStatus.ACTIVE.name())
                 .build();
 
         return postPort.save(post);

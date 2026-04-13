@@ -8,6 +8,7 @@ import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
 import com.ieum.user.auth.domain.User;
+import com.ieum.global.common.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -39,7 +40,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
 
         // 🛡️ 탈퇴 유예 정책 체크
         String successMessage = null;
-        if ("WITHDRAWAL".equals(user.getStatus())) {
+        if (UserStatus.WITHDRAWAL.name().equals(user.getStatus())) {
             if (user.isWithdrawalExpired()) {
                 throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않거나 가입된 정보가 없습니다.");
             }

@@ -5,6 +5,8 @@ import com.ieum.user.report.application.port.in.LoadReportUseCase;
 import com.ieum.user.report.application.port.out.ReportPort;
 import com.ieum.user.report.domain.model.Report;
 import com.ieum.user.report.adapter.in.web.dto.ReportResponse;
+import com.ieum.global.common.enums.ReportReason;
+import com.ieum.global.common.enums.ReportStatus;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +32,11 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
     private final com.ieum.user.review.application.port.out.ReviewPersistencePort reviewPersistencePort;
 
     private static final Set<String> VALID_TARGET_TYPES = Set.of(Report.TARGET_POST, Report.TARGET_COMMENT, Report.TARGET_REVIEW);
-    private static final Set<String> VALID_REASONS = Set.of("SPAM", "ABUSE", "INAPPROPRIATE", "FALSE_INFO", "OTHER");
+    private static final Set<String> VALID_REASONS = Set.of(
+            ReportReason.SPAM.name(), ReportReason.ABUSE.name(),
+            ReportReason.INAPPROPRIATE.name(), ReportReason.FALSE_INFO.name(),
+            ReportReason.OTHER.name()
+    );
 
     @Override
     public Report createReport(String targetType, Long targetId, String reason, String description, Long reporterId) {
@@ -51,9 +57,9 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
 
         if (existingOpt.isPresent()) {
             Report existing = existingOpt.get();
-            if ("PENDING".equals(existing.getStatus()) || "RESOLVED".equals(existing.getStatus())) {
+            if (ReportStatus.PENDING.name().equals(existing.getStatus()) || ReportStatus.RESOLVED.name().equals(existing.getStatus())) {
                 throw new BusinessException(ErrorCode.REPORT_001, "이미 신고한 대상입니다.");
-            } else if ("REJECTED".equals(existing.getStatus())) {
+            } else if (ReportStatus.REJECTED.name().equals(existing.getStatus())) {
                 existing.updateForRejection(reason, description);
                 return reportPort.save(existing);
             }
@@ -65,7 +71,7 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
                 .targetId(targetId)
                 .reason(reason)
                 .description(description)
-                .status("PENDING")
+                .status(ReportStatus.PENDING.name())
                 .createdAt(LocalDateTime.now())
                 .build();
 
@@ -80,7 +86,7 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
             return false;
         }
         String status = existingOpt.get().getStatus();
-        return "PENDING".equals(status) || "RESOLVED".equals(status);
+        return ReportStatus.PENDING.name().equals(status) || ReportStatus.RESOLVED.name().equals(status);
     }
 
     @Override
@@ -88,7 +94,7 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
     public List<Long> getMyReportedTargetIds(Long reporterId, String targetType) {
         if (reporterId == null) return Collections.emptyList();
         return reportPort.findTargetIdsByReporterIdAndTargetTypeAndStatusIn(
-            reporterId, targetType, List.of("PENDING", "RESOLVED")
+            reporterId, targetType, List.of(ReportStatus.PENDING.name(), ReportStatus.RESOLVED.name())
         );
     }
 

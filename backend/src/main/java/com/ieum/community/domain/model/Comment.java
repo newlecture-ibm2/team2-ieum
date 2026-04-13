@@ -1,5 +1,6 @@
 package com.ieum.community.domain.model;
 
+import com.ieum.global.common.enums.ContentStatus;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -36,11 +37,11 @@ public class Comment {
     }
 
     public void softDelete() {
-        this.status = "REMOVED";
+        this.status = ContentStatus.REMOVED.name();
         this.content = "삭제된 댓글입니다.";
     }
 
     public boolean isActive() {
-        return "ACTIVE".equals(this.status);
+        return ContentStatus.ACTIVE.name().equals(this.status);
     }
 }

@@ -7,6 +7,7 @@ import { ImagePlus, X } from 'lucide-react';
 import api from '@/lib/api';
 import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
+import { USER_STATUS } from '@/constants/userStatus';
 import { ConfirmModal } from '@/_component/common/Modal';
 import 'react-quill-new/dist/quill.snow.css';
 import styles from './write.module.css';
@@ -97,7 +98,7 @@ function CommunityWriteContent() {
       .then(data => {
         if (!data.isLoggedIn) {
           setShowLoginModal(true);
-        } else if (data.user?.status === 'SUSPENDED') {
+        } else if (data.user?.status === USER_STATUS.SUSPENDED) {
           setIsSuspended(true);
           setAuthChecked(true);
         } else {

@@ -3,6 +3,8 @@ package com.ieum.user.notification.application.service;
 import com.ieum.user.auth.adapter.out.persistence.entity.UserJpaEntity;
 import com.ieum.user.auth.adapter.out.persistence.repository.UserJpaRepository;
 import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
+import com.ieum.global.common.enums.NotificationType;
+import com.ieum.global.common.enums.TargetType;
 import com.ieum.user.notification.application.port.out.FcmPort;
 import com.ieum.user.notification.application.port.out.NotificationPort;
 import com.ieum.user.notification.domain.model.FcmToken;
@@ -72,9 +74,9 @@ public class SystemNotificationService implements SystemNotificationUseCase {
 
             Notification notification = Notification.builder()
                     .userId(userId)
-                    .type("NOTICE")
+                    .type(NotificationType.NOTICE.name())
                     .message(notificationMessage)
-                    .targetType("NOTICE")
+                    .targetType(TargetType.NOTICE.name())
                     .targetId(noticeId)
                     .isRead(false)
                     .createdAt(LocalDateTime.now())
