@@ -664,3 +664,80 @@
   color: #94a3b8;
   font-size: 13px;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .mapPageWrapper {
+    margin: 16px auto 40px;
+    padding: 0 12px;
+    height: auto;
+    min-height: auto;
+  }
+
+  .pageTitle {
+    padding: 12px 16px;
+    border-radius: 12px 12px 0 0;
+  }
+
+  .pageTitleText {
+    font-size: 15px;
+  }
+
+  .mapBody {
+    flex-direction: column;
+    border-radius: 0 0 12px 12px;
+  }
+
+  .filterSidebar {
+    width: 100%;
+    min-width: unset;
+    max-height: 200px;
+    border-right: none;
+    border-bottom: 1px solid #e9ecef;
+    padding: 12px;
+  }
+
+  .regionGrid {
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2px;
+  }
+
+  .mapArea {
+    min-height: 300px;
+    height: 50vh;
+  }
+
+  /* 지도 하단 목록의 그리드 간소화 */
+  .listHeaderRow,
+  .listRow {
+    grid-template-columns: 40px 1fr 70px;
+  }
+
+  .listHeaderRow > :nth-child(3),
+  .listHeaderRow > :nth-child(4),
+  .listRow > :nth-child(3),
+  .listRow > :nth-child(4) {
+    display: none;
+  }
+
+  .listBody {
+    padding: 0 12px 8px;
+  }
+
+  .listHeader {
+    padding: 8px 12px;
+  }
+
+  .bottomList {
+    max-height: 250px;
+  }
+
+  .introTextTitle {
+    font-size: 22px;
+  }
+
+  .introTextSub {
+    font-size: 12px;
+  }
+}
+

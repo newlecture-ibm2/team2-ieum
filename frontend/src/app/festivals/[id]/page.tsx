@@ -151,31 +151,37 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       <section className={styles.contentWrap}>
         <div className={styles.contentInner}>
 
-          {/* 좌측: 상세정보 + 리뷰 */}
+          {/* 좌측: 상세정보 + 리뷰 (모바일에서는 display: contents 로 해제됨) */}
           <div className={styles.leftCol}>
-            <FestivalDetailInfo
-              overview={data.overview}
-              description={data.description}
-              imageSrc={imageSrc}
-              images={data.images}
-            />
-            <ReviewSection
-              festivalId={fid}
-              reviews={reviews}
-              reviewStats={reviewStats}
-              onReviewSubmitted={fetchReviews}
-              onPopup={showPopup}
-            />
+            <div className={styles.orderDetail}>
+              <FestivalDetailInfo
+                overview={data.overview}
+                description={data.description}
+                imageSrc={imageSrc}
+                images={data.images}
+              />
+            </div>
+            <div className={styles.orderReview}>
+              <ReviewSection
+                festivalId={fid}
+                reviews={reviews}
+                reviewStats={reviewStats}
+                onReviewSubmitted={fetchReviews}
+                onPopup={showPopup}
+              />
+            </div>
           </div>
 
           {/* 우측: 사이드바 */}
-          <FestivalSidebar
-            address={data.address}
-            dateString={dateString}
-            tel={data.tel}
-            fee={data.fee}
-            reviewStats={reviewStats}
-          />
+          <div className={styles.orderSidebar}>
+            <FestivalSidebar
+              address={data.address}
+              dateString={dateString}
+              tel={data.tel}
+              fee={data.fee}
+              reviewStats={reviewStats}
+            />
+          </div>
 
         </div>
       </section>

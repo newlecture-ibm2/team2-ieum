@@ -93,8 +93,9 @@ function CommunityContent() {
 
       {/* 글쓰기 FAB — 로그인 사용자만 노출 */}
       {isLoggedIn && (
-        <Link href="/community/write" className={styles.fab} title="글쓰기">
-          <Pencil size={22} />
+        <Link href="/community/write" className={styles.fab} title="게시글 작성">
+          <Pencil size={18} />
+          <span>게시글 작성</span>
         </Link>
       )}
     </main>

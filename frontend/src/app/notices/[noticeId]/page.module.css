@@ -90,35 +90,49 @@
 
 .detailNav {
   display: flex;
-  justify-content: space-between;
-  padding: 14px 0;
+  justify-content: flex-end; /* 기본적으로 우측 정렬하거나, 디자인에 따라 flex-end 로 두면 우측끝에 모임 */
+  gap: 12px;
+  padding: 24px 0;
   border-bottom: 1px solid var(--color-gray-100);
 }
 
 .navLink {
-  font-size: 13px;
-  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
   cursor: pointer;
-  transition: opacity 0.15s;
-  background: none;
+  transition: all 0.2s;
   border: none;
   font-family: inherit;
-  padding: 4px 0;
+  padding: 12px 28px;
+  border-radius: 8px;
+  text-decoration: none;
 }
 
-.navLink:hover {
-  opacity: 0.7;
-  text-decoration: underline;
+.prevNavLink {
+  background: var(--color-primary-50, #ede9fe);
+  color: var(--color-primary-600, #4834d4);
+}
+
+.prevNavLink:hover {
+  background: var(--color-primary-100, #f0efff);
+}
+
+.nextNavLink {
+  background: var(--color-primary-500, #6c5ce7);
+  color: #ffffff;
+}
+
+.nextNavLink:hover {
+  background: var(--color-primary-600, #4834d4);
 }
 
 .navDisabled {
-  color: var(--color-gray-300);
-  cursor: default;
-}
-
-.navDisabled:hover {
-  opacity: 1;
-  text-decoration: none;
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .backBtnWrap {
@@ -331,4 +345,50 @@
 .markdownBody pre code {
   background-color: transparent;
   padding: 0;
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 16px 40px;
+  }
+
+  .detailTitle {
+    font-size: 17px;
+  }
+
+  .detailMeta {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .detailBody {
+    font-size: 14px;
+    padding: 20px 0;
+  }
+
+  .detailNav {
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .navLink, 
+  .navDisabled {
+    flex: 1;
+    width: 100%;
+    justify-content: center;
+    padding: 12px 0;
+    font-size: 13px;
+    /* 이전/다음글 텍스트만 있으므로 말줄임표 불필요 */
+    white-space: normal;
+  }
+
+  .imagePreview {
+    max-height: 300px;
+  }
+
+  .fileSection {
+    padding: 12px;
+  }
 }

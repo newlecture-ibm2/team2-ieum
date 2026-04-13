@@ -112,11 +112,27 @@
 }
 
 @media (max-width: 768px) {
+  .noticeTable th,
+  .noticeTable td {
+    padding: 10px 12px;
+    font-size: 12px;
+  }
 
+  .noticeTable th:nth-child(3),
+  .noticeTable td:nth-child(3),
   .noticeTable th:nth-child(4),
   .noticeTable td:nth-child(4),
   .noticeTable th:nth-child(5),
   .noticeTable td:nth-child(5) {
     display: none;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .emptyState {
+    padding: 40px 16px;
   }
 }

@@ -56,12 +56,26 @@
 }
 
 /* ===== 반응형 ===== */
-@media (max-width: 560px) {
+@media (max-width: 768px) {
   .hero {
     padding: 36px 0;
+    padding-top: calc(36px + var(--header-height));
   }
 
   .heroTitle {
     font-size: 22px;
   }
+
+  .heroSub {
+    font-size: 13px;
+  }
+
+  .contentSection {
+    padding: var(--spacing-md) 0 40px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
 }
+

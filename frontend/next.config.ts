@@ -43,3 +43,4 @@ const nextConfig: NextConfig = {
   },
 };
 export default nextConfig;
+// Force next.js hard-reload to clear CSS modules cache
