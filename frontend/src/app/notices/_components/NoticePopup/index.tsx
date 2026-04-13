@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 
 import api from '@/lib/api';
+import { ChevronLeft, ChevronRight, X } from 'lucide-react';
 import type { Notice } from '@/types/notice';
 import s from './NoticePopup.module.css';
 
@@ -58,11 +59,17 @@ export default function NoticePopup() {
   };
 
   return (
-    <div className={s.overlay}>
-      <div className={s.popupContainer}>
+    <div className={s.overlay} onClick={handleClose}>
+      <div
+        className={s.popupContainer}
+        onClick={(e) => e.stopPropagation()}
+        role="dialog"
+      >
         <div className={s.header}>
           <h2 className={s.title}>{currentNotice.title}</h2>
-          <button className={s.closeBtn} onClick={handleClose}>&times;</button>
+          <button className={s.closeBtn} onClick={handleClose}>
+            <X size={20} />
+          </button>
         </div>
         <div
           className={`${s.body} ${s.markdownBody}`}
@@ -72,13 +79,13 @@ export default function NoticePopup() {
         {notices.length > 1 && (
           <div className={s.carouselControls}>
             <button className={s.carouselBtn} onClick={handlePrev} disabled={currentIndex === 0}>
-              &lt; 이전
+              <ChevronLeft size={16} />
             </button>
             <span className={s.carouselIndicator}>
               {currentIndex + 1} / {notices.length}
             </span>
             <button className={s.carouselBtn} onClick={handleNext} disabled={currentIndex === notices.length - 1}>
-              다음 &gt;
+              <ChevronRight size={16} />
             </button>
           </div>
         )}
