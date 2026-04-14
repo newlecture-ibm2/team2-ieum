@@ -28,6 +28,7 @@ public class MemberAdminController {
     private final UpdateMemberStatusUseCase updateMemberStatusUseCase;
     private final DeleteMemberUseCase deleteMemberUseCase;
     private final UpdateMemberRoleUseCase updateMemberRoleUseCase;
+    private final com.ieum.admin.member.application.service.MemberSuspensionScheduler memberSuspensionScheduler;
 
     /* ── 회원 목록 조회 ── */
     @Operation(summary = "회원 목록 조회", description = "관리자용 회원 목록을 조회합니다.")
@@ -149,5 +150,12 @@ public class MemberAdminController {
                 ? "관리자 권한이 부여되었습니다."
                 : "일반 회원으로 변경되었습니다.";
         return ResponseEntity.ok(ApiResponse.success(message));
+    }
+
+    @Operation(summary = "일일 배치 수동 실행", description = "정지회원 복구 및 탈퇴유예 처리 배치를 수동으로 실행합니다.")
+    @PostMapping("/batch/trigger")
+    public ResponseEntity<?> triggerBatchJobs() {
+        int purgedCount = memberSuspensionScheduler.processManualForceDeleteSuspendedUsers();
+        return ResponseEntity.ok(ApiResponse.success(String.format("총 %d명의 정지 회원이 즉시 완전 탈퇴(물리 삭제) 되었습니다.", purgedCount)));
     }
 }

@@ -1,79 +1,43 @@
 package com.ieum.global.response;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 
 /**
- * 공통 API 응답 래퍼 (공통응답포맷)
- * 모든 API 응답은 이 형식을 따른다.
+ * 전역 응답 공통 포맷 객체
+ * api-response-ruleset.md 기준을 준수
  */
 @Getter
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@JsonInclude(JsonInclude.Include.NON_NULL)
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class ApiResponse<T> {
 
-    /** API 성공 여부 (true/false) */
-    private boolean success;
+    private final boolean success;
+    private final T data;
+    private final ErrorResponse error;
 
-    /** 실제 응답 데이터 본문 */
-    private T data;
-
-    /** 실패 시 에러 정보 (성공시 null) */
-    private ErrorInfo error;
-
-    /**
-     * 성공 응답 (데이터 포함)
-     */
+    // 성공 응답 전용 (data만 반환)
     public static <T> ApiResponse<T> success(T data) {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .data(data)
-                .build();
+        return new ApiResponse<>(true, data, null);
     }
 
-    /**
-     * 성공 응답 (데이터 없음)
-     */
-    public static <T> ApiResponse<T> success() {
-        return ApiResponse.<T>builder()
-                .success(true)
-                .build();
+    // 데이터가 없는 성공 (토글, 삭제 등)
+    public static ApiResponse<Void> success() {
+        return new ApiResponse<>(true, null, null);
     }
 
-    /**
-     * 실패 응답
-     */
-    public static <T> ApiResponse<T> error(String code, int status, String message, String detail) {
-        return ApiResponse.<T>builder()
-                .success(false)
-                .error(new ErrorInfo(code, status, message, detail, java.time.LocalDateTime.now().toString(), java.util.Collections.emptyList()))
-                .build();
+    // 에러 발생 시 공통 응답 규격 반환용
+    public static <T> ApiResponse<T> error(ErrorResponse errorResponse) {
+        return new ApiResponse<>(false, null, errorResponse);
     }
 
-    /**
-     * 실패 응답 (ErrorInfo 직접 전달)
-     */
-    public static <T> ApiResponse<T> error(ErrorInfo errorInfo) {
-        return ApiResponse.<T>builder()
-                .success(false)
-                .error(errorInfo)
-                .build();
-    }
-
+    // 에러 응답용 정적 구조체
     @Getter
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ErrorInfo {
-        private String code;
-        private int status;
-        private String message;
-        private String detail;
-        private String timestamp;
-        private java.util.List<Object> errors;
+    @AllArgsConstructor(staticName = "of")
+    public static class ErrorResponse {
+        private final String code;
+        private final int status;
+        private final String message;
+        private final String detail;
     }
 }

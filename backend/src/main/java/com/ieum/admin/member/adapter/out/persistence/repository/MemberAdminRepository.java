@@ -93,7 +93,7 @@ public interface MemberAdminRepository extends JpaRepository<MemberEntity, Long>
     /**
      * 관리자가 신고를 '처리 완료(승인)' 할 때, 피신고자(해당 회원의) 신고수를 +1 증가
      */
-    @Modifying(clearAutomatically = true)
+    @Modifying(clearAutomatically = true, flushAutomatically = true)
     @Query("UPDATE MemberEntity m SET m.reportedCount = COALESCE(m.reportedCount, 0) + 1 WHERE m.userId = :userId")
     int increaseReportedCount(@Param("userId") Long userId);
 }

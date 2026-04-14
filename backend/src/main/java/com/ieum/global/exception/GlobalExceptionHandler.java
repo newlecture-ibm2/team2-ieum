@@ -1,5 +1,6 @@
 package com.ieum.global.exception;
 
+import com.ieum.global.response.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -15,6 +16,23 @@ import java.util.Map;
  */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+
+    /**
+     * 커스텀 비즈니스 예외 처리 (ErrorCode 기반)
+     * - NoticeAdminService, PostService, CommentService, ReportService 등에서 throw
+     * - ErrorCode에 정의된 HttpStatus + 메시지로 ApiResponse.error() 형태 응답
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<ApiResponse<?>> handleBusinessException(BusinessException ex) {
+        ErrorCode ec = ex.getErrorCode();
+        return ResponseEntity.status(ec.getStatus())
+                .body(ApiResponse.error(ApiResponse.ErrorResponse.of(
+                        ec.name(),
+                        ec.getStatus().value(),
+                        ec.getMessage(),
+                        ex.getDetail()
+                )));
+    }
 
     /**
      * @Valid 검증 예외 처리 (400 Bad Request)

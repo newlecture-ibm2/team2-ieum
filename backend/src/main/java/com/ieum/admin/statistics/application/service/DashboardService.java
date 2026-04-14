@@ -69,10 +69,12 @@ public class DashboardService implements GetDashboardUseCase {
     }
 
     private List<DashboardTrendItem> mergeTrend(List<DashboardTrendItem> r, List<DashboardTrendItem> i) {
-        Map<String, Long> iMap = i.stream()
-                .collect(Collectors.toMap(DashboardTrendItem::getDate, DashboardTrendItem::getInquiries));
-        return r.stream()
-                .map(x -> new DashboardTrendItem(x.getDate(), x.getReports(), iMap.getOrDefault(x.getDate(), 0L)))
-                .collect(Collectors.toList());
+        // r과 i는 buildDynamicDays에서 동일한 startDate ~ endDate 루프를 돌아 크기와 순서가 완벽히 일치합니다.
+        // MM/dd 중복 시 Collectors.toMap에서 에러가 발생하므로, 인덱스 기반으로 매핑합니다.
+        List<DashboardTrendItem> result = new java.util.ArrayList<>();
+        for (int j = 0; j < r.size(); j++) {
+            result.add(new DashboardTrendItem(r.get(j).getDate(), r.get(j).getReports(), i.get(j).getInquiries()));
+        }
+        return result;
     }
 }

@@ -82,7 +82,7 @@ public class ReportAdminController {
     public ResponseEntity<?> getReportTarget(@PathVariable Long reportId) {
         var originalContent = getReportTargetUseCase.getOriginalContent(reportId);
         if (originalContent == null || originalContent.isEmpty()) {
-            return ResponseEntity.status(404).body(ApiResponse.error(ApiResponse.ErrorResponse.of("NOT_FOUND", 404, "원문을 찾을 수 없습니다.", "해당 식별자로 원문 조회를 실패했습니다.")));
+            return ResponseEntity.ok(ApiResponse.success(null));
         }
         return ResponseEntity.ok(ApiResponse.success(originalContent));
     }
