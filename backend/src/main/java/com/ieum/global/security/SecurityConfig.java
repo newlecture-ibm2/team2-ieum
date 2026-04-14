@@ -1,6 +1,7 @@
 package com.ieum.global.security;
 
 import com.ieum.global.security.oauth2.CustomOAuth2UserService;
+import com.ieum.global.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.ieum.global.security.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,8 @@ public class SecurityConfig {
                         JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                         JwtAccessDeniedHandler jwtAccessDeniedHandler,
                         CustomOAuth2UserService customOAuth2UserService,
-                        OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
+                        OAuth2SuccessHandler oAuth2SuccessHandler,
+                        HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) throws Exception {
                 http
                                 // CSRF 비활성화 (REST API는 Stateless)
                                 .csrf(csrf -> csrf.disable())
@@ -144,6 +146,9 @@ public class SecurityConfig {
 
                                 // 카카오 소셜 로그인(OAuth2) 설정
                                 .oauth2Login(oauth2 -> oauth2
+                                                .authorizationEndpoint(auth -> auth
+                                                                .baseUri("/oauth2/authorization")
+                                                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService))
                                                 .successHandler(oAuth2SuccessHandler))

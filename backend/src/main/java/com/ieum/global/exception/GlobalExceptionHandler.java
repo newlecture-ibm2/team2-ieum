@@ -1,11 +1,16 @@
 package com.ieum.global.exception;
 
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import org.springframework.web.servlet.resource.NoResourceFoundException;
+
+import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +19,7 @@ import java.util.Map;
  * 모든 컨트롤러에서 발생한 예외를 잡아서, 500 에러 대신 깔끔한 JSON 응답으로 변환합니다.
  * 별도 try-catch 없이도 서비스에서 throw만 하면 이 핸들러가 자동으로 처리합니다.
  */
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
@@ -71,6 +77,30 @@ public class GlobalExceptionHandler {
         }
         
         return ResponseEntity.status(status).body(errorResponse);
+    }
+
+    /**
+     * ✅ 정적 리소스(이미지 등)를 찾을 수 없는 경우 (Spring Boot 3.2+)
+     */
+    @ExceptionHandler(NoResourceFoundException.class)
+    public ResponseEntity<Map<String, String>> handleNoResourceFoundException(NoResourceFoundException ex) {
+        log.warn(">>> [Resource Not Found] RequestPath: {}, Message: {}", ex.getResourcePath(), ex.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorCode", "FILE_001");
+        errorResponse.put("errorMessage", "요청하신 파일을 찾을 수 없습니다.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    /**
+     * ✅ 파일 시스템에서 파일을 찾을 수 없는 경우
+     */
+    @ExceptionHandler(FileNotFoundException.class)
+    public ResponseEntity<Map<String, String>> handleFileNotFoundException(FileNotFoundException ex) {
+        log.warn(">>> [File Not Found] Message: {}", ex.getMessage());
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorCode", "FILE_001");
+        errorResponse.put("errorMessage", "서버 디스크에 해당 파일이 존재하지 않습니다.");
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

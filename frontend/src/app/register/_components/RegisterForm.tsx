@@ -313,49 +313,6 @@ export default function RegisterForm() {
         </button>
       </form>
 
-      <div className={styles.divider}>
-        <span>또는</span>
-      </div>
-
-      <div className={styles.socialGroup}>
-        {/* ✨ 구글 로그인 */}
-        <a 
-          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/oauth2/authorization/google`}
-          className={`${styles.socialBtn} ${styles.googleBtn}`}
-        >
-          {/* ... SVG 생략 (기존과 동일) ... */}
-          <svg className={styles.socialIcon} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          구글 회원가입
-        </a>
-
-        {/* ✨ 카카오 로그인 */}
-        <a 
-          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/oauth2/authorization/kakao`}
-          className={`${styles.socialBtn} ${styles.kakaoBtn}`}
-        >
-          <svg className={styles.socialIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M12 3C7.029 3 3 6.12 3 9.967C3 12.43 4.54 14.591 6.84 15.892L6.34 19.528C6.315 19.743 6.438 19.98 6.643 20.082C6.732 20.126 6.83 20.148 6.927 20.148C7.072 20.148 7.215 20.098 7.327 20.007L11.503 16.591C11.666 16.608 11.831 16.618 12 16.618C16.971 16.618 21 13.498 21 9.651C21 5.804 16.971 2.684 12 2.684V3Z" fill="#000000"/>
-          </svg>
-          카카오 회원가입
-        </a>
-
-        {/* ✨ 네이버 로그인 */}
-        <a 
-          href={`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'}/oauth2/authorization/naver`}
-          className={`${styles.socialBtn} ${styles.naverBtn}`}
-        >
-          <svg className={styles.socialIcon} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M16.273 12.845L7.376 0H0V24H7.727V11.155L16.624 24H24V0H16.273V12.845Z" fill="#FFFFFF"/>
-          </svg>
-          네이버 회원가입
-        </a>
-      </div>
-
       <div className={styles.footer}>
         이미 계정이 있으신가요? 
         <Link href="/login" className={styles.loginLink}>
