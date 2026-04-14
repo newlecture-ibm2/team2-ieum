@@ -60,7 +60,21 @@ public class GlobalExceptionHandler {
                 .body(ApiResponse.error(ApiResponse.ErrorResponse.of("BadCredentialsException", 401, ex.getMessage(), null)));
     }
 
+    /**
+     * 권한 없음 (403 Forbidden) 및 인증 실패 (401 Unauthorized) 예외 처리
+     * Spring Security에서 발생하는 AccessDeniedException이 Exception.class로 빠져서 500이 되는 것을 방지
+     */
+    @ExceptionHandler(org.springframework.security.access.AccessDeniedException.class)
+    public ResponseEntity<ApiResponse<?>> handleAccessDeniedException(org.springframework.security.access.AccessDeniedException ex) {
+        return ResponseEntity.status(403)
+                .body(ApiResponse.error(ApiResponse.ErrorResponse.of("AccessDeniedException", 403, "접근 권한이 없습니다.", null)));
+    }
 
+    @ExceptionHandler(org.springframework.security.core.AuthenticationException.class)
+    public ResponseEntity<ApiResponse<?>> handleAuthenticationException(org.springframework.security.core.AuthenticationException ex) {
+        return ResponseEntity.status(401)
+                .body(ApiResponse.error(ApiResponse.ErrorResponse.of("Unauthorized", 401, "인증이 거부되었습니다.", null)));
+    }
 
     /**
      * 비즈니스 로직 예외 처리 (아이디 중복 등)
