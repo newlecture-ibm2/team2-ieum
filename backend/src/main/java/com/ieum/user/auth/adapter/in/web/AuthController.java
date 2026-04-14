@@ -48,7 +48,7 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 질문 요청", description = "입력한 아이디로 해당 사용자의 보안 질문을 조회합니다.")
+    @Operation(summary = "비밀번호 찾기 - 보안질문 요청", description = "입력한 아이디로 해당 사용자의 보안 질문을 조회합니다.")
     @PostMapping("/password-recovery/request")
     public ResponseEntity<ApiResponse<AuthRes.PasswordRecoveryQuestion>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
         AuthRes.PasswordRecoveryQuestion question = authUseCase.requestRecovery(request);
