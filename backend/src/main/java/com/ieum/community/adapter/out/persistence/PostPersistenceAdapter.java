@@ -51,9 +51,20 @@ public class PostPersistenceAdapter implements PostPort {
     }
 
     @Override
-    public Page<Post> findByFilters(String category, String areaCode, String keyword, Pageable pageable) {
-        Page<Post> postPage = postJpaRepository.findByFilters(category, areaCode, keyword, pageable)
-                .map(PostEntity::toDomain);
+    public Page<Post> findByFilters(String category, String areaCode, String keyword, String searchType, Pageable pageable) {
+        Page<Post> postPage;
+
+        // searchType에 따라 검색 범위 분기
+        if ("title".equals(searchType)) {
+            postPage = postJpaRepository.findByFiltersTitle(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        } else if ("content".equals(searchType)) {
+            postPage = postJpaRepository.findByFiltersContent(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        } else {
+            postPage = postJpaRepository.findByFilters(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        }
 
         // 게시글 작성자 ID 수집 → users 테이블에서 최신 닉네임+프로필 이미지 일괄 조회
         Set<Long> authorIds = postPage.getContent().stream()

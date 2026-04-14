@@ -75,12 +75,13 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Post> getPosts(String category, String areaCode, String keyword, Pageable pageable) {
+    public Page<Post> getPosts(String category, String areaCode, String keyword, String searchType, Pageable pageable) {
         String queryCategory = (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) ? category : null;
         String queryAreaCode = (areaCode != null && !areaCode.isEmpty() && !areaCode.equalsIgnoreCase("all")) ? areaCode : null;
         String queryKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String querySearchType = (searchType != null && !searchType.isEmpty()) ? searchType : "all";
 
-        return postPort.findByFilters(queryCategory, queryAreaCode, queryKeyword, pageable);
+        return postPort.findByFilters(queryCategory, queryAreaCode, queryKeyword, querySearchType, pageable);
     }
 
     @Override

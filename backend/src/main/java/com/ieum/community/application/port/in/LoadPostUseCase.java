@@ -11,5 +11,5 @@ public interface LoadPostUseCase {
 
     Post getPostDetail(Long postId, Long requesterId);
 
-    Page<Post> getPosts(String category, String areaCode, String keyword, Pageable pageable);
+    Page<Post> getPosts(String category, String areaCode, String keyword, String searchType, Pageable pageable);
 }
