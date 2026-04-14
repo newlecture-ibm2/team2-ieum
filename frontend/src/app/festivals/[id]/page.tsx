@@ -98,7 +98,7 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
 
   const toggleBookmark = async () => {
     if (!isLoggedIn) {
-      setShowLoginModal(true);
+      toast('찜하기 기능은 회원만 이용 가능합니다.', 'info');
       return;
     }
     try {
