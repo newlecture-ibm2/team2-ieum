@@ -13,6 +13,7 @@ interface Props {
 function getIcon(type: string) {
   if (type.includes("FESTIVAL")) return { emoji: "🎪", cls: styles.iconFestival };
   if (type.includes("NOTICE"))   return { emoji: "📢", cls: styles.iconNotice };
+  if (type.includes("REPORT"))   return { emoji: "🛡️", cls: styles.iconDefault };
   if (type.includes("COMMENT") || type.includes("COMMUNITY"))
     return { emoji: "💬", cls: styles.iconCommunity };
   return { emoji: "🔔", cls: styles.iconDefault };
@@ -36,6 +37,7 @@ function getTargetUrl(n: Notification) {
   if (n.targetType === "FESTIVAL" && n.targetId) return `/festivals/${n.targetId}`;
   if (n.targetType === "NOTICE" && n.targetId)   return `/notices/${n.targetId}`;
   if (n.targetType === "COMMUNITY" && n.targetId) return `/community/${n.targetId}`;
+  if (n.targetType === "REPORT") return `/mypage?tab=reports`;
   return "#";
 }
 
