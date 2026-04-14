@@ -11,6 +11,7 @@ export interface PostDetail {
   festivalName?: string;
   authorId: number;
   authorName: string;
+  authorProfileImage?: string;
   viewCount: number;
   likeCount: number;
   isLiked: boolean;
@@ -23,6 +24,7 @@ export interface Comment {
   postId: number;
   userId: number;
   userName: string;
+  userProfileImage?: string;
   parentId: number | null;
   content: string;
   status: string;

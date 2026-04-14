@@ -32,8 +32,11 @@ export default function FestivalHero({
   return (
     <section
       className={styles.hero}
-      style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url(${imageSrc})` }}
+      style={{ '--hero-bg': `url(${imageSrc})` } as React.CSSProperties}
     >
+      {/* 백그라운드 블러 오버레이 */}
+      <div className={styles.heroBgOverlay} />
+
       <div className={styles.topNav}>
         <div className={styles.topNavInner}>
           <button className={styles.backButton} onClick={() => router.back()} aria-label="뒤로가기">

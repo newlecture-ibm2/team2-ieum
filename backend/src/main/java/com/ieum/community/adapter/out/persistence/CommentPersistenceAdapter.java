@@ -68,12 +68,12 @@ public class CommentPersistenceAdapter implements CommentPort {
 
         if (allUserIds.isEmpty()) return rootComments;
 
-        // users 테이블에서 최신 닉네임 일괄 조회
-        Map<Long, String> nicknameMap = resolveNicknames(allUserIds);
+        // users 테이블에서 최신 닉네임+프로필 이미지 일괄 조회
+        Map<Long, String[]> userInfoMap = resolveUserInfo(allUserIds);
 
-        // 루트 댓글 + 대댓글 전체에 최신 닉네임 반영
+        // 루트 댓글 + 대댓글 전체에 최신 닉네임+프로필 이미지 반영
         return rootComments.stream()
-                .map(comment -> rebuildCommentTreeWithNicknames(comment, nicknameMap))
+                .map(comment -> rebuildCommentTreeWithUserInfo(comment, userInfoMap))
                 .toList();
     }
 
@@ -82,7 +82,7 @@ public class CommentPersistenceAdapter implements CommentPort {
         return commentJpaRepository.countActiveByPostId(postId);
     }
 
-    // ─── 닉네임 실시간 조회 헬퍼 메서드 ───
+    // ─── 사용자 정보 실시간 조회 헬퍼 메서드 ───
 
     /**
      * 댓글 트리에서 모든 userId를 재귀적으로 수집
@@ -97,29 +97,30 @@ public class CommentPersistenceAdapter implements CommentPort {
     }
 
     /**
-     * 사용자 ID 목록으로 users 테이블에서 최신 닉네임을 일괄 조회
+     * 사용자 ID 목록으로 users 테이블에서 최신 닉네임과 프로필 이미지를 일괄 조회
+     * @return Map<userId, [nickname, profileImage]>
      */
-    private Map<Long, String> resolveNicknames(Collection<Long> userIds) {
+    private Map<Long, String[]> resolveUserInfo(Collection<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) return Collections.emptyMap();
 
-        return postJpaRepository.findNicknamesByUserIds(userIds).stream()
+        return postJpaRepository.findUserInfoByUserIds(userIds).stream()
                 .collect(Collectors.toMap(
                         row -> ((Number) row[0]).longValue(),
-                        row -> (String) row[1],
+                        row -> new String[]{ (String) row[1], (String) row[2] },
                         (existing, replacement) -> replacement
                 ));
     }
 
     /**
-     * 댓글 트리 전체(루트 + 모든 대댓글)에 최신 닉네임을 재귀적으로 반영
+     * 댓글 트리 전체(루트 + 모든 대댓글)에 최신 닉네임+프로필 이미지를 재귀적으로 반영
      */
-    private Comment rebuildCommentTreeWithNicknames(Comment comment, Map<Long, String> nicknameMap) {
-        String latestNickname = nicknameMap.getOrDefault(comment.getUserId(), comment.getUserName());
+    private Comment rebuildCommentTreeWithUserInfo(Comment comment, Map<Long, String[]> userInfoMap) {
+        String[] info = userInfoMap.getOrDefault(comment.getUserId(), new String[]{ comment.getUserName(), null });
 
         List<Comment> updatedChildren = new ArrayList<>();
         if (comment.getChildren() != null) {
             for (Comment child : comment.getChildren()) {
-                updatedChildren.add(rebuildCommentTreeWithNicknames(child, nicknameMap));
+                updatedChildren.add(rebuildCommentTreeWithUserInfo(child, userInfoMap));
             }
         }
 
@@ -127,7 +128,8 @@ public class CommentPersistenceAdapter implements CommentPort {
                 .id(comment.getId())
                 .postId(comment.getPostId())
                 .userId(comment.getUserId())
-                .userName(latestNickname)       // ← 최신 닉네임 반영!
+                .userName(info[0])
+                .userProfileImage(info[1])
                 .parentId(comment.getParentId())
                 .content(comment.getContent())
                 .status(comment.getStatus())
