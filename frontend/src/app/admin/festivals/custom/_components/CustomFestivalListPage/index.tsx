@@ -32,7 +32,7 @@ export default function CustomFestivalListPage() {
   const [editingId, setEditingId] = useState<number | null>(null);
   
   const [formData, setFormData] = useState({
-    title: '', areaCode: '', startDate: '', endDate: '', category: '', content: '', isVisible: true
+    title: '', areaLabel: '', startDate: '', endDate: '', category: '', content: '', isVisible: true
   });
   const [file, setFile] = useState<File | null>(null);
 
@@ -66,7 +66,7 @@ export default function CustomFestivalListPage() {
 
   const resetForm = () => {
     setEditingId(null);
-    setFormData({ title: '', areaCode: '', startDate: '', endDate: '', category: '', content: '', isVisible: true });
+    setFormData({ title: '', areaLabel: '', startDate: '', endDate: '', category: '', content: '', isVisible: true });
     setFile(null);
     setShowForm(false);
   };
@@ -81,7 +81,7 @@ export default function CustomFestivalListPage() {
     setEditingId(fst.festivalId);
     setFormData({
       title: fst.title,
-      areaCode: fst.areaCode || fst.areaLabel,
+      areaLabel: fst.areaLabel,
       startDate: fst.startDate,
       endDate: fst.endDate,
       category: fst.category,
@@ -107,13 +107,13 @@ export default function CustomFestivalListPage() {
   };
 
   const handleSubmit = async () => {
-    if (!formData.title || !formData.startDate || !formData.endDate || !formData.areaCode) {
+    if (!formData.title || !formData.startDate || !formData.endDate || !formData.areaLabel) {
       return alert('필수 값(축제명, 지역, 날짜)을 입력해주세요.');
     }
     try {
       const data = new FormData();
       data.append('title', formData.title);
-      data.append('areaCode', formData.areaCode);
+      data.append('areaLabel', formData.areaLabel);
       data.append('startDate', formData.startDate);
       data.append('endDate', formData.endDate);
       data.append('category', formData.category);
@@ -263,7 +263,7 @@ export default function CustomFestivalListPage() {
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>지역</label>
-              <input type="text" className={styles.formInput} value={formData.areaCode} onChange={e => setFormData({ ...formData, areaCode: e.target.value })} placeholder="개최 지역 (예: 서울, 제주)" />
+              <input type="text" className={styles.formInput} value={formData.areaLabel} onChange={e => setFormData({ ...formData, areaLabel: e.target.value })} placeholder="개최 지역 (예: 서울, 제주)" />
             </div>
             <div className={styles.formGroup}>
               <label className={styles.formLabel}>시작일</label>
