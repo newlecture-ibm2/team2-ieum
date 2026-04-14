@@ -1,0 +1,205 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  background: white;
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-hover);
+  border-color: rgba(108, 92, 231, 0.3);
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--color-gray-100);
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  transition: transform 0.6s ease;
+}
+
+.card:hover .image {
+  transform: scale(1.08);
+}
+
+.overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.1) 0%, transparent 40%, rgba(0,0,0,0.05) 100%);
+  pointer-events: none;
+}
+
+.badge {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  font-size: 11px;
+  font-weight: 800;
+  color: white;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  backdrop-filter: blur(4px);
+}
+
+.badgeOngoing {
+  background: rgba(0, 184, 148, 0.9);
+}
+
+.badgeUpcoming {
+  background: rgba(108, 92, 231, 0.9);
+}
+
+.heartBtn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0,0,0,0.3);
+  backdrop-filter: blur(4px);
+  border-radius: 50%;
+  padding: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  color: white;
+}
+
+.heartBtn:hover {
+  background: rgba(255,255,255,0.9);
+  color: var(--color-accent-500);
+  transform: scale(1.1);
+}
+
+.heartActive {
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.4);
+}
+
+.heartActive:hover {
+  background: rgba(255,255,255,1);
+}
+
+.heartIcon {
+  stroke-width: 2.5px;
+}
+
+.content {
+  padding: 16px;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--color-gray-900);
+  margin-bottom: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.date {
+  font-size: 13px;
+  color: var(--color-gray-500);
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ratingInfo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-gray-100);
+}
+
+.favInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gray-400);
+}
+
+.favIcon {
+  color: var(--color-accent-500);
+  fill: var(--color-accent-500);
+  opacity: 0.7;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.starFill {
+  fill: var(--color-warning);
+  color: var(--color-warning);
+}
+
+.score {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-left: 2px;
+}
+
+.reviewCnt {
+  font-size: 12px;
+  color: var(--color-gray-500);
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .content {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .date {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .ratingInfo {
+    padding-top: 8px;
+  }
+
+  .score {
+    font-size: 12px;
+  }
+
+  .heartBtn {
+    padding: 6px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+

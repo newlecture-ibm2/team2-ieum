@@ -1,0 +1,20 @@
+.reportNameCol { width: 15%; }
+.reasonCol { width: 20%; }
+.targetTypeCol { width: 12%; }
+.dateCol { width: 15%; }
+.statusCol { width: 12%; }
+.actionCol { width: 16%; }
+
+.selectedRow {
+  background-color: #fef2f2 !important;
+  border-left: 3px solid #dc2626;
+}
+
+.ellipsisCell {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+

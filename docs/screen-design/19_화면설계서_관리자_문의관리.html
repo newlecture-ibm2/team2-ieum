@@ -402,27 +402,65 @@
             <ul class="sidebar-menu">
               <li>🏠 대시보드</li>
               <li>🌐 공공축제 리스트</li>
-              <li>🎪 자체기획 축제</li>
-              <li>🚨 신고 관리</li>
+              <li>🎪 축제 관리</li>
+              <li>🚨 신고 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">1</span>
+              </li>
               <li>📢 공지/팝업</li>
-              <li class="active">💬 문의 관리</li>
+              <li class="active">💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
           </div>
 
           <div class="content-area">
-            <div style="margin-bottom: 20px;">
-              <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">💬 사용자 문의 관리</h1>
-              <p style="font-size: 12px; color: #94a3b8;">사용자가 등록한 1:1 문의를 확인하고 답변합니다</p>
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px;">
+              <div>
+                <h1 style="font-size: 20px; font-weight: 800; color: #1e293b; margin-bottom: 4px;" data-marker="2">💬 사용자 문의 관리</h1>
+                <p style="font-size: 12px; color: #94a3b8;">사용자가 등록한 1:1 문의를 확인하고 답변합니다</p>
+              </div>
+            </div>
+
+            <!-- 상단 KPI 카드 -->
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;" data-marker="3">
+              <div style="background: white; border-radius: 8px; border: 1px solid #e2e8f0; padding: 20px; text-align: center;">
+                <div style="font-size: 12px; color: #64748b; font-weight: 600; margin-bottom: 8px;">전체</div>
+                <div style="font-size: 24px; font-weight: 700; color: #1e293b;">5</div>
+              </div>
+              <div style="background: #faf5ff; border-radius: 8px; border: 1px solid #e9d5ff; padding: 20px; text-align: center;">
+                <div style="font-size: 12px; color: #7e22ce; font-weight: 600; margin-bottom: 8px;">대기중</div>
+                <div style="font-size: 24px; font-weight: 700; color: #6b21a8;">2</div>
+              </div>
+              <div style="background: #f0fdf4; border-radius: 8px; border: 1px solid #bbf7d0; padding: 20px; text-align: center;">
+                <div style="font-size: 12px; color: #166534; font-weight: 600; margin-bottom: 8px;">답변완료</div>
+                <div style="font-size: 24px; font-weight: 700; color: #15803d;">3</div>
+              </div>
+            </div>
+
+            <!-- 검색 필터 -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                <option>전체 상태</option>
+                <option>대기중</option>
+                <option>답변완료</option>
+              </select>
+              <div style="display: flex; gap: 8px;">
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>전체 검색</option>
+                  <option>제목</option>
+                  <option>작성자</option>
+                </select>
+                <input type="text" placeholder="검색어를 입력하세요" style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 200px;">
+                <button style="background: #1e293b; color: white; border: none; border-radius: 6px; padding: 0 16px; font-size: 12px; font-weight: 600;">검색</button>
+              </div>
             </div>
 
             <!-- 문의 목록 테이블 -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
+            <div style="background: #fff; border-radius: 12px; padding: 16px; border: 1px solid #e2e8f0; margin-bottom: 16px;">
               <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
                 <thead>
                   <tr style="border-bottom: 2px solid #e2e8f0;">
-                    <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600; width: 40px;">#
-                    </th>
+                    <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600; width: 40px;">No</th>
                     <th style="padding: 8px 6px; text-align: left; color: #475569; font-weight: 600;">제목</th>
                     <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">작성자</th>
                     <th style="padding: 8px 6px; text-align: center; color: #475569; font-weight: 600;">작성일</th>
@@ -431,78 +469,54 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr style="border-bottom: 1px solid #f1f5f9; cursor: pointer;"
-                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                  <tr style="border-bottom: 1px solid #f1f5f9; cursor: pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
                     <td style="padding: 10px 6px; text-align: center; color: #94a3b8;">1</td>
                     <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">축제 정보 오류 문의</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">user01</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">2026.03.28</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span>
-                    </td>
+                    <td style="padding: 10px 6px; text-align: center; color: #475569;">축제매니아</td>
+                    <td style="padding: 10px 6px; text-align: center; color: #475569;">2026-04-05</td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span></td>
                     <td style="padding: 10px 6px; text-align: center;">
-                      <button
-                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 12px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">답변</button>
+                      <button style="background: #6c5ce7; color: #fff; border: none; padding: 3px 12px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;" data-marker="4">답변</button>
                     </td>
                   </tr>
-                  <tr style="border-bottom: 1px solid #f1f5f9; cursor: pointer;"
-                    onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
+                  <tr style="border-bottom: 1px solid #f1f5f9; cursor: pointer;" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background='#fff'">
                     <td style="padding: 10px 6px; text-align: center; color: #94a3b8;">2</td>
                     <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">계정 관련 문의</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">user02</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">2026.03.27</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">답변완료</span>
-                    </td>
+                    <td style="padding: 10px 6px; text-align: center; color: #475569;">축제매니아</td>
+                    <td style="padding: 10px 6px; text-align: center; color: #475569;">2026-04-04</td>
+                    <td style="padding: 10px 6px; text-align: center;"><span style="background: #dcfce7; color: #16a34a; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">답변완료</span></td>
                     <td style="padding: 10px 6px; text-align: center;">
-                      <span style="cursor: pointer; font-size: 14px;">📋</span>
-                    </td>
-                  </tr>
-                  <tr style="cursor: pointer;" onmouseover="this.style.background='#f8fafc'"
-                    onmouseout="this.style.background='#fff'">
-                    <td style="padding: 10px 6px; text-align: center; color: #94a3b8;">3</td>
-                    <td style="padding: 10px 6px; color: #1e293b; font-weight: 500;">리뷰 삭제 요청</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">user03</td>
-                    <td style="padding: 10px 6px; text-align: center; color: #475569;">2026.03.26</td>
-                    <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #fef3c7; color: #d97706; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">대기중</span>
-                    </td>
-                    <td style="padding: 10px 6px; text-align: center;">
-                      <button
-                        style="background: #6c5ce7; color: #fff; border: none; padding: 3px 12px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">답변</button>
+                      <button style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 3px 12px; border-radius: 4px; font-size: 10px; font-weight: 600; cursor: pointer;">보기</button>
                     </td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- 문의 상세 + 답변 영역 -->
-            <div style="background: #fff; border-radius: 12px; padding: 20px; border: 2px dashed #a5b4fc;">
-              <div style="font-weight: 700; font-size: 14px; color: #4f46e5; margin-bottom: 14px;">📩 문의 상세 — #1 축제 정보
-                오류 문의</div>
-              <div
-                style="display: grid; grid-template-columns: auto 1fr; gap: 6px 16px; font-size: 12px; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e2e8f0;">
-                <span style="color: #64748b; font-weight: 600;">작성자:</span>
-                <span style="color: #1e293b;">user01 (user01@email.com)</span>
-                <span style="color: #64748b; font-weight: 600;">작성일:</span>
-                <span style="color: #1e293b;">2026.03.28 14:30</span>
-                <span style="color: #64748b; font-weight: 600;">제목:</span>
-                <span style="color: #1e293b; font-weight: 600;">축제 정보 오류 문의</span>
-                <span style="color: #64748b; font-weight: 600;">내용:</span>
-                <span style="color: #1e293b;">서울 벚꽃 축제 날짜가 실제와 다릅니다. 확인 부탁드립니다.</span>
-              </div>
-              <div>
-                <label style="font-size: 11px; color: #4f46e5; font-weight: 700; display: block; margin-bottom: 6px;">💬
-                  답변 작성</label>
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 12px; font-size: 12px; color: #94a3b8; min-height: 50px; margin-bottom: 10px;">
-                  답변 내용을 입력하세요</div>
-                <div style="display: flex; gap: 8px; justify-content: flex-end;">
-                  <button
-                    style="background: #f1f5f9; border: 1px solid #cbd5e1; padding: 8px 20px; border-radius: 6px; font-size: 12px; cursor: pointer;">취소</button>
-                  <button
-                    style="background: #4f46e5; color: #fff; border: none; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer;">답변
-                    등록</button>
+            <!-- 문의 상세 팝업 (모달) 레이어 가상 디자인 -->
+            <div style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.4); display: flex; align-items: center; justify-content: center; z-index: 100;" data-marker="5">
+              <div style="background: white; border-radius: 12px; width: 480px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); overflow: hidden;">
+                <div style="padding: 16px 20px; border-bottom: 1px solid #e2e8f0; display: flex; justify-content: space-between; align-items: center; background: #6c5ce7; color: white;">
+                  <h3 style="font-size: 15px; font-weight: 700;">문의 답변 처리</h3>
+                  <div style="font-size: 16px; cursor: pointer;">✕</div>
+                </div>
+                <div style="padding: 20px;">
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <div style="font-size: 14px; font-weight: 700; color: #1e293b;">축제 정보 오류 문의</div>
+                    <span style="background: #f1f5f9; color: #64748b; padding: 2px 8px; border-radius: 4px; font-size: 11px;">2026.04.05</span>
+                  </div>
+                  <div style="font-size: 12px; color: #64748b; margin-bottom: 16px;">작성자: 축제매니아</div>
+                  <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-size: 12px; color: #334155; margin-bottom: 20px; line-height: 1.6;">
+                    서울 벚꽃 축제 날짜가 실제와 다릅니다. 확인 부탁드립니다.
+                  </div>
+                  
+                  <div style="font-size: 13px; font-weight: 700; color: #4f46e5; margin-bottom: 8px;">관리자 답변 작성</div>
+                  <textarea placeholder="답변 내용을 입력하세요..." style="width: 100%; height: 100px; padding: 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; resize: none; margin-bottom: 16px; font-family: inherit;"></textarea>
+                  
+                  <div style="display: flex; gap: 8px; justify-content: flex-end;">
+                    <button style="padding: 8px 16px; background: white; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 12px; font-weight: 600; color: #475569;">취소</button>
+                    <button style="padding: 8px 16px; background: #4f46e5; border: none; border-radius: 6px; font-size: 12px; font-weight: 600; color: white;">답변 완료</button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -584,13 +598,34 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>답변 버튼 클릭 (Open Reply)</strong><br>· 트리거: [답변] 버튼 클릭<br>· 동작: 해당 문의 상세 + 답변 작성 영역 펼침<br>· API: <code>GET /api/admin/inquiries/{id}</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>답변 등록 (Submit Reply)</strong><br>· 트리거: 답변 작성 후 [답변 등록] 버튼 클릭<br>· 동작: 유효성 검사 → 답변 전송 → 상태 "답변완료" 변경<br>· API: <code>POST /api/admin/inquiries/{id}/answer</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>답변 상세 보기 (View Detail)</strong><br>· 트리거: 📋 아이콘 클릭 (답변완료 문의)<br>· 동작: 문의 상세 + 등록된 답변 내용 표시</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>행 호버 인터랙션 (Row Hover)</strong><br>· 트리거: 테이블 행 마우스 호버<br>· 동작: 배경색 #f8fafc 변경 (클릭 유도)</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>답변 버튼 클릭 (Open Reply)</strong><br>· 트리거: [답변] 버튼 클릭<br>· 동작: 해당 문의 상세 + 답변 작성
+              영역 펼침<br>· API: <code>GET /api/admin/inquiries/{id}</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>답변 등록 (Submit Reply)</strong><br>· 트리거: 답변 작성 후 [답변 등록] 버튼 클릭<br>· 동작: 유효성 검사
+              → 답변 전송 → 상태 "답변완료" 변경<br>· API: <code>POST /api/admin/inquiries/{id}/answer</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>답변 상세 보기 (View Detail)</strong><br>· 트리거: 📋 아이콘 클릭 (답변완료 문의)<br>· 동작: 문의 상세 +
+              등록된 답변 내용 표시</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>행 호버 인터랙션 (Row Hover)</strong><br>· 트리거: 테이블 행 마우스 호버<br>· 동작: 배경색 #f8fafc 변경
+              (클릭 유도)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -651,33 +686,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

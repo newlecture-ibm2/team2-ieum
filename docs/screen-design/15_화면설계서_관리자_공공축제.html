@@ -411,10 +411,12 @@
             <ul class="sidebar-menu">
               <li>🏠 대시보드</li>
               <li class="active">🌐 공공축제 리스트</li>
-              <li>🎪 자체기획 축제</li>
+              <li>🎪 축제 관리</li>
               <li>🚨 신고 관리</li>
               <li>📢 공지/팝업</li>
-              <li>💬 문의 관리</li>
+              <li>💬 문의 관리
+                <span style="background:#ef4444; color:white; border-radius:10px; padding:2px 6px; font-size:10px; margin-left:8px;">2</span>
+              </li>
             </ul>
 
           </div>
@@ -428,38 +430,53 @@
             </div>
 
             <!-- 공공 API 데이터 갱신 카드 -->
-            <div
-              style="background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <div style="background: #fff; border-radius: 12px; padding: 16px; margin-bottom: 16px; border: 1px solid #e2e8f0;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 12px;">
                 <div>
                   <div style="font-weight: 700; font-size: 14px; color: #1e293b;">공공 API 데이터 갱신</div>
-                  <div style="font-size: 11px; color: #94a3b8;">최근 갱신: 2026.03.25 09:30</div>
+                  <div style="font-size: 11px; color: #64748b; margin-top: 4px;">최근 갱신: 2026.04.07 15:20</div>
                 </div>
-                <button
-                  style="background: #fff; border: 1.5px solid #1e293b; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">🔄
-                  수동 갱신</button>
+                <button style="background: #fff; border: 1.5px solid #1e293b; padding: 8px 16px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 4px;">🔄 수동 갱신</button>
               </div>
               <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;">
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #64748b;">전체 축제</div>
                   <div style="font-size: 22px; font-weight: 800; color: #1e293b;">14</div>
                 </div>
-                <div
-                  style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #16a34a;">진행중</div>
                   <div style="font-size: 22px; font-weight: 800; color: #16a34a;">8</div>
                 </div>
-                <div
-                  style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f3e8ff; border: 1px solid #d8b4fe; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #6c5ce7;">진행예정</div>
                   <div style="font-size: 22px; font-weight: 800; color: #6c5ce7;">4</div>
                 </div>
-                <div
-                  style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
+                <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; text-align: center;">
                   <div style="font-size: 10px; color: #64748b;">종료</div>
                   <div style="font-size: 22px; font-weight: 800; color: #64748b;">2</div>
                 </div>
+              </div>
+            </div>
+
+            <!-- 검색 및 필터 -->
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <div style="display: flex; gap: 8px;">
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>전체 상태</option>
+                  <option>진행중</option>
+                  <option>진행예정</option>
+                  <option>종료</option>
+                </select>
+                <select style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px;">
+                  <option>지역 선택 (전체)</option>
+                  <option>서울</option>
+                  <option>부산</option>
+                </select>
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <input type="checkbox" id="excludeHidden" /> <label for="excludeHidden" style="font-size:12px; margin-top:6px;">숨김 축제 제외</label>
+                <input type="text" placeholder="축제명 검색..." style="padding: 8px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 12px; width: 220px;">
+                <button style="background: #1e293b; color: white; border: none; border-radius: 6px; padding: 0 16px; font-size: 12px; font-weight: 600;">검색</button>
               </div>
             </div>
 
@@ -517,7 +534,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.04.15 - 04.20</td>
                     <td style="padding: 10px 6px; color: #475569;">문화/예술</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -533,7 +550,7 @@
                     <td style="padding: 10px 6px; color: #475569;">2026.07.10 - 07.15</td>
                     <td style="padding: 10px 6px; color: #475569;">음악/공연</td>
                     <td style="padding: 10px 6px; text-align: center;"><span
-                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행전</span>
+                        style="background: #f3e8ff; color: #6c5ce7; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: 600;">진행예정</span>
                     </td>
                     <td
                       style="padding: 10px 6px; text-align: center; display: flex; gap: 4px; justify-content: center;">
@@ -575,7 +592,7 @@
           <ul>
             <li>공공 API(data.go.kr)에서 수집된 전국 축제 데이터를 관리하는 화면</li>
             <li>수동 갱신 버튼으로 공공 데이터 동기화 가능</li>
-            <li>축제 상태(진행중/진행전/종료) 요약 카드 4종 제공</li>
+            <li>축제 상태(진행중/진행예정/종료) 요약 카드 4종 제공</li>
             <li>축제 목록 테이블에서 노출/숨김, 수정, 삭제 관리</li>
             <li>좌측 사이드바로 관리자 메뉴 간 이동</li>
           </ul>
@@ -587,7 +604,7 @@
             <td class="desc-text">
               <strong>관리자 사이드바 네비게이션</strong><br>
               · 좌측 고정 사이드바, 다크(#1e293b) 배경<br>
-              · 관리 메뉴: 대시보드, 공공축제 리스트, 자체기획 축제, 신고, 공지/팝업, 문의<br>
+              · 관리 메뉴: 대시보드, 공공축제 리스트, 축제 관리, 신고, 공지/팝업, 문의<br>
               · 현재 메뉴(공공축제 리스트)는 파란색(#6c5ce7) 활성 표시
             </td>
           </tr>
@@ -616,7 +633,7 @@
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030) 응답 집계<br>
               · 전체 축제 — 전체 갯수<br>
               · <span style="color:#16a34a;">진행중</span> — 현재 운영 중인 축제 수<br>
-              · <span style="color:#6c5ce7;">진행예정</span> — 시작 전 축제 수<br>
+              · <span style="color:#6c5ce7;">진행중</span> — 시작 전 축제 수<br>
               · 종료 — 종료된 축제 수<br>
               · 각 카드는 배경 색상으로 구분
             </td>
@@ -628,7 +645,7 @@
               <strong>API: <code>GET /api/admin/festivals</code></strong> (API_ADM_0030)<br>
               · 컬럼: 축제명, 지역, 날짜, 카테고리, 상태, 관리<br>
               · 축제명 클릭 → 축제 상세 페이지 이동<br>
-              · 상태 배지: 진행중(녹색), 진행전(파란), 종료(회색)<br>
+              · 상태 배지: 진행중(녹색), 진행예정(파란), 종료(회색)<br>
               · 페이지네이션 지원 (page, size 파라미터)
             </td>
           </tr>
@@ -646,13 +663,34 @@
 
 
         <!-- ===== Event Description ===== -->
-        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event Description</div>
+        <div class="desc-title" style="background:#eef2ff; color:#3730a3; border-top:1.5px solid #333;">🎯 Event
+          Description</div>
         <table class="desc-table">
-          <tr><td class="num" style="color:#3730a3;">E1</td><td class="desc-text"><strong>수동 갱신 (Sync Data)</strong><br>· 트리거: [수동 갱신] 버튼 클릭<br>· 동작: data.go.kr API 호출 → 축제 데이터 동기화<br>· API: <code>POST /api/admin/festivals/sync</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E2</td><td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 축제 상세 페이지 이동</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E3</td><td class="desc-text"><strong>노출/숨김 토글 (Toggle Visibility)</strong><br>· 트리거: ✏️ 버튼 클릭<br>· 동작: isVisible 토글 → 사용자 화면 노출 여부 변경<br>· API: <code>PATCH /api/admin/festivals/{id}/visibility</code></td></tr>
-          <tr><td class="num" style="color:#3730a3;">E4</td><td class="desc-text"><strong>축제 삭제 (Delete Festival)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 → isVisible=false 처리 (소프트 삭제)</td></tr>
-          <tr><td class="num" style="color:#3730a3;">E5</td><td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자 메뉴 페이지로 이동</td></tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E1</td>
+            <td class="desc-text"><strong>수동 갱신 (Sync Data)</strong><br>· 트리거: [수동 갱신] 버튼 클릭<br>· 동작: data.go.kr API 호출
+              → 축제 데이터 동기화<br>· API: <code>POST /api/admin/festivals/sync</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E2</td>
+            <td class="desc-text"><strong>축제명 클릭 (Navigate Detail)</strong><br>· 트리거: 축제명 텍스트 클릭<br>· 동작: 축제 상세 페이지 이동
+            </td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E3</td>
+            <td class="desc-text"><strong>노출/숨김 토글 (Toggle Visibility)</strong><br>· 트리거: ✏️ 버튼 클릭<br>· 동작: isVisible 토글
+              → 사용자 화면 노출 여부 변경<br>· API: <code>PATCH /api/admin/festivals/{id}/visibility</code></td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E4</td>
+            <td class="desc-text"><strong>축제 삭제 (Delete Festival)</strong><br>· 트리거: 🗑️ 버튼 클릭<br>· 동작: 확인 모달 →
+              isVisible=false 처리 (소프트 삭제)</td>
+          </tr>
+          <tr>
+            <td class="num" style="color:#3730a3;">E5</td>
+            <td class="desc-text"><strong>사이드바 메뉴 이동 (Navigate Menu)</strong><br>· 트리거: 좌측 사이드바 메뉴 항목 클릭<br>· 동작: 해당 관리자
+              메뉴 페이지로 이동</td>
+          </tr>
         </table>
 
         <div class="checkpoint">
@@ -713,33 +751,33 @@
     </div>
   </div>
 
-<script>
-  function positionMarkers() {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      var r = sa.getBoundingClientRect();
-      sa.querySelectorAll('.marker').forEach(function(m) { m.remove(); });
-      sa.querySelectorAll('[data-marker]').forEach(function(t) {
-        var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
-        var isBtn = (t.tagName === 'BUTTON');
-        var m = document.createElement('div');
-        m.className = 'marker'; m.textContent = n;
-        var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
-        var left = isBtn ? tr.left - r.left + (tr.width/2) - 14 : tr.right - r.left + 6;
-        if (left + 28 > r.width) left = tr.left - r.left - 34;
-        if (left < 0) left = 4; if (top < 0) top = 4;
-        m.style.top = top + 'px'; m.style.left = left + 'px';
-        sa.appendChild(m);
+  <script>
+    function positionMarkers() {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        var r = sa.getBoundingClientRect();
+        sa.querySelectorAll('.marker').forEach(function (m) { m.remove(); });
+        sa.querySelectorAll('[data-marker]').forEach(function (t) {
+          var n = t.getAttribute('data-marker'), tr = t.getBoundingClientRect();
+          var isBtn = (t.tagName === 'BUTTON');
+          var m = document.createElement('div');
+          m.className = 'marker'; m.textContent = n;
+          var top = isBtn ? tr.top - r.top - 32 : tr.top - r.top;
+          var left = isBtn ? tr.left - r.left + (tr.width / 2) - 14 : tr.right - r.left + 6;
+          if (left + 28 > r.width) left = tr.left - r.left - 34;
+          if (left < 0) left = 4; if (top < 0) top = 4;
+          m.style.top = top + 'px'; m.style.left = left + 'px';
+          sa.appendChild(m);
+        });
       });
-    });
-  }
-  window.addEventListener('load', positionMarkers);
-  window.addEventListener('resize', positionMarkers);
-  if (typeof ResizeObserver !== 'undefined') {
-    document.querySelectorAll('.screen-area').forEach(function(sa) {
-      new ResizeObserver(positionMarkers).observe(sa);
-    });
-  }
-</script>
+    }
+    window.addEventListener('load', positionMarkers);
+    window.addEventListener('resize', positionMarkers);
+    if (typeof ResizeObserver !== 'undefined') {
+      document.querySelectorAll('.screen-area').forEach(function (sa) {
+        new ResizeObserver(positionMarkers).observe(sa);
+      });
+    }
+  </script>
 </body>
 
 </html>

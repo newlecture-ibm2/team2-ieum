@@ -1,0 +1,81 @@
+.mainContainer {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== 히어로 배너 (지난축제 전용 다크 톤) ===== */
+.hero {
+  position: relative;
+  background: linear-gradient(135deg, #2d3436 0%, #636e72 100%);
+  padding: 56px 0;
+  padding-top: calc(56px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
+  text-align: center;
+  overflow: hidden;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: url('/images/past_festival_default.png') center/cover no-repeat;
+  opacity: 0.25;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.heroSub {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 400;
+}
+
+/* ===== 콘텐츠 영역 (메인과 동일 구조) ===== */
+.contentSection {
+  background-color: var(--color-gray-50);
+  padding: var(--spacing-lg) 0 80px;
+  flex: 1;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-lg);
+}
+
+/* ===== 반응형 ===== */
+@media (max-width: 768px) {
+  .hero {
+    padding: 36px 0;
+    padding-top: calc(36px + var(--header-height));
+  }
+
+  .heroTitle {
+    font-size: 22px;
+  }
+
+  .heroSub {
+    font-size: 13px;
+  }
+
+  .contentSection {
+    padding: var(--spacing-md) 0 40px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+}
+

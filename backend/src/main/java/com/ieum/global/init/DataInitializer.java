@@ -36,15 +36,15 @@ public class DataInitializer implements CommandLineRunner {
      * 관리자 계정 초기 생성
      */
     // private void initAdmin() {
-    //     if (userRepository.findByEmail("admin@ieum.com").isEmpty()) {
+    //     if (userRepository.findByLoginId("admin").isEmpty()) {
     //         User admin = User.builder()
-    //             .email("admin@ieum.com")
+    //             .loginId("admin")
     //             .password(passwordEncoder.encode("admin1234"))
     //             .nickname("관리자")
     //             .role(Role.ADMIN)
     //             .build();
     //         userRepository.save(UserJpaEntity.from(admin));
-    //         log.info("✅ 관리자 계정 생성: admin@ieum.com");
+    //         log.info("✅ 관리자 계정 생성: admin");
     //     }
     // }
 

@@ -15,7 +15,7 @@ export interface ApiResponse<T> {
     message: string;
     detail: string;
     timestamp: string;
-    errors: any[];
+    errors: unknown[];
   } | null;
 }
 
@@ -39,7 +39,8 @@ export interface FestivalListItem {
   region: string;
   startDate: string; // yyyy-MM-dd
   endDate: string;   // yyyy-MM-dd
-  category: string;
+  category?: string;
+  categoryLabel?: string;
   status: 'ongoing' | 'upcoming' | 'ended';
   isVisible: boolean;
 }
@@ -74,24 +75,71 @@ export interface FestivalVisibilityData {
 }
 
 // ────────────────────────────────────────
-// 자체 기획 축제 관련 타입
+// 축제 관리 관련 타입
 // ────────────────────────────────────────
 
 export interface CustomFestivalItem {
   festivalId: number;
   title: string;
-  region: string;
+  areaCode: string;
+  areaLabel: string;
   startDate: string; // yyyy-MM-dd
   endDate: string; // yyyy-MM-dd
   isVisible: boolean;
   category: string;
+  categoryLabel?: string;
   status: 'UPCOMING' | 'ONGOING' | 'ENDED';
   createdAt: string;
   content: string; // 상세 내용
   imgUrl: string | null; // 이미지 URL
+  extraImages: string | null; // 콤마로 연결된 갤러리 이미지 URL 
+  playTime?: string;
+  eventPlace?: string;
+  address?: string;
+  useFee?: string;
+  tel?: string;
+  homepage?: string;
+  sigunguCode?: string;
 }
 
 export interface CustomFestivalListResult {
   totalElements: number;
   festivals: CustomFestivalItem[];
+  statusCounts: FestivalStatusCounts;
+}
+
+export interface RegionOptionDto {
+  label: string;
+  value: string;
+  type: string;
+  active?: boolean;
+}
+
+export interface CategoryOptionDto {
+  label: string;
+  value: string;
+  type: string;
+}
+
+// ────────────────────────────────────────
+// 축제 관리 폼 상태 타입
+// ────────────────────────────────────────
+export interface CustomFestivalFormData {
+  title: string;
+  areaCode: string;
+  startDate: string;
+  endDate: string;
+  category: string;
+  content: string;
+  isVisible: boolean;
+  eventPlace: string;
+  address: string;
+  detailAddress: string;
+  useFee: string;
+  startTime: string;
+  endTime: string;
+  isAllDay: boolean;
+  tel: string;
+  homepage: string;
+  sigunguCode: string;
 }

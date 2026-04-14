@@ -1,0 +1,139 @@
+/* ===== 캘린더 그리드 ===== */
+.calendarGrid {
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+/* 요일 헤더 */
+.weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  background: var(--gradient-primary);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px 0;
+}
+
+.weekdays span:first-child {
+  color: #ffcdd2;
+}
+
+.weekdays span:last-child {
+  color: #bbdefb;
+}
+
+/* 날짜 셀 영역 */
+.daysGrid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 1px;
+  background: var(--color-gray-200);
+}
+
+/* 개별 날짜 셀 */
+.dayCell {
+  background: #fff;
+  padding: 10px 6px;
+  text-align: center;
+  min-height: 72px;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+  position: relative;
+}
+
+.dayCell:hover {
+  background: #f8f7ff;
+}
+
+.dayCellEmpty {
+  background: #fafafa;
+  cursor: default;
+  min-height: 72px;
+}
+
+.dayCellEmpty:hover {
+  background: #fafafa;
+}
+
+/* 날짜 숫자 */
+.dayNum {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-900);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+}
+
+.sunday {
+  color: #e53e3e;
+}
+
+.saturday {
+  color: #3182ce;
+}
+
+/* 축제 개수 표시 */
+.dayCount {
+  font-size: 11px;
+  color: var(--color-primary-500);
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* 오늘 날짜 */
+.today .dayNum {
+  background: var(--color-primary-500);
+  color: #fff !important;
+}
+
+.today {
+  background: var(--color-primary-100);
+}
+
+/* 선택된 날짜 */
+.selected {
+  background: var(--color-primary-50);
+  box-shadow: inset 0 0 0 2px var(--color-primary-500);
+}
+
+.loadingOverlay {
+  position: relative;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .weekdays {
+    font-size: 11px;
+    padding: 8px 0;
+  }
+
+  .dayCell {
+    min-height: 52px;
+    padding: 6px 4px;
+  }
+
+  .dayCellEmpty {
+    min-height: 52px;
+  }
+
+  .dayNum {
+    font-size: 12px;
+    width: 24px;
+    height: 24px;
+  }
+
+  .dayCount {
+    font-size: 10px;
+  }
+}
+

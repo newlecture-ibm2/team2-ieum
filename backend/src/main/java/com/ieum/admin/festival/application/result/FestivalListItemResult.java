@@ -31,8 +31,8 @@ public class FestivalListItemResult {
     /** 축제 종료일 (yyyy-MM-dd) */
     private String endDate;
 
-    /** 축제 테마 분류 (예: 자연/꽃) */
     private String category;
+    private String categoryLabel;
 
     /** 축제 상태 (ongoing, upcoming, ended) */
     private String status;

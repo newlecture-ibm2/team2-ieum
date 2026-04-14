@@ -1,5 +1,7 @@
 package com.ieum.global.security;
 
+import com.ieum.global.security.oauth2.CustomOAuth2UserService;
+import com.ieum.global.security.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -20,108 +22,141 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * - 회원 전용 API hasRole("USER")
  * - 관리자 API hasRole("ADMIN")
  * - 나머지 인증 필요
- *
- * TODO: JWT 필터 완성 후 addFilterBefore() 추가
  */
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    /**
-     * Swagger UI 관련 허용 경로 목록
-     */
-    private static final String[] SWAGGER_WHITELIST = {
-            "/swagger-ui/**",
-            "/swagger-ui.html",
-            "/v3/api-docs/**",
-            "/v3/api-docs.yaml"
-    };
+        /**
+         * Swagger UI 관련 허용 경로 목록
+         */
+        private static final String[] SWAGGER_WHITELIST = {
+                        "/swagger-ui/**",
+                        "/swagger-ui.html",
+                        "/v3/api-docs/**",
+                        "/v3/api-docs.yaml"
+        };
 
-    @Bean
-    public SecurityFilterChain filterChain(
-            HttpSecurity http, 
-            JwtAuthenticationFilter jwtAuthenticationFilter,
-            JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
-            JwtAccessDeniedHandler jwtAccessDeniedHandler
-    ) throws Exception {
-        http
-                // CSRF 비활성화 (REST API는 Stateless)
-                .csrf(csrf -> csrf.disable())
+        @Bean
+        public SecurityFilterChain filterChain(
+                        HttpSecurity http,
+                        JwtAuthenticationFilter jwtAuthenticationFilter,
+                        JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
+                        JwtAccessDeniedHandler jwtAccessDeniedHandler,
+                        CustomOAuth2UserService customOAuth2UserService,
+                        OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
+                http
+                                // CSRF 비활성화 (REST API는 Stateless)
+                                .csrf(csrf -> csrf.disable())
 
-                // CORS 설정 활성화 (WebConfig의 CorsConfigurationSource 사용)
-                .cors(cors -> {})
+                                // CORS 설정 활성화 (WebConfig의 CorsConfigurationSource 사용)
+                                .cors(cors -> {
+                                })
 
-                // 세션 사용하지 않음 (JWT 기반)
-                .sessionManagement(session ->
-                        session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                                // 세션 사용하지 않음 (JWT 기반)
+                                .sessionManagement(session -> session
+                                                .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                // URL별 권한 설정
-                .authorizeHttpRequests(auth -> auth
-                        // ✅ Swagger UI 허용
-                        .requestMatchers(SWAGGER_WHITELIST).permitAll()
+                                // URL별 권한 설정
+                                .authorizeHttpRequests(auth -> auth
+                                                // ✅ Swagger UI 허용
+                                                .requestMatchers(SWAGGER_WHITELIST).permitAll()
 
-                        // ✅ 인증 API 허용 (회원가입, 로그인)
-                        .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
+                                                // ✅ 인증 API 허용 (회원가입, 로그인)
+                                                .requestMatchers(HttpMethod.POST, "/api/auth/**").permitAll()
 
-                        // ✅ 축제 조회 — 비회원 허용
-                        .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/festivals/sync").permitAll() // ✅ 공공데이터 수동 동기화 허용
+                                                // ✅ 축제 조회 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/festivals/**").permitAll()
+                                                .requestMatchers(HttpMethod.POST, "/api/festivals/sync").permitAll() // ✅
+                                                                                                                     // 공공데이터
+                                                                                                                     // 수동
+                                                                                                                     // 동기화
+                                                                                                                     // 허용
+                                                .requestMatchers(HttpMethod.PATCH, "/api/festivals/refresh-status")
+                                                .permitAll() // ✅ 축제 상태 갱신 허용
 
-                        // ✅ 리뷰 조회 — 비회원 허용
-                        .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
+                                                // ✅ 리뷰 조회 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/reviews").permitAll()
 
-                        // ✅ 커뮤니티 조회 — 비회원 허용
-                        .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
+                                                // ✅ 커뮤니티 조회 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/community/**").permitAll()
 
-                        // ✅ 공지사항 조회 — 비회원 허용
-                        .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
+                                                // ✅ 공지사항 조회 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
-                        // 🔒 회원 전용 — 프로필
-                        .requestMatchers("/api/users/me/**").hasRole("USER")
+                                                // ✅ 첨부파일 조회/다운로드 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
 
-                        // 🔒 회원 전용 — 리뷰 CUD
-                        .requestMatchers(HttpMethod.POST, "/api/reviews").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/reviews/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/reviews/**").hasRole("USER")
+                                                // 🔒 회원 전용 — 프로필, 알림, FCM
+                                                .requestMatchers("/api/users/me/**", "/api/mypage/**").hasAnyRole("USER", "ADMIN")
 
-                        // 🔒 회원 전용 — 즐겨찾기
-                        .requestMatchers("/api/favorites/**").hasRole("USER")
+                                                // 🔒 회원 전용 — 리뷰 CUD
+                                                .requestMatchers(HttpMethod.POST, "/api/reviews")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/reviews/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
-                        // 🔒 회원 전용 — 커뮤니티 CUD
-                        .requestMatchers(HttpMethod.POST, "/api/community/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.PUT, "/api/community/**").hasRole("USER")
-                        .requestMatchers(HttpMethod.DELETE, "/api/community/**").hasRole("USER")
+                                                // 🔒 회원 전용 — 스크랩(찜)
+                                                .requestMatchers("/api/favorites/**").authenticated()
 
-                        // 🔒 회원 전용 — 신고
-                        .requestMatchers(HttpMethod.POST, "/api/reports").hasRole("USER")
+                                                // 🔒 회원 전용 — 커뮤니티 CUD
+                                                .requestMatchers(HttpMethod.POST, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.PUT, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.DELETE, "/api/community/**")
+                                                .hasAnyRole("USER", "ADMIN")
 
-                        // ✅ 관리자 로그인 — 인증 불필요
-                        .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
+                                                // 🔒 회원 전용 — 신고
+                                                .requestMatchers(HttpMethod.POST, "/api/reports").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/check").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/my-targets").hasAnyRole("USER", "ADMIN")
 
-                        // 🔐 임시 허용 (페스티벌 관리자 기능 테스트용 - JWT 구현전)
-                        .requestMatchers("/api/admin/festivals/**").permitAll()
+                                                // ✅ 관리자 로그인 — 인증 불필요
+                                                .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
 
-                        // 🔐 관리자 전용
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                                                // ✅ 달력(캘린더) 조회 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/calendar/**").permitAll()
 
-                        // 🔒 그 외 인증 필요
-                        .anyRequest().authenticated()
-                )
+                                                // ✅ 첨부파일(이미지 등) 다운로드 허용
+                                                // [로컬 개발 환경 전용 설정] 실서버에서는 Nginx가 처리하므로 이 필터를 거치지 않습니다.
+                                                .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
 
-                // 🚨 예외 처리 핸들러 (401, 403)
-                .exceptionHandling(exception -> exception
-                        .authenticationEntryPoint(jwtAuthenticationEntryPoint)
-                        .accessDeniedHandler(jwtAccessDeniedHandler)
-                )
+                                                // ✅ 에러 페이지 경로 허용 (404 등이 401로 마스킹되는 것 방지)
+                                                .requestMatchers("/error").permitAll()
 
-                // JWT 필터 추가
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                                // ✅ 관리자 인증 API (Refresh 등)
+                                                .requestMatchers("/api/admin/auth/**").permitAll()
 
-        return http.build();
-    }
+                                                // 🔐 관리자 전용 (모든 관리자 API 일괄 적용)
+                                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
-    }
+                                                // 🔒 그 외 인증 필요
+                                                .anyRequest().authenticated())
+
+                                // 🚨 예외 처리 핸들러 (401, 403)
+                                .exceptionHandling(exception -> exception
+                                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
+                                                .accessDeniedHandler(jwtAccessDeniedHandler))
+
+                                // 카카오 소셜 로그인(OAuth2) 설정
+                                .oauth2Login(oauth2 -> oauth2
+                                                .userInfoEndpoint(userInfo -> userInfo
+                                                                .userService(customOAuth2UserService))
+                                                .successHandler(oAuth2SuccessHandler))
+
+                                // JWT 필터 추가
+                                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+
+
+                return http.build();
+        }
+
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder();
+        }
 }

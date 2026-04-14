@@ -65,11 +65,11 @@
 |---|---|---|---|---|
 | `POST_001` | 404 | 게시글을 찾을 수 없습니다. | `Post not found: postId={postId}` | 미존재 게시글 |
 | `POST_002` | 403 | 본인이 작성한 게시글만 수정/삭제할 수 있습니다. | `Forbidden: post ownerId={ownerId}, requesterId={userId}` | 타인 게시글 |
-| `POST_003` | 400 | 제목은 2~100자, 내용은 10~5000자여야 합니다. | `Validation: title(2-100)={titleLen}, content(10-5000)={contentLen}` | 글자 수 |
+| `POST_003` | 400 | 제목은 2~200자, 내용은 10~5000자여야 합니다. | `Validation: title(2-200)={titleLen}, content(10-5000)={contentLen}` | 글자 수 |
 | `POST_004` | 400 | 카테고리를 선택해주세요. | `Required field missing: category` | 카테고리 미선택 |
 | `COMMENT_001` | 404 | 댓글을 찾을 수 없습니다. | `Comment not found: commentId={commentId}` | 미존재 댓글 |
 | `COMMENT_002` | 403 | 본인이 작성한 댓글만 수정/삭제할 수 있습니다. | `Forbidden: comment ownerId={ownerId}, requesterId={userId}` | 타인 댓글 |
-| `COMMENT_003` | 400 | 댓글 내용을 입력해주세요. (1~1000자) | `Comment content: min=1, max=1000, actual={length}` | 빈 댓글 |
+| `COMMENT_003` | 400 | 댓글 내용을 입력해주세요. (1~500자) | `Comment content: min=1, max=500, actual={length}` | 빈 댓글 |
 
 ## 7. 공지/문의 (NOTICE, INQ) — 6개
 

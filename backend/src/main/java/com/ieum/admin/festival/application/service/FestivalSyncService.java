@@ -2,11 +2,12 @@ package com.ieum.admin.festival.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
-import com.ieum.admin.festival.application.result.FestivalSyncResult;
-import com.ieum.festival.domain.model.Festival;
-import com.ieum.festival.domain.model.FestivalSource;
-import com.ieum.festival.domain.model.FestivalStatus;
+import com.ieum.admin.festival.application.port.in.SyncPublicFestivalUseCase;
+import com.ieum.admin.festival.application.port.out.AdminFestivalPort;
+import com.ieum.admin.festival.application.result.DataSyncResult;
+import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalSource;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,17 +18,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
+/**
+ * 관리자 수동 동기화 서비스 (공공 API → DB)
+ * - SyncPublicFestivalUseCase 구현체
+ * - 공공 API 축제 데이터 동기화
+ */
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class FestivalSyncService {
+public class FestivalSyncService implements SyncPublicFestivalUseCase {
 
-    private final AdminFestivalRepository festivalRepository;
+    private final AdminFestivalPort festivalPort;
     private final RestTemplate restTemplate = new RestTemplate();
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -37,14 +43,16 @@ public class FestivalSyncService {
     @Value("${tour-api.base-url}")
     private String baseUrl;
 
-    public FestivalSyncResult syncFestivalsFromTourApi() {
-        log.info("Starting TourAPI sync...");
+    @Override
+    @Transactional
+    public DataSyncResult syncPublicFestivals() {
+        log.info("Starting TourAPI public festival sync...");
+
         int syncCount = 0;
         int pageNo = 1;
         int numOfRows = 200;
 
         try {
-            // 오늘 기준으로 2년 전 데이터부터 검색
             LocalDate now = LocalDate.now();
             String startDateStr = now.minusYears(2).format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
@@ -57,7 +65,7 @@ public class FestivalSyncService {
                         .queryParam("MobileApp", "ieum")
                         .queryParam("_type", "json")
                         .queryParam("eventStartDate", startDateStr)
-                        .queryParam("arrange", "A") // 제목순 정렬 기준. 혹은 최신순 C도 가능. 우리는 전부 가져옴
+                        .queryParam("arrange", "A")
                         .build(true).toUri();
 
                 String responseBody;
@@ -65,13 +73,18 @@ public class FestivalSyncService {
                     responseBody = restTemplate.getForObject(uri, String.class);
                 } catch (org.springframework.web.client.HttpClientErrorException apiEx) {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
-                    if (apiEx.getStatusCode() == org.springframework.http.HttpStatus.FORBIDDEN || apiEx.getStatusCode() == org.springframework.http.HttpStatus.UNAUTHORIZED) {
-                        throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_002, "API 통신 권한 없음: " + apiEx.getMessage(), apiEx);
+                    if (apiEx.getStatusCode() == org.springframework.http.HttpStatus.FORBIDDEN
+                            || apiEx.getStatusCode() == org.springframework.http.HttpStatus.UNAUTHORIZED) {
+                        throw new RuntimeException(
+                                "API 통신 권한 없음: " + apiEx.getMessage(),
+                                apiEx);
                     }
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001, "API 통신 실패: " + apiEx.getMessage(), apiEx);
+                    throw new RuntimeException(
+                            "API 통신 실패: " + apiEx.getMessage(), apiEx);
                 } catch (Exception apiEx) {
                     log.error("Tour API call failed at page {}", pageNo, apiEx);
-                    throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.FEST_001, "API 통신 에러: " + apiEx.getMessage(), apiEx);
+                    throw new RuntimeException(
+                            "API 통신 에러: " + apiEx.getMessage(), apiEx);
                 }
 
                 JsonNode rootNode = objectMapper.readTree(responseBody);
@@ -83,9 +96,10 @@ public class FestivalSyncService {
                     for (JsonNode item : itemsNode) {
                         try {
                             String sourceId = item.path("contentid").asText(null);
-                            if (sourceId == null) continue;
+                            if (sourceId == null)
+                                continue;
 
-                            Festival festival = festivalRepository.findBySourceId(sourceId).orElse(null);
+                            Festival festival = festivalPort.findBySourceId(sourceId).orElse(null);
                             if (festival == null) {
                                 festival = Festival.builder()
                                         .sourceId(sourceId)
@@ -94,7 +108,7 @@ public class FestivalSyncService {
                                         .isVisible(true)
                                         .build();
                             }
-                            
+
                             updateFestivalData(festival, item);
                             saveList.add(festival);
                             syncCount++;
@@ -102,7 +116,7 @@ public class FestivalSyncService {
                             log.warn("Skipping festival due to parsing error", e);
                         }
                     }
-                    festivalRepository.saveAll(saveList);
+                    festivalPort.saveAll(saveList);
                 } else {
                     break;
                 }
@@ -113,18 +127,28 @@ public class FestivalSyncService {
                 }
                 pageNo++;
             }
-            
-            log.info("TourAPI sync completed successfully. Synced {} items.", syncCount);
-            return FestivalSyncResult.builder().status("COMPLETED").syncCount(syncCount).build();
 
-        } catch (com.ieum.global.exception.BusinessException be) {
-            throw be;
+            log.info("TourAPI public festival sync completed successfully. Synced {} items.", syncCount);
+            
+            return DataSyncResult.builder()
+                    .status("COMPLETED")
+                    .type("PUBLIC")
+                    .totalChanged(syncCount)
+                    .details(DataSyncResult.Details.builder().festival(syncCount).build())
+                    .build();
+
+        } catch (RuntimeException be) {
+            log.error("Failed to sync public festivals from TourAPI", be);
+            return DataSyncResult.builder().status("FAILED").type("PUBLIC").totalChanged(0).build();
         } catch (Exception e) {
-            log.error("Failed to sync festivals from TourAPI", e);
-            throw new com.ieum.global.exception.BusinessException(com.ieum.global.exception.ErrorCode.COMMON_500, "동기화 중 오류 발생: " + e.getMessage(), e);
+            log.error("Failed to sync public festivals from TourAPI", e);
+            return DataSyncResult.builder().status("FAILED").type("PUBLIC").totalChanged(0).build();
         }
     }
 
+    /**
+     * 공공 API JSON → Festival 도메인 모델 필드 업데이트
+     */
     private void updateFestivalData(Festival festival, JsonNode item) {
         String title = item.path("title").asText(null);
         String addr1 = item.path("addr1").asText("");
@@ -134,42 +158,59 @@ public class FestivalSyncService {
         String tel = item.path("tel").asText(null);
         String mapx = item.path("mapx").asText(null);
         String mapy = item.path("mapy").asText(null);
+        String areacode = item.path("areacode").asText();
+        String sigungucode = item.path("sigungucode").asText();
+        String cat1 = item.path("cat1").asText();
+        String cat2 = item.path("cat2").asText();
+        String cat3 = item.path("cat3").asText();
 
         LocalDate startDate = parseDate(item.path("eventstartdate").asText(null));
         LocalDate endDate = parseDate(item.path("eventenddate").asText(null));
 
-        FestivalStatus status = FestivalStatus.UPCOMING;
-        LocalDate today = LocalDate.now();
-        if (startDate != null && endDate != null) {
-            if (today.isBefore(startDate)) {
-                status = FestivalStatus.UPCOMING;
-            } else if (today.isAfter(endDate)) {
-                status = FestivalStatus.ENDED;
-            } else {
-                status = FestivalStatus.ONGOING;
-            }
-        }
+        FestivalStatus newStatus = Festival.calculateStatus(startDate, endDate);
 
         title = title != null ? title : "제목 없음";
-        if (title.length() > 255) title = title.substring(0, 255);
+        if (title.length() > 255)
+            title = title.substring(0, 255);
         festival.setTitle(title);
 
         String fullAddress = (addr1 + " " + addr2).trim();
-        if (fullAddress.length() > 500) fullAddress = fullAddress.substring(0, 500);
+        if (fullAddress.length() > 500)
+            fullAddress = fullAddress.substring(0, 500);
         festival.setAddress(fullAddress);
 
         String loc = addr1.split(" ").length > 0 ? addr1.split(" ")[0] : "";
-        if (loc.length() > 255) loc = loc.substring(0, 255);
+        if (loc.length() > 255)
+            loc = loc.substring(0, 255);
         festival.setLocation(loc);
 
-        if (firstimage != null && firstimage.length() > 500) firstimage = firstimage.substring(0, 500);
+        if (firstimage != null && firstimage.length() > 500)
+            firstimage = firstimage.substring(0, 500);
         festival.setImageUrl(firstimage);
 
-        if (firstimage2 != null && firstimage2.length() > 500) firstimage2 = firstimage2.substring(0, 500);
+        if (firstimage2 != null && firstimage2.length() > 500)
+            firstimage2 = firstimage2.substring(0, 500);
         festival.setThumbnailUrl(firstimage2);
 
-        if (tel != null && tel.length() > 50) tel = tel.substring(0, 50);
+        if (tel != null && tel.length() > 50)
+            tel = tel.substring(0, 50);
         festival.setTel(tel);
+
+        // ── 지역코드: API 값 우선, 비어있으면 주소에서 역추론 ──
+        String resolvedAreaCode = areacode.isEmpty() ? null : areacode;
+        if (resolvedAreaCode == null) {
+            resolvedAreaCode = RegionCodeResolver.resolveFromAddress(addr1);
+            if (resolvedAreaCode != null) {
+                log.debug("지역코드 역추론: '{}' → areaCode={}", addr1, resolvedAreaCode);
+            }
+        }
+        festival.setAreaCode(resolvedAreaCode);
+        festival.setSigunguCode(sigungucode.isEmpty() ? null : sigungucode);
+
+        // ── 카테고리: API 값 우선, 비어있으면 축제 기본값(A02/A0207) 적용 ──
+        festival.setCategory(RegionCodeResolver.resolveCategoryFallback(cat1.isEmpty() ? null : cat1, "cat1"));
+        festival.setCategoryMid(RegionCodeResolver.resolveCategoryFallback(cat2.isEmpty() ? null : cat2, "cat2"));
+        festival.setCategorySub(cat3.isEmpty() ? null : cat3);
 
         try {
             festival.setLongitude(mapx != null && !mapx.isEmpty() ? Double.parseDouble(mapx) : null);
@@ -177,13 +218,14 @@ public class FestivalSyncService {
         } catch (NumberFormatException e) {
             log.debug("Invalid mapx/mapy format for sourceId {}", festival.getSourceId());
         }
+
         festival.setStartDate(startDate);
         festival.setEndDate(endDate);
         if (festival.getStatus() != FestivalStatus.ENDED || !festival.isCustom()) {
-            festival.setStatus(status);
+            festival.setStatus(newStatus);
         }
-        
-        festival.setApiModifiedAt(java.time.LocalDateTime.now());
+
+        festival.setApiModifiedAt(LocalDateTime.now());
     }
 
     private LocalDate parseDate(String dateStr) {

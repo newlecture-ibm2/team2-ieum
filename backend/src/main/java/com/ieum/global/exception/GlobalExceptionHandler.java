@@ -1,41 +1,48 @@
 package com.ieum.global.exception;
 
-import com.ieum.global.response.ApiResponse;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.client.HttpClientErrorException;
 
-@Slf4j
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * [전역 예외 처리기]
+ * 모든 컨트롤러에서 발생한 예외를 잡아서, 500 에러 대신 깔끔한 JSON 응답으로 변환합니다.
+ * 별도 try-catch 없이도 서비스에서 throw만 하면 이 핸들러가 자동으로 처리합니다.
+ */
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(BusinessException.class)
-    public ResponseEntity<ApiResponse<Void>> handleBusinessException(BusinessException e) {
-        log.error("BusinessException: ", e);
-        return ResponseEntity.status(e.getErrorCode().getStatus()).body(
-            ApiResponse.error(e.getErrorCode().getCode(), e.getErrorCode().getStatus().value(), e.getErrorCode().getMessage(), e.getDetail())
-        );
+    /**
+     * @Valid 검증 예외 처리 (400 Bad Request)
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        String message = ex.getBindingResult().getAllErrors().get(0).getDefaultMessage();
+        
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorType", "ValidationException");
+        errorResponse.put("errorMessage", message);
+        
+        return ResponseEntity.status(400).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<Void>> handleException(Exception e) {
-        log.error("Unhandled Exception: ", e);
+    public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
+        ex.printStackTrace(); // 콘솔에 상세 로그 출력
         
-        // TourAPI 등 외부 연동 관련 403 / 401 오류 처리용 (RestTemplate Exception 처리)
-        if (e.getCause() instanceof HttpClientErrorException) {
-            HttpClientErrorException httpEx = (HttpClientErrorException) e.getCause();
-            if (httpEx.getStatusCode() == HttpStatus.FORBIDDEN || httpEx.getStatusCode() == HttpStatus.UNAUTHORIZED) {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-                    ApiResponse.error("COMMON_500", 500, "외부 공개 API 인증/권한 실패. API Key를 확인하세요.", httpEx.getMessage())
-                );
-            }
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorType", ex.getClass().getSimpleName());
+        errorResponse.put("errorMessage", ex.getMessage());
+        
+        // 스택 트레이스의 첫 줄을 포함
+        if (ex.getStackTrace() != null && ex.getStackTrace().length > 0) {
+            errorResponse.put("errorLocation", ex.getStackTrace()[0].toString());
         }
         
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-            ApiResponse.error("COMMON_500", 500, "서버 내부 오류가 발생했습니다.", e.getMessage())
-        );
+        return ResponseEntity.status(500).body(errorResponse);
     }
 }

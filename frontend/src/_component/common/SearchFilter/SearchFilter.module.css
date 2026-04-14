@@ -1,0 +1,449 @@
+.wrapper {
+  margin-top: -30px; /* Overlap with hero */
+  position: relative;
+  z-index: 20;
+}
+
+.wrapperNotice {
+  margin-top: 10px;
+}
+
+
+.searchBar {
+  background: #fff;
+  border: 1px solid #eee;
+  border-radius: 10px;
+  padding: 12px 16px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.04);
+  margin: 14px 0 24px 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  width: 100%;
+}
+
+.searchLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.searchRight {
+  display: flex;
+  align-items: center;
+  margin-left: 14px;
+}
+
+.searchTypeSelect {
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  color: #333;
+  background: #fff;
+  font-family: inherit;
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.searchTypeSelect:focus, .searchTypeSelect:hover {
+  border-color: #c7d2fe;
+}
+
+
+.sortSelect {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  background: #fff;
+  font-family: 'Noto Sans KR', sans-serif;
+  outline: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 90px;
+}
+
+.sortSelect:focus, .sortSelect:hover {
+  border-color: #c7d2fe;
+}
+
+.chevronIcon {
+  color: #6b7280;
+}
+
+/* Custom Dropdown Panel for Sort */
+.sortDropdownPanel {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 140px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 8px 0;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  list-style: none;
+  margin: 0;
+}
+
+.sortDropdownPanel li {
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #475569;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.sortDropdownPanel li:hover {
+  background: #f8fafc;
+  color: #6c5ce7;
+}
+
+.activeSort {
+  color: #6c5ce7 !important;
+  font-weight: 700 !important;
+  background: #f3e8ff;
+}
+
+.inputWrap {
+  display: flex;
+  align-items: center;
+  background: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  padding: 7px 12px;
+  gap: 6px;
+  width: 260px;
+}
+
+.searchIcon {
+  color: #999;
+  flex-shrink: 0;
+}
+
+.input {
+  border: none;
+  background: transparent;
+  font-size: 13px;
+  color: #333;
+  outline: none;
+  width: 100%;
+  font-family: 'Noto Sans KR', sans-serif;
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-gray-300);
+  border: none;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;
+  transition: background 0.2s;
+}
+
+.clearBtn:hover {
+  background: var(--color-gray-500);
+}
+
+.filterRelative {
+  position: relative;
+}
+
+.filterBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f8f9fa;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 7px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.filterBtn:hover {
+  background: #eef2ff;
+  border-color: #c7d2fe;
+  color: #3730a3;
+}
+
+.filterPanel {
+  position: absolute;
+  top: 44px;
+  left: 0;
+  width: 380px;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  padding: 18px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  z-index: 150;
+}
+
+.filterPanel::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 30px;
+  width: 10px;
+  height: 10px;
+  background: #fff;
+  border-left: 1px solid #e2e8f0;
+  border-top: 1px solid #e2e8f0;
+  transform: rotate(45deg);
+}
+
+.filterGroup {
+  margin-bottom: 14px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.filterGroup:last-of-type {
+  border-bottom: none;
+  margin-bottom: 6px;
+}
+
+.filterGroup h4 {
+  font-size: 12px;
+  font-weight: 800;
+  color: #1e293b;
+  margin-bottom: 10px;
+}
+
+.filterTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.filterTags span {
+  font-size: 12px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.2s;
+  font-weight: 500;
+}
+
+.filterTags span.active {
+  background: #f3e8ff;
+  color: #6b21a8;
+  border-color: #d8b4fe;
+  font-weight: 700;
+}
+
+.filterActions {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.btnReset {
+  flex: 1;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f8fafc;
+  border: 1px solid #cbd5e1;
+  color: #64748b;
+}
+
+.btnReset:hover {
+  background: #f1f5f9;
+}
+
+.btnApply {
+  flex: 2;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  background: linear-gradient(135deg, #a55eea, #6c5ce7);
+  border: none;
+  color: #fff;
+}
+
+.btnApply:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+}
+
+.searchBtn {
+  background: linear-gradient(135deg, #a55eea, #6c5ce7);
+  color: #fff;
+  border: none;
+  padding: 9px 20px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'Noto Sans KR', sans-serif;
+  transition: all 0.2s;
+}
+
+.searchBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.2);
+}
+
+.customDateInputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.customDateInputs input {
+  padding: 6px 10px;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  color: #334155;
+  outline: none;
+}
+
+.customDateInputs input:focus {
+  border-color: #a55eea;
+  box-shadow: 0 0 0 2px rgba(165, 94, 234, 0.1);
+}
+
+.customDateInputs span {
+  color: #94a3b8;
+  font-weight: 600;
+}
+
+/* ─── 위치 정보 스피너 (거리순 정렬 대기 중) ─── */
+.locationSpinner {
+  width: 28px;
+  height: 28px;
+  border: 3px solid #e2e8f0;
+  border-top-color: var(--color-primary-500, #a55eea);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 12px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  /* 모바일에서는 히어로 배너 안의 텍스트를 가리지 않도록 마진 위치를 살짝 내림 */
+  .wrapper {
+    margin-top: -10px;
+  }
+
+  /* wrapper들을 제거하고 Grid 자식으로 편입 */
+  .searchLeft, .searchRight {
+    display: contents;
+  }
+
+  .searchBar {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 12px 10px;
+    padding: 14px 12px;
+    margin: 10px 0 16px;
+  }
+
+  /* 공지사항 탭용 셀렉트바: 필요시 맨 윗줄 전체 차지 */
+  .searchTypeSelect {
+    grid-column: 1 / -1;
+    width: 100%;
+  }
+
+  /* 1열: 왼쪽 (입력창) */
+  .inputWrap {
+    grid-column: 1;
+    width: 100%;
+  }
+
+  /* 1열: 오른쪽 (검색 버튼) */
+  .searchBtn {
+    grid-column: 2;
+    width: auto;
+    padding: 9px 18px;
+    white-space: nowrap;
+  }
+
+  /* 2열: 왼쪽 (상세 필터) */
+  .filterRelative {
+    grid-column: 1;
+    justify-self: start;
+    width: auto;
+  }
+
+  .filterBtn {
+    width: auto;
+    padding: 7px 14px;
+  }
+
+  /* 2열: 오른쪽 (정렬) */
+  .sortSelect {
+    grid-column: 2;
+    justify-self: end;
+    width: auto;
+    /* 정렬 텍스트 길이에 맞춰 최소 너비 제공 */
+    min-width: 90px;
+  }
+
+  /* --- 상세 필터 팝업 --- */
+  .filterPanel {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    /* 고정 너비와 최대 너비를 설정하여 화면을 넘지 않는 카드 형태로 유지 */
+    width: 340px;
+    max-width: calc(100vw - 24px);
+    transform: none;
+    max-height: 80vh;
+    overflow-y: auto;
+    z-index: 1000;
+  }
+
+  /* 다시 화살표 표시 (상세 필터 버튼 아래를 가리키도록 위치 조정) */
+  .filterPanel::before {
+    display: block;
+    left: 24px;
+  }
+
+  .customDateInputs {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .customDateInputs input {
+    width: 100%;
+  }
+}
+
+

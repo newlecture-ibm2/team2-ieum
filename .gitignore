@@ -16,6 +16,7 @@ Icon?
 .env
 .env.*
 !.env.example
+firebase-service-key.json
 
 # Node
 node_modules/
@@ -44,4 +45,12 @@ yarn-error.log*
 
 # Docker
 docker-compose.override.yml
+docker-compose-dev.yml
 docker-compose.dev.yml
+
+# Uploads (로컬 이미지 저장 — 운영은 Nginx 볼륨)
+**/uploads/*
+!**/uploads/.gitkeep
+
+# JVM crash logs
+hs_err_pid*

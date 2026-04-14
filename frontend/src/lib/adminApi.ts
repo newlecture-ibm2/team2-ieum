@@ -4,8 +4,15 @@
 
 import axios from "axios";
 
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") {
+    return "/api/admin"; 
+  }
+  return (process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080") + "/api/admin";
+};
+
 const adminApi = axios.create({
-  baseURL: (process.env.BACKEND_URL || "http://localhost:8080") + "/api/admin",
+  baseURL: getBaseUrl(),
   timeout: 120000, // 동기화 등 장시간 작업 고려 (120초)
   headers: {
     "Content-Type": "application/json",

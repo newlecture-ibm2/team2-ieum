@@ -1,0 +1,135 @@
+.mainContainer {
+  min-height: 100vh;
+  background: #fff;
+}
+
+/* ===== 히어로 배너 (pastFestivals와 동일 구조) ===== */
+.hero {
+  position: relative;
+  background: 
+    linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.6)),
+    url('/images/community_hero.png') center top / cover no-repeat;
+  padding: 64px 0;
+  padding-top: calc(64px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
+  text-align: center;
+  overflow: hidden;
+}
+
+.heroContent {
+  position: relative;
+  z-index: 1;
+}
+
+.heroTitle {
+  font-size: 28px;
+  font-weight: 800;
+  color: #fff;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.heroSub {
+  font-size: 15px;
+  color: rgba(255, 255, 255, 0.65);
+  font-weight: 400;
+}
+
+/* 콘텐츠 영역 */
+.contentSection {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--spacing-lg) var(--spacing-lg) 80px;
+}
+
+/* 게시글 리스트 */
+.postList {
+  display: flex;
+  flex-direction: column;
+}
+
+/* 로딩 & 스크롤 트리거 */
+.loadingWrap {
+  text-align: center;
+  padding: 24px 0;
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.scrollTrigger {
+  height: 1px;
+}
+
+/* 비어있음 */
+.emptyState {
+  text-align: center;
+  padding: 60px 0;
+  color: #94a3b8;
+}
+
+.emptyState p:first-child {
+  font-size: 40px;
+  margin-bottom: 12px;
+}
+
+.emptyState p:last-child {
+  font-size: 14px;
+}
+
+/* 글쓰기 FAB (정적이고 공적인 형태) */
+.fab {
+  position: fixed;
+  bottom: 40px;
+  right: 40px;
+  width: auto;
+  height: 48px;
+  padding: 0 20px;
+  border-radius: 24px;
+  background: var(--color-gray-800, #2d3436);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  z-index: 100;
+  transition: background-color 0.2s;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  text-decoration: none;
+}
+
+.fab:hover {
+  background: var(--color-gray-900, #1e293b);
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .hero {
+    padding: 36px 0;
+    padding-top: calc(36px + var(--header-height));
+  }
+
+  .heroTitle {
+    font-size: 22px;
+  }
+
+  .heroSub {
+    font-size: 13px;
+  }
+
+  .contentSection {
+    padding: var(--spacing-md) 16px 60px;
+  }
+
+  .fab {
+    bottom: calc(64px + env(safe-area-inset-bottom) + 16px); /* 하단 네비게이션 위로 위치 */
+    right: 16px;
+    width: auto;
+    height: 44px;
+    padding: 0 16px;
+    font-size: 14px;
+  }
+}
+

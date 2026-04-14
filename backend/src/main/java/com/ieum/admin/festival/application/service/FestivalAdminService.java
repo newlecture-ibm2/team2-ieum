@@ -1,52 +1,60 @@
 package com.ieum.admin.festival.application.service;
 
-import com.ieum.admin.festival.adapter.out.persistence.AdminFestivalRepository;
+import com.ieum.admin.festival.application.port.in.GetAdminFestivalListUseCase;
+import com.ieum.admin.festival.application.port.in.UpdateFestivalVisibilityUseCase;
+import com.ieum.admin.festival.application.port.out.AdminFestivalPort;
 import com.ieum.admin.festival.application.result.*;
-import com.ieum.festival.domain.model.Festival;
-import com.ieum.festival.domain.model.FestivalStatus;
+import com.ieum.admin.festival.domain.model.Festival;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * 관리자용 공공 축제 서비스 (UseCase 구현체)
+ * - GetAdminFestivalListUseCase: 공공 축제 목록 조회
+ * - UpdateFestivalVisibilityUseCase: 노출/숨김 변경
+ *
+ * Port를 통해 persistence에 접근하며, Entity를 직접 사용하지 않음
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
-public class FestivalAdminService {
+public class FestivalAdminService implements GetAdminFestivalListUseCase, UpdateFestivalVisibilityUseCase {
 
-    private final AdminFestivalRepository festivalRepository;
+    private final AdminFestivalPort festivalPort;
+    private final CategoryOptionService categoryOptionService;
+    private final RegionOptionService regionOptionService;
 
-    public AdminFestivalListResult getFestivals(int page, int size, String keyword, String statusStr) {
-        FestivalStatus status = null;
+    @Override
+    public AdminFestivalListResult getFestivals(int page, int size, String keyword, String statusStr, String categoryCode, String areaCode) {
+        String status = null;
         if (statusStr != null && !statusStr.isEmpty()) {
-            try {
-                status = FestivalStatus.valueOf(statusStr.toUpperCase());
-            } catch (IllegalArgumentException e) {
-                // Ignore invalid status mapping
-            }
+            status = statusStr.toUpperCase();
         }
 
         PageRequest pageRequest = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<Festival> festivalPage = festivalRepository.searchAdminFestivals(keyword, status, pageRequest);
+        List<String> targetCategories = categoryOptionService.getSelfAndDescendantCodes(categoryCode);
+        Page<Festival> festivalPage = festivalPort.searchPublicFestivals(keyword, status, targetCategories, areaCode, pageRequest);
 
         List<FestivalListItemResult> content = festivalPage.getContent().stream()
                 .map(this::mapToItemResult)
                 .collect(Collectors.toList());
 
         FestivalStatusCountsResult statusCounts = FestivalStatusCountsResult.builder()
-                .total(festivalRepository.countPublicFestivals())
-                .ongoing(festivalRepository.countPublicFestivalsByStatus(FestivalStatus.ONGOING))
-                .upcoming(festivalRepository.countPublicFestivalsByStatus(FestivalStatus.UPCOMING))
-                .ended(festivalRepository.countPublicFestivalsByStatus(FestivalStatus.ENDED))
+                .total(festivalPort.countPublicFestivals())
+                .ongoing(festivalPort.countPublicFestivalsByStatus("ONGOING"))
+                .upcoming(festivalPort.countPublicFestivalsByStatus("UPCOMING"))
+                .ended(festivalPort.countPublicFestivalsByStatus("ENDED"))
                 .build();
 
-        java.time.format.DateTimeFormatter dtf = java.time.format.DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
-        String lastSyncTime = festivalRepository.findMaxApiModifiedAt()
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");
+        String lastSyncTime = festivalPort.findMaxApiModifiedAt()
                 .map(dtf::format)
                 .orElse("기록 없음");
 
@@ -61,13 +69,14 @@ public class FestivalAdminService {
                 .build();
     }
 
+    @Override
     @Transactional
     public FestivalVisibilityResult updateVisibility(Long festivalId, boolean isVisible) {
-        Festival festival = festivalRepository.findById(festivalId)
+        Festival festival = festivalPort.findById(festivalId)
                 .orElseThrow(() -> new IllegalArgumentException("Festival not found: " + festivalId));
 
         festival.setVisible(isVisible);
-        // Automatically handled by dirty checking in transaction
+        festivalPort.save(festival);
 
         return FestivalVisibilityResult.builder()
                 .status("UPDATED")
@@ -76,14 +85,20 @@ public class FestivalAdminService {
     }
 
     private FestivalListItemResult mapToItemResult(Festival f) {
+        String statusStr = f.getStatus() != null ? f.getStatus().name().toLowerCase() : "";
+
+        String specificCategory = f.getCategorySub() != null && !f.getCategorySub().isEmpty() ? f.getCategorySub() :
+                (f.getCategoryMid() != null && !f.getCategoryMid().isEmpty() ? f.getCategoryMid() : f.getCategory());
+
         return FestivalListItemResult.builder()
                 .id(f.getId())
                 .title(f.getTitle())
-                .region(f.getLocation() != null ? f.getLocation() : f.getAddress())
+                .region(regionOptionService.resolveLabel(f.getAreaCode()))
                 .startDate(f.getStartDate() != null ? f.getStartDate().toString() : "")
                 .endDate(f.getEndDate() != null ? f.getEndDate().toString() : "")
-                .category(f.getCategory())
-                .status(f.getStatus().name().toLowerCase())
+                .category(specificCategory)
+                .categoryLabel(categoryOptionService.resolveLabel(specificCategory))
+                .status(statusStr)
                 .isVisible(f.isVisible())
                 .build();
     }

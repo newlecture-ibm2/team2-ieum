@@ -1,0 +1,727 @@
+.header {
+  position: relative;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  height: var(--header-height);
+  background: transparent;
+  transition: background var(--transition-normal);
+}
+
+.headerInner {
+  max-width: var(--max-width);
+  height: 100%;
+  margin: 0 auto;
+  padding: 0 var(--spacing-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ===== 브랜드 로고 ===== */
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  text-decoration: none;
+  flex-shrink: 0; /* ✔️ 제일 중요한 속성: 화면이 좁아져도 절대 자기 사이즈를 지킴 */
+}
+
+.logoPin {
+  width: 30px;
+  height: 30px;
+  background: var(--gradient-brand);
+  border-radius: 50% 50% 50% 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(-45deg);
+  transition: transform var(--transition-normal);
+}
+
+.logo:hover .logoPin {
+  transform: rotate(-45deg) scale(1.1);
+}
+
+.logoPinInner {
+  width: 13px;
+  height: 13px;
+  background: white;
+  border-radius: 50%;
+  transform: rotate(45deg);
+}
+
+.logoImg {
+  width: 100px;
+  /* 로고 가로 크기를 시원하게 확장 (원하시면 이 값을 더 키우셔도 됩니다!) */
+  height: auto;
+  /* 비율에 맞춰 자연스럽게 세로도 커짐 */
+  object-fit: contain;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.logoText {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-gray-800);
+  letter-spacing: -1px;
+}
+
+/* ===== 네비게이션 ===== */
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 28px;
+  white-space: nowrap; /* 글씨 줄바꿈 방지 */
+}
+
+.navLink {
+  position: relative;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-gray-500);
+  padding: 4px 0;
+  transition: color var(--transition-fast);
+}
+
+.navLink:hover {
+  color: var(--color-primary-500);
+}
+
+.navLinkActive {
+  color: var(--color-primary-500);
+  font-weight: 700;
+}
+
+.navLinkActive::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: var(--gradient-active);
+  border-radius: 2px;
+}
+
+/* ===== 우측 액션 버튼 ===== */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+/* 알림 벨 */
+.bellWrapper {
+  position: relative;
+}
+
+.bellBtn {
+  position: relative;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--color-gray-50);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast);
+}
+
+.bellBtn:hover {
+  background: var(--color-primary-50);
+}
+
+.bellBtn svg {
+  width: 18px;
+  height: 18px;
+  color: var(--color-gray-500);
+}
+
+.bellDot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-accent-400);
+  border-radius: 50%;
+  border: 1.5px solid white;
+}
+
+/* 사용자 아이콘 및 닉네임 유닛 (Pill 디자인) */
+.userBtn {
+  height: 34px;
+  padding: 2px 14px 2px 3px;
+  border-radius: 20px;
+  background: white;
+  border: 1px solid var(--color-gray-100);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  transition: all var(--transition-fast);
+}
+
+.userBtn:hover {
+  border-color: var(--color-primary-200);
+  background: var(--color-primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 92, 231, 0.12);
+}
+
+.userIconWrapper {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--gradient-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast);
+}
+
+.userBtn:hover .userIconWrapper {
+  transform: scale(1.05);
+}
+
+.userIconWrapper svg {
+  width: 14px;
+  height: 14px;
+  color: white;
+}
+
+.userName {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--color-gray-700);
+  white-space: nowrap;
+}
+
+.userBtn:hover .userName {
+  color: var(--color-primary-600);
+}
+
+/* 관리자 버튼 */
+.adminBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, #e74c3c, #c0392b);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.adminBtn:hover {
+  transform: scale(1.08);
+  box-shadow: 0 2px 8px rgba(231, 76, 60, 0.3);
+}
+
+.adminBtn svg {
+  color: white;
+}
+
+/* 비회원용 버튼 */
+.loginBtn {
+  padding: 6px 16px;
+  border-radius: var(--radius-full);
+  background: var(--gradient-primary);
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+}
+
+.loginBtn:hover {
+  opacity: 0.9;
+  transform: translateY(-1px);
+}
+
+/* 로그아웃 버튼 */
+.logoutBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-gray-100);
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--transition-fast), transform var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--color-error);
+  transform: scale(1.08);
+}
+
+.logoutBtn svg {
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.logoutBtn:hover svg {
+  color: white;
+}
+
+/* ===== [DEV] 상태 최신화 버튼 — 개발 완료 후 제거 ===== */
+.devRefreshBtn {
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: linear-gradient(135deg, #f39c12, #e67e22);
+  color: white;
+  font-size: 12px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: opacity var(--transition-fast), transform var(--transition-fast);
+  white-space: nowrap;
+}
+
+.devRefreshBtn:hover {
+  opacity: 0.85;
+  transform: translateY(-1px);
+}
+
+.devRefreshBtn:active {
+  transform: scale(0.95);
+}
+
+/* ===== 팝업 모달 ===== */
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  backdrop-filter: blur(2px);
+}
+
+.modalBox {
+  margin: 0;
+  background: white;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  min-width: 320px;
+  animation: modal-fade-in 0.2s ease-out forwards;
+}
+
+@keyframes modal-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.modalText {
+  font-size: 16px;
+  color: var(--color-gray-800);
+  margin-bottom: 24px;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+.modalBtn {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 10px 28px;
+  border-radius: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.modalBtn:hover {
+  opacity: 0.9;
+}
+
+/* ===== 햄버거 버튼 (데스크톱에서는 숨김) ===== */
+.hamburgerBtn {
+  display: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  position: relative; /* 모바일 슬라이드 위로 띄우기 위함 */
+  z-index: 1000;      /* mobileNav(999) 보다 높게 설정 */
+}
+
+.hamburgerBtn svg {
+  color: var(--color-gray-700);
+  transition: color var(--transition-fast), transform var(--transition-bounce);
+}
+
+.hamburgerBtn:hover {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+.hamburgerBtn:hover svg {
+  transform: scale(1.1);
+}
+
+/* ===== 모바일 오버레이 ===== */
+.mobileOverlay {
+  display: none;
+}
+
+/* =========================================
+   [NEW] 하단 플로팅 네비게이션 (데스크톱에서는 숨김 처리)
+   ========================================= */
+.mBottomNav {
+  display: none;
+  position: fixed;
+  bottom: 0; /* 화면 완전 밑바닥에 밀착 */
+  left: 0;
+  width: 100%; /* 가로 전체 너비 사용 */
+  height: calc(64px + env(safe-area-inset-bottom)); /* 아이폰 하단 홈바(Safe Area) 공간만큼 자동 확장 */
+  padding: 0 16px env(safe-area-inset-bottom) 16px; /* 하단 홈바 영역만큼 패딩 추가 */
+  
+  /* iOS 아쿠아 글래스모피즘 스타일 적용 */
+  background: rgba(255, 255, 255, 0.8); /* 살짝 더 불투명도를 높여 안정감 확보 */
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  
+  /* 위쪽 모서리만 둥글게 깎아 앱 내비게이션 바처럼 연출 */
+  border-radius: 20px 20px 0 0; 
+  /* 상단으로 퍼지는 부드러운 그림자와 윗면 빛반사 */
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.04), inset 0 1px 1px rgba(255, 255, 255, 0.8);
+  border-top: 1px solid rgba(255, 255, 255, 0.6); /* 위쪽 테두리만 느낌있게 살림 */
+  
+  z-index: 2000;
+  align-items: center;
+}
+
+.mBottomNavInner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  height: 100%;
+}
+
+.mBottomNavItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 25%; /* 5개(20%)에서 4개(25%)로 변경 */
+  height: 100%;
+  background: transparent;
+  border: none;
+  color: var(--color-gray-400); /* 밝은 배경에 어울리는 부드러운 회색 */
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); /* 통통 튀는 애니메이션 */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mBottomNavIcon {
+  opacity: 0.8;
+  transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.mBottomNavLabel {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* 선택된 활성화 버튼 컬러 */
+.mBottomNavActive {
+  color: var(--color-gray-800);
+}
+
+.mBottomNavActive .mBottomNavIcon {
+  color: var(--color-primary-500); /* 밝은 배경에 어울리는 이음 기본 보라색 */
+  opacity: 1;
+  transform: translateY(-3px) scale(1.1); /* 활성화 시 아이콘이 더 위로 살짝 점프 */
+  filter: drop-shadow(0 2px 6px rgba(108, 92, 231, 0.4)); /* 쨍한 글로우 효과 */
+}
+
+.mBottomNavActive .mBottomNavLabel {
+  font-weight: 700;
+  color: var(--color-gray-900); /* 선명한 글씨 */
+}
+
+/* ===== 모바일 슬라이드 네비게이션 ===== */
+.mobileNav {
+  display: none;
+}
+
+/* ===== 모바일 전용 로그인 버튼 (데스크톱 숨김) ===== */
+.mobileHeaderLoginBtn {
+  display: none;
+}
+
+.mobileHeaderLoginHidden {
+  display: none !important;
+}
+
+/* ===== 반응형: 1100px 이하 (글씨 줄바꿈 방지를 위해 간격만 축소) ===== */
+@media (max-width: 1100px) {
+  .nav {
+    gap: 16px; /* 메뉴 간격을 줄여서 한 줄에 들어가게 함 */
+  }
+}
+
+/* ===== 반응형: 768px 이하 (모바일 레이아웃) ===== */
+@media (max-width: 768px) {
+  .header {
+    height: 56px;
+  }
+
+  .headerInner {
+    padding: 0 16px;
+    gap: 0; /* 모바일에서 gap 제거 */
+  }
+
+  .logoImg {
+    width: 80px;
+  }
+
+  /* 데스크톱 네비 & 일부 액션 숨김 */
+  .nav {
+    display: none;
+  }
+
+  .devRefreshBtn {
+    display: none;
+  }
+
+  .userName {
+    display: none !important;
+  }
+
+  .userBtn {
+    padding: 2px !important;
+    gap: 0 !important;
+    width: 34px !important;
+    justify-content: center;
+    border-radius: 50% !important;
+    background: transparent !important;
+    border: none !important;
+  }
+
+  .logoutBtn {
+    display: none;
+  }
+
+  .adminBtn {
+    display: none;
+  }
+
+  /* actions를 우측으로 밀어서 로고와 space-between 효과 */
+  .actions {
+    margin-left: auto;
+    gap: 8px;
+  }
+
+  /* 로그인 버튼 모바일 컴팩트 */
+  .loginBtn {
+    display: none; /* 플로팅 네비의 '더보기' 메뉴 안에 있으므로 헤더에서는 숨김 */
+  }
+
+  /* 햄버거 버튼 활성화 (더보기 역할) */
+  .hamburgerBtn {
+    display: flex;
+    margin-left: 8px; /* actions 내부의 gap: 8px과 동일하게 여백 추가 */
+  }
+
+  /* 모바일 오버레이 (배경이 답답하지 않게 조절) */
+  .mobileOverlay {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.25); /* 살짝만 어둡게 */
+    backdrop-filter: blur(3px); /* 전체적으로 얕은 블러를 깔아 깊이감 추가 */
+    -webkit-backdrop-filter: blur(3px);
+    z-index: 998;
+    animation: fadeIn 0.3s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  /* 모바일 슬라이드 메뉴 (프리미엄 Solid White 톤으로 깔끔하게 변경) */
+  .mobileNav {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    right: -280px;
+    width: 280px;
+    height: 100vh;
+    background: #ffffff; /* 반투명 제거, 가독성 100% 보장하는 솔리드 화이트 */
+    border-left: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: -12px 0 40px rgba(0, 0, 0, 0.15); /* 깊이감 넘치는 섀도우 */
+    z-index: 999;
+    padding: 80px 24px 32px; /* 상단 버튼류와 겹치지 않게 여백 추가 */
+    transition: right 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); /* 스무스하고 고급스러운 가속도 */
+    overflow-y: auto;
+  }
+
+  .mobileNavOpen {
+    right: 0;
+  }
+
+
+  /* 모바일 네비 링크 */
+  .mobileNavLinks {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-bottom: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--color-gray-200);
+  }
+
+  .mobileNavLink {
+    display: block;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 700; /* 가독성을 위해 볼드 처리 */
+    color: var(--color-gray-800); /* 더 어두운 텍스트 */
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    text-shadow: 0 1px 6px rgba(255, 255, 255, 1); /* 글씨 주변 흰색 후광 효과 */
+  }
+
+  .mobileNavLink:hover {
+    background: var(--color-gray-50);
+    color: var(--color-primary-500);
+  }
+
+  .mobileNavLinkActive {
+    background: var(--color-primary-50);
+    color: var(--color-primary-500);
+    font-weight: 700;
+  }
+
+  /* 모바일 액션 버튼 */
+  .mobileNavActions {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .mobileActionBtn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    font-weight: 600; /* 가독성을 위해 볼드 처리 */
+    color: var(--color-gray-800); /* 더 어두운 텍스트 */
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    text-decoration: none;
+    width: 100%;
+    text-align: left;
+    text-shadow: 0 1px 6px rgba(255, 255, 255, 1); /* 글씨 주변 흰색 후광 효과 */
+  }
+
+  .mobileActionBtn:hover {
+    background: var(--color-gray-50);
+    color: var(--color-primary-500);
+  }
+
+  .mobileLoginBtn {
+    display: block;
+    text-align: center;
+    padding: 12px;
+    background: rgba(255, 255, 255, 0.6); /* 투명한 유리에 어울리는 밝은 바탕 */
+    border: 1px solid rgba(0, 0, 0, 0.08); /* 얕은 테두리 */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    color: var(--color-gray-800); /* 다른 메뉴와 동일한 진한 색상 */
+    font-size: 15px;
+    font-weight: 700;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    text-shadow: 0 1px 6px rgba(255, 255, 255, 1);
+  }
+
+  .mobileLoginBtn:hover {
+    background: rgba(255, 255, 255, 0.9);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  /* 모달 박스 모바일 대응 */
+  .modalBox {
+    min-width: unset;
+    width: calc(100% - 32px);
+    max-width: 360px;
+  }
+
+  /* 모바일 네비 푸터 (연락처 / 저작권) */
+  .mobileNavFooter {
+    margin-top: auto;
+    padding-top: 32px;
+    font-size: 12px;
+    color: var(--color-gray-600);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    border-top: 1px solid rgba(0, 0, 0, 0.06);
+    /* 가독성을 위해 text-shadow 추가 */
+    text-shadow: 0 1px 4px rgba(255, 255, 255, 0.8);
+  }
+
+  .mobileNavFooter p {
+    margin: 0;
+    font-weight: 500;
+  }
+
+  .mobileCopyright {
+    margin-top: 12px !important;
+    font-size: 10px;
+    color: var(--color-gray-500);
+    font-weight: 400 !important;
+  }
+
+  /* 하단 플로팅 네비게이션을 모바일 화면에서 표시 */
+  .mBottomNav {
+    display: flex;
+  }
+}
