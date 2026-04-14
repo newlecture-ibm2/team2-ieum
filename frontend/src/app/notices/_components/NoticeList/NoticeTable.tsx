@@ -18,20 +18,6 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
     return dt.substring(0, 10).replace(/-/g, '.');
   };
 
-  const getBadge = (notice: Notice) => {
-    if (notice.isActive === false) return { text: '비활성', className: styles.badgeInactive };
-
-    const now = new Date();
-    if (notice.startDate && new Date(notice.startDate) > now) {
-      return { text: '예약', className: styles.badgeReserved };
-    }
-    if (notice.endDate && new Date(notice.endDate) < now) {
-      return { text: '종료', className: styles.badgeExpired };
-    }
-
-    if (notice.isPopup) return { text: '팝업', className: styles.badgePopup };
-    return { text: '활성', className: styles.badgeActive };
-  };
 
   if (loading) {
     return <div className={styles.emptyState}><p>불러오는 중...</p></div>;
@@ -55,12 +41,11 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
           <th>제목</th>
           <th style={{ width: 110 }}>작성일</th>
           <th style={{ width: 80 }}>조회수</th>
-          <th style={{ width: 80 }}>상태</th>
+
         </tr>
       </thead>
       <tbody>
         {notices.map((notice, idx) => {
-          const badge = getBadge(notice);
           return (
             <tr key={notice.id} className={notice.isPinned ? styles.pinnedRow : ''}>
               <td>{totalElements - ((currentPage - 1) * 10 + idx)}</td>
@@ -75,11 +60,7 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
               </td>
               <td>{formatDate(notice.createdAt)}</td>
               <td>{notice.viewCount?.toLocaleString()}</td>
-              <td>
-                <span className={`${styles.badge} ${badge.className}`}>
-                  {badge.text}
-                </span>
-              </td>
+
             </tr>
           );
         })}
