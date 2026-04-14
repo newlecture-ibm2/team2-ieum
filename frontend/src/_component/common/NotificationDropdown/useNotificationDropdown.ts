@@ -67,6 +67,7 @@ export function useNotificationDropdown({ refreshKey, onUnreadChange, onClose }:
     if (n.targetType === "FESTIVAL" && n.targetId) return `/festivals/${n.targetId}`;
     if (n.targetType === "NOTICE" && n.targetId)   return `/notices/${n.targetId}`;
     if (n.targetType === "COMMUNITY" && n.targetId) return `/community/${n.targetId}`;
+    if (n.targetType === "REPORT") return `/mypage?tab=reports`;
     return "#";
   };
 
