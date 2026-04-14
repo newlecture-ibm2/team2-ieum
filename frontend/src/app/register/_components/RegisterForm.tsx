@@ -49,6 +49,8 @@ export default function RegisterForm() {
       case 'nickname':
         if (!value) error = '닉네임을 입력해주세요.';
         else if (value.length < 2 || value.length > 8) error = '닉네임은 2자 이상 8자 이하로 입력해주세요.';
+        else if (/[ㄱ-ㅎ|ㅏ-ㅣ]/.test(value)) error = '닉네임은 완성된 한글로 입력해주세요.';
+        else if (!/^[가-힣a-zA-Z0-9]+$/.test(value)) error = '영문, 숫자, 한글만 사용 가능합니다.';
         break;
       case 'password':
         const pwRegex = /^(?=.*[a-zA-Z])(?=.*\d).{8,}$/;
@@ -134,11 +136,21 @@ export default function RegisterForm() {
         setErrors(prev => ({ ...prev, global: response.data.message || '가입 처리 중 오류가 발생했습니다.' }));
       }
     } catch (error: any) {
-      // 🛠️ 백엔드에서 전달한 구체적인 에러 메시지(아이디/전화번호 중복 등)를 그대로 표시
-      const serverMessage = error.response?.data?.message || '이미 등록된 정보이거나 가입 형식이 올바르지 않습니다.';
+      // 🛠️ 백엔드 응답 상태 코드에 따라 사용자에게 명확한 안내 문구 제공
+      const status = error.response?.status;
+      let globalError = '가입 처리 중 오류가 발생했습니다.';
+
+      if (status === 409) {
+        globalError = '이미 가입된 아이디입니다.';
+      } else if (status === 500) {
+        globalError = '서버 에러로 인하여 관리자에게 문의해주세요.';
+      } else if (error.response?.data?.errorMessage) {
+        globalError = error.response.data.errorMessage;
+      }
+      
       setErrors(prev => ({ 
         ...prev, 
-        global: serverMessage
+        global: globalError
       }));
     } finally {
       setIsLoading(false);

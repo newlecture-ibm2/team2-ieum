@@ -55,6 +55,24 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponse);
     }
 
+    /**
+     * 비즈니스 로직 예외 처리 (아이디 중복 등)
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgumentException(IllegalArgumentException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorType", "IllegalArgumentException");
+        errorResponse.put("errorMessage", ex.getMessage());
+
+        // 메시지에 "이미 사용 중인"이 포함된 경우 409(Conflict), 그 외는 400(Bad Request)
+        int status = 400;
+        if (ex.getMessage() != null && ex.getMessage().contains("이미 사용 중인")) {
+            status = 409;
+        }
+        
+        return ResponseEntity.status(status).body(errorResponse);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Map<String, String>> handleAllExceptions(Exception ex) {
         ex.printStackTrace(); // 콘솔에 상세 로그 출력
