@@ -58,4 +58,10 @@ public class AuthRes {
         private String role;
         private String profileImage;
     }
+
+    @Getter
+    @Builder
+    public static class PasswordRecoveryQuestion {
+        private String question;
+    }
 }

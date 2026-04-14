@@ -24,6 +24,8 @@ public class User {
     private final String profileImage;
     private final String role;
     private final boolean termsAgreed;
+    private final String securityQuestion;
+    private final String securityAnswer;
     private final String status;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;

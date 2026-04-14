@@ -230,8 +230,7 @@ export default function FestivalMap() {
       if (searchKeyword.trim()) params.set("keyword", searchKeyword.trim());
       params.set("size", "999"); // 한 번에 모든 지도 마커 호출을 위해 확장
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
-      const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
+      const res = await fetch(`/api/festivals?${params.toString()}`, {
         cache: "no-store",
       });
       const json = await res.json();
