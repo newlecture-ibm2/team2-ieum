@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import Image from 'next/image';
 import styles from './FestivalDetailInfo.module.css';
 
@@ -35,6 +35,37 @@ export default function FestivalDetailInfo({
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
 
+  // 🔍 줌 렌즈 상태
+  const imageWrapperRef = useRef<HTMLDivElement>(null);
+  const [isZooming, setIsZooming] = useState(false);
+  const [lensPos, setLensPos] = useState({ x: 0, y: 0 });
+  const [bgPos, setBgPos] = useState({ x: 0, y: 0 });
+
+  const ZOOM_LEVEL = 2.5; // 확대 배율
+  const LENS_SIZE = 150;  // 렌즈 크기(px)
+
+  const handleZoomMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const wrapper = imageWrapperRef.current;
+    if (!wrapper) return;
+
+    const rect = wrapper.getBoundingClientRect();
+    // 마우스 위치를 wrapper 내부 좌표로 변환
+    let x = e.clientX - rect.left;
+    let y = e.clientY - rect.top;
+
+    // 렌즈가 이미지 영역 밖으로 나가지 않도록 클램핑
+    const halfLens = LENS_SIZE / 2;
+    x = Math.max(halfLens, Math.min(x, rect.width - halfLens));
+    y = Math.max(halfLens, Math.min(y, rect.height - halfLens));
+
+    setLensPos({ x, y });
+
+    // 확대 미리보기의 배경 위치 계산 (백분율)
+    const bgX = ((x - halfLens) / (rect.width - LENS_SIZE)) * 100;
+    const bgY = ((y - halfLens) / (rect.height - LENS_SIZE)) * 100;
+    setBgPos({ x: bgX, y: bgY });
+  }, []);
+
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!stripRef.current) return;
     setIsDragging(true);
@@ -67,17 +98,58 @@ export default function FestivalDetailInfo({
 
       {/* 이미지 갤러리 */}
       <div className={styles.gallery}>
-        {/* 메인 이미지 (선택된 이미지가 크게 표시) */}
-        <div className={styles.mainImageWrapper}>
-          <Image
-            key={mainImage}
-            src={mainImage}
-            alt="축제 이미지"
-            fill
-            sizes="(max-width: 1200px) 100vw, 800px"
-            style={{ objectFit: 'cover' }}
-            priority
-          />
+        {/* 메인 이미지 + 줌 프리뷰 영역 */}
+        <div className={styles.zoomContainer}>
+          {/* 메인 이미지 (선택된 이미지가 크게 표시) */}
+          <div
+            className={styles.mainImageWrapper}
+            ref={imageWrapperRef}
+            onMouseEnter={() => setIsZooming(true)}
+            onMouseLeave={() => setIsZooming(false)}
+            onMouseMove={handleZoomMove}
+          >
+            <Image
+              key={mainImage}
+              src={mainImage}
+              alt="축제 이미지"
+              fill
+              sizes="(max-width: 1200px) 100vw, 800px"
+              style={{ objectFit: 'contain' }}
+              priority
+            />
+
+            {/* 🔍 줌 렌즈 (마우스 따라다니는 사각형) */}
+            {isZooming && (
+              <div
+                className={styles.zoomLens}
+                style={{
+                  width: LENS_SIZE,
+                  height: LENS_SIZE,
+                  left: lensPos.x - LENS_SIZE / 2,
+                  top: lensPos.y - LENS_SIZE / 2,
+                }}
+              />
+            )}
+
+            {/* 🔍 안내 텍스트 */}
+            {!isZooming && (
+              <div className={styles.zoomHint}>
+                🔍 마우스를 올리면 확대됩니다
+              </div>
+            )}
+          </div>
+
+          {/* 🔍 확대 미리보기 패널 (오른쪽에 표시) */}
+          {isZooming && (
+            <div
+              className={styles.zoomPreview}
+              style={{
+                backgroundImage: `url(${mainImage})`,
+                backgroundSize: `${ZOOM_LEVEL * 100}%`,
+                backgroundPosition: `${bgPos.x}% ${bgPos.y}%`,
+              }}
+            />
+          )}
         </div>
 
       {/* 서브 썸네일 스트립 (모든 이미지가 가로 나열) */}
