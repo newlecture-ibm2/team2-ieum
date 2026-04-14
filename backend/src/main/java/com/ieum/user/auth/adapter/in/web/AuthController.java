@@ -48,17 +48,17 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 요청", description = "입력한 아이디와 전화번호로 비밀번호 재설정용 인증 코드를 생성합니다.")
+    @Operation(summary = "비밀번호 찾기 - 질문 요청", description = "입력한 아이디로 해당 사용자의 보안 질문을 조회합니다.")
     @PostMapping("/password-recovery/request")
-    public ResponseEntity<ApiResponse<Void>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
-        authUseCase.requestRecovery(request);
-        return ResponseEntity.ok(ApiResponse.success());
+    public ResponseEntity<ApiResponse<AuthRes.PasswordRecoveryQuestion>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
+        AuthRes.PasswordRecoveryQuestion question = authUseCase.requestRecovery(request);
+        return ResponseEntity.ok(ApiResponse.success(question));
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 검증", description = "아이디와 매칭되는 인증 코드를 검증합니다.")
+    @Operation(summary = "비밀번호 찾기 - 답변 검증", description = "아이디와 매칭되는 보안 질문의 답변을 검증합니다.")
     @PostMapping("/password-recovery/verify")
-    public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryCode(@RequestBody AuthReq.PasswordRecoveryVerify request) {
-        authUseCase.verifyCode(request);
+    public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryAnswer(@RequestBody AuthReq.PasswordRecoveryVerify request) {
+        authUseCase.verifyAnswer(request);
         return ResponseEntity.ok(ApiResponse.success());
     }
 

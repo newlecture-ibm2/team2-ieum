@@ -29,7 +29,6 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
     private final JwtProvider jwtProvider;
 
     // TODO: 실무에서는 Redis/DB 사용 권장 (현재는 임시 메모리 저장)
-    private final Map<String, String> recoveryCodes = new ConcurrentHashMap<>();
     private final Map<String, Boolean> verifiedIds = new ConcurrentHashMap<>();
 
     @Override
@@ -109,6 +108,8 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .phone(normalizedPhone)
                 .role("USER")
                 .termsAgreed(request.isTermsAgreed())
+                .securityQuestion(request.getSecurityQuestion())
+                .securityAnswer(request.getSecurityAnswer())
                 .status("ACTIVE")
                 .build();
 
@@ -153,41 +154,42 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
     }
 
     @Override
-    @Transactional
-    public void requestRecovery(AuthReq.PasswordRecoveryRequest request) {
+    @Transactional(readOnly = true)
+    public AuthRes.PasswordRecoveryQuestion requestRecovery(AuthReq.PasswordRecoveryRequest request) {
         String loginId = request.getId();
-        String inputPhone = (request.getPhone() != null) ? request.getPhone().replaceAll("[^0-9]", "") : "";
 
         User user = loadUserPort.loadByLoginId(loginId)
                 .orElseThrow(() -> new IllegalArgumentException("가입 정보가 일치하지 않습니다."));
 
-        // 📱 등록된 전화번호와 일치하는지 확인 (보안을 위해 에러 메시지 통일)
-        if (user.getPhone() == null || !user.getPhone().equals(inputPhone)) {
-            throw new IllegalArgumentException("가입 정보가 일치하지 않습니다.");
+        if (user.getSecurityQuestion() == null || user.getSecurityQuestion().isBlank()) {
+            throw new IllegalArgumentException("등록된 보안 질문이 없습니다. 관리자에게 문의하세요.");
         }
 
-        // 6자리 난수 생성
-        String code = String.format("%06d", new Random().nextInt(1000000));
-        recoveryCodes.put(loginId, code);
-        verifiedIds.put(loginId, false);
-
-        // [PASSWORD RECOVERY] 현재는 SMS 연동 전이므로 로그 출력으로 대체
-        System.out.println("================================");
-        System.out.println("[PASSWORD RECOVERY] ID: " + loginId);
-        System.out.println("[PASSWORD RECOVERY] Code: " + code);
-        System.out.println("================================");
+        return AuthRes.PasswordRecoveryQuestion.builder()
+                .question(user.getSecurityQuestion())
+                .build();
     }
 
     @Override
-    public void verifyCode(AuthReq.PasswordRecoveryVerify request) {
+    public void verifyAnswer(AuthReq.PasswordRecoveryVerify request) {
         String loginId = request.getId();
-        String code = request.getCode();
+        String inputAnswer = request.getAnswer();
 
-        if (!recoveryCodes.containsKey(loginId) || !recoveryCodes.get(loginId).equals(code)) {
-            throw new IllegalArgumentException("인증 코드가 일치하지 않거나 만료되었습니다.");
+        User user = loadUserPort.loadByLoginId(loginId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        if (inputAnswer == null || user.getSecurityAnswer() == null) {
+            throw new IllegalArgumentException("답변 정보가 올바르지 않습니다.");
         }
 
-        recoveryCodes.remove(loginId); // 인증 성공 시 코드 제거
+        // 🛡️ 공백 무시 비교 (사용자 편의성)
+        String normalizedInput = inputAnswer.replaceAll("\\s+", "");
+        String normalizedDB = user.getSecurityAnswer().replaceAll("\\s+", "");
+
+        if (!normalizedInput.equals(normalizedDB)) {
+            throw new IllegalArgumentException("답변이 일치하지 않습니다.");
+        }
+
         verifiedIds.put(loginId, true); // 인증 완료 표시
     }
 
@@ -213,6 +215,8 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .profileImage(user.getProfileImage())
                 .role(user.getRole())
                 .termsAgreed(user.isTermsAgreed())
+                .securityQuestion(user.getSecurityQuestion())
+                .securityAnswer(user.getSecurityAnswer())
                 .status(user.getStatus())
                 .build();
 

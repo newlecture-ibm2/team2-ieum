@@ -12,8 +12,8 @@ public interface AuthUseCase {
     AuthRes.TokenDto refresh(AuthReq.Refresh request);
 
     /** 비밀번호 찾기 */
-    void requestRecovery(AuthReq.PasswordRecoveryRequest request);
-    void verifyCode(AuthReq.PasswordRecoveryVerify request);
+    AuthRes.PasswordRecoveryQuestion requestRecovery(AuthReq.PasswordRecoveryRequest request);
+    void verifyAnswer(AuthReq.PasswordRecoveryVerify request);
     void resetPassword(AuthReq.PasswordReset request);
 
     /** 내 정보 조회 */

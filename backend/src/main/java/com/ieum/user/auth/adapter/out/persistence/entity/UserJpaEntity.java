@@ -46,6 +46,12 @@ public class UserJpaEntity {
     @Column(name = "terms_agreed", nullable = false)
     private boolean termsAgreed;
 
+    @Column(name = "security_question")
+    private String securityQuestion;
+
+    @Column(name = "security_answer")
+    private String securityAnswer;
+
     @Column(nullable = false, length = 10)
     private String status = "ACTIVE";
 
@@ -64,7 +70,7 @@ public class UserJpaEntity {
     private LocalDateTime suspendedUntil;
 
     @Builder
-    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, boolean marketingAgreed, String status, LocalDateTime deletedAt, LocalDateTime suspendedUntil) {
+    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, String securityQuestion, String securityAnswer, String status, LocalDateTime deletedAt, LocalDateTime suspendedUntil) {
         this.userId = userId;
         this.loginId = loginId;
         this.password = password;
@@ -74,6 +80,8 @@ public class UserJpaEntity {
         this.profileImage = profileImage;
         this.role = role != null ? role : "USER";
         this.termsAgreed = termsAgreed;
+        this.securityQuestion = securityQuestion;
+        this.securityAnswer = securityAnswer;
         this.status = status != null ? status : "ACTIVE";
         this.deletedAt = deletedAt;
         this.suspendedUntil = suspendedUntil;
@@ -90,6 +98,8 @@ public class UserJpaEntity {
                 .profileImage(this.profileImage)
                 .role(this.role)
                 .termsAgreed(this.termsAgreed)
+                .securityQuestion(this.securityQuestion)
+                .securityAnswer(this.securityAnswer)
                 .status(this.status)
                 .createdAt(this.createdAt)
                 .updatedAt(this.updatedAt)
@@ -109,6 +119,8 @@ public class UserJpaEntity {
                 .profileImage(user.getProfileImage())
                 .role(user.getRole())
                 .termsAgreed(user.isTermsAgreed())
+                .securityQuestion(user.getSecurityQuestion())
+                .securityAnswer(user.getSecurityAnswer())
                 .status(user.getStatus())
                 .deletedAt(user.getDeletedAt())
                 .suspendedUntil(user.getSuspendedUntil())
