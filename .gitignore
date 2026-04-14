@@ -11,7 +11,8 @@ Icon?
 *.iml
 *.iws
 *.ipr
-.agents/
+.agents/rules/skpark.md
+curl_out.txt
 
 # env files
 .env
