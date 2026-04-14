@@ -77,7 +77,7 @@ export default function LoginForm() {
       }
     } catch (error: any) {
       if (error.response?.status === 401) {
-        setGlobalError('아이디 또는 비밀번호가 일치하지 않습니다.');
+        setGlobalError(error.response.data.errorMessage || '아이디 또는 비밀번호를 확인해주세요.');
       } else {
         setGlobalError('서버와의 통신에 실패했습니다.');
       }
