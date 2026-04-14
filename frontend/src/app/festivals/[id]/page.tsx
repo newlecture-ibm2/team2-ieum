@@ -69,7 +69,10 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       try {
         // 로그인 상태 확인 후, 로그인된 경우에만 즐겨찾기 상태 체크
         const authRes = await fetch('/api/auth/me');
-        if (!authRes.ok) return; // 비로그인 시 skip
+        if (!authRes.ok) return;
+        
+        const authData = await authRes.json();
+        if (!authData.isLoggedIn) return; // 비로그인 시 skip
 
         setIsLoggedIn(true);
 
