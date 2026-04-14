@@ -18,7 +18,7 @@ public interface PostPort {
 
     Optional<Post> findActiveById(Long postId);
 
-    Page<Post> findByFilters(String category, String areaCode, String keyword, Pageable pageable);
+    Page<Post> findByFilters(String category, String areaCode, String keyword, String searchType, Pageable pageable);
 
     void deleteById(Long postId);
 }
