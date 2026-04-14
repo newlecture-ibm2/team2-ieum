@@ -1,6 +1,7 @@
 package com.ieum.global.exception;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -28,6 +29,30 @@ public class GlobalExceptionHandler {
         errorResponse.put("errorMessage", message);
         
         return ResponseEntity.status(400).body(errorResponse);
+    }
+
+    /**
+     * 로그인 실패 예외 처리 (401 Unauthorized)
+     */
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentialsException(BadCredentialsException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorType", "BadCredentialsException");
+        errorResponse.put("errorMessage", ex.getMessage());
+        
+        return ResponseEntity.status(401).body(errorResponse);
+    }
+
+    /**
+     * 커스텀 비즈니스 예외 처리
+     */
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity<Map<String, String>> handleBusinessException(BusinessException ex) {
+        Map<String, String> errorResponse = new HashMap<>();
+        errorResponse.put("errorType", ex.getErrorCode().name());
+        errorResponse.put("errorMessage", ex.getMessage());
+        
+        return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponse);
     }
 
     @ExceptionHandler(Exception.class)

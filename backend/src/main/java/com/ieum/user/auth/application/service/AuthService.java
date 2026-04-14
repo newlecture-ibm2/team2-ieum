@@ -35,13 +35,13 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
     @Transactional
     public AuthRes.TokenDto login(AuthReq.Login request) {
         User user = loadUserPort.loadByLoginId(request.getId())
-                .orElseThrow(() -> new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다."));
+                .orElseThrow(() -> new BadCredentialsException("존재하지 않는 아이디입니다."));
 
         // 🛡️ 탈퇴 유예 정책 체크
         String successMessage = null;
         if (UserStatus.WITHDRAWAL.name().equals(user.getStatus())) {
             if (user.isWithdrawalExpired()) {
-                throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않거나 가입된 정보가 없습니다.");
+                throw new BadCredentialsException("존재하지 않는 아이디입니다.");
             }
             // 30일 이내라면 자동 복구
             user = user.reactivate();
@@ -50,7 +50,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
         }
 
         if (!user.checkPassword(request.getPassword(), passwordEncoder)) {
-            throw new BadCredentialsException("아이디 또는 비밀번호가 일치하지 않습니다.");
+            throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
         String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
