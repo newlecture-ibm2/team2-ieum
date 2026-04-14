@@ -30,9 +30,9 @@ public interface PostJpaRepository extends JpaRepository<PostEntity, Long> {
        java.util.Optional<PostEntity> findActiveById(@Param("id") Long id);
 
        /**
-        * 사용자 ID 목록으로 최신 닉네임을 일괄 조회 (users 테이블 실시간 참조)
-        * 반환: [user_id, nickname] 배열 리스트
+        * 사용자 ID 목록으로 최신 닉네임과 프로필 이미지를 일괄 조회 (users 테이블 실시간 참조)
+        * 반환: [user_id, nickname, profile_image] 배열 리스트
         */
-       @Query(value = "SELECT user_id, nickname FROM users WHERE user_id IN :ids", nativeQuery = true)
-       List<Object[]> findNicknamesByUserIds(@Param("ids") Collection<Long> ids);
+       @Query(value = "SELECT user_id, nickname, profile_image FROM users WHERE user_id IN :ids", nativeQuery = true)
+       List<Object[]> findUserInfoByUserIds(@Param("ids") Collection<Long> ids);
 }

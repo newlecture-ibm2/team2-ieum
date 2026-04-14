@@ -291,7 +291,7 @@ export default function CommunityDetailPage() {
 
         <div className={styles.metaWriter}>
           <div className={styles.writerLeft}>
-            <div className={styles.writerAvatar}><User size={20} /></div>
+            <div className={styles.writerAvatar}>{post.authorProfileImage ? <img src={post.authorProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={20} />}</div>
             <div className={styles.writerInfo}>
               <span className={styles.writerName}>{post.authorName}</span>
               <span className={styles.writerDate}>
@@ -399,7 +399,7 @@ export default function CommunityDetailPage() {
           <div key={comment.id}>
             {/* 부모 댓글 */}
             <div className={styles.commentItem}>
-              <div className={styles.commentAvatar}><User size={18} /></div>
+              <div className={styles.commentAvatar}>{comment.userProfileImage ? <img src={comment.userProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={18} />}</div>
               <div className={styles.commentContent}>
                 {comment.status === 'REMOVED' ? (
                   <div className={styles.deletedText}>삭제된 댓글입니다.</div>
@@ -528,7 +528,7 @@ export default function CommunityDetailPage() {
             {comment.children?.map(child => (
               <div key={child.id} className={styles.replyItem}>
                 <div className={styles.replyIcon}><CornerDownRight size={16} /></div>
-                <div className={styles.commentAvatar}><User size={18} /></div>
+                <div className={styles.commentAvatar}>{child.userProfileImage ? <img src={child.userProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={18} />}</div>
                 <div className={styles.commentContent}>
                   {child.status === 'REMOVED' ? (
                     <div className={styles.deletedText}>삭제된 댓글입니다.</div>
