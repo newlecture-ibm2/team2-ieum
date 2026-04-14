@@ -18,6 +18,7 @@ public class PostResponse {
     private String festivalName;
     private Long authorId;
     private String authorName;
+    private String authorProfileImage;
     private int viewCount;
     private int likeCount;
     private int commentCount;
@@ -36,6 +37,7 @@ public class PostResponse {
                 .festivalName(post.getFestivalName())
                 .authorId(post.getAuthorId())
                 .authorName(post.getAuthorName())
+                .authorProfileImage(post.getAuthorProfileImage())
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())

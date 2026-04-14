@@ -40,34 +40,46 @@ public class PostPersistenceAdapter implements PostPort {
         return postJpaRepository.findActiveById(postId)
                 .map(entity -> {
                     Post post = entity.toDomain();
-                    // 단건 조회 시에도 최신 닉네임으로 교체
-                    Map<Long, String> nicknameMap = resolveNicknames(Set.of(post.getAuthorId()));
-                    if (nicknameMap.containsKey(post.getAuthorId())) {
-                        return rebuildWithNickname(post, nicknameMap.get(post.getAuthorId()));
+                    // 단건 조회 시에도 최신 닉네임+프로필 이미지로 교체
+                    Map<Long, String[]> userInfoMap = resolveUserInfo(Set.of(post.getAuthorId()));
+                    if (userInfoMap.containsKey(post.getAuthorId())) {
+                        String[] info = userInfoMap.get(post.getAuthorId());
+                        return rebuildWithUserInfo(post, info[0], info[1]);
                     }
                     return post;
                 });
     }
 
     @Override
-    public Page<Post> findByFilters(String category, String areaCode, String keyword, Pageable pageable) {
-        Page<Post> postPage = postJpaRepository.findByFilters(category, areaCode, keyword, pageable)
-                .map(PostEntity::toDomain);
+    public Page<Post> findByFilters(String category, String areaCode, String keyword, String searchType, Pageable pageable) {
+        Page<Post> postPage;
 
-        // 게시글 작성자 ID 수집 → users 테이블에서 최신 닉네임 일괄 조회
+        // searchType에 따라 검색 범위 분기
+        if ("title".equals(searchType)) {
+            postPage = postJpaRepository.findByFiltersTitle(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        } else if ("content".equals(searchType)) {
+            postPage = postJpaRepository.findByFiltersContent(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        } else {
+            postPage = postJpaRepository.findByFilters(category, areaCode, keyword, pageable)
+                    .map(PostEntity::toDomain);
+        }
+
+        // 게시글 작성자 ID 수집 → users 테이블에서 최신 닉네임+프로필 이미지 일괄 조회
         Set<Long> authorIds = postPage.getContent().stream()
                 .map(Post::getAuthorId)
                 .collect(Collectors.toSet());
 
         if (authorIds.isEmpty()) return postPage;
 
-        Map<Long, String> nicknameMap = resolveNicknames(authorIds);
+        Map<Long, String[]> userInfoMap = resolveUserInfo(authorIds);
 
-        // 각 게시글의 authorName을 최신 닉네임으로 교체
+        // 각 게시글의 authorName과 authorProfileImage를 최신으로 교체
         return postPage.map(post -> {
-            String latestNickname = nicknameMap.get(post.getAuthorId());
-            if (latestNickname != null) {
-                return rebuildWithNickname(post, latestNickname);
+            String[] info = userInfoMap.get(post.getAuthorId());
+            if (info != null) {
+                return rebuildWithUserInfo(post, info[0], info[1]);
             }
             return post;
         });
@@ -78,26 +90,27 @@ public class PostPersistenceAdapter implements PostPort {
         postJpaRepository.deleteById(postId);
     }
 
-    // ─── 닉네임 실시간 조회 헬퍼 메서드 ───
+    // ─── 사용자 정보 실시간 조회 헬퍼 메서드 ───
 
     /**
-     * 사용자 ID 목록으로 users 테이블에서 최신 닉네임을 일괄 조회
+     * 사용자 ID 목록으로 users 테이블에서 최신 닉네임과 프로필 이미지를 일괄 조회
+     * @return Map<userId, [nickname, profileImage]>
      */
-    private Map<Long, String> resolveNicknames(Collection<Long> userIds) {
+    private Map<Long, String[]> resolveUserInfo(Collection<Long> userIds) {
         if (userIds == null || userIds.isEmpty()) return Collections.emptyMap();
 
-        return postJpaRepository.findNicknamesByUserIds(userIds).stream()
+        return postJpaRepository.findUserInfoByUserIds(userIds).stream()
                 .collect(Collectors.toMap(
                         row -> ((Number) row[0]).longValue(),
-                        row -> (String) row[1],
+                        row -> new String[]{ (String) row[1], (String) row[2] },
                         (existing, replacement) -> replacement
                 ));
     }
 
     /**
-     * Post 도메인 객체의 authorName을 최신 닉네임으로 교체한 새 객체 반환
+     * Post 도메인 객체의 authorName과 authorProfileImage를 최신으로 교체한 새 객체 반환
      */
-    private Post rebuildWithNickname(Post post, String latestNickname) {
+    private Post rebuildWithUserInfo(Post post, String latestNickname, String profileImage) {
         return Post.builder()
                 .id(post.getId())
                 .category(post.getCategory())
@@ -107,7 +120,8 @@ public class PostPersistenceAdapter implements PostPort {
                 .festivalId(post.getFestivalId())
                 .festivalName(post.getFestivalName())
                 .authorId(post.getAuthorId())
-                .authorName(latestNickname)       // ← 최신 닉네임 반영!
+                .authorName(latestNickname)
+                .authorProfileImage(profileImage)
                 .viewCount(post.getViewCount())
                 .likeCount(post.getLikeCount())
                 .commentCount(post.getCommentCount())

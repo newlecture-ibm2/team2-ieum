@@ -25,13 +25,14 @@ interface UsePostsOptions {
   category?: string;
   areaCode?: string;
   keyword?: string;
+  searchType?: string;
   sort?: string;
   page?: number;    // 1-indexed (URL 기준)
   size?: number;
 }
 
 export function usePosts(options: UsePostsOptions = {}) {
-  const { category, areaCode, keyword, sort = 'latest', page = 1, size = 10 } = options;
+  const { category, areaCode, keyword, searchType = 'all', sort = 'latest', page = 1, size = 10 } = options;
   
   const [posts, setPosts] = useState<Post[]>([]);
   const [totalPages, setTotalPages] = useState(1);
@@ -46,6 +47,7 @@ export function usePosts(options: UsePostsOptions = {}) {
       if (category) params.set('category', category);
       if (areaCode) params.set('areaCode', areaCode);
       if (keyword) params.set('keyword', keyword);
+      if (searchType && searchType !== 'all') params.set('searchType', searchType);
       params.set('sort', sort);
       params.set('page', (page - 1).toString()); // 백엔드는 0-indexed
       params.set('size', size.toString());
@@ -77,7 +79,7 @@ export function usePosts(options: UsePostsOptions = {}) {
     } finally {
       setLoading(false);
     }
-  }, [category, areaCode, keyword, sort, page, size]);
+  }, [category, areaCode, keyword, searchType, sort, page, size]);
 
   // 필터/검색/페이지 변경 시 데이터 재조회
   useEffect(() => {

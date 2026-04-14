@@ -90,6 +90,8 @@ public class PostController {
             @RequestParam(required = false) String areaCode,
             @Parameter(description = "검색 키워드")
             @RequestParam(required = false) String keyword,
+            @Parameter(description = "검색 유형 (all, title, content)")
+            @RequestParam(defaultValue = "all") String searchType,
             @Parameter(description = "정렬 방식 (latest, popular)")
             @RequestParam(defaultValue = "latest") String sort,
             @Parameter(description = "페이지 번호")
@@ -114,7 +116,7 @@ public class PostController {
                 break;
         }
         
-        Page<PostResponse> result = loadPostUseCase.getPosts(category, areaCode, keyword, PageRequest.of(page, size, sortObj))
+        Page<PostResponse> result = loadPostUseCase.getPosts(category, areaCode, keyword, searchType, PageRequest.of(page, size, sortObj))
                                                    .map(PostResponse::fromDomain);
         return ApiResponse.success(result);
     }

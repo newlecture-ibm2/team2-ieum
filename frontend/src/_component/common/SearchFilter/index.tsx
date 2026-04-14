@@ -91,10 +91,27 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
     if (keyword.trim()) params.set('keyword', keyword.trim());
     else params.delete('keyword');
     
-    if (filterType === 'notice') {
+    if (filterType === 'notice' || filterType === 'community') {
       if (searchType !== 'all') params.set('searchType', searchType);
       else params.delete('searchType');
     }
+    
+    if (sort !== 'latest') params.set('sort', sort);
+    else params.delete('sort');
+
+    params.delete('page');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const handleSearchTypeChange = (newType: string) => {
+    setSearchType(newType);
+    const params = new URLSearchParams(searchParams.toString());
+    
+    if (keyword.trim()) params.set('keyword', keyword.trim());
+    else params.delete('keyword');
+    
+    if (newType !== 'all') params.set('searchType', newType);
+    else params.delete('searchType');
     
     if (sort !== 'latest') params.set('sort', sort);
     else params.delete('sort');
@@ -215,7 +232,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
     <div className={`${styles.wrapper} ${filterType === 'notice' ? styles.wrapperNotice : ''}`}>
       <div className={styles.searchBar}>
         <div className={styles.searchLeft}>
-          {filterType === 'notice' && (
+          {(filterType === 'notice' || filterType === 'community') && (
             <Dropdown
               options={[
                 { value: 'all', label: '전체' },
@@ -223,7 +240,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                 { value: 'content', label: '내용' },
               ]}
               value={searchType}
-              onChange={(v) => setSearchType(v)}
+              onChange={handleSearchTypeChange}
               ariaLabel="검색 유형"
             />
           )}

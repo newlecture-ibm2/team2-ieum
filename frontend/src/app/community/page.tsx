@@ -25,6 +25,7 @@ function CommunityContent() {
   const category = searchParams.get('category') || '';
   const areaCode = searchParams.get('areaCode') || '';
   const keyword = searchParams.get('keyword') || '';
+  const searchType = searchParams.get('searchType') || 'all';
   const sort = searchParams.get('sort') || 'latest';
   const page = Number(searchParams.get('page')) || 1;
 
@@ -41,6 +42,7 @@ function CommunityContent() {
     category: category || undefined,
     areaCode: areaCode || undefined,
     keyword: keyword || undefined,
+    searchType: searchType || undefined,
     sort,
     page,
     size: 10,
