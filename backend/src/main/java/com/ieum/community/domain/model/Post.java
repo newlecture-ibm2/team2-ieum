@@ -25,6 +25,7 @@ public class Post {
     private String festivalName;
     private Long authorId;
     private String authorName;
+    private String authorProfileImage;
     private int viewCount;
     private int likeCount;
     private int commentCount;
