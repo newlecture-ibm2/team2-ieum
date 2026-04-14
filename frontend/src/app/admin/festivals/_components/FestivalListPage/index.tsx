@@ -293,9 +293,11 @@ export default function FestivalListPage() {
         </table>
 
         <div className={c.pagination}>
+          <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => Math.max(1, p - 10))}>« 10페이지 이전</button>
           <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>
           <span className={c.pageInfo}>{list.currentPage} / {list.totalPages} 페이지</span>
           <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
+          <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => Math.min(list.totalPages, p + 10))}>다음 10페이지 »</button>
         </div>
       </section>
 

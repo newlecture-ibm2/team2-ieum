@@ -76,9 +76,14 @@ export function usePostDetail(postId: string, enabled: boolean = true) {
           setComments(commentRes.data.data);
         }
       }
-    } catch (err) {
-      console.error(err);
-      setError('게시글 로드 중 오류가 발생했습니다.');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { status?: number } };
+      if (errorObj?.response?.status === 404) {
+        setError('이미 삭제되었거나 존재하지 않는 게시글입니다.');
+      } else {
+        console.error(err);
+        setError('게시글 로드 중 오류가 발생했습니다.');
+      }
     } finally {
       setLoading(false);
     }

@@ -58,17 +58,21 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
             throw new IllegalStateException("이미 처리된 신고입니다.");
         }
 
-        String newStatus = ReportAction.DISMISS.name().equalsIgnoreCase(action) ? ReportStatus.REJECTED.name() : ReportStatus.RESOLVED.name();
-        reportPort.updateStatus(reportId, newStatus, action, message);
-        // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
-        reportPort.saveResponse(reportId, null, action, message);
+        // 프론트엔드 액션을 DB Enum 타입(report_action)에 맞게 변환 (PostgreSQL ENUM 제약조건 해결)
+        String dbAction = getDbAction(action);
 
-        if (ReportAction.DELETE.name().equalsIgnoreCase(action)) {
+        String newStatus = ReportAction.DISMISS.name().equalsIgnoreCase(action) ? ReportStatus.REJECTED.name() : ReportStatus.RESOLVED.name();
+        
+        reportPort.updateStatus(reportId, newStatus, dbAction, message);
+        // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
+        reportPort.saveResponse(reportId, null, dbAction, message);
+
+        if (ReportAction.DELETE.name().equalsIgnoreCase(action) || "DELETE_CONTENT".equalsIgnoreCase(action)) {
             hideTargetContent(reportId);
         }
 
         // 신고가 승인(조치)되었을 경우 피신고자의 신고수를 +1 증가
-        if (ReportStatus.RESOLVED.name().equals(newStatus) || ReportAction.DELETE.name().equalsIgnoreCase(action) || ReportAction.SUSPEND.name().equalsIgnoreCase(action)) {
+        if (ReportStatus.RESOLVED.name().equals(newStatus)) {
             reportPort.findById(reportId).ifPresent(report -> {
                 Long authorId = reportPort.findTargetAuthorId(report.getTargetType(), report.getTargetId());
                 if (authorId != null) {
@@ -132,5 +136,16 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
         return reportPort.findById(reportId)
                 .map(r -> reportPort.findOriginalContent(r.getTargetType(), r.getTargetId()))
                 .orElse(null);
+    }
+
+
+    private String getDbAction(String frontendAction) {
+        if ("DELETE".equalsIgnoreCase(frontendAction)) {
+            return "DELETE_CONTENT";
+        } else if ("SUSPEND".equalsIgnoreCase(frontendAction) || "WARNING".equalsIgnoreCase(frontendAction)) {
+            return "WARN_USER";
+        } else {
+            return "NONE";
+        }
     }
 }

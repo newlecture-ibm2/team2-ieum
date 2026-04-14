@@ -75,4 +75,23 @@ public class MemberSuspensionScheduler {
 
         log.info(">>> [MemberSuspensionScheduler] 일일 회원 배치 프로세스 정상 완료");
     }
+
+    /**
+     * 관리자 수동 조작 - 정지(SUSPENDED) 중인 모든 회원을 즉시 영구 탈퇴(물리 삭제) 처리합니다.
+     */
+    public int processManualForceDeleteSuspendedUsers() {
+        log.info(">>> [MemberSuspensionScheduler] 수동 발동: 현재 정지중(SUSPENDED)인 회원 전원 즉시 탈퇴(물리 파기) 진행!");
+        List<Long> suspendedList = findDeletionTargetPort.findAllByStatus(MemberStatus.SUSPENDED);
+        int successCount = 0;
+        for (Long userId : suspendedList) {
+            try {
+                forceDeleteUserUseCase.execute(userId);
+                successCount++;
+            } catch (Exception e) {
+                log.error("[MemberSuspensionScheduler] 수동 발동 탈퇴 실패 - userId: {}", userId, e);
+            }
+        }
+        log.info(">>> [MemberSuspensionScheduler] 수동 발동 완료: 총 {}명 시도 중 {}명 삭제 완료", suspendedList.size(), successCount);
+        return successCount;
+    }
 }
