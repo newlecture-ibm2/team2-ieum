@@ -20,7 +20,8 @@ public enum ErrorCode {
     NOTICE_001(HttpStatus.NOT_FOUND, "공지사항을 찾을 수 없습니다."),
     NOTICE_002(HttpStatus.FORBIDDEN, "현재 게시 중인 공지사항이 아니거나 접근할 수 없습니다."),
     USER_001(HttpStatus.FORBIDDEN, "활동이 정지된 계정입니다. 정지 해제 후 이용해 주세요."),
-    COMMON_001(HttpStatus.BAD_REQUEST, "잘못된 요청입니다.");
+    COMMON_001(HttpStatus.BAD_REQUEST, "잘못된 요청입니다."),
+    FILE_001(HttpStatus.NOT_FOUND, "파일을 찾을 수 없습니다.");
 
     private final HttpStatus status;
     private final String message;

@@ -11,12 +11,15 @@ Icon?
 *.iml
 *.iws
 *.ipr
+.agents/rules/skpark.md
+curl_out.txt
 
 # env files
 .env
 .env.*
 !.env.example
 firebase-service-key.json
+backend/src/main/resources/application-local.yml
 
 # Node
 node_modules/

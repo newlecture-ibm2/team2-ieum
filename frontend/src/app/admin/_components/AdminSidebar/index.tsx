@@ -11,8 +11,8 @@ const MENU_ITEMS = [
   { label: '🌐 공공축제 리스트', href: '/admin/festivals', id: 'public-festivals' },
   { label: '🎪 축제 관리', href: '/admin/managedFestivals', id: 'managed-festivals' },
   { label: '🚨 신고 관리', href: '/admin/reports', id: 'reports' },
-  { label: '📢 공지/팝업', href: '/admin/notices', id: 'notices' },
   { label: '💬 문의 관리', href: '/admin/inquiries', id: 'inquiries' },
+  { label: '📢 공지/팝업', href: '/admin/notices', id: 'notices' },
   { label: '👥 회원 관리', href: '/admin/members', id: 'members' },
 ];
 

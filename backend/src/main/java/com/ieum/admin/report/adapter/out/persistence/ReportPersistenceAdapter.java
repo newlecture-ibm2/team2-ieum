@@ -58,7 +58,7 @@ public class ReportPersistenceAdapter implements ReportPort {
             entity.setAction(action);
             entity.setAdminNote(adminNote);
             entity.setProcessedAt(LocalDateTime.now());
-            repository.save(entity);
+            repository.saveAndFlush(entity);
         });
     }
 
@@ -83,25 +83,28 @@ public class ReportPersistenceAdapter implements ReportPort {
         Map<String, String> result = new HashMap<>();
         try {
             if ("POST".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT p.authorName, p.content, p.createdAt FROM PostEntity p WHERE p.id = :id")
+                Object[] row = (Object[]) em.createQuery("SELECT p.authorName, p.content, p.createdAt, p.id FROM PostEntity p WHERE p.id = :id AND p.status != 'REMOVED'")
                         .setParameter("id", targetId).getSingleResult();
                 result.put("author", (String) row[0]);
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                result.put("parentId", row[3] != null ? row[3].toString() : "");
                 return result;
             } else if ("COMMENT".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT c.userName, c.content, c.createdAt FROM CommentEntity c WHERE c.id = :id")
+                Object[] row = (Object[]) em.createQuery("SELECT c.userName, c.content, c.createdAt, c.postId FROM CommentEntity c WHERE c.id = :id AND c.status != 'REMOVED'")
                         .setParameter("id", targetId).getSingleResult();
                 result.put("author", (String) row[0]);
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                result.put("parentId", row[3] != null ? row[3].toString() : "");
                 return result;
             } else if ("REVIEW".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT u.nickname, r.content, r.createdAt FROM ReviewEntity r LEFT JOIN UserRef u ON r.userId = u.id WHERE r.id = :id")
+                Object[] row = (Object[]) em.createQuery("SELECT u.nickname, r.content, r.createdAt, r.festivalId FROM ReviewEntity r LEFT JOIN UserRef u ON r.userId = u.id WHERE r.id = :id AND r.status != 'REMOVED'")
                         .setParameter("id", targetId).getSingleResult();
                 result.put("author", row[0] != null ? (String) row[0] : "알 수 없음");
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
+                result.put("parentId", row[3] != null ? row[3].toString() : "");
                 return result;
             }
         } catch (Exception e) {

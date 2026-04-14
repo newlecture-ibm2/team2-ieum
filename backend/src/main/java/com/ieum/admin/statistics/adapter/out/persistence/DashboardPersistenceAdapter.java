@@ -111,7 +111,11 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
                 "SELECT FUNCTION('DATE', r.createdAt), COUNT(r) FROM ReportEntity r " +
                 "WHERE r.createdAt >= :from AND r.createdAt <= :to GROUP BY FUNCTION('DATE', r.createdAt) ORDER BY FUNCTION('DATE', r.createdAt)")
                 .setParameter("from", from).setParameter("to", to).getResultList();
-        Map<String, Long> m = rows.stream().collect(Collectors.toMap(r -> r[0].toString(), r -> (long) r[1]));
+        Map<String, Long> m = rows.stream().collect(Collectors.toMap(
+                r -> r[0].toString(), 
+                r -> (long) r[1], 
+                (a, b) -> a + b
+        ));
         return buildDynamicDays(m, startDate, endDate, true);
     }
 
@@ -124,7 +128,11 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
                 "SELECT FUNCTION('DATE', i.createdAt), COUNT(i) FROM InquiryEntity i " +
                 "WHERE i.createdAt >= :from AND i.createdAt <= :to GROUP BY FUNCTION('DATE', i.createdAt) ORDER BY FUNCTION('DATE', i.createdAt)")
                 .setParameter("from", from).setParameter("to", to).getResultList();
-        Map<String, Long> m = rows.stream().collect(Collectors.toMap(r -> r[0].toString(), r -> (long) r[1]));
+        Map<String, Long> m = rows.stream().collect(Collectors.toMap(
+                r -> r[0].toString(), 
+                r -> (long) r[1], 
+                (a, b) -> a + b
+        ));
         return buildDynamicDays(m, startDate, endDate, false);
     }
 
