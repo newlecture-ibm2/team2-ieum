@@ -17,6 +17,7 @@ Icon?
 .env.*
 !.env.example
 firebase-service-key.json
+backend/src/main/resources/application-local.yml
 
 # Node
 node_modules/
