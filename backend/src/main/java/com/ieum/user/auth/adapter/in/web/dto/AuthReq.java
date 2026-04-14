@@ -30,6 +30,8 @@ public class AuthReq {
 
         private String phone;
         private boolean termsAgreed;
+        private String securityQuestion;
+        private String securityAnswer;
     }
 
     @Getter
@@ -46,12 +48,12 @@ public class AuthReq {
         private String phone;
     }
 
-    /** 비밀번호 찾기: 2단계 인증 코드 확인 (아이디 기준) */
+    /** 비밀번호 찾기: 2단계 보안질문 답변 검증 */
     @Getter
     @Setter
     public static class PasswordRecoveryVerify {
         private String id;
-        private String code;
+        private String answer;
     }
 
     /** 비밀번호 찾기: 3단계 비밀번호 재설정 (아이디 기준) */
