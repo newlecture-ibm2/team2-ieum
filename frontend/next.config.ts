@@ -34,11 +34,11 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/oauth2/:path*',
-        destination: `${process.env.BACKEND_URL || 'http://localhost:8080'}/oauth2/:path*`,
+        destination: `${process.env.BACKEND_URL || process.env.API_BASE_URL || 'http://localhost:8080'}/oauth2/:path*`,
       },
       {
         source: '/login/oauth2/:path*',
-        destination: `${process.env.BACKEND_URL || 'http://localhost:8080'}/login/oauth2/:path*`,
+        destination: `${process.env.BACKEND_URL || process.env.API_BASE_URL || 'http://localhost:8080'}/login/oauth2/:path*`,
       },
       {
         // [로컬 개발 환경 전용 설정]
