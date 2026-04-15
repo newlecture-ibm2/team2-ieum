@@ -51,6 +51,24 @@ export default function NoticeFormModal({ mode, notice, onClose, onSaved }: Prop
       closeOnOverlay={false}
     >
       <div className={s.formBody}>
+        {/* 카테고리 */}
+        <div className={s.fieldGroup}>
+          <label className={s.fieldLabel}>
+            <span className={s.requiredStar}>*</span> 카테고리
+          </label>
+          <select
+            className={s.fieldInput}
+            value={formState.category}
+            onChange={(e) => formState.setCategory(e.target.value)}
+            style={{ maxWidth: '200px' }}
+          >
+            <option value="GENERAL">일반</option>
+            <option value="EVENT">행사</option>
+            <option value="UPDATE">업데이트</option>
+            <option value="URGENT">긴급</option>
+          </select>
+        </div>
+
         {/* 제목 */}
         <div className={s.fieldGroup}>
           <label className={s.fieldLabel}>

@@ -7,6 +7,25 @@ import type { Post } from './usePosts';
 
 interface PostCardProps {
   post: Post;
+  keyword?: string;
+}
+
+// Highlight matching keyword in text
+function HighlightText({ text, keyword }: { text: string; keyword?: string }) {
+  if (!keyword || !keyword.trim()) return <>{text}</>;
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === keyword.toLowerCase() ? (
+          <mark key={i} className={styles.highlight}>{part}</mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
 }
 
 const CATEGORY_MAP: Record<string, { label: string; className: string }> = {
@@ -27,7 +46,7 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('ko-KR');
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, keyword }: PostCardProps) {
   const cat = CATEGORY_MAP[post.category?.toLowerCase()] || { label: post.category, className: '' };
 
   let thumbnailUrl = null;
@@ -72,8 +91,8 @@ export default function PostCard({ post }: PostCardProps) {
             </span>
           )}
         </div>
-        <div className={styles.title}>{post.title}</div>
-        <div className={styles.desc}>{plainTextContent}</div>
+        <div className={styles.title}><HighlightText text={post.title} keyword={keyword} /></div>
+        <div className={styles.desc}><HighlightText text={plainTextContent} keyword={keyword} /></div>
         <div className={styles.meta}>
           <span>{timeAgo(post.createdAt)}</span>
           <span>·</span>

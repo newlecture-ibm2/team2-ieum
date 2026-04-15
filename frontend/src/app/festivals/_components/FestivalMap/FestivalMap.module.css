@@ -3,62 +3,21 @@
   flex-direction: column;
   max-width: 1200px;
   width: 100%;
-  margin: 30px auto 80px; /* 상단 30px, 좌우 자동, 하단 80px 여백으로 푸터와 거리 둠 */
+  margin: 20px auto 40px; 
   padding: 0 24px;
-  height: calc(100vh - 90px);
-  min-height: 1050px; /* 높이를 더 넉넉하게 확장 */
-}
-
-/* 타이틀 영역 */
-.pageTitle {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 14px 24px;
-  background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
-  color: #fff;
-  position: relative;
-  overflow: hidden;
-  border-top-left-radius: 12px;
-  border-top-right-radius: 12px;
-}
-
-.pageTitle::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  right: -20px;
-  width: 90px;
-  height: 90px;
-  background: rgba(255, 255, 255, 0.06);
-  border-radius: 50%;
-}
-
-.pageTitleText {
-  font-size: 18px;
-  font-weight: 800;
-  position: relative;
-  z-index: 1;
-}
-
-.pageTitleSub {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.75);
-  position: relative;
-  z-index: 1;
+  padding: 0 24px;
+  min-height: calc(100vh - 140px); /* 최소 전체 화면 채우되, */
+  height: auto; /* 내용이 넘치면 스크롤되도록 */
 }
 
 /* 메인 콘텐츠 (사이드바 + 지도) */
 .mapBody {
   display: flex;
-  flex: 1;
   background: #fff;
-  border-bottom-left-radius: 12px;
-  border-bottom-right-radius: 12px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: 1px solid #e9ecef;
-  border-top: none;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  border: 1px solid #e2e8f0;
 }
 
 /* ===== 필터 사이드바 ===== */
@@ -74,6 +33,58 @@
 
 .filterSidebar::-webkit-scrollbar { width: 4px; }
 .filterSidebar::-webkit-scrollbar-thumb { background: #ddd5f5; border-radius: 4px; }
+
+/* 신규: 사이드바 내부 헤더 영역 */
+.sidebarHeader {
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #1e293b;
+}
+
+.sidebarTitle {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 8px 0;
+  letter-spacing: -0.5px;
+}
+
+.sidebarDesc {
+  font-size: 13px;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Header top row (title + toggle btn) */
+.sidebarHeaderTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Filter toggle button - hidden on desktop */
+.filterToggleBtn {
+  display: none;
+  background: #f5f3ff;
+  color: #6c5ce7;
+  border: 1px solid #ddd5f5;
+  border-radius: 8px;
+  padding: 4px 10px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: 'Noto Sans KR', sans-serif;
+  white-space: nowrap;
+}
+
+.filterToggleBtn:hover {
+  background: #ede9fe;
+}
+
+/* Filter content - always visible on desktop */
+.filterContent {}
 
 .filterSectionTitle {
   font-weight: 700;
@@ -222,8 +233,9 @@
 /* ===== 지도 영역 ===== */
 .mapArea {
   position: relative;
-  flex: 1;
-  min-height: 200px;
+  height: 750px; /* 지도는 항상 750px 고정 크기로 매우 크게 유지 */
+  min-height: 750px;
+  flex: none; /* 하단 목록과 영역을 나누지 않고 지도를 고정 */
   overflow: hidden;
 }
 
@@ -459,6 +471,55 @@
   gap: 6px;
 }
 
+/* 아래로 스크롤 유도 인디케이터 (지도 하단 중앙) */
+.floatingScrollIndicator {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(15, 23, 42, 0.85); /* 다크 모드 블러 배경 */
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px;
+  padding: 10px 24px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease;
+  animation: bounceLight 2s infinite ease-in-out;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.floatingScrollIndicator.mapControlsVisible {
+  opacity: 1;
+  visibility: visible;
+}
+
+.floatingScrollIndicator:hover {
+  background: rgba(15, 23, 42, 1);
+  transform: translateX(-50%) translateY(2px);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes bounceLight {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(4px); }
+}
+
+.floatingListCount {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
 .listCount { color: #6c5ce7; font-weight: 800; }
 
 .listToggle {
@@ -674,15 +735,6 @@
     min-height: auto;
   }
 
-  .pageTitle {
-    padding: 12px 16px;
-    border-radius: 12px 12px 0 0;
-  }
-
-  .pageTitleText {
-    font-size: 15px;
-  }
-
   .mapBody {
     flex-direction: column;
     border-radius: 0 0 12px 12px;
@@ -691,10 +743,26 @@
   .filterSidebar {
     width: 100%;
     min-width: unset;
-    max-height: 200px;
     border-right: none;
     border-bottom: 1px solid #e9ecef;
     padding: 12px;
+    overflow-y: visible;
+  }
+
+  .filterToggleBtn {
+    display: inline-block;
+  }
+
+  .filterContent {
+    max-height: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: max-height 0.3s ease, opacity 0.2s ease;
+  }
+
+  .filterContentOpen {
+    max-height: 600px;
+    opacity: 1;
   }
 
   .regionGrid {

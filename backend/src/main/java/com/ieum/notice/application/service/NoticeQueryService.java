@@ -8,6 +8,7 @@ import com.ieum.notice.application.port.in.GetNoticeListUseCase;
 import com.ieum.notice.application.port.in.GetPopupNoticeUseCase;
 import com.ieum.notice.application.port.out.NoticePort;
 import com.ieum.notice.domain.model.Notice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -30,11 +31,22 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
     private final NoticePort noticePort;
 
     @Override
-    public Page<Notice> getNotices(String searchType, String keyword, int page, int size) {
+    public Page<Notice> getNotices(String searchType, String keyword, String category, int page, int size) {
         // 정렬 기준: 고정 공지 우선 → 최신순
         Sort sort = Sort.by("isPinned").descending()
                 .and(Sort.by("createdAt").descending());
-        return noticePort.findActiveAll(searchType, keyword, LocalDateTime.now(), PageRequest.of(page - 1, size, sort));
+
+        // 카테고리 문자열 → Enum 변환 (null이면 전체 조회)
+        NoticeCategory categoryEnum = null;
+        if (category != null && !category.isBlank()) {
+            try {
+                categoryEnum = NoticeCategory.valueOf(category.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // 잘못된 카테고리 값은 무시하고 전체 조회
+            }
+        }
+
+        return noticePort.findActiveAll(searchType, keyword, categoryEnum, LocalDateTime.now(), PageRequest.of(page - 1, size, sort));
     }
 
     @Override
@@ -57,6 +69,7 @@ public class NoticeQueryService implements GetNoticeListUseCase, GetNoticeDetail
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .summary(notice.getSummary())
+                .category(notice.getCategory())
                 .viewCount(notice.getViewCount() + 1)
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())

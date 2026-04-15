@@ -1,5 +1,6 @@
 package com.ieum.admin.notice.adapter.in.web.dto;
 
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,6 +17,7 @@ public class NoticeSaveRequest {
     private String title;
     private String content;
     private String summary;
+    private String category;
     private Boolean isPinned;
     private Boolean isPopup;
     private Boolean sendPush;
@@ -36,6 +38,7 @@ public class NoticeSaveRequest {
                 .title(this.title)
                 .content(this.content)
                 .summary(this.summary)
+                .category(parseCategory(this.category))
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
                 .sendPush(this.sendPush)
@@ -58,6 +61,7 @@ public class NoticeSaveRequest {
                 .title(this.title)
                 .content(this.content)
                 .summary(this.summary)
+                .category(parseCategory(this.category))
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
                 .sendPush(this.sendPush)
@@ -67,6 +71,15 @@ public class NoticeSaveRequest {
                 .newFiles(newFiles)
                 .deleteFileIds(deleteFileIds)
                 .build();
+    }
+
+    private NoticeCategory parseCategory(String value) {
+        if (value == null || value.isBlank()) return NoticeCategory.GENERAL;
+        try {
+            return NoticeCategory.valueOf(value.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            return NoticeCategory.GENERAL;
+        }
     }
 }
 

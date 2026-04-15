@@ -15,6 +15,7 @@ export function useNoticeList() {
   const currentKeyword = searchParams.get('keyword') || '';
   const currentSearchType = searchParams.get('searchType') || 'all';
   const currentSort = searchParams.get('sort') || 'latest';
+  const currentCategory = searchParams.get('category') || '';
 
   const fetchNotices = useCallback(async () => {
     setLoading(true);
@@ -25,6 +26,9 @@ export function useNoticeList() {
       if (currentKeyword) {
         params.append('keyword', currentKeyword);
         params.append('searchType', currentSearchType);
+      }
+      if (currentCategory) {
+        params.append('category', currentCategory);
       }
 
       const res = await api.get(`/api/notices?${params.toString()}`);
@@ -39,7 +43,7 @@ export function useNoticeList() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, currentKeyword, currentSearchType]);
+  }, [currentPage, currentKeyword, currentSearchType, currentCategory]);
 
   useEffect(() => {
     fetchNotices();
@@ -47,6 +51,6 @@ export function useNoticeList() {
 
   return {
     notices, totalPages, totalElements, loading,
-    currentPage, currentSort
+    currentPage, currentSort, currentCategory
   };
 }

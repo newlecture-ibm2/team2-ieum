@@ -22,6 +22,7 @@ export function useAdminNoticeList() {
   const [popupCount, setPopupCount] = useState(0);
   const [pushedCount, setPushedCount] = useState(0);
   const [filterType, setFilterType] = useState<'all' | 'pinned' | 'popup' | 'pushed' | 'ACTIVE' | 'INACTIVE' | 'RESERVED' | 'ENDED'>('all');
+  const [categoryFilter, setCategoryFilter] = useState('');
   const [localSearchType, setLocalSearchType] = useState(extraFilters.searchType || 'ALL');
 
   /* ── 모달 상태 ── */
@@ -44,6 +45,11 @@ export function useAdminNoticeList() {
 
   const handleFilterChange = (type: typeof filterType) => {
     setFilterType(type);
+    setCurrentPage(1);
+  };
+
+  const handleCategoryFilterChange = (cat: string) => {
+    setCategoryFilter(cat);
     setCurrentPage(1);
   };
 
@@ -81,6 +87,8 @@ export function useAdminNoticeList() {
       else if (filterType === 'pushed') params.isPushed = true;
       else if (filterType !== 'all') params.status = filterType;
 
+      if (categoryFilter) params.category = categoryFilter;
+
       const { data } = await adminApi.get<{ data: AdminNoticeListResponse }>('/notices', { params });
       const result = data.data;
 
@@ -93,7 +101,7 @@ export function useAdminNoticeList() {
     } finally {
       setLoading(false);
     }
-  }, [currentPage, keyword, extraFilters.searchType, filterType, setLoading, setTotalPages, setTotalElements]);
+  }, [currentPage, keyword, extraFilters.searchType, filterType, categoryFilter, setLoading, setTotalPages, setTotalElements]);
 
   useEffect(() => {
     fetchNotices();
@@ -134,6 +142,8 @@ export function useAdminNoticeList() {
     // 필터링 & 검색
     filterType,
     handleFilterChange,
+    categoryFilter,
+    handleCategoryFilterChange,
     localSearchType,
     setLocalSearchType,
     searchTerm,

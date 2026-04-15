@@ -38,10 +38,10 @@ interface MyPageSidebarProps {
 }
 
 const MENU_ITEMS = [
-  { id: 'favorites' as MenuType, label: '찜', icon: Heart },
   { id: 'posts' as MenuType, label: '내 게시글 목록', icon: FileText },
   { id: 'comments' as MenuType, label: '내 댓글 목록', icon: MessageSquare },
   { id: 'reviews' as MenuType, label: '내 리뷰 목록', icon: Star },
+  { id: 'favorites' as MenuType, label: '찜', icon: Heart },
   { id: 'inquiries' as MenuType, label: '내 문의 보기', icon: HelpCircle },
   { id: 'reports' as MenuType, label: '내 신고 내역', icon: ShieldCheck },
   { id: 'settings' as MenuType, label: '설정 관리', icon: Settings },

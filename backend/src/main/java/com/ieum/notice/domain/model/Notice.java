@@ -20,6 +20,9 @@ public class Notice {
     private String summary;
 
     @Builder.Default
+    private NoticeCategory category = NoticeCategory.GENERAL;
+
+    @Builder.Default
     private Integer viewCount = 0;
 
     @Builder.Default

@@ -149,7 +149,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
             placeholder="2~8자 사이로 입력"
           />
           <button 
-            className={styles.btnEdit} 
+            className={styles.btnCheck} 
             style={{ whiteSpace: 'nowrap' }}
             onClick={() => setIsNicknameChecked(true)}
             disabled={isSaving}

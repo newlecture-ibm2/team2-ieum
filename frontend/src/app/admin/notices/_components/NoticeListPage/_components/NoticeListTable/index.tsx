@@ -2,6 +2,13 @@ import common from '@/app/admin/_styles/admin-common.module.css';
 import type { AdminNoticeItem } from '@/types/admin-notice';
 import s from './NoticeListTable.module.css';
 
+const CATEGORY_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  GENERAL: { label: '일반', color: '#4b5563', bg: '#f3f4f6' },
+  EVENT: { label: '행사', color: '#7c3aed', bg: '#ede9fe' },
+  UPDATE: { label: '업데이트', color: '#2563eb', bg: '#dbeafe' },
+  URGENT: { label: '긴급', color: '#dc2626', bg: '#fee2e2' },
+};
+
 interface Props {
   loading: boolean;
   notices: AdminNoticeItem[];
@@ -32,6 +39,7 @@ export default function NoticeListTable({
             <col style={{ width: '60px' }} />
             <col style={{ width: 'auto' }} />
             <col style={{ width: '80px' }} />
+            <col style={{ width: '80px' }} />
             <col style={{ width: '90px' }} />
             <col style={{ width: '70px' }} />
             <col style={{ width: '70px' }} />
@@ -43,6 +51,7 @@ export default function NoticeListTable({
             <tr className={common.tableHeaderRow}>
               <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
               <th className={`${common.tableHeaderCell} ${common.textLeft}`}>제목</th>
+              <th className={`${common.tableHeaderCell} ${common.textCenter}`}>카테고리</th>
               <th className={`${common.tableHeaderCell} ${common.textCenter}`}>조회수</th>
               <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
               <th className={`${common.tableHeaderCell} ${common.textCenter}`}>고정</th>
@@ -55,7 +64,7 @@ export default function NoticeListTable({
           <tbody>
             {notices.length === 0 ? (
               <tr>
-                <td colSpan={9} className={common.emptyRow}>
+                <td colSpan={10} className={common.emptyRow}>
                   등록된 공지사항이 없습니다.
                 </td>
               </tr>
@@ -74,6 +83,25 @@ export default function NoticeListTable({
                   >
                     {notice.isPinned && <span className={s.pinIcon}>📌</span>}
                     {notice.title}
+                  </td>
+                  <td className={`${common.tableCell} ${common.textCenter}`}>
+                    {(() => {
+                      const cat = CATEGORY_LABELS[notice.category] || CATEGORY_LABELS.GENERAL;
+                      return (
+                        <span style={{
+                          display: 'inline-block',
+                          padding: '2px 8px',
+                          borderRadius: '10px',
+                          fontSize: '11px',
+                          fontWeight: 600,
+                          color: cat.color,
+                          background: cat.bg,
+                          whiteSpace: 'nowrap',
+                        }}>
+                          {cat.label}
+                        </span>
+                      );
+                    })()}
                   </td>
                   <td className={`${common.tableCell} ${common.textCenter}`}>
                     {notice.viewCount?.toLocaleString()}

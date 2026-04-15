@@ -12,5 +12,5 @@ public interface GetAdminNoticeListUseCase {
      * 관리자용 공지 목록 (전체 포함, 숨김/팝업 상태 모두 표시)
      */
     Page<AdminNotice> getAdminNotices(int page, int size, String searchType, String keyword, Boolean isPinned,
-            Boolean isPopup, Boolean isPushed, String status);
+            Boolean isPopup, Boolean isPushed, String category, String status);
 }
