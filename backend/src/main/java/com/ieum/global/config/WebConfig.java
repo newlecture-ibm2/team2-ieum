@@ -40,7 +40,8 @@ public class WebConfig implements WebMvcConfigurer {
                 "http://127.0.0.1:3000",
                 "http://localhost:8080",
                 "https://festa-ieum.com",
-                "https://www.festa-ieum.com"));
+                "https://www.festa-ieum.com"
+        ));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);

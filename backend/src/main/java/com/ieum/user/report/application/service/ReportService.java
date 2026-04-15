@@ -10,6 +10,7 @@ import com.ieum.global.common.enums.ReportStatus;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,6 +23,7 @@ import java.util.Set;
 /**
  * 사용자 신고 Service (UseCase 구현체)
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -127,16 +129,12 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
     }
 
     private void populateParentInfo(Report report) {
-        // [DEBUG] 상위 ID 보강 시작 로그
-        System.out.println("[ReportService] PopulateParentInfo for Report ID: " + report.getId() + ", TargetType: " + report.getTargetType() + ", TargetId: " + report.getTargetId());
-
         // COMMENT인 경우 PostId(상위 ID)를 찾아서 채워줌 (대소문자 무시)
         if (Report.TARGET_COMMENT.equalsIgnoreCase(report.getTargetType())) {
             commentPort.findById(report.getTargetId()).ifPresentOrElse(comment -> {
                 report.setTargetParentId(comment.getPostId());
-                System.out.println("[ReportService] Successfully found Parent Post ID: " + comment.getPostId() + " for Comment: " + report.getTargetId());
             }, () -> {
-                System.out.println("[ReportService] Failed to find Comment for ID: " + report.getTargetId());
+                log.warn("신고 상위 ID 보강 실패: Comment를 찾을 수 없음 (reportId={}, targetId={})", report.getId(), report.getTargetId());
             });
         } 
         
@@ -144,9 +142,8 @@ public class ReportService implements CreateReportUseCase, LoadReportUseCase {
         if (Report.TARGET_REVIEW.equalsIgnoreCase(report.getTargetType())) {
             reviewPersistencePort.findById(report.getTargetId()).ifPresentOrElse(review -> {
                 report.setTargetParentId(review.getFestivalId());
-                System.out.println("[ReportService] Successfully found Parent Festival ID: " + review.getFestivalId() + " for Review: " + report.getTargetId());
             }, () -> {
-                System.out.println("[ReportService] Failed to find Review for ID: " + report.getTargetId());
+                log.warn("신고 상위 ID 보강 실패: Review를 찾을 수 없음 (reportId={}, targetId={})", report.getId(), report.getTargetId());
             });
         }
     }
