@@ -249,6 +249,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                                 .nickname(user.getNickname())
                                 .role(user.getRole())
                                 .profileImage(user.getProfileImage())
+                                .status(user.getStatus())
                                 .build())
                         .build())
                 .orElseGet(() -> AuthRes.SessionDto.builder()
