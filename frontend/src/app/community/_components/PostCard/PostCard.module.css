@@ -109,3 +109,11 @@
   height: 100%;
   object-fit: cover;
 }
+
+.highlight {
+  background: linear-gradient(120deg, #fef08a 0%, #fde047 100%);
+  color: #1e293b;
+  padding: 1px 3px;
+  border-radius: 3px;
+  font-weight: inherit;
+}
