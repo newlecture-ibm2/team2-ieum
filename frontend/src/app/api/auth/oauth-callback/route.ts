@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
     const refreshToken = searchParams.get("refreshToken");
 
     if (!accessToken || !refreshToken) {
-      const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.url;
+      const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.nextUrl.origin;
       return NextResponse.redirect(new URL("/login?error=OAuth2_Token_Missing", baseUrl));
     }
 
@@ -25,14 +25,14 @@ export async function GET(req: NextRequest) {
     });
 
     if (!userResponse.ok) {
-        throw new Error("Failed to fetch user profile from backend");
+      throw new Error("Failed to fetch user profile from backend");
     }
 
     const userData = await userResponse.json();
 
     // ✅ lib/session의 getSession() 도우미를 사용하여 세션을 안전하게 저장합니다.
     const session = await getSession();
-    
+
     session.accessToken = accessToken;
     session.refreshToken = refreshToken;
     session.user = userData; // { id, loginId, nickname, role, ... }
@@ -40,11 +40,11 @@ export async function GET(req: NextRequest) {
     await session.save();
 
     // 토큰 저장 후 메인 홈으로 리다이렉트
-    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.url;
+    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.nextUrl.origin;
     return NextResponse.redirect(new URL("/", baseUrl));
   } catch (error) {
     console.error("OAuth Callback Error:", error);
-    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.url;
+    const baseUrl = process.env.NEXT_PUBLIC_FRONTEND_URL || req.nextUrl.origin;
     return NextResponse.redirect(new URL("/login?error=OAuth2_Callback_Failed", baseUrl));
   }
 }
