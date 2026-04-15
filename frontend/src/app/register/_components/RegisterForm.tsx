@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { User, Phone, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../register.module.css';
+import { useToast } from '@/_component/common/Toast';
 
 export default function RegisterForm() {
   const router = useRouter();
+  const { toast } = useToast();
 
   const [id, setId] = useState('');
   const [nickname, setNickname] = useState('');
@@ -130,7 +132,7 @@ export default function RegisterForm() {
       });
 
       if (response.data.status === 'SUCCESS') {
-        alert('회원가입이 성공적으로 완료되었습니다.');
+        toast('회원가입이 성공적으로 완료되었습니다.', 'success');
         router.push('/login');
       } else {
         setErrors(prev => ({ ...prev, global: response.data.message || '가입 처리 중 오류가 발생했습니다.' }));
