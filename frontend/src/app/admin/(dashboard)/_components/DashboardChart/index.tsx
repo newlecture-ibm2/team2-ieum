@@ -138,13 +138,14 @@ export default function DashboardChart({ initialTrend }: Props) {
   return (
     <div className={s.chartCard}>
       {/* ── 헤더 영역 (타이틀 + 탭) ── */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+      {/* ── 헤더 영역 (타이틀 + 탭) ── */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '12px' }}>
         <div>
           <div className={s.chartTitle}>접수 현황 추이</div>
         </div>
 
         {/* ── 기간 선택 탭 ── */}
-        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '8px' }}>
+        <div style={{ display: 'flex', gap: '4px', background: '#f1f5f9', padding: '4px', borderRadius: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={() => { setPeriod('7D'); setDateError(''); }}
             style={{
@@ -153,6 +154,7 @@ export default function DashboardChart({ initialTrend }: Props) {
               color: period === '7D' ? '#1e293b' : '#64748b',
               border: 'none', borderRadius: '6px', cursor: 'pointer',
               boxShadow: period === '7D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              flex: '1 1 auto'
             }}
           >
             최근 7일
@@ -165,6 +167,7 @@ export default function DashboardChart({ initialTrend }: Props) {
               color: period === '30D' ? '#1e293b' : '#64748b',
               border: 'none', borderRadius: '6px', cursor: 'pointer',
               boxShadow: period === '30D' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              flex: '1 1 auto'
             }}
           >
             최근 30일
@@ -177,6 +180,7 @@ export default function DashboardChart({ initialTrend }: Props) {
               color: period === 'CUSTOM' ? '#1e293b' : '#64748b',
               border: 'none', borderRadius: '6px', cursor: 'pointer',
               boxShadow: period === 'CUSTOM' ? '0 1px 3px rgba(0,0,0,0.1)' : 'none',
+              flex: '1 1 auto'
             }}
           >
             직접 입력
@@ -186,17 +190,14 @@ export default function DashboardChart({ initialTrend }: Props) {
 
       {/* ── 직접 입력 달력 (탭 아래 별도 행) ── */}
       {period === 'CUSTOM' && (
-        <div style={{ marginTop: '4px', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '6px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '11px', color: '#94a3b8' }}>
-              ※ 1년 이내만 조회 가능
-            </span>
+        <div style={{ marginTop: '8px', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: '6px', width: '100%' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', width: '100%' }}>
             <input
               type="date"
               value={customStart}
               onChange={(e) => handleStartChange(e.target.value)}
               style={{
-                width: '150px', height: '32px', padding: '0 8px', fontSize: '13px',
+                flex: 1, minWidth: '130px', height: '32px', padding: '0 8px', fontSize: '13px',
                 border: dateError ? '1px solid #ef4444' : '1px solid #e2e8f0',
                 borderRadius: '6px', outline: 'none', color: '#475569', boxSizing: 'border-box'
               }}
@@ -207,12 +208,15 @@ export default function DashboardChart({ initialTrend }: Props) {
               value={customEnd}
               onChange={(e) => handleEndChange(e.target.value)}
               style={{
-                width: '150px', height: '32px', padding: '0 8px', fontSize: '13px',
+                flex: 1, minWidth: '130px', height: '32px', padding: '0 8px', fontSize: '13px',
                 border: dateError ? '1px solid #ef4444' : '1px solid #e2e8f0',
                 borderRadius: '6px', outline: 'none', color: '#475569', boxSizing: 'border-box'
               }}
             />
           </div>
+          <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+            ※ 1년 이내만 조회 가능
+          </span>
           {dateError && (
             <div style={{
               fontSize: '12px', color: '#ef4444', fontWeight: 500,

@@ -14,6 +14,7 @@ export default function NoticeListPage() {
     notices, loading, totalElements, currentPage, totalPages, setCurrentPage,
     allCount, pinnedCount, popupCount, pushedCount,
     filterType, handleFilterChange,
+    categoryFilter, handleCategoryFilterChange,
     localSearchType, setLocalSearchType,
     searchTerm, setSearchTerm, onSearchSubmit, handleSearchKeyDown,
     formMode, setFormMode,
@@ -53,6 +54,8 @@ export default function NoticeListPage() {
       <NoticeListFilterBar
         filterType={filterType}
         onFilterTypeChange={handleFilterChange}
+        categoryFilter={categoryFilter}
+        onCategoryFilterChange={handleCategoryFilterChange}
         localSearchType={localSearchType}
         onLocalSearchTypeChange={setLocalSearchType}
         searchTerm={searchTerm}

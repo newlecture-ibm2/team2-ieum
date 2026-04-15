@@ -3,6 +3,8 @@ import common from '@/app/admin/_styles/admin-common.module.css';
 interface Props {
   filterType: string;
   onFilterTypeChange: (type: any) => void;
+  categoryFilter: string;
+  onCategoryFilterChange: (cat: string) => void;
   localSearchType: string;
   onLocalSearchTypeChange: (type: string) => void;
   searchTerm: string;
@@ -13,6 +15,7 @@ interface Props {
 
 export default function NoticeListFilterBar({
   filterType, onFilterTypeChange,
+  categoryFilter, onCategoryFilterChange,
   localSearchType, onLocalSearchTypeChange,
   searchTerm, onSearchTermChange,
   onSearchSubmit, onSearchKeyDown
@@ -31,6 +34,18 @@ export default function NoticeListFilterBar({
           <option value="RESERVED">예약</option>
           <option value="ENDED">종료</option>
           <option value="INACTIVE">비활성</option>
+        </select>
+        <select
+          className={common.filterSelect}
+          style={{ minWidth: 130 }}
+          value={categoryFilter}
+          onChange={(e) => onCategoryFilterChange(e.target.value)}
+        >
+          <option value="">전체 카테고리</option>
+          <option value="GENERAL">일반</option>
+          <option value="EVENT">행사</option>
+          <option value="UPDATE">업데이트</option>
+          <option value="URGENT">긴급</option>
         </select>
       </div>
       <div style={{ display: 'flex', gap: '8px' }}>

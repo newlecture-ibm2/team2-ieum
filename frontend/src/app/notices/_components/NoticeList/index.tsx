@@ -13,7 +13,7 @@ import { useNoticeList } from './useNoticeList';
 export default function NoticeListContent() {
   const {
     notices, totalPages, totalElements, loading,
-    currentPage
+    currentPage,
   } = useNoticeList();
 
   return (
@@ -34,3 +34,4 @@ export default function NoticeListContent() {
     </>
   );
 }
+

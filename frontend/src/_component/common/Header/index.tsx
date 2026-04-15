@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Bell, User, LogOut, Shield, Menu, X, Home, CalendarDays, MessageCircle, Megaphone, LayoutGrid } from "lucide-react";
+import { Bell, User, LogOut, Shield, Home, CalendarDays, MessageCircle, Megaphone, History } from "lucide-react";
 import NotificationDropdown from "../NotificationDropdown";
 import { useHeader } from "./useHeader";
 import styles from "./Header.module.css";
@@ -24,18 +23,19 @@ const NAV_ITEMS: NavItem[] = [
   { label: "공지", href: "/notices", match: "/notices" },
 ];
 
-export default function Header() {
+export default function Header({ forceRender = false }: { forceRender?: boolean } = {}) {
   const pathname = usePathname();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
   const {
     isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
     isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
     closePopup, logout, devRefreshFestivals, isDarkHeroPage
   } = useHeader();
 
-  if (pathname.startsWith("/admin")) return null;
+  // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
+  if (!forceRender && pathname.startsWith("/admin")) return null;
 
-  const closeMobileMenu = () => setMobileMenuOpen(false);
+
 
   return (
     <>
@@ -156,74 +156,9 @@ export default function Header() {
             </Link>
           )}
         </div>
-
-        {/* ⑤ 모바일 햄버거 버튼 */}
-        <button
-          type="button"
-          className={styles.hamburgerBtn}
-          aria-label={mobileMenuOpen ? "메뉴 닫기" : "메뉴 열기"}
-          onClick={() => setMobileMenuOpen(prev => !prev)}
-        >
-          {mobileMenuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
       </div>
 
-      {/* ⑥ 모바일 메뉴 오버레이 */}
-      {mobileMenuOpen && (
-        <div className={styles.mobileOverlay} onClick={closeMobileMenu} />
-      )}
 
-      {/* ⑦ 모바일 슬라이드 메뉴 */}
-      <nav className={`${styles.mobileNav} ${mobileMenuOpen ? styles.mobileNavOpen : ''}`}>
-        <div className={styles.mobileNavLinks}>
-          {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(item.match + "/");
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`${styles.mobileNavLink} ${isActive ? styles.mobileNavLinkActive : ''}`}
-                onClick={closeMobileMenu}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </div>
-
-        <div className={styles.mobileNavActions}>
-          {isLoggedIn ? (
-            <>
-              <Link href="/mypage" className={styles.mobileActionBtn} onClick={closeMobileMenu}>
-                <User size={18} /> 마이페이지
-              </Link>
-              {(userRole === "ROLE_ADMIN" || userRole === "ADMIN") && (
-                <Link href="/admin" className={styles.mobileActionBtn} onClick={closeMobileMenu}>
-                  <Shield size={18} /> 관리자
-                </Link>
-              )}
-              <button
-                type="button"
-                className={styles.mobileActionBtn}
-                onClick={() => { logout(); closeMobileMenu(); }}
-              >
-                <LogOut size={18} /> 로그아웃
-              </button>
-            </>
-          ) : (
-            <Link href="/login" className={styles.mobileLoginBtn} onClick={closeMobileMenu}>
-              로그인
-            </Link>
-          )}
-        </div>
-
-        {/* 모바일 하단 미니 푸터 */}
-        <div className={styles.mobileNavFooter}>
-          <p>이메일: ieum@festival.kr</p>
-          <p>전화: 02-1234-5678</p>
-          <p className={styles.mobileCopyright}>© 2026 이음(IEUM). All rights reserved.</p>
-        </div>
-      </nav>
 
       {/* 팝업 모달 */}
       {popupConfig && (
@@ -245,6 +180,10 @@ export default function Header() {
           <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
             <Home size={22} className={styles.mBottomNavIcon} />
             <span className={styles.mBottomNavLabel}>홈</span>
+          </Link>
+          <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
+            <History size={22} className={styles.mBottomNavIcon} />
+            <span className={styles.mBottomNavLabel}>지난축제</span>
           </Link>
           <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
             <CalendarDays size={22} className={styles.mBottomNavIcon} />

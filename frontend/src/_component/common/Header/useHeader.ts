@@ -13,7 +13,7 @@ export function useHeader() {
   const isDarkHeroPage =
     // 전국축제 메인 및 상세 (/festivals/map 지도 페이지 제외)
     pathname === "/" ||
-    (pathname.startsWith("/festivals") && !pathname.startsWith("/festivals/map")) ||
+    (pathname.startsWith("/festivals") && !pathname.startsWith("/festivals/map") && !pathname.includes("/reviews")) ||
     // 지난축제
     pathname === "/pastFestivals" ||
     // 커뮤니티 메인 및 글쓰기 (상세 페이지 /community/[id] 제외)

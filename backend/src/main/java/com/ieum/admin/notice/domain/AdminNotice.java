@@ -1,5 +1,6 @@
 package com.ieum.admin.notice.domain;
 
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -17,6 +18,9 @@ public class AdminNotice {
     private String title;
     private String content;
     private String summary;
+
+    @Builder.Default
+    private NoticeCategory category = NoticeCategory.GENERAL;
 
     @Builder.Default
     private Integer viewCount = 0;
