@@ -40,8 +40,7 @@ export function useFestivalOptions(): UseFestivalOptionsReturn {
             if (parts.length === 1) {
               return { ...o, label: `[${parts[0]}] 전체` };
             } else {
-              // 유니코드 공백(\u00A0)을 사용해 모던한 들여쓰기(-) 처리
-              return { ...o, label: `\u00A0\u00A0\u00A0\u00A0- ${parts[1]}` };
+              return { ...o, label: ` - ${parts[1]}` };
             }
           }
           return o;
