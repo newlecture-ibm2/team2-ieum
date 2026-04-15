@@ -24,6 +24,7 @@ public interface AdminNoticeJpaRepository extends JpaRepository<AdminNoticeJpaEn
             "(:isPinned IS NULL OR n.isPinned = :isPinned) AND " +
             "(:isPopup IS NULL OR n.isPopup = :isPopup) AND " +
             "(:isPushed IS NULL OR n.isPushed = :isPushed) AND " +
+            "(:category IS NULL OR n.category = :category) AND " +
             "(:status IS NULL OR :status = '' OR " +
             "    (:status = 'ACTIVE' AND n.isActive = true AND (n.startDate IS NULL OR n.startDate <= :now) AND (n.endDate IS NULL OR n.endDate >= :now)) OR "
             +
@@ -36,6 +37,7 @@ public interface AdminNoticeJpaRepository extends JpaRepository<AdminNoticeJpaEn
             @Param("isPinned") Boolean isPinned,
             @Param("isPopup") Boolean isPopup,
             @Param("isPushed") Boolean isPushed,
+            @Param("category") com.ieum.notice.domain.model.NoticeCategory category,
             @Param("status") String status,
             @Param("now") java.time.LocalDateTime now,
             Pageable pageable);

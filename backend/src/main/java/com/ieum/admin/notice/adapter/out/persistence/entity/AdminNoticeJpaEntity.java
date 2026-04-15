@@ -1,6 +1,7 @@
 package com.ieum.admin.notice.adapter.out.persistence.entity;
 
 import com.ieum.admin.notice.domain.AdminNotice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,6 +37,11 @@ public class AdminNoticeJpaEntity {
 
     @Column(name = "summary", length = 300)
     private String summary;
+
+    @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", length = 20, nullable = false)
+    private NoticeCategory category = NoticeCategory.GENERAL;
 
     @Builder.Default
     @Column(name = "view_count")
@@ -80,6 +86,7 @@ public class AdminNoticeJpaEntity {
                 .title(this.title)
                 .content(this.content)
                 .summary(this.summary)
+                .category(this.category)
                 .viewCount(this.viewCount)
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
@@ -101,6 +108,7 @@ public class AdminNoticeJpaEntity {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .summary(notice.getSummary())
+                .category(notice.getCategory())
                 .viewCount(notice.getViewCount())
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())

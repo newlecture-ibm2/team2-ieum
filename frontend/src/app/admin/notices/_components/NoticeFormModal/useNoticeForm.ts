@@ -20,6 +20,7 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
   const [title, setTitle] = useState(isEdit ? notice!.title : '');
   const [content, setContent] = useState(isEdit ? notice!.content : '');
   const [summary, setSummary] = useState(isEdit ? (notice!.summary || '') : '');
+  const [category, setCategory] = useState<string>(isEdit ? (notice!.category || 'GENERAL') : 'GENERAL');
   const [isPinned, setIsPinned] = useState(isEdit ? notice!.isPinned : false);
   const [isPopup, setIsPopup] = useState(isEdit ? notice!.isPopup : false);
   const [isActive, setIsActive] = useState(isEdit ? notice!.isActive : true);
@@ -83,6 +84,7 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
       formData.append('isPopup', String(isPopup));
       formData.append('isActive', String(isActive));
       formData.append('sendPush', String(sendPush));
+      formData.append('category', category);
       if (startDate) formData.append('startDate', startDate.length === 16 ? `${startDate}:00` : startDate);
       if (endDate) formData.append('endDate', endDate.length === 16 ? `${endDate}:00` : endDate);
       
@@ -178,6 +180,7 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
       title, setTitle,
       content, setContent,
       summary, setSummary,
+      category, setCategory,
       isPinned, setIsPinned,
       isPopup, setIsPopup,
       isActive, setIsActive,

@@ -3,6 +3,7 @@ package com.ieum.admin.notice.adapter.out.persistence;
 import com.ieum.admin.notice.adapter.out.persistence.entity.AdminNoticeJpaEntity;
 import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -33,9 +34,9 @@ public class AdminNoticePersistenceAdapter implements AdminNoticePort {
 
     @Override
     public Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned,
-            Boolean isPopup, Boolean isPushed, String status) {
+            Boolean isPopup, Boolean isPushed, NoticeCategory category, String status) {
         return adminNoticeJpaRepository
-                .findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, status,
+                .findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, category, status,
                         java.time.LocalDateTime.now(), pageable)
                 .map(AdminNoticeJpaEntity::toDomain);
     }

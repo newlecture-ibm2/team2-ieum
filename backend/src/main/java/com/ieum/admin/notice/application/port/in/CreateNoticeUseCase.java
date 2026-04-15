@@ -7,6 +7,7 @@ import java.util.List;
 
 import lombok.Builder;
 import lombok.Getter;
+import com.ieum.notice.domain.model.NoticeCategory;
 
 /**
  * 관리자 공지사항 등록 유스케이스 (API_ADM_0061)
@@ -19,6 +20,7 @@ public interface CreateNoticeUseCase {
         private final String title;
         private final String content;
         private final String summary;
+        private final NoticeCategory category;
         private final Boolean isPinned;
         private final Boolean isPopup;
         private final Boolean sendPush;

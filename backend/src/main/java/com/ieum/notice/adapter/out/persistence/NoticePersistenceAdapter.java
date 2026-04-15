@@ -3,6 +3,7 @@ package com.ieum.notice.adapter.out.persistence;
 import com.ieum.notice.adapter.out.persistence.entity.NoticeJpaEntity;
 import com.ieum.notice.application.port.out.NoticePort;
 import com.ieum.notice.domain.model.Notice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -52,14 +53,14 @@ public class NoticePersistenceAdapter implements NoticePort {
     }
 
     @Override
-    public Page<Notice> findActiveAll(String searchType, String keyword, LocalDateTime now, Pageable pageable) {
+    public Page<Notice> findActiveAll(String searchType, String keyword, NoticeCategory category, LocalDateTime now, Pageable pageable) {
         Page<NoticeJpaEntity> page;
         String searchKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
 
         page = switch (searchType != null ? searchType : "all") {
-            case "title" -> noticeJpaRepository.findActiveNoticesByTitle(searchKeyword, now, pageable);
-            case "content" -> noticeJpaRepository.findActiveNoticesByContent(searchKeyword, now, pageable);
-            default -> noticeJpaRepository.findActiveNotices(searchKeyword, now, pageable);
+            case "title" -> noticeJpaRepository.findActiveNoticesByTitle(searchKeyword, now, category, pageable);
+            case "content" -> noticeJpaRepository.findActiveNoticesByContent(searchKeyword, now, category, pageable);
+            default -> noticeJpaRepository.findActiveNotices(searchKeyword, now, category, pageable);
         };
 
         return page.map(NoticeJpaEntity::toDomain);
