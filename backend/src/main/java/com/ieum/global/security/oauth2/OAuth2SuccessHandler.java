@@ -29,7 +29,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     private String frontendUrl;
 
     @Override
-    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
+    public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
+            Authentication authentication) throws IOException, ServletException {
         OAuth2User oAuth2User = (OAuth2User) authentication.getPrincipal();
 
         // 🔍 attributes에서 loginId 추출 (OAuth2Attributes에서 넣어줌)
@@ -44,7 +45,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         // Refresh Token DB 저장
         saveUserPort.saveRefreshToken(user.getUserId(), refreshToken);
-        
+
         // 프론트엔드의 콜백 라우트로 리다이렉트 (쿼리 파라미터로 토큰 전달)
         String targetUrl = frontendUrl + "/api/auth/oauth-callback" +
                 "?accessToken=" + accessToken +

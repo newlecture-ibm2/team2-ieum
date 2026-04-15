@@ -30,6 +30,14 @@ public class OAuth2Attributes {
         return null;
     }
 
+    private static String getSafeNickname(String expectedNickname, String fallbackId) {
+        String nickname = (expectedNickname != null && !expectedNickname.trim().isEmpty()) ? expectedNickname : "u_" + fallbackId;
+        if (nickname.length() > 20) {
+            return nickname.substring(0, 20);
+        }
+        return nickname;
+    }
+
     private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
         Map<String, Object> mutableAttributes = new HashMap<>(attributes);
         Map<String, Object> response = (Map<String, Object>) mutableAttributes.get("response");
@@ -52,7 +60,7 @@ public class OAuth2Attributes {
                 .nameAttributeKey("id")
                 .socialId(id)
                 .loginId(loginId)
-                .nickname(nickname != null ? nickname : "u_" + id)
+                .nickname(getSafeNickname(nickname, id))
                 .name(name != null ? name : "NaverUser")
                 .profileImage(profileImage)
                 .build();
@@ -76,7 +84,7 @@ public class OAuth2Attributes {
                 .nameAttributeKey(userNameAttributeName)
                 .socialId(id)
                 .loginId(loginId)
-                .nickname(nickname != null ? nickname : "u_" + id)
+                .nickname(getSafeNickname(nickname, id))
                 .name("KakaoUser") // 카카오는 이름 권한이 따로 필요하므로 기본값 설정
                 .profileImage(profileImage)
                 .build();
@@ -88,14 +96,15 @@ public class OAuth2Attributes {
         
         Map<String, Object> mutableAttributes = new HashMap<>(attributes);
         mutableAttributes.put("loginId", loginId);
+        String name = (String) attributes.get("name");
 
         return OAuth2Attributes.builder()
                 .attributes(mutableAttributes)
                 .nameAttributeKey(userNameAttributeName)
                 .socialId(sub)
                 .loginId(loginId)
-                .nickname((String) attributes.get("name"))
-                .name((String) attributes.get("name"))
+                .nickname(getSafeNickname(name, sub))
+                .name(name)
                 .profileImage((String) attributes.get("picture"))
                 .build();
     }
