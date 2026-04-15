@@ -1,5 +1,13 @@
 /* NoticeListTable.module.css */
 
+/* ── 유틸리티 클래스 ── */
+.ellipsisCell {
+  max-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 /* ── 카드 그리드 컨테이너 ── */
 .cardGrid {
   display: grid;

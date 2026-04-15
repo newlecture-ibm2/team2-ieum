@@ -3,7 +3,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  z-index: 1000;
+  z-index: 3000; /* 네비게이션(2000) 위로 표시 */
   display: flex;
   align-items: center;
   justify-content: center;
@@ -162,11 +162,26 @@
 }
 
 /* ===== 반응형 ===== */
-@media (max-width: 520px) {
-
+@media (max-width: 768px) {
   .sizeSmall,
   .sizeMedium,
-  .sizeLarge {
+  .sizeLarge,
+  .sizeXLarge {
     width: calc(100vw - 32px);
+  }
+
+  .modal {
+    padding: 20px 24px;
+    max-height: 95vh;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal {
+    padding: 16px 20px;
+  }
+
+  .title {
+    font-size: 16px;
   }
 }
