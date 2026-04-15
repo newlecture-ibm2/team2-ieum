@@ -35,10 +35,16 @@ public class AdminNoticePersistenceAdapter implements AdminNoticePort {
     @Override
     public Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned,
             Boolean isPopup, Boolean isPushed, NoticeCategory category, String status) {
-        return adminNoticeJpaRepository
-                .findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, category, status,
-                        java.time.LocalDateTime.now(), pageable)
-                .map(AdminNoticeJpaEntity::toDomain);
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        if (category != null) {
+            return adminNoticeJpaRepository
+                    .findWithFiltersAndCategory(searchType, keyword, isPinned, isPopup, isPushed, category, status, now, pageable)
+                    .map(AdminNoticeJpaEntity::toDomain);
+        } else {
+            return adminNoticeJpaRepository
+                    .findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, status, now, pageable)
+                    .map(AdminNoticeJpaEntity::toDomain);
+        }
     }
 
     @Override

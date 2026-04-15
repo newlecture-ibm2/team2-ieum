@@ -34,25 +34,46 @@ public interface NoticeJpaRepository extends JpaRepository<NoticeJpaEntity, Long
     @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
             "AND (n.startDate IS NULL OR n.startDate <= :now) " +
             "AND (n.endDate IS NULL OR n.endDate >= :now) " +
-            "AND (:keyword IS NULL OR n.title LIKE %:keyword% OR n.content LIKE %:keyword%) " +
-            "AND (:category IS NULL OR n.category = :category)")
+            "AND (:keyword IS NULL OR n.title LIKE %:keyword% OR n.content LIKE %:keyword%)")
     Page<NoticeJpaEntity> findActiveNotices(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.title LIKE %:keyword% OR n.content LIKE %:keyword%) " +
+            "AND n.category = :category")
+    Page<NoticeJpaEntity> findActiveNoticesByCategory(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
             @Param("category") com.ieum.notice.domain.model.NoticeCategory category, Pageable pageable);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.title LIKE %:keyword%)")
+    Page<NoticeJpaEntity> findActiveNoticesByTitle(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
 
     @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
             "AND (n.startDate IS NULL OR n.startDate <= :now) " +
             "AND (n.endDate IS NULL OR n.endDate >= :now) " +
             "AND (:keyword IS NULL OR n.title LIKE %:keyword%) " +
-            "AND (:category IS NULL OR n.category = :category)")
-    Page<NoticeJpaEntity> findActiveNoticesByTitle(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            "AND n.category = :category")
+    Page<NoticeJpaEntity> findActiveNoticesByTitleAndCategory(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
             @Param("category") com.ieum.notice.domain.model.NoticeCategory category, Pageable pageable);
 
     @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
             "AND (n.startDate IS NULL OR n.startDate <= :now) " +
             "AND (n.endDate IS NULL OR n.endDate >= :now) " +
-            "AND (:keyword IS NULL OR n.content LIKE %:keyword%) " +
-            "AND (:category IS NULL OR n.category = :category)")
+            "AND (:keyword IS NULL OR n.content LIKE %:keyword%)")
     Page<NoticeJpaEntity> findActiveNoticesByContent(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
+            Pageable pageable);
+
+    @Query("SELECT n FROM NoticeJpaEntity n WHERE n.isActive = true " +
+            "AND (n.startDate IS NULL OR n.startDate <= :now) " +
+            "AND (n.endDate IS NULL OR n.endDate >= :now) " +
+            "AND (:keyword IS NULL OR n.content LIKE %:keyword%) " +
+            "AND n.category = :category")
+    Page<NoticeJpaEntity> findActiveNoticesByContentAndCategory(@Param("keyword") String keyword, @Param("now") LocalDateTime now,
             @Param("category") com.ieum.notice.domain.model.NoticeCategory category, Pageable pageable);
 
     Optional<NoticeJpaEntity> findFirstByIdLessThanOrderByIdDesc(Long noticeId);
