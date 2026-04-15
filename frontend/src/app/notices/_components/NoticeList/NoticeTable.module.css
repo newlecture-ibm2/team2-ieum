@@ -82,15 +82,29 @@
 @media (max-width: 768px) {
   .noticeTable th,
   .noticeTable td {
-    padding: 10px 12px;
+    padding: 10px 8px;
     font-size: 12px;
   }
 
-  .noticeTable th:nth-child(3),
-  .noticeTable td:nth-child(3),
+  /* No, 작성일 숨기고 → 카테고리, 제목, 조회수만 표시 */
+  .noticeTable th:nth-child(1),
+  .noticeTable td:nth-child(1),
   .noticeTable th:nth-child(4),
   .noticeTable td:nth-child(4) {
     display: none;
+  }
+
+  /* 제목 셀: 말줄임 처리 */
+  .noticeTable td:nth-child(3) {
+    max-width: 120px;
+  }
+
+  .titleCell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 100%;
   }
 
   .badge {
