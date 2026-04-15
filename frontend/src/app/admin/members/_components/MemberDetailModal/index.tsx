@@ -376,6 +376,9 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                     {member.reportedCount}건
                     {member.reportedCount >= 4 && <span className={s.suspendBadge}>정지 가능</span>}
                   </span>
+                  <div style={{ fontSize: 11, color: '#dc2626', marginTop: 4, gridColumn: '2' }}>
+                    * 신고 횟수 3회 초과 시 정지 가능
+                  </div>
                 </div>
 
                 {/* ── 정지 중인 경우: 남은 일수 표시 ── */}
@@ -492,7 +495,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
                     disabled
                     title="신고 4건 이상일 때 정지할 수 있습니다"
                   >
-                    🚫 정지 (신고 4건↑)
+                    🚫 정지
                   </button>
                 )}
                 {isSuspended && !isProtected && (
