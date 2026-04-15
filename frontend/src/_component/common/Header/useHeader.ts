@@ -107,7 +107,6 @@ export function useHeader() {
     if (!messaging) return;
 
     const unsubscribe = onMessage(messaging, (payload) => {
-      console.log("🔔 포그라운드 알림 수신:", payload);
       setHasUnread(true);
       setNotiRefreshKey((prev) => prev + 1);
 

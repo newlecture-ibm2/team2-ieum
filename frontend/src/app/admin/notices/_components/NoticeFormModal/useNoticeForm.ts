@@ -151,7 +151,7 @@ export function useNoticeForm({ mode, notice, onSaved }: UseNoticeFormProps) {
           toast('이미지 업로드에 실패했습니다.', 'error');
         }
       } catch (err) {
-        console.error(err);
+        console.error('에디터 이미지 업로드 실패:', err);
         toast('이미지 업로드 중 오류가 발생했습니다.', 'error');
       }
     };

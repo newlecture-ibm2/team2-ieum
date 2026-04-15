@@ -201,91 +201,58 @@ export default function ReportListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
-            <colgroup>
-              <col style={{ width: '60px' }} />
-              <col style={{ width: '130px' }} />
-              <col style={{ width: '90px' }} />
-              <col style={{ width: '150px' }} />
-              <col style={{ width: 'auto' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '100px' }} />
-              <col style={{ width: '110px' }} />
-            </colgroup>
-            <thead>
-              <tr className={common.tableHeaderRow}>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
-                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고자</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>유형</th>
-                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고 사유</th>
-                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>상세 내용</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>신고 날짜</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {reports.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className={common.emptyRow}>
-                    신고 내역이 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                reports.map((report, idx) => (
-                  <tr
-                    key={report.id}
-                    className={`${common.tableRow} ${common.tableRowHover}`}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setSelectedReport(report)}
+      {/* ── 리스트 ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div className={common.listGrid}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : reports.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>신고 내역이 없습니다.</div>
+          ) : (
+            reports.map((report) => (
+              <div 
+                key={report.id} 
+                className={common.listCard}
+                onClick={() => setSelectedReport(report)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
+                      {TARGET_TYPE_MAP[report.targetType] || report.targetType}
+                    </span>
+                    <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                      {REPORT_STATUS_LABELS[report.status]?.label || report.status}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {report.createdAt?.slice(0, 10)}
+                  </span>
+                </div>
+
+                <div className={common.listCardTitle}>
+                  [{REPORT_REASON_LABELS[report.reason] || report.reason}] {report.description || '상세 내용 없음'}
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>👤</span>
+                    <span className={common.listCardValue}>신고자: {report.reporterNickname}</span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={`${common.listCardActionBtn} ${report.status === REPORT_STATUS.PENDING ? '' : 'danger'}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
                   >
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      {(currentPage - 1) * 10 + idx + 1}
-                    </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
-                      {report.reporterNickname}
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
-                        {TARGET_TYPE_MAP[report.targetType] || report.targetType}
-                      </span>
-                    </td>
-                    <td className={common.tableCell}>
-                      {REPORT_REASON_LABELS[report.reason] || report.reason}
-                    </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
-                      {report.description || '-'}
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      {report.createdAt?.slice(0, 10)}
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
-                        {REPORT_STATUS_LABELS[report.status]?.label || report.status}
-                      </span>
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <button
-                        className={report.status === REPORT_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
-                        style={{ padding: '4px 12px', fontSize: 11 }}
-                        onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
-                      >
-                        {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        )}
+                    {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (

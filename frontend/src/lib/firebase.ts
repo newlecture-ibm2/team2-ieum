@@ -33,11 +33,9 @@ export const requestFcmToken = async () => {
         });
 
         if (currentToken) {
-            console.log("🔥 FCM 토큰 발급 성공:", currentToken);
             // 백엔드로 토큰을 보내는 로직을 여기에 추가하거나 호출부에서 처리합니다.
             return currentToken;
         } else {
-            console.log("🚫 FCM 알림 권한이 거부되었습니다.");
             return null;
         }
     } catch (err) {

@@ -11,8 +11,15 @@
 
 /* ── 페이지 컨테이너 ── */
 .container {
-  padding: 28px 32px 80px 32px;
+  padding: 28px 32px 32px 32px;
   max-width: 1100px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 16px 16px 16px;
+  }
 }
 
 /* ── 페이지 헤더 ── */
@@ -21,6 +28,14 @@
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 24px;
+  gap: 16px;
+}
+
+@media (max-width: 640px) {
+  .pageHeader {
+    flex-direction: column;
+    align-items: stretch;
+  }
 }
 
 .pageTitle {
@@ -28,21 +43,43 @@
   font-weight: 800;
   color: #1e293b;
   margin-bottom: 4px;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 .pageSubtitle {
   font-size: 13px;
   color: #94a3b8;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 640px) {
+  .pageTitle {
+    font-size: 18px;
+  }
+
+  .pageSubtitle {
+    font-size: 12px;
+  }
 }
 
 /* ── 카드(섹션) 컨테이너 ── */
 .card {
   background: #fff;
   border-radius: 14px;
-  padding: 20px;
+  padding: 10px;
   margin-bottom: 20px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 14px;
+    border-radius: 10px;
+  }
 }
 
 .cardHeader {
@@ -107,15 +144,25 @@
 /* ── 상태 요약(KPI) 카드 4종 ── */
 .statGrid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 12px;
 }
 
+@media (max-width: 480px) {
+  .statGrid {
+    gap: 8px;
+  }
+}
+
 .statCard {
-  border-radius: 10px;
-  padding: 16px;
-  text-align: center;
+  border-radius: 12px;
+  padding: 20px 24px;
+  text-align: left;
   transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
 }
 
 .statCardInteractive {
@@ -138,44 +185,67 @@
   background: #f8fafc;
   border: 1px solid #e2e8f0;
 }
-.statTotal:hover { border-color: #cbd5e1; }
+
+.statTotal:hover {
+  border-color: #cbd5e1;
+}
 
 .statOngoing {
   background: #f0fdf4;
   border: 1px solid #bbf7d0;
 }
-.statOngoing:hover { border-color: #86efac; }
+
+.statOngoing:hover {
+  border-color: #86efac;
+}
 
 .statUpcoming {
   background: #f3e8ff;
   border: 1px solid #d8b4fe;
 }
-.statUpcoming:hover { border-color: #c084fc; }
+
+.statUpcoming:hover {
+  border-color: #c084fc;
+}
 
 .statEnded {
   background: #f1f5f9;
   border: 1px solid #e2e8f0;
 }
-.statEnded:hover { border-color: #cbd5e1; }
+
+.statEnded:hover {
+  border-color: #cbd5e1;
+}
 
 .statLabel {
-  font-size: 11px;
+  font-size: 14px;
   color: #64748b;
-  margin-bottom: 4px;
-  font-weight: 500;
+  font-weight: 600;
 }
 
 .statValue {
-  font-size: 26px;
+  font-size: 32px;
   font-weight: 800;
   color: #1e293b;
+  line-height: 1.1;
 }
 
 /* ── 색상 유틸리티 ── */
-.textGreen { color: #16a34a; }
-.textPurple { color: #6c5ce7; }
-.textGray { color: #64748b; }
-.textRed { color: #ef4444; }
+.textGreen {
+  color: #16a34a;
+}
+
+.textPurple {
+  color: #6c5ce7;
+}
+
+.textGray {
+  color: #64748b;
+}
+
+.textRed {
+  color: #ef4444;
+}
 
 /* ── 필터 바 ── */
 .filterBar {
@@ -188,6 +258,21 @@
   padding: 16px;
   border-radius: 12px;
   border: 1px solid #e2e8f0;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .filterBar {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 12px;
+  }
+
+  .filterSelect,
+  .searchInput {
+    width: 100% !important;
+    min-width: 0 !important;
+  }
 }
 
 .filterSelect {
@@ -266,6 +351,132 @@
   transform: translateY(0);
 }
 
+/* ── 공통 카드 그리드 목록 ── */
+.listGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 1024px) {
+  .listGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .listGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ── 공통 리스트 카드 ── */
+.listCard {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  transition: box-shadow 0.2s, transform 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+
+.listCard:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.listCardTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.listCardTitle {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: keep-all;
+  flex: 1;
+}
+
+.listCardInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.listCardInfoRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.listCardIcon {
+  font-size: 14px;
+  width: 16px;
+  flex-shrink: 0;
+  text-align: center;
+}
+
+.listCardValue {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listCardActions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.listCardActionBtn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+  transition: all 0.2s;
+}
+
+.listCardActionBtn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.listCardActionBtn.danger {
+  color: #ef4444;
+  border-color: #fee2e2;
+  background: #fef2f2;
+}
+
+.listCardActionBtn.danger:hover {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
 /* ── 테이블 카드 ── */
 .tableCard {
   background: #fff;
@@ -273,6 +484,18 @@
   padding: 20px;
   border: 1px solid #e2e8f0;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+  /* 테이블 가로 스크롤 허용 */
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .tableCard {
+    padding: 12px;
+    margin-left: -4px;
+    margin-right: -4px;
+    border-radius: 8px;
+  }
 }
 
 /* ── 테이블 ── */
@@ -281,6 +504,15 @@
   border-collapse: separate;
   border-spacing: 0;
   font-size: 14px;
+  min-width: 600px;
+  /* 가로 스크롤 최소 너비 */
+}
+
+@media (max-width: 768px) {
+  .table {
+    font-size: 12px;
+    min-width: 500px;
+  }
 }
 
 .tableHeaderRow {
@@ -298,6 +530,13 @@
   font-size: 14px;
   white-space: nowrap;
   border-bottom: 2px solid #e2e8f0;
+}
+
+@media (max-width: 768px) {
+  .tableHeaderCell {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
 }
 
 .tableHeaderCell:first-child {
@@ -323,6 +562,15 @@
   padding: 16px 12px;
   color: #475569;
   vertical-align: middle;
+  word-break: keep-all;
+  overflow-wrap: break-word;
+}
+
+@media (max-width: 768px) {
+  .tableCell {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
 }
 
 .cellPrimary {
@@ -356,9 +604,17 @@
 }
 
 /* ── 텍스트 정렬 ── */
-.textLeft { text-align: left; }
-.textCenter { text-align: center; }
-.textRight { text-align: right; }
+.textLeft {
+  text-align: left;
+}
+
+.textCenter {
+  text-align: center;
+}
+
+.textRight {
+  text-align: right;
+}
 
 /* ── 상태 배지 ── */
 .statusBadge {
@@ -461,6 +717,7 @@
   align-items: center;
   justify-content: flex-end;
   gap: 10px;
+  flex-wrap: wrap;
 }
 
 .actionBtn {
@@ -491,6 +748,22 @@
   margin-top: 20px;
   padding-top: 16px;
   border-top: 1px solid #f1f5f9;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .pagination {
+    gap: 8px;
+  }
+
+  .pageBtn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .pageInfo {
+    font-size: 11px;
+  }
 }
 
 .pageBtn {
@@ -536,11 +809,24 @@
   gap: 6px;
   transition: all 0.2s ease;
   color: #fff;
+  white-space: nowrap;
 }
 
 .btnPrimary:hover {
   background: #5a4bcf;
   border-color: #5a4bcf;
+}
+
+@media (max-width: 480px) {
+
+  .btnPrimary,
+  .btnOutline,
+  .btnCancel,
+  .btnSubmit,
+  .btnDanger {
+    padding: 8px 14px;
+    font-size: 12px;
+  }
 }
 
 .btnOutline {
@@ -580,7 +866,9 @@
 }
 
 @keyframes adminSpin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* ── 모달 오버레이 ── */
@@ -607,6 +895,15 @@
   overflow-y: auto;
   padding: 24px 32px;
   box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+@media (max-width: 768px) {
+  .modalContent {
+    padding: 16px;
+    max-height: 95vh;
+    border-radius: 12px;
+    margin: 10px;
+  }
 }
 
 .modalHeader {

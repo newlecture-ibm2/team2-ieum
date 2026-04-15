@@ -279,98 +279,46 @@ export default function MemberListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
-            <colgroup>
-              <col style={{ width: '60px' }} />
-              <col style={{ width: '150px' }} />
-              <col style={{ width: 'auto' }} />
-              <col style={{ width: '90px' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '110px' }} />
-            </colgroup>
-            <thead>
-              <tr className={common.tableHeaderRow}>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
-                <th
-                  className={`${common.tableHeaderCell} ${common.textLeft}`}
-                  style={{ cursor: 'pointer', userSelect: 'none' }}
-                  onClick={() => handleSort('nickname')}
-                  title="닉네임 기준 정렬"
-                >
-                  닉네임{getSortIndicator('nickname')}
-                </th>
-                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>아이디</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>역할</th>
-                <th
-                  className={`${common.tableHeaderCell} ${common.textCenter}`}
-                  style={{ cursor: 'pointer', userSelect: 'none' }}
-                  onClick={() => handleSort('createdAt')}
-                  title="가입일 기준 정렬"
-                >
-                  가입일{getSortIndicator('createdAt')}
-                </th>
-                <th
-                  className={`${common.tableHeaderCell} ${common.textCenter}`}
-                  style={{ cursor: 'pointer', userSelect: 'none' }}
-                  onClick={() => handleSort('reportedCount')}
-                  title="신고수 기준 정렬"
-                >
-                  신고{getSortIndicator('reportedCount')}
-                </th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
-                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
-              </tr>
-            </thead>
-            <tbody>
-              {members.length === 0 ? (
-                <tr>
-                  <td colSpan={8} className={common.emptyRow}>
-                    회원 정보가 없습니다.
-                  </td>
-                </tr>
-              ) : (
-                members.map((member, idx) => (
-                  <tr
-                    key={member.userId}
-                    className={`${common.tableRow} ${common.tableRowHover} ${member.status === USER_STATUS.DELETED ? common.hiddenRow : ''}`}
-                    style={{ cursor: 'pointer' }}
-                    onClick={() => setSelectedMember(member)}
-                  >
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      {(currentPage - 1) * 10 + idx + 1}
-                    </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
-                      <div className={s.profileCell}>
-                        {member.profileImage ? (
-                          <img src={member.profileImage} alt="" className={s.profileImage} />
-                        ) : (
-                          <span className={s.profilePlaceholder}>👤</span>
-                        )}
-                        {(member.provider && member.provider !== 'LOCAL') ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                            <span style={{
-                              fontSize: 11, fontWeight: 600,
-                              background: '#f1f5f9', color: '#64748b',
-                              padding: '1px 8px', borderRadius: 10,
-                            }}>
-                              소셜 가입자
-                            </span>
-                          </span>
-                        ) : (
-                          member.nickname
-                        )}
-                      </div>
-                    </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+      {/* ── 리스트 ── */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <div style={{ display: 'flex', gap: '10px', padding: '0 8px', fontSize: '13px', color: '#64748b' }}>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('nickname')}>닉네임{getSortIndicator('nickname')}</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('createdAt')}>가입일{getSortIndicator('createdAt')}</span>
+          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('reportedCount')}>신고수{getSortIndicator('reportedCount')}</span>
+        </div>
+        <div className={common.listGrid}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : members.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>회원 정보가 없습니다.</div>
+          ) : (
+            members.map((member) => (
+              <div 
+                key={member.userId} 
+                className={`${common.listCard} ${member.status === USER_STATUS.DELETED ? common.hiddenRow : ''}`}
+                onClick={() => setSelectedMember(member)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <div className={s.profileCell} style={{ gap: '8px' }}>
+                    {member.profileImage ? (
+                      <img src={member.profileImage} alt="" className={s.profileImage} />
+                    ) : (
+                      <span className={s.profilePlaceholder}>👤</span>
+                    )}
+                    <span style={{ fontWeight: 600, color: '#1e293b' }}>
+                      {member.nickname}
+                    </span>
+                  </div>
+                  <span className={`${common.statusBadge} ${common[STATUS_MAP[member.status]?.className || 'badgeEnded'] || ''}`}>
+                    {STATUS_MAP[member.status]?.label || member.status}
+                  </span>
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🆔</span>
+                    <span className={common.listCardValue}>
                       {(member.provider && member.provider !== 'LOCAL') ? (
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: 4,
@@ -384,40 +332,40 @@ export default function MemberListPage() {
                       ) : (
                         member.loginId
                       )}
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                    </span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🔑</span>
+                    <span className={common.listCardValue}>
                       <span className={`${common.statusBadge} ${member.role === USER_ROLE.ADMIN ? common.badgeUpcoming : common.badgeDismissed}`}>
                         {ROLE_MAP[member.role] || member.role}
                       </span>
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      {member.createdAt?.slice(0, 10)}
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={getReportCountClass(member.reportedCount)}>
-                        {member.reportedCount}
-                      </span>
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[STATUS_MAP[member.status]?.className || 'badgeEnded'] || ''}`}>
-                        {STATUS_MAP[member.status]?.label || member.status}
-                      </span>
-                    </td>
-                    <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <button
-                        className={common.btnPrimary}
-                        style={{ padding: '4px 12px', fontSize: 11 }}
-                        onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
-                      >
-                        상세보기
-                      </button>
-                    </td>
-                  </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        )}
+                    </span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>📅</span>
+                    <span className={common.listCardValue}>{member.createdAt?.slice(0, 10)}</span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🚨</span>
+                    <span className={common.listCardValue}>
+                      신고 횟수 <span className={getReportCountClass(member.reportedCount)}>{member.reportedCount}</span>회
+                    </span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={common.listCardActionBtn}
+                    onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
+                  >
+                    상세보기
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (

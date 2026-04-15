@@ -23,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "공지", href: "/notices", match: "/notices" },
 ];
 
-export default function Header() {
+export default function Header({ forceRender = false }: { forceRender?: boolean } = {}) {
   const pathname = usePathname();
 
   const {
@@ -32,7 +32,8 @@ export default function Header() {
     closePopup, logout, devRefreshFestivals, isDarkHeroPage
   } = useHeader();
 
-  if (pathname.startsWith("/admin")) return null;
+  // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
+  if (!forceRender && pathname.startsWith("/admin")) return null;
 
 
 

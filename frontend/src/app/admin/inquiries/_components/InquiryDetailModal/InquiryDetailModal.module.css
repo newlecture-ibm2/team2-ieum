@@ -27,6 +27,7 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .mainTitle {
@@ -225,4 +226,37 @@
   padding-top: 20px;
   border-top: 1px solid #f1f5f9;
   margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 640px) {
+  .mainTitle {
+    font-size: 16px;
+  }
+
+  .titleRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .statusBadge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .questionBubble,
+  .answerBubble {
+    padding: 14px;
+  }
+
+  .responseTextarea {
+    min-height: 90px;
+    padding: 12px;
+  }
+
+  .metaRowBox {
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
 }
