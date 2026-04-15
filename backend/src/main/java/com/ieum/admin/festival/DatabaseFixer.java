@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
  */
 @Component
 @RequiredArgsConstructor
-// @Profile("init")
+@Profile("init")
 public class DatabaseFixer implements CommandLineRunner {
     private final JdbcTemplate jdbcTemplate;
 

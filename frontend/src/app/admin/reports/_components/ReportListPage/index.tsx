@@ -157,9 +157,9 @@ export default function ReportListPage() {
             onChange={(e) => setStatusFilterAndReset(e.target.value)}
           >
             <option value="">전체 상태</option>
-            <option value="PENDING">대기중</option>
-            <option value="RESOLVED">처리완료</option>
-            <option value="REJECTED">반려</option>
+            <option value={REPORT_STATUS.PENDING}>대기중</option>
+            <option value={REPORT_STATUS.RESOLVED}>처리완료</option>
+            <option value={REPORT_STATUS.REJECTED}>반려</option>
           </select>
 
           <select
@@ -169,9 +169,9 @@ export default function ReportListPage() {
             onChange={(e) => setExtraFilter('targetType', e.target.value)}
           >
             <option value="">전체 유형</option>
-            <option value="REVIEW">리뷰</option>
-            <option value="POST">게시글</option>
-            <option value="COMMENT">댓글</option>
+            <option value={TARGET_TYPE.REVIEW}>리뷰</option>
+            <option value={TARGET_TYPE.POST}>게시글</option>
+            <option value={TARGET_TYPE.COMMENT}>댓글</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>

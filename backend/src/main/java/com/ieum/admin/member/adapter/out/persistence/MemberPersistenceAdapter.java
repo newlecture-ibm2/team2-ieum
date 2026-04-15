@@ -4,7 +4,7 @@ import com.ieum.admin.member.adapter.out.persistence.entity.MemberEntity;
 import com.ieum.admin.member.adapter.out.persistence.repository.MemberAdminRepository;
 import com.ieum.admin.member.application.port.out.MemberPort;
 import com.ieum.admin.member.domain.model.Member;
-import com.ieum.admin.member.domain.model.MemberStatus;
+import com.ieum.global.common.enums.UserStatus;
 import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -58,10 +58,10 @@ public class MemberPersistenceAdapter implements MemberPort {
     public void updateStatus(Long userId, String status) {
         repository.findById(userId).ifPresent(entity -> {
             entity.setStatus(status);
-            if (MemberStatus.ACTIVE.equalsIgnoreCase(status)) {
+            if (UserStatus.ACTIVE.name().equalsIgnoreCase(status)) {
                 entity.setSuspendedUntil(null); // 정지 해제 시 해제일 초기화
             }
-            if (MemberStatus.DELETED.equalsIgnoreCase(status)) {
+            if (UserStatus.DELETED.name().equalsIgnoreCase(status)) {
                 entity.setDeletedAt(LocalDateTime.now());
             }
             repository.save(entity);
@@ -71,7 +71,7 @@ public class MemberPersistenceAdapter implements MemberPort {
     @Override
     public void suspendMember(Long userId, int days) {
         repository.findById(userId).ifPresent(entity -> {
-            entity.setStatus(MemberStatus.SUSPENDED);
+            entity.setStatus(UserStatus.SUSPENDED.name());
             entity.setSuspendedUntil(LocalDateTime.now().plusDays(days));
             repository.save(entity);
         });
@@ -121,13 +121,13 @@ public class MemberPersistenceAdapter implements MemberPort {
     /**
      * 정지 해제 대상 일괄 업데이트 (배치 스케줄러용)
      * - JPQL Bulk Update로 성능 최적화
-     * - MemberStatus 상수를 파라미터로 전달하여 하드코딩 방지
+     * - UserStatus 상수를 파라미터로 전달하여 하드코딩 방지
      */
     @Override
     public int releaseSuspendedMembers(LocalDateTime cutoff) {
         LocalDateTime now = LocalDateTime.now();
         return repository.bulkReleaseSuspendedMembers(
-                cutoff, now, MemberStatus.SUSPENDED, MemberStatus.ACTIVE);
+                cutoff, now, UserStatus.SUSPENDED.name(), UserStatus.ACTIVE.name());
     }
 
     @Override

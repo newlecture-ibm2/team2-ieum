@@ -1,5 +1,8 @@
 package com.ieum.admin.festival.adapter.out.persistence.entity;
 
+import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalSource;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.ColumnDefault;
@@ -143,8 +146,8 @@ public class AdminFestivalEntity {
 
     @PrePersist
     public void prePersist() {
-        if (this.source == null) this.source = "MANUAL";
-        if (this.status == null) this.status = "UPCOMING";
+        if (this.source == null) this.source = FestivalSource.MANUAL.name();
+        if (this.status == null) this.status = FestivalStatus.UPCOMING.name();
         if (this.avgRating == null) this.avgRating = 0.0;
         if (this.reviewCount == null) this.reviewCount = 0;
         if (this.favoriteCount == null) this.favoriteCount = 0;
@@ -160,20 +163,20 @@ public class AdminFestivalEntity {
     /**
      * JPA 엔티티 → 도메인 객체 변환
      */
-    public com.ieum.admin.festival.domain.model.Festival toDomain() {
-        com.ieum.admin.festival.domain.model.FestivalSource festivalSource = com.ieum.admin.festival.domain.model.FestivalSource.MANUAL;
+    public Festival toDomain() {
+        FestivalSource festivalSource = FestivalSource.MANUAL;
         if (this.source != null) {
-            try { festivalSource = com.ieum.admin.festival.domain.model.FestivalSource.valueOf(this.source); }
+            try { festivalSource = FestivalSource.valueOf(this.source); }
             catch (IllegalArgumentException e) { /* keep default */ }
         }
 
-        com.ieum.admin.festival.domain.model.FestivalStatus festivalStatus = com.ieum.admin.festival.domain.model.FestivalStatus.UPCOMING;
+        FestivalStatus festivalStatus = FestivalStatus.UPCOMING;
         if (this.status != null) {
-            try { festivalStatus = com.ieum.admin.festival.domain.model.FestivalStatus.valueOf(this.status); }
+            try { festivalStatus = FestivalStatus.valueOf(this.status); }
             catch (IllegalArgumentException e) { /* keep default */ }
         }
 
-        return com.ieum.admin.festival.domain.model.Festival.builder()
+        return Festival.builder()
                 .id(this.id)
                 .sourceId(this.sourceId)
                 .source(festivalSource)
@@ -218,11 +221,11 @@ public class AdminFestivalEntity {
     /**
      * 도메인 객체 → JPA 엔티티 변환
      */
-    public static AdminFestivalEntity fromDomain(com.ieum.admin.festival.domain.model.Festival festival) {
+    public static AdminFestivalEntity fromDomain(Festival festival) {
         return AdminFestivalEntity.builder()
                 .id(festival.getId())
                 .sourceId(festival.getSourceId())
-                .source(festival.getSource() != null ? festival.getSource().name() : "MANUAL")
+                .source(festival.getSource() != null ? festival.getSource().name() : FestivalSource.MANUAL.name())
                 .title(festival.getTitle())
                 .description(festival.getDescription())
                 .overview(festival.getOverview())
@@ -230,7 +233,7 @@ public class AdminFestivalEntity {
                 .address(festival.getAddress())
                 .startDate(festival.getStartDate())
                 .endDate(festival.getEndDate())
-                .status(festival.getStatus() != null ? festival.getStatus().name() : "UPCOMING")
+                .status(festival.getStatus() != null ? festival.getStatus().name() : FestivalStatus.UPCOMING.name())
                 .imageUrl(festival.getImageUrl())
                 .thumbnailUrl(festival.getThumbnailUrl())
                 .extraImages(festival.getExtraImages())

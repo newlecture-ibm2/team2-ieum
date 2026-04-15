@@ -155,8 +155,8 @@ export default function InquiryListPage() {
           >
             <option value="">전체 상태</option>
             <option value="NEW_TODAY">오늘 신규 접수</option>
-            <option value="PENDING">대기중</option>
-            <option value="ANSWERED">답변완료</option>
+            <option value={INQUIRY_STATUS.PENDING}>대기중</option>
+            <option value={INQUIRY_STATUS.ANSWERED}>답변완료</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>

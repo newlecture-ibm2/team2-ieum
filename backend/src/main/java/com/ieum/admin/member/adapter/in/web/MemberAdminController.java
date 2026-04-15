@@ -1,8 +1,11 @@
 package com.ieum.admin.member.adapter.in.web;
 
+import com.ieum.admin.common.constant.AdminPolicy;
 import com.ieum.admin.member.application.port.in.*;
+import com.ieum.global.common.enums.UserStatus;
 import com.ieum.global.response.ApiResponse;
 import com.ieum.global.security.CurrentUserId;
+import com.ieum.user.auth.domain.Role;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -70,7 +73,7 @@ public class MemberAdminController {
             @RequestBody Map<String, String> body) {
         String newStatus = body.getOrDefault("status", "");
 
-        if (newStatus.isBlank() || (!newStatus.equals("ACTIVE") && !newStatus.equals("SUSPENDED"))) {
+        if (newStatus.isBlank() || (!newStatus.equals(UserStatus.ACTIVE.name()) && !newStatus.equals(UserStatus.SUSPENDED.name()))) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ApiResponse.ErrorResponse.of(
                             "VALIDATION_ERROR", 400,
@@ -87,8 +90,8 @@ public class MemberAdminController {
                             "requesterId=" + requesterId + ", targetId=" + userId)));
         }
 
-        String message = "SUSPENDED".equals(newStatus)
-                ? "회원이 7일간 정지되었습니다."
+        String message = UserStatus.SUSPENDED.name().equals(newStatus)
+                ? "회원이 " + AdminPolicy.SUSPENSION_DAYS + "일간 정지되었습니다."
                 : "회원 정지가 해제되었습니다.";
         return ResponseEntity.ok(ApiResponse.success(message));
     }
@@ -129,7 +132,7 @@ public class MemberAdminController {
             @RequestBody Map<String, String> body) {
         String newRole = body.getOrDefault("role", "");
 
-        if (newRole.isBlank() || (!newRole.equals("USER") && !newRole.equals("ADMIN"))) {
+        if (newRole.isBlank() || (!newRole.equals(Role.USER.name()) && !newRole.equals(Role.ADMIN.name()))) {
             return ResponseEntity.badRequest()
                     .body(ApiResponse.error(ApiResponse.ErrorResponse.of(
                             "VALIDATION_ERROR", 400,
@@ -146,7 +149,7 @@ public class MemberAdminController {
                             "requesterId=" + requesterId + ", targetId=" + userId)));
         }
 
-        String message = "ADMIN".equals(newRole)
+        String message = Role.ADMIN.name().equals(newRole)
                 ? "관리자 권한이 부여되었습니다."
                 : "일반 회원으로 변경되었습니다.";
         return ResponseEntity.ok(ApiResponse.success(message));

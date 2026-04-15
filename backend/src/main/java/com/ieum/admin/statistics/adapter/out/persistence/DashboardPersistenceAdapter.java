@@ -3,6 +3,8 @@ package com.ieum.admin.statistics.adapter.out.persistence;
 import com.ieum.admin.statistics.application.port.out.DashboardQueryPort;
 import com.ieum.admin.statistics.application.result.DashboardRecentItem;
 import com.ieum.admin.statistics.application.result.DashboardTrendItem;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
+import com.ieum.global.common.enums.InquiryStatus;
 import com.ieum.global.common.enums.ReportReason;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -31,14 +33,16 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
     @Override
     public long countOngoingPublicFestivals() {
         return (long) em.createQuery(
-                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = 'ONGOING' AND f.isCustom = false")
+                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = :status AND f.isCustom = false")
+                .setParameter("status", FestivalStatus.ONGOING.name())
                 .getSingleResult();
     }
 
     @Override
     public long countOngoingCustomFestivals() {
         return (long) em.createQuery(
-                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = 'ONGOING' AND f.isCustom = true")
+                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = :status AND f.isCustom = true")
+                .setParameter("status", FestivalStatus.ONGOING.name())
                 .getSingleResult();
     }
 
@@ -71,7 +75,8 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
 
     @Override
     public long countAnsweredInquiries() {
-        return (long) em.createQuery("SELECT COUNT(i) FROM InquiryEntity i WHERE i.status = 'ANSWERED'")
+        return (long) em.createQuery("SELECT COUNT(i) FROM InquiryEntity i WHERE i.status = :status")
+                .setParameter("status", InquiryStatus.ANSWERED.name())
                 .getSingleResult();
     }
 
