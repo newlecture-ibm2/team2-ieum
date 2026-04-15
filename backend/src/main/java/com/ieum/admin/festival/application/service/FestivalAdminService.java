@@ -5,6 +5,7 @@ import com.ieum.admin.festival.application.port.in.UpdateFestivalVisibilityUseCa
 import com.ieum.admin.festival.application.port.out.AdminFestivalPort;
 import com.ieum.admin.festival.application.result.*;
 import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,9 +49,9 @@ public class FestivalAdminService implements GetAdminFestivalListUseCase, Update
 
         FestivalStatusCountsResult statusCounts = FestivalStatusCountsResult.builder()
                 .total(festivalPort.countPublicFestivals())
-                .ongoing(festivalPort.countPublicFestivalsByStatus("ONGOING"))
-                .upcoming(festivalPort.countPublicFestivalsByStatus("UPCOMING"))
-                .ended(festivalPort.countPublicFestivalsByStatus("ENDED"))
+                .ongoing(festivalPort.countPublicFestivalsByStatus(FestivalStatus.ONGOING.name()))
+                .upcoming(festivalPort.countPublicFestivalsByStatus(FestivalStatus.UPCOMING.name()))
+                .ended(festivalPort.countPublicFestivalsByStatus(FestivalStatus.ENDED.name()))
                 .build();
 
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm");

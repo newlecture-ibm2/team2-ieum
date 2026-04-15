@@ -4,6 +4,7 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse } from '@/types/admin-festival';
 import adminApi from '@/lib/adminApi';
 import styles from './CustomFestivalListPage.module.css';
+import { FESTIVAL_STATUS } from '@/constants/filterOptions';
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -12,9 +13,9 @@ function formatDate(dateStr: string): string {
 
 function getStatusLabel(status: string): string {
   switch (status) {
-    case 'ONGOING': return '진행중';
-    case 'UPCOMING': return '진행예정';
-    case 'ENDED': return '종료';
+    case FESTIVAL_STATUS.ONGOING: return '진행중';
+    case FESTIVAL_STATUS.UPCOMING: return '진행예정';
+    case FESTIVAL_STATUS.ENDED: return '종료';
     default: return status;
   }
 }

@@ -7,6 +7,11 @@ import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import com.ieum.admin.common.constant.AdminPolicy;
+import com.ieum.global.common.enums.ReportReason;
+import com.ieum.global.common.enums.ReportStatus;
+import com.ieum.global.common.enums.TargetType;
+
 /**
  * [개발용] 신고 더미 데이터 초기화
  * local 프로파일에서만 실행
@@ -47,15 +52,15 @@ public class ReportDummyDataInitializer implements CommandLineRunner {
 
         String sql = "INSERT INTO reports (reporter_id, target_type, target_id, reason, description, status, created_at) VALUES (?, ?::report_target_type, ?, ?::report_reason, ?, ?::report_status, NOW() - INTERVAL '1 day' * ?)";
 
-        jdbc.update(sql, userId, "REVIEW", 1, "SPAM", "광고성 리뷰입니다. 축제와 무관한 홍보글이 포함되어 있습니다.", "PENDING", 1);
-        jdbc.update(sql, userId, "COMMENT", 5, "ABUSE", "댓글에 욕설과 비방이 포함되어 있습니다.", "PENDING", 2);
-        jdbc.update(sql, userId, "POST", 3, "INAPPROPRIATE", "부적절한 이미지가 포함된 게시글입니다.", "PENDING", 3);
-        jdbc.update(sql, userId, "REVIEW", 7, "FALSE_INFO", "허위 정보가 포함된 리뷰입니다. 실제 방문하지 않은 것으로 보입니다.", "RESOLVED", 5);
-        jdbc.update(sql, userId, "COMMENT", 12, "OTHER", "해당 댓글에 개인정보가 노출되어 있습니다.", "REJECTED", 7);
+        jdbc.update(sql, userId, TargetType.REVIEW.name(), 1, ReportReason.SPAM.name(), "광고성 리뷰입니다. 축제와 무관한 홍보글이 포함되어 있습니다.", ReportStatus.PENDING.name(), 1);
+        jdbc.update(sql, userId, TargetType.COMMENT.name(), 5, ReportReason.ABUSE.name(), "댓글에 욕설과 비방이 포함되어 있습니다.", ReportStatus.PENDING.name(), 2);
+        jdbc.update(sql, userId, TargetType.POST.name(), 3, ReportReason.INAPPROPRIATE.name(), "부적절한 이미지가 포함된 게시글입니다.", ReportStatus.PENDING.name(), 3);
+        jdbc.update(sql, userId, TargetType.REVIEW.name(), 7, ReportReason.FALSE_INFO.name(), "허위 정보가 포함된 리뷰입니다. 실제 방문하지 않은 것으로 보입니다.", ReportStatus.RESOLVED.name(), 5);
+        jdbc.update(sql, userId, TargetType.COMMENT.name(), 12, ReportReason.OTHER.name(), "해당 댓글에 개인정보가 노출되어 있습니다.", ReportStatus.REJECTED.name(), 7);
 
         // RESOLVED 건은 action도 세팅
-        jdbc.update("UPDATE reports SET action = 'DELETE_CONTENT'::report_action, admin_note = '스팸 확인, 삭제 처리', processed_at = NOW() WHERE status = 'RESOLVED'");
-        jdbc.update("UPDATE reports SET action = 'NONE'::report_action, admin_note = '신고 내용 확인 결과 문제 없음', processed_at = NOW() WHERE status = 'REJECTED'");
+        jdbc.update("UPDATE reports SET action = '" + AdminPolicy.DB_ACTION_DELETE_CONTENT + "'::report_action, admin_note = '스팸 확인, 삭제 처리', processed_at = NOW() WHERE status = '" + ReportStatus.RESOLVED.name() + "'");
+        jdbc.update("UPDATE reports SET action = '" + AdminPolicy.DB_ACTION_NONE + "'::report_action, admin_note = '신고 내용 확인 결과 문제 없음', processed_at = NOW() WHERE status = '" + ReportStatus.REJECTED.name() + "'");
 
         log.info("========== 신고 더미 데이터 5건 삽입 완료 ==========");
     }

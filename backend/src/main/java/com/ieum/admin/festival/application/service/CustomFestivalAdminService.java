@@ -76,16 +76,16 @@ public class CustomFestivalAdminService implements GetCustomFestivalListUseCase,
         if (excludeHidden) {
             statusCounts = FestivalStatusCountsResult.builder()
                     .total(festivalPort.countVisibleCustomFestivals())
-                    .ongoing(festivalPort.countVisibleCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(festivalPort.countVisibleCustomFestivalsByStatus("UPCOMING"))
-                    .ended(festivalPort.countVisibleCustomFestivalsByStatus("ENDED"))
+                    .ongoing(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.ONGOING.name()))
+                    .upcoming(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.UPCOMING.name()))
+                    .ended(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.ENDED.name()))
                     .build();
         } else {
             statusCounts = FestivalStatusCountsResult.builder()
                     .total(festivalPort.countCustomFestivals())
-                    .ongoing(festivalPort.countCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(festivalPort.countCustomFestivalsByStatus("UPCOMING"))
-                    .ended(festivalPort.countCustomFestivalsByStatus("ENDED"))
+                    .ongoing(festivalPort.countCustomFestivalsByStatus(FestivalStatus.ONGOING.name()))
+                    .upcoming(festivalPort.countCustomFestivalsByStatus(FestivalStatus.UPCOMING.name()))
+                    .ended(festivalPort.countCustomFestivalsByStatus(FestivalStatus.ENDED.name()))
                     .build();
         }
 

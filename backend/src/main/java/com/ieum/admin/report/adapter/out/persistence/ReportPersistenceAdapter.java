@@ -18,6 +18,9 @@ import java.util.Map;
 import java.util.HashMap;
 import jakarta.persistence.EntityManager;
 
+import com.ieum.global.common.enums.ContentStatus;
+import com.ieum.global.common.enums.TargetType;
+
 /**
  * 신고 Persistence Adapter (OutPort 구현체)
  */
@@ -81,26 +84,27 @@ public class ReportPersistenceAdapter implements ReportPort {
     @Override
     public Map<String, String> findOriginalContent(String targetType, Long targetId) {
         Map<String, String> result = new HashMap<>();
+        String removedStatus = ContentStatus.REMOVED.name();
         try {
-            if ("POST".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT p.authorName, p.content, p.createdAt, p.id FROM PostEntity p WHERE p.id = :id AND p.status != 'REMOVED'")
-                        .setParameter("id", targetId).getSingleResult();
+            if (TargetType.POST.name().equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT p.authorName, p.content, p.createdAt, p.id FROM PostEntity p WHERE p.id = :id AND p.status != :removedStatus")
+                        .setParameter("id", targetId).setParameter("removedStatus", removedStatus).getSingleResult();
                 result.put("author", (String) row[0]);
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
                 result.put("parentId", row[3] != null ? row[3].toString() : "");
                 return result;
-            } else if ("COMMENT".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT c.userName, c.content, c.createdAt, c.postId FROM CommentEntity c WHERE c.id = :id AND c.status != 'REMOVED'")
-                        .setParameter("id", targetId).getSingleResult();
+            } else if (TargetType.COMMENT.name().equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT c.userName, c.content, c.createdAt, c.postId FROM CommentEntity c WHERE c.id = :id AND c.status != :removedStatus")
+                        .setParameter("id", targetId).setParameter("removedStatus", removedStatus).getSingleResult();
                 result.put("author", (String) row[0]);
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
                 result.put("parentId", row[3] != null ? row[3].toString() : "");
                 return result;
-            } else if ("REVIEW".equalsIgnoreCase(targetType)) {
-                Object[] row = (Object[]) em.createQuery("SELECT u.nickname, r.content, r.createdAt, r.festivalId FROM ReviewEntity r LEFT JOIN UserRef u ON r.userId = u.id WHERE r.id = :id AND r.status != 'REMOVED'")
-                        .setParameter("id", targetId).getSingleResult();
+            } else if (TargetType.REVIEW.name().equalsIgnoreCase(targetType)) {
+                Object[] row = (Object[]) em.createQuery("SELECT u.nickname, r.content, r.createdAt, r.festivalId FROM ReviewEntity r LEFT JOIN UserRef u ON r.userId = u.id WHERE r.id = :id AND r.status != :removedStatus")
+                        .setParameter("id", targetId).setParameter("removedStatus", removedStatus).getSingleResult();
                 result.put("author", row[0] != null ? (String) row[0] : "알 수 없음");
                 result.put("content", (String) row[1]);
                 result.put("createdAt", row[2] != null ? row[2].toString() : "");
@@ -116,13 +120,13 @@ public class ReportPersistenceAdapter implements ReportPort {
     @Override
     public Long findTargetAuthorId(String targetType, Long targetId) {
         try {
-            if ("POST".equalsIgnoreCase(targetType)) {
+            if (TargetType.POST.name().equalsIgnoreCase(targetType)) {
                 return (Long) em.createQuery("SELECT p.authorId FROM PostEntity p WHERE p.id = :id")
                         .setParameter("id", targetId).getSingleResult();
-            } else if ("COMMENT".equalsIgnoreCase(targetType)) {
+            } else if (TargetType.COMMENT.name().equalsIgnoreCase(targetType)) {
                 return (Long) em.createQuery("SELECT c.userId FROM CommentEntity c WHERE c.id = :id")
                         .setParameter("id", targetId).getSingleResult();
-            } else if ("REVIEW".equalsIgnoreCase(targetType)) {
+            } else if (TargetType.REVIEW.name().equalsIgnoreCase(targetType)) {
                 return (Long) em.createQuery("SELECT r.userId FROM ReviewEntity r WHERE r.id = :id")
                         .setParameter("id", targetId).getSingleResult();
             }
@@ -134,16 +138,20 @@ public class ReportPersistenceAdapter implements ReportPort {
 
     @Override
     public void hideTargetContent(String targetType, Long targetId) {
-        if ("POST".equalsIgnoreCase(targetType)) {
-            em.createQuery("UPDATE PostEntity p SET p.status = 'REMOVED' WHERE p.id = :id")
+        String removedStatus = ContentStatus.REMOVED.name();
+        if (TargetType.POST.name().equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE PostEntity p SET p.status = :removedStatus WHERE p.id = :id")
+                    .setParameter("removedStatus", removedStatus)
                     .setParameter("id", targetId)
                     .executeUpdate();
-        } else if ("COMMENT".equalsIgnoreCase(targetType)) {
-            em.createQuery("UPDATE CommentEntity c SET c.status = 'REMOVED' WHERE c.id = :id")
+        } else if (TargetType.COMMENT.name().equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE CommentEntity c SET c.status = :removedStatus WHERE c.id = :id")
+                    .setParameter("removedStatus", removedStatus)
                     .setParameter("id", targetId)
                     .executeUpdate();
-        } else if ("REVIEW".equalsIgnoreCase(targetType)) {
-            em.createQuery("UPDATE ReviewEntity r SET r.status = 'REMOVED' WHERE r.id = :id")
+        } else if (TargetType.REVIEW.name().equalsIgnoreCase(targetType)) {
+            em.createQuery("UPDATE ReviewEntity r SET r.status = :removedStatus WHERE r.id = :id")
+                    .setParameter("removedStatus", removedStatus)
                     .setParameter("id", targetId)
                     .executeUpdate();
         }

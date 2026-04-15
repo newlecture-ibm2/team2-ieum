@@ -1,6 +1,7 @@
 package com.ieum.admin.festival.application.result;
 
 import com.ieum.admin.festival.domain.model.Festival;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -52,7 +53,7 @@ public class CustomFestivalItem {
                 .isVisible(festival.isVisible())
                 .category(specificCategory)
                 .categoryLabel(categoryLabel)
-                .status(festival.getStatus() != null ? festival.getStatus().name() : "UPCOMING")
+                .status(festival.getStatus() != null ? festival.getStatus().name() : FestivalStatus.UPCOMING.name())
                 .createdAt(festival.getCreatedAt())
                 .content(festival.getDescription())
                 .imgUrl(festival.getImageUrl())

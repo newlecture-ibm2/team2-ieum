@@ -4,6 +4,7 @@ import com.ieum.admin.inquiry.adapter.out.persistence.entity.InquiryEntity;
 import com.ieum.admin.inquiry.adapter.out.persistence.repository.InquiryAdminRepository;
 import com.ieum.admin.inquiry.application.port.out.InquiryPort;
 import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.global.common.enums.InquiryStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -63,12 +64,12 @@ public class InquiryPersistenceAdapter implements InquiryPort {
         InquiryEntity entity = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("INQUIRY_NOT_FOUND"));
 
-        if ("ANSWERED".equals(entity.getStatus())) {
+        if (InquiryStatus.ANSWERED.name().equals(entity.getStatus())) {
             throw new IllegalStateException("ALREADY_ANSWERED");
         }
 
         entity.setAnswer(answer);
-        entity.setStatus("ANSWERED");
+        entity.setStatus(InquiryStatus.ANSWERED.name());
         entity.setAnsweredAt(LocalDateTime.now());
         repository.save(entity);
     }

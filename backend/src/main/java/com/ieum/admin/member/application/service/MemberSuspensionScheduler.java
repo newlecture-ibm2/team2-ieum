@@ -1,7 +1,7 @@
 package com.ieum.admin.member.application.service;
 
 import com.ieum.admin.member.application.port.out.MemberPort;
-import com.ieum.admin.member.domain.model.MemberStatus;
+import com.ieum.global.common.enums.UserStatus;
 import com.ieum.user.deletion.application.port.in.ForceDeleteUserUseCase;
 import com.ieum.user.deletion.application.port.out.FindDeletionTargetPort;
 import lombok.RequiredArgsConstructor;
@@ -60,7 +60,7 @@ public class MemberSuspensionScheduler {
         }
 
         // 3. 삭제 에러 등으로 남아있는 중간 잔여고아 상태 (DELETED) 유저의 파기 재진행 (Recovery)
-        List<Long> failedDeletedStands = findDeletionTargetPort.findAllByStatus(MemberStatus.DELETED);
+        List<Long> failedDeletedStands = findDeletionTargetPort.findAllByStatus(UserStatus.DELETED.name());
         if (!failedDeletedStands.isEmpty()) {
             log.info(">>> [MemberSuspensionScheduler] 파기 실패(DELETED 잔류) 복구 대상자 {}명 재호출 진행", failedDeletedStands.size());
         }
@@ -81,7 +81,7 @@ public class MemberSuspensionScheduler {
      */
     public int processManualForceDeleteSuspendedUsers() {
         log.info(">>> [MemberSuspensionScheduler] 수동 발동: 현재 정지중(SUSPENDED)인 회원 전원 즉시 탈퇴(물리 파기) 진행!");
-        List<Long> suspendedList = findDeletionTargetPort.findAllByStatus(MemberStatus.SUSPENDED);
+        List<Long> suspendedList = findDeletionTargetPort.findAllByStatus(UserStatus.SUSPENDED.name());
         int successCount = 0;
         for (Long userId : suspendedList) {
             try {
