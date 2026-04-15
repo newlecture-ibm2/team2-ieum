@@ -1,6 +1,7 @@
 package com.ieum.admin.inquiry.adapter.out.persistence.entity;
 
 import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.global.common.enums.InquiryStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,7 +53,7 @@ public class InquiryEntity {
     @PrePersist
     void prePersist() {
         if (createdAt == null) createdAt = LocalDateTime.now();
-        if (status == null) status = "PENDING";
+        if (status == null) status = InquiryStatus.PENDING.name();
     }
 
     public Inquiry toDomain() {

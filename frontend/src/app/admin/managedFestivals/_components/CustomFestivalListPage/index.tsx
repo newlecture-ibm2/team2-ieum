@@ -12,12 +12,13 @@ import CustomFestivalFormModal from '../CustomFestivalFormModal';
 import AdminListSummary from '@/app/admin/festivals/_components/AdminListSummary';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import { FESTIVAL_STATUS } from '@/constants/filterOptions';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
-  ONGOING: { label: '진행중', badge: 'badgeOngoing' },
-  UPCOMING: { label: '진행예정', badge: 'badgeUpcoming' },
-  ENDED: { label: '종료', badge: 'badgeEnded' },
+  [FESTIVAL_STATUS.ONGOING]: { label: '진행중', badge: 'badgeOngoing' },
+  [FESTIVAL_STATUS.UPCOMING]: { label: '진행예정', badge: 'badgeUpcoming' },
+  [FESTIVAL_STATUS.ENDED]: { label: '종료', badge: 'badgeEnded' },
 };
 
 // ── 카테고리 뱃지 포맷팅 ──
@@ -45,9 +46,9 @@ const renderCategoryBadge = (categoryLabel?: string) => {
 // ── KPI 카드 정의 ──
 const KPI_ITEMS = (counts: Record<string, number>) => [
   { key: '', label: '전체 축제', count: counts.total, style: c.statTotal, valueClass: '' },
-  { key: 'ONGOING', label: '진행중', count: counts.ongoing, style: c.statOngoing, valueClass: c.textGreen },
-  { key: 'UPCOMING', label: '진행예정', count: counts.upcoming, style: c.statUpcoming, valueClass: c.textPurple },
-  { key: 'ENDED', label: '종료', count: counts.ended, style: c.statEnded, valueClass: c.textGray },
+  { key: FESTIVAL_STATUS.ONGOING, label: '진행중', count: counts.ongoing, style: c.statOngoing, valueClass: c.textGreen },
+  { key: FESTIVAL_STATUS.UPCOMING, label: '진행예정', count: counts.upcoming, style: c.statUpcoming, valueClass: c.textPurple },
+  { key: FESTIVAL_STATUS.ENDED, label: '종료', count: counts.ended, style: c.statEnded, valueClass: c.textGray },
 ];
 
 export default function CustomFestivalListPage() {

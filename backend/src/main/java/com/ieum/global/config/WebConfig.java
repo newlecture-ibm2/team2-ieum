@@ -27,7 +27,6 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${UPLOAD_LOCATION:file:./uploads/}")
     private String uploadLocation;
 
-
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
         resolvers.add(currentUserIdArgumentResolver);
@@ -54,7 +53,8 @@ public class WebConfig implements WebMvcConfigurer {
     }
 
     @Override
-    public void addResourceHandlers(org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
+    public void addResourceHandlers(
+            org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry registry) {
         // 실서버와 로컬의 이미지 업로드 경로를 통일합니다. 외부 환경변수 UPLOAD_LOCATION 값을 사용합니다.
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations(uploadLocation);

@@ -6,6 +6,7 @@ import com.ieum.admin.inquiry.application.port.out.InquiryPort;
 import com.ieum.admin.inquiry.application.result.InquiryItem;
 import com.ieum.admin.inquiry.application.result.InquiryListResult;
 import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.global.common.enums.InquiryStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -34,8 +35,8 @@ public class InquiryAdminService implements GetInquiryListUseCase, AnswerInquiry
                 .content(inquiries.getContent().stream().map(this::toItem).toList())
                 .totalPages(inquiries.getTotalPages())
                 .totalElements(inquiries.getTotalElements())
-                .pendingCount(inquiryPort.countByStatus("PENDING"))
-                .answeredCount(inquiryPort.countByStatus("ANSWERED"))
+                .pendingCount(inquiryPort.countByStatus(InquiryStatus.PENDING.name()))
+                .answeredCount(inquiryPort.countByStatus(InquiryStatus.ANSWERED.name()))
                 .newTodayCount(inquiryPort.countCreatedToday(todayStart, todayEnd))
                 .build();
     }

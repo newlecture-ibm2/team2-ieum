@@ -13,4 +13,15 @@ public final class AdminPolicy {
 
     /** 회원 정지 기본 기간 (일) */
     public static final int SUSPENSION_DAYS = 7;
+
+    /* ── 신고 처리 DB 액션 (PostgreSQL report_action ENUM 매핑) ── */
+
+    /** 콘텐츠 삭제 조치 */
+    public static final String DB_ACTION_DELETE_CONTENT = "DELETE_CONTENT";
+
+    /** 회원 경고 조치 */
+    public static final String DB_ACTION_WARN_USER = "WARN_USER";
+
+    /** 미조치 (반려) */
+    public static final String DB_ACTION_NONE = "NONE";
 }

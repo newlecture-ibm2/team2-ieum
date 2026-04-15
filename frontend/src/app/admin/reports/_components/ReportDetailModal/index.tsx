@@ -138,9 +138,9 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
   /* ── 아웃링크 계산 ── */
   const getOutlink = () => {
     if (report.targetType === TARGET_TYPE.POST) return `/community/${report.targetId}`;
-    if (report.targetType === 'COMMENT' && original?.parentId) return `/community/${original.parentId}`;
-    if (report.targetType === 'REVIEW' && original?.parentId) return `/festivals/${original.parentId}`;
-    if (report.targetType === 'FESTIVAL') return `/festivals/${report.targetId}`;
+    if (report.targetType === TARGET_TYPE.COMMENT && original?.parentId) return `/community/${original.parentId}`;
+    if (report.targetType === TARGET_TYPE.REVIEW && original?.parentId) return `/festivals/${original.parentId}`;
+    if (report.targetType === TARGET_TYPE.FESTIVAL) return `/festivals/${report.targetId}`;
     return null;
   };
   const outlink = getOutlink();
@@ -185,7 +185,7 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
               </div>
               {outlink && !originalDeleted && !originalLoading && (
                  <a href={outlink} target="_blank" rel="noopener noreferrer" className={s.outlinkBtn} title="새 탭에서 원문 엽니다">
-                   🔗 {report.targetType === 'COMMENT' || report.targetType === 'REVIEW' ? '원 게시글 바로가기' : '원문 바로가기'}
+                   🔗 {report.targetType === TARGET_TYPE.COMMENT || report.targetType === TARGET_TYPE.REVIEW ? '원 게시글 바로가기' : '원문 바로가기'}
                  </a>
               )}
             </div>

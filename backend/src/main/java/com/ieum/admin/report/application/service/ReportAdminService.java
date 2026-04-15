@@ -1,5 +1,6 @@
 package com.ieum.admin.report.application.service;
 
+import com.ieum.admin.common.constant.AdminPolicy;
 import com.ieum.admin.report.application.port.in.GetReportListUseCase;
 import com.ieum.admin.report.application.port.in.ProcessReportUseCase;
 import com.ieum.admin.report.application.port.out.ReportPort;
@@ -67,7 +68,7 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
         // 답변 저장 (adminId는 추후 인증 연동 시 주입, 현재는 null)
         reportPort.saveResponse(reportId, null, dbAction, message);
 
-        if (ReportAction.DELETE.name().equalsIgnoreCase(action) || "DELETE_CONTENT".equalsIgnoreCase(action)) {
+        if (ReportAction.DELETE.name().equalsIgnoreCase(action) || AdminPolicy.DB_ACTION_DELETE_CONTENT.equalsIgnoreCase(action)) {
             hideTargetContent(reportId);
         }
 
@@ -140,12 +141,12 @@ public class ReportAdminService implements GetReportListUseCase, ProcessReportUs
 
 
     private String getDbAction(String frontendAction) {
-        if ("DELETE".equalsIgnoreCase(frontendAction)) {
-            return "DELETE_CONTENT";
-        } else if ("SUSPEND".equalsIgnoreCase(frontendAction) || "WARNING".equalsIgnoreCase(frontendAction)) {
-            return "WARN_USER";
+        if (ReportAction.DELETE.name().equalsIgnoreCase(frontendAction)) {
+            return AdminPolicy.DB_ACTION_DELETE_CONTENT;
+        } else if (ReportAction.SUSPEND.name().equalsIgnoreCase(frontendAction) || ReportAction.WARNING.name().equalsIgnoreCase(frontendAction)) {
+            return AdminPolicy.DB_ACTION_WARN_USER;
         } else {
-            return "NONE";
+            return AdminPolicy.DB_ACTION_NONE;
         }
     }
 }
