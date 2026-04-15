@@ -258,68 +258,56 @@ export default function CustomFestivalListPage() {
         </div>
       </section>
 
-      {/* ── 테이블 ── */}
-      <section className={c.tableCard}>
+      <section style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 관리 축제" />
-        <table className={c.table}>
-          <colgroup>
-            <col className={s.festivalNameCol} />
-            <col className={s.categoryCol} />
-            <col className={s.regionCol} />
-            <col className={s.dateCol} />
-            <col className={s.statusCol} />
-            <col className={s.actionCol} />
-          </colgroup>
-          <thead>
-            <tr className={c.tableHeaderRow}>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>축제명</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>카테고리</th>
-              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>지역</th>
-              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>날짜</th>
-              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>상태</th>
-              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>관리 (노출/동작)</th>
-            </tr>
-          </thead>
-          <tbody>
-            {list.loading ? (
-              <tr><td colSpan={6} className={c.emptyRow}>로딩 중...</td></tr>
-            ) : festivals.length === 0 ? (
-              <tr><td colSpan={6} className={c.emptyRow}>조회된 축제가 없습니다.</td></tr>
-            ) : (
-              festivals.map(f => {
-                const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
-                return (
-                  <tr key={f.festivalId} className={`${c.tableRow} ${c.tableRowHover} ${!f.isVisible ? c.hiddenRow : ''}`}>
-                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary}`}>
-                      <div className={c.cellEllipsis} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
-                        {f.title}
+        <div className={c.listGrid}>
+          {list.loading ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : festivals.length === 0 ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>조회된 축제가 없습니다.</div>
+          ) : (
+            festivals.map(f => {
+              const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
+              return (
+                <div key={f.festivalId} className={`${c.listCard} ${!f.isVisible ? c.hiddenRow : ''}`}>
+                  <div className={c.listCardTop}>
+                    {renderCategoryBadge(f.categoryLabel)}
+                    <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
+                  </div>
+
+                  <div className={c.listCardTitle} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
+                    {f.title}
+                  </div>
+
+                  <div className={c.listCardInfo}>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📍</span>
+                      <span className={c.listCardValue}>{f.areaLabel || f.areaCode}</span>
+                    </div>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📅</span>
+                      <span className={c.listCardValue}>{formatDateRange(f.startDate, f.endDate)}</span>
+                    </div>
+                  </div>
+
+                  <div className={c.listCardActions} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
+                      <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
+                        {f.isVisible ? '공개' : '숨김'}
+                      </span>
+                      <div className={`${c.toggleTrack} ${f.isVisible ? c.toggleTrackOn : ''}`}>
+                        <div className={`${c.toggleThumb} ${f.isVisible ? c.toggleThumbOn : ''}`} />
                       </div>
-                    </td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{renderCategoryBadge(f.categoryLabel)}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{f.areaLabel || f.areaCode}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(f.startDate, f.endDate)}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>
-                      <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
-                    </td>
-                    <td className={`${c.tableCell} ${c.textRight}`}>
-                      <div className={c.actionGroup}>
-                        <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
-                          <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
-                            {f.isVisible ? '공개' : '숨김'}
-                          </span>
-                          <div className={`${c.toggleTrack} ${f.isVisible ? c.toggleTrackOn : ''}`}>
-                            <div className={`${c.toggleThumb} ${f.isVisible ? c.toggleThumbOn : ''}`} />
-                          </div>
-                        </div>
-                        <button className={c.actionBtn} onClick={() => handleOpenEdit(f)} title="수정">✏️</button>
-                      </div>
-                    </td>
-                  </tr>
-                );
-              })
-            )}
-          </tbody>
-        </table>
+                    </div>
+                    <button className={c.listCardActionBtn} onClick={() => handleOpenEdit(f)} title="수정">
+                      수정
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
 
         <div className={c.pagination}>
           <button className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>

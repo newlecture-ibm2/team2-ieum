@@ -36,6 +36,12 @@
   width: 100%;
 }
 
+@media (max-width: 768px) {
+  .formGrid {
+    flex-direction: column;
+  }
+}
+
 .layoutLeft {
   flex: 1.2;
   display: flex;
@@ -83,6 +89,22 @@
   flex-shrink: 0;
   text-align: right;
   line-height: 1.2;
+}
+
+@media (max-width: 640px) {
+  .formLabel {
+    width: auto;
+    text-align: left;
+  }
+
+  .formGroup {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .errorText {
+    margin-left: 0;
+  }
 }
 
 .formLabelColumn {
@@ -203,6 +225,16 @@
   margin-top: 12px;
 }
 
+@media (max-width: 640px) {
+  .imagePreviewGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .formRowAligned {
+    grid-template-columns: 1fr;
+  }
+}
+
 .galleryPreviewItem {
   position: relative;
   aspect-ratio: 1;
@@ -265,6 +297,8 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
 }
 
 .settingsSection {

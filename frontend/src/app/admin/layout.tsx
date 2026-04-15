@@ -1,5 +1,7 @@
 import type { Metadata } from 'next';
-import AdminSidebar from './_components/AdminSidebar';
+import AdminBottomNav from './_components/AdminBottomNav';
+import AdminFAB from './_components/AdminFAB';
+import AdminHeader from './_components/AdminHeader';
 
 export const metadata: Metadata = {
   title: '이음 관리자',
@@ -12,18 +14,22 @@ export default function AdminLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div style={{ display: 'flex', minHeight: '100vh' }}>
-      <AdminSidebar />
+    <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh', background: '#f1f5f9' }}>
+      <AdminHeader />
       <main
         style={{
           flex: 1,
-          marginLeft: '220px',
-          background: '#f1f5f9',
-          minHeight: '100vh',
+          width: '100%',
+          maxWidth: '1400px',
+          margin: '0 auto',
+          padding: '5px',
+          paddingBottom: 'calc(80px + env(safe-area-inset-bottom))',
         }}
       >
         {children}
       </main>
+      <AdminFAB />
+      <AdminBottomNav />
     </div>
   );
 }

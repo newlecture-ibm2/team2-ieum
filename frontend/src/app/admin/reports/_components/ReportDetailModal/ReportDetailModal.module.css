@@ -27,6 +27,7 @@
   align-items: flex-start;
   gap: 12px;
   margin-bottom: 8px;
+  flex-wrap: wrap;
 }
 
 .mainTitle {
@@ -249,4 +250,51 @@
 .templateBtnReject:hover { background: #f1f5f9; border-color: #cbd5e1; }
 
 /* ── 모달 하단 ── */
-.modalFooter { display: flex; justify-content: flex-end; gap: 12px; padding-top: 20px; border-top: 1px solid #f1f5f9; margin-top: 8px; }
+.modalFooter { display: flex; justify-content: flex-end; gap: 12px; padding-top: 20px; border-top: 1px solid #f1f5f9; margin-top: 8px; flex-wrap: wrap; }
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 640px) {
+  .mainTitle {
+    font-size: 16px;
+  }
+
+  .titleRow {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .badgeGroup {
+    flex-wrap: wrap;
+  }
+
+  .reasonBadge,
+  .targetBadge {
+    font-size: 11px;
+    padding: 4px 10px;
+  }
+
+  .reporterBubble,
+  .originalBubble,
+  .answerBubble {
+    padding: 14px;
+  }
+
+  .templateRow {
+    gap: 6px;
+  }
+
+  .templateBtn {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .responseTextarea {
+    min-height: 80px;
+    padding: 12px;
+  }
+
+  .metaRowBox {
+    flex-wrap: wrap;
+    font-size: 12px;
+  }
+}
