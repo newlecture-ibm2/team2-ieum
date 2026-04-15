@@ -74,10 +74,11 @@ export default function FestivalMap() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false); // mobile filter toggle
 
   // ===== 하단 목록 토글 + 리사이즈 =====
-  const [listOpen, setListOpen] = useState(true);
-  const [listHeight, setListHeight] = useState(220);
+  const [listOpen, setListOpen] = useState(true); // 기본적으로 목록이 열려 있게 설정
+  const [listHeight, setListHeight] = useState(250);
   const isResizing = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
@@ -391,67 +392,76 @@ export default function FestivalMap() {
   // ===== 렌더링 =====
   return (
     <div className={styles.mapPageWrapper}>
-      {/* 타이틀 */}
-      <div className={styles.pageTitle}>
-        <div>
-          <div className={styles.pageTitleText}>🎭 전국 축제 지도</div>
-          <div className={styles.pageTitleSub}>
-            지도로 전국의 축제를 한눈에 탐색하세요 🗺️
-          </div>
-        </div>
-      </div>
-
       {/* 메인 콘텐츠 */}
       <div className={styles.mapBody}>
-        {/* 필터 사이드바 (처음부터 보임) */}
+        {/* 필터 사이드바 */}
         <aside className={styles.filterSidebar}>
-          <div className={styles.filterSectionTitle}>📍 지역 필터</div>
-          <div className={styles.regionGrid}>
-            {REGIONS.map((region) => (
-              <label key={region} className={styles.filterItem}>
+
+          <div className={styles.sidebarHeader}>
+            <div className={styles.sidebarHeaderTop}>
+              <h1 className={styles.sidebarTitle}>🌍 전국 축제 지도</h1>
+              <button
+                type="button"
+                className={styles.filterToggleBtn}
+                onClick={() => setFilterOpen(!filterOpen)}
+              >
+                {filterOpen ? '▲ 접기' : '▼ 필터 열기'}
+              </button>
+            </div>
+            <p className={styles.sidebarDesc}>
+              지도에서 전국 축제를<br />한눈에 탐색해보세요.
+            </p>
+          </div>
+
+          <div className={`${styles.filterContent} ${filterOpen ? styles.filterContentOpen : ''}`}>
+            <div className={styles.filterSectionTitle}>📍 지역 필터</div>
+            <div className={styles.regionGrid}>
+              {REGIONS.map((region) => (
+                <label key={region} className={styles.filterItem}>
+                  <input
+                    type="checkbox"
+                    checked={selectedRegions.includes(region)}
+                    onChange={() => toggleRegion(region)}
+                  />
+                  {region}
+                </label>
+              ))}
+            </div>
+
+            <div className={styles.filterSectionTitle}>🔄 상태 필터</div>
+            {STATUS_OPTIONS.map((opt) => (
+              <label key={opt.value} className={styles.filterItem}>
                 <input
-                  type="checkbox"
-                  checked={selectedRegions.includes(region)}
-                  onChange={() => toggleRegion(region)}
+                  type="radio"
+                  name="statusFilter"
+                  checked={statusFilter === opt.value}
+                  onChange={() => setStatusFilter(opt.value)}
                 />
-                {region}
+                {opt.label}
               </label>
             ))}
-          </div>
 
-          <div className={styles.filterSectionTitle}>🔄 상태 필터</div>
-          {STATUS_OPTIONS.map((opt) => (
-            <label key={opt.value} className={styles.filterItem}>
+            <div className={styles.filterSectionTitle}>🔍 검색</div>
+            <div className={styles.searchInputWrapper}>
+              <span className={styles.searchIcon}>🔍</span>
               <input
-                type="radio"
-                name="statusFilter"
-                checked={statusFilter === opt.value}
-                onChange={() => setStatusFilter(opt.value)}
+                type="text"
+                placeholder="축제명 검색"
+                className={styles.filterSearchInput}
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
               />
-              {opt.label}
-            </label>
-          ))}
+            </div>
 
-          <div className={styles.filterSectionTitle}>🔍 검색</div>
-          <div className={styles.searchInputWrapper}>
-            <span className={styles.searchIcon}>🔍</span>
-            <input
-              type="text"
-              placeholder="축제명 검색"
-              className={styles.filterSearchInput}
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-            />
+            <button
+              type="button"
+              className={styles.filterBtnReset}
+              onClick={resetFilters}
+            >
+              🔄 필터 초기화
+            </button>
           </div>
-
-          <button
-            type="button"
-            className={styles.filterBtnReset}
-            onClick={resetFilters}
-          >
-            🔄 필터 초기화
-          </button>
         </aside>
 
         {/* 오른쪽 영역 */}
@@ -594,6 +604,22 @@ export default function FestivalMap() {
                   −
                 </button>
               </div>
+            )}
+
+            {/* Scroll Indicator */}
+            {listOpen && (
+              <button
+                type="button"
+                className={`${styles.floatingScrollIndicator} ${introComplete ? styles.mapControlsVisible : ""}`}
+                onClick={() => {
+                  window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                👇 아래로 스크롤하여 {filteredFestivals.length}개 축제 목록 보기
+              </button>
             )}
           </div>
 
