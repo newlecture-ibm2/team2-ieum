@@ -441,7 +441,7 @@
   align-items: center;
   justify-content: center;
   gap: 4px;
-  width: 25%; /* 5개(20%)에서 4개(25%)로 변경 */
+  width: 20%; /* 5개 아이템 */
   height: 100%;
   background: transparent;
   border: none;
@@ -539,10 +539,18 @@
   }
 
   .logoutBtn {
-    display: none;
+    display: flex;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--color-gray-100);
+    border: none;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
   }
 
-  .adminBtn {
+  .hamburgerBtn {
     display: none;
   }
 
@@ -554,7 +562,9 @@
 
   /* 로그인 버튼 모바일 컴팩트 */
   .loginBtn {
-    display: none; /* 플로팅 네비의 '더보기' 메뉴 안에 있으므로 헤더에서는 숨김 */
+    display: inline-block;
+    padding: 5px 14px;
+    font-size: 12px;
   }
 
   /* 햄버거 버튼 활성화 (더보기 역할) */
