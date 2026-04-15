@@ -40,7 +40,7 @@ public class AdminNoticeJpaEntity {
 
     @Builder.Default
     @Enumerated(EnumType.STRING)
-    @Column(name = "category", length = 20, nullable = false)
+    @Column(name = "category", length = 20, nullable = false, columnDefinition = "varchar(20) default 'GENERAL'")
     private NoticeCategory category = NoticeCategory.GENERAL;
 
     @Builder.Default
