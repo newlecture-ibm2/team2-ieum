@@ -9,6 +9,13 @@ import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
 import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES } from '@/constants/filterOptions';
 
+const NOTICE_CATEGORY_CODES = [
+  { code: 'GENERAL', name: '일반' },
+  { code: 'EVENT', name: '행사' },
+  { code: 'UPDATE', name: '업데이트' },
+  { code: 'URGENT', name: '긴급' },
+];
+
 interface SearchFilterProps {
   variant?: 'search-only' | 'with-filter';
   filterType?: 'festival' | 'community' | 'notice';
@@ -151,6 +158,8 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
          params.delete('startDate');
          params.delete('endDate');
       }
+    } else if (filterType === 'notice') {
+      if (category) params.set('category', category); else params.delete('category');
     }
     
     params.delete('page');
@@ -263,7 +272,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
           
           <button className={styles.searchBtn} onClick={handleSearch}>검색</button>
 
-          {variant === 'with-filter' && (
+          {(variant === 'with-filter' || filterType === 'notice') && (
             <div className={styles.filterRelative} ref={filterRef}>
               <button 
                 type="button"
@@ -372,6 +381,26 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                         </div>
                       </div>
                     </>
+                  )}
+
+                  {/* Notice Filters */}
+                  {filterType === 'notice' && (
+                    <div className={styles.filterGroup}>
+                      <h4>카테고리</h4>
+                      <div className={styles.filterTags}>
+                        <span 
+                          className={category === '' ? styles.active : ''} 
+                          onClick={() => setCategory('')}
+                        >전체</span>
+                        {NOTICE_CATEGORY_CODES.map((cat) => (
+                          <span 
+                            key={cat.code} 
+                            className={category === cat.code ? styles.active : ''}
+                            onClick={() => setCategory(cat.code)}
+                          >{cat.name}</span>
+                        ))}
+                      </div>
+                    </div>
                   )}
 
                   <div className={styles.filterActions}>
