@@ -1,9 +1,11 @@
 package com.ieum.global.init;
 
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class DbConstraintFixer {
 
@@ -49,9 +51,9 @@ public class DbConstraintFixer {
                         END
                         $$;
                     """);
-            System.out.println("========== SUCCESS: DROPPED UNIQUE CONSTRAINTS ON REVIEWS TABLE ==========");
+            log.info("리뷰 테이블 유니크 제약조건 삭제 완료");
         } catch (Exception e) {
-            System.err.println("========== FAIL TO DROP REVIEWS CONSTRAINTS: " + e.getMessage() + " ==========");
+            log.error("리뷰 테이블 제약조건 삭제 실패: {}", e.getMessage(), e);
         }
     }
 }
