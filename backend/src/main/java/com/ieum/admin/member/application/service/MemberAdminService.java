@@ -6,7 +6,7 @@ import com.ieum.admin.member.application.port.out.MemberPort;
 import com.ieum.admin.member.application.result.MemberItem;
 import com.ieum.admin.member.application.result.MemberListResult;
 import com.ieum.admin.member.domain.model.Member;
-import com.ieum.admin.member.domain.model.MemberStatus;
+import com.ieum.global.common.enums.UserStatus;
 import com.ieum.user.auth.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -77,9 +77,9 @@ public class MemberAdminService implements
                 .content(members.getContent().stream().map(this::toItem).toList())
                 .totalPages(members.getTotalPages())
                 .totalElements(members.getTotalElements())
-                .activeCount(memberPort.countByStatus(MemberStatus.ACTIVE))
-                .suspendedCount(memberPort.countByStatus(MemberStatus.SUSPENDED))
-                .deletedCount(memberPort.countByStatus(MemberStatus.DELETED))
+                .activeCount(memberPort.countByStatus(UserStatus.ACTIVE.name()))
+                .suspendedCount(memberPort.countByStatus(UserStatus.SUSPENDED.name()))
+                .deletedCount(memberPort.countByStatus(UserStatus.DELETED.name()))
                 .build();
     }
 
@@ -101,7 +101,7 @@ public class MemberAdminService implements
         guardSelfAction(requesterId, userId, "자기 자신의 상태는 변경할 수 없습니다.");
         guardAdminTarget(userId, "관리자 계정의 상태는 변경할 수 없습니다.");
 
-        if (MemberStatus.SUSPENDED.equals(newStatus)) {
+        if (UserStatus.SUSPENDED.name().equals(newStatus)) {
             memberPort.suspendMember(userId, AdminPolicy.SUSPENSION_DAYS);
         } else {
             memberPort.updateStatus(userId, newStatus);
@@ -116,7 +116,7 @@ public class MemberAdminService implements
         guardAdminTarget(userId, "관리자 계정은 강제 탈퇴할 수 없습니다.");
 
         // 1. 관리자 강제 탈퇴 시 상태를 DELETED 체제로 변경 (트리거 발동)
-        memberPort.updateStatus(userId, MemberStatus.DELETED);
+        memberPort.updateStatus(userId, UserStatus.DELETED.name());
         
         // 2. 공용 삭제 도메인의 오케스트레이터 호출 (실제 물리 파괴 수행)
         forceDeleteUserUseCase.execute(userId);

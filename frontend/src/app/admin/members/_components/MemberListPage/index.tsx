@@ -243,8 +243,8 @@ export default function MemberListPage() {
             onChange={(e) => setExtraFilter('role', e.target.value)}
           >
             <option value="">전체 역할</option>
-            <option value="USER">일반회원</option>
-            <option value="ADMIN">관리자</option>
+            <option value={USER_ROLE.USER}>일반회원</option>
+            <option value={USER_ROLE.ADMIN}>관리자</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>

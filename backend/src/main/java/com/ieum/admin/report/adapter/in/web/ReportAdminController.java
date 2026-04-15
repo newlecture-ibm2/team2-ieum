@@ -1,6 +1,8 @@
 package com.ieum.admin.report.adapter.in.web;
 
+import com.ieum.admin.common.constant.AdminPolicy;
 import com.ieum.admin.report.application.port.in.GetReportListUseCase;
+import com.ieum.admin.report.application.port.in.GetReportTargetUseCase;
 import com.ieum.admin.report.application.port.in.ProcessReportUseCase;
 import com.ieum.global.response.ApiResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -24,7 +26,7 @@ public class ReportAdminController {
 
     private final GetReportListUseCase getReportListUseCase;
     private final ProcessReportUseCase processReportUseCase;
-    private final com.ieum.admin.report.application.port.in.GetReportTargetUseCase getReportTargetUseCase;
+    private final GetReportTargetUseCase getReportTargetUseCase;
 
     @Operation(summary = "신고 목록 조회", description = "관리자용 신고 목록을 조회합니다.")
     @GetMapping
@@ -52,7 +54,7 @@ public class ReportAdminController {
             @PathVariable Long reportId,
             @RequestBody Map<String, String> body
     ) {
-        String actionType = body.getOrDefault("actionType", "NONE");
+        String actionType = body.getOrDefault("actionType", AdminPolicy.DB_ACTION_NONE);
         String message = body.getOrDefault("message", "");
 
         if (message == null || message.isBlank()) {
@@ -71,7 +73,7 @@ public class ReportAdminController {
             @PathVariable Long reportId,
             @RequestBody Map<String, String> body
     ) {
-        String action = body.getOrDefault("action", "NONE");
+        String action = body.getOrDefault("action", AdminPolicy.DB_ACTION_NONE);
         String adminNote = body.getOrDefault("adminNote", "");
         processReportUseCase.processReport(reportId, action, adminNote.isBlank() ? "관리자 처리" : adminNote);
         return ResponseEntity.ok(ApiResponse.success("신고가 처리되었습니다."));
