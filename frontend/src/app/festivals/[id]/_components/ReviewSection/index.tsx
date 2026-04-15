@@ -105,14 +105,16 @@ export default function ReviewSection({
     ));
   };
 
+  const isGuest = !currentUser;
+
   const renderFormStars = () => {
     return [1, 2, 3, 4, 5].map(num => (
       <span
         key={num}
-        onMouseEnter={() => setHoverRating(num)}
-        onMouseLeave={() => setHoverRating(0)}
-        onClick={() => setRating(num)}
-        className={styles.starForm}
+        onMouseEnter={() => !isGuest && setHoverRating(num)}
+        onMouseLeave={() => !isGuest && setHoverRating(0)}
+        onClick={() => !isGuest && setRating(num)}
+        className={`${styles.starForm} ${isGuest ? styles.starDisabled : ''}`}
         style={{ color: num <= (hoverRating || rating) ? '#fbbf24' : '#e2e8f0' }}
       >
         ★
@@ -133,14 +135,19 @@ export default function ReviewSection({
           <span>활동이 정지된 계정입니다. 정지 해제 후 리뷰를 작성할 수 있습니다.</span>
         </div>
       ) : (
-      <div className={styles.reviewForm}>
+      <div className={`${styles.reviewForm} ${isGuest ? styles.reviewFormDisabled : ''}`}>
         <div className={styles.reviewAvatar}>
           <User size={20} color="#a0aec0" strokeWidth={2.5} />
         </div>
         <div className={styles.reviewInputBox}>
+          {isGuest && (
+            <div className={styles.guestOverlay}>
+              <span>리뷰를 작성하려면 <Link href="/login" className={styles.guestLoginLink}>로그인</Link>이 필요합니다.</span>
+            </div>
+          )}
           <input
             type="text"
-            placeholder="이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)"
+            placeholder={isGuest ? '로그인 후 리뷰를 작성할 수 있습니다.' : '이 축제에 대한 솔직한 리뷰를 남겨주세요 (최소 10자 이상)'}
             value={reviewContent}
             onChange={(e) => setReviewContent(e.target.value)}
             onKeyDown={(e) => {
@@ -148,13 +155,14 @@ export default function ReviewSection({
                 handleSubmitReview();
               }
             }}
+            disabled={isGuest}
           />
           <div className={styles.reviewActions}>
             <span className={styles.reviewStars}>{renderFormStars()}</span>
             <button
-              className={`${styles.reviewBtn} ${isSubmitting ? styles.submitDisabled : ''}`}
+              className={`${styles.reviewBtn} ${(isSubmitting || isGuest) ? styles.submitDisabled : ''}`}
               onClick={handleSubmitReview}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isGuest}
             >
               {isSubmitting ? '진행중...' : '리뷰 등록'}
             </button>
