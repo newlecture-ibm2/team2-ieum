@@ -31,16 +31,17 @@
 }
 
 .pageButton:hover, .navButton:not(.disabled):hover {
-  background: #f9fafb;
-  border-color: #d1d5db;
-  color: #111827;
+  background: #f5f3ff;
+  border-color: #c4b5fd;
+  color: #7c3aed;
 }
 
 .active {
-  background: #6366f1;
+  background: linear-gradient(135deg, #a55eea, #6c5ce7);
   color: white;
-  border-color: #6366f1;
+  border-color: transparent;
   pointer-events: none;
+  box-shadow: 0 2px 8px rgba(108, 92, 231, 0.25);
 }
 
 .disabled {

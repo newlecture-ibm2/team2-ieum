@@ -14,6 +14,7 @@
   gap: 20px;
   font-size: 12px;
   color: #94a3b8;
+  flex-wrap: wrap;
 }
 
 .metaItem {
@@ -35,6 +36,8 @@
   color: #1e293b;
   margin: 0;
   line-height: 1.4;
+  word-break: keep-all;
+  overflow-wrap: break-word;
 }
 
 /* ── 요약 ── */
@@ -164,4 +167,30 @@
   color: #94a3b8;
   font-size: 11px;
   flex-shrink: 0;
+}
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 640px) {
+  .detailTitle {
+    font-size: 17px;
+  }
+
+  .detailContent {
+    padding: 12px;
+    font-size: 13px;
+    min-height: 80px;
+  }
+
+  .detailSummary {
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  .metaRow {
+    gap: 12px;
+  }
+
+  .detailFooter {
+    flex-wrap: wrap;
+  }
 }
