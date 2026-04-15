@@ -6,9 +6,11 @@ import Link from 'next/link';
 import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../login.module.css';
+import { useToast } from '@/_component/common/Toast';
 
 export default function LoginForm() {
   const router = useRouter();
+  const { toast } = useToast();
   
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
@@ -68,7 +70,7 @@ export default function LoginForm() {
         // 🌟 백엔드에서 전달된 메시지(예: 계정 복구 안내)가 있으면 알림 표시
         const successMsg = response.data?.data?.message;
         if (successMsg) {
-          alert(successMsg);
+          toast(successMsg, 'info');
         }
 
         window.location.href = '/';
