@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Star, Edit2, Trash2, MessageSquare, MapPin } from 'lucide-react';
+import { Star, ExternalLink, Trash2, MessageSquare, MapPin } from 'lucide-react';
 import Pagination from '@/_component/common/Pagination';
 import { useToast } from '@/_component/common/Toast';
 import { ConfirmModal } from '@/_component/common/Modal';
@@ -95,7 +95,7 @@ export default function ReviewList() {
                   className={`${styles.btnAction} ${styles.btnEdit}`}
                   onClick={() => router.push(`/festivals/${review.festivalId}`)}
                 >
-                  <Edit2 size={14} style={{ marginRight: 4 }} /> 수정
+                  <ExternalLink size={14} style={{ marginRight: 4 }} /> 원문보기
                 </button>
                 <button 
                   className={`${styles.btnAction} ${styles.btnDelete}`}
