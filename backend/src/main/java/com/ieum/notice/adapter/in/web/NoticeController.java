@@ -48,12 +48,14 @@ public class NoticeController {
             @RequestParam(required = false) String searchType,
             @Parameter(description = "검색 키워드")
             @RequestParam(required = false) String keyword,
+            @Parameter(description = "카테고리 필터 (GENERAL/EVENT/UPDATE/URGENT)", example = "GENERAL")
+            @RequestParam(required = false) String category,
             @Parameter(description = "페이지 번호", example = "1")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.success(
-                getNoticeListUseCase.getNotices(searchType, keyword, page, size)));
+                getNoticeListUseCase.getNotices(searchType, keyword, category, page, size)));
     }
 
     /**

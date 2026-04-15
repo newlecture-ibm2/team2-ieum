@@ -11,6 +11,7 @@ import com.ieum.attachment.application.port.in.UploadAttachmentUseCase;
 import com.ieum.global.common.enums.TargetType;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
+import com.ieum.notice.domain.model.NoticeCategory;
 import com.ieum.user.notification.application.port.in.SystemNotificationUseCase;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -44,6 +45,7 @@ public class NoticeAdminService
                 .title(command.getTitle())
                 .content(command.getContent())
                 .summary(command.getSummary())
+                .category(command.getCategory() != null ? command.getCategory() : NoticeCategory.GENERAL)
                 .isPinned(command.getIsPinned() != null ? command.getIsPinned() : false)
                 .isPopup(command.getIsPopup() != null ? command.getIsPopup() : false)
                 .isPushed(Boolean.TRUE.equals(command.getSendPush()))
@@ -78,6 +80,7 @@ public class NoticeAdminService
                 .title(command.getTitle())
                 .content(command.getContent())
                 .summary(command.getSummary())
+                .category(command.getCategory() != null ? command.getCategory() : notice.getCategory())
                 .viewCount(notice.getViewCount())
                 .isPinned(command.getIsPinned() != null ? command.getIsPinned() : notice.getIsPinned())
                 .isPopup(command.getIsPopup() != null ? command.getIsPopup() : notice.getIsPopup())
@@ -121,10 +124,20 @@ public class NoticeAdminService
     @Override
     @Transactional(readOnly = true)
     public Page<AdminNotice> getAdminNotices(int page, int size, String searchType, String keyword, Boolean isPinned,
-            Boolean isPopup, Boolean isPushed, String status) {
+            Boolean isPopup, Boolean isPushed, String category, String status) {
         Sort sort = Sort.by("isPinned").descending()
                 .and(Sort.by("createdAt").descending());
+
+        // 카테고리 문자열 → Enum 변환
+        NoticeCategory categoryEnum = null;
+        if (category != null && !category.isBlank()) {
+            try {
+                categoryEnum = NoticeCategory.valueOf(category.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+            }
+        }
+
         return adminNoticePort.findAll(PageRequest.of(page - 1, size, sort), searchType, keyword, isPinned, isPopup,
-                isPushed, status);
+                isPushed, categoryEnum, status);
     }
 }

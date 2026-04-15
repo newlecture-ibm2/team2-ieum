@@ -49,10 +49,11 @@ public class NoticeAdminController {
             @RequestParam(required = false) Boolean isPinned,
             @RequestParam(required = false) Boolean isPopup,
             @RequestParam(required = false) Boolean isPushed,
+            @RequestParam(required = false) String category,
             @RequestParam(required = false) String status) {
         return ResponseEntity.ok(ApiResponse.success(
                 getAdminNoticeListUseCase.getAdminNotices(page, size, searchType, keyword, isPinned,
-                        isPopup, isPushed, status)));
+                        isPopup, isPushed, category, status)));
     }
 
 
