@@ -67,6 +67,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  position: relative;
 }
 
 .reviewInputBox input {
@@ -122,6 +123,51 @@
 .submitDisabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+/* 비회원 비활성화 스타일 */
+.reviewFormDisabled {
+  position: relative;
+  opacity: 0.7;
+}
+
+.reviewFormDisabled .reviewInputBox {
+  pointer-events: none;
+}
+
+.guestOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(2px);
+  z-index: 2;
+  border-radius: var(--radius-md);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-gray-500);
+  pointer-events: auto;
+}
+
+.guestLoginLink {
+  color: var(--color-primary-500);
+  text-decoration: underline;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.guestLoginLink:hover {
+  color: var(--color-primary-600);
+}
+
+.starDisabled {
+  cursor: default !important;
+  pointer-events: none;
 }
 
 /* 리뷰 목록 */
