@@ -6,6 +6,7 @@ import com.ieum.user.auth.adapter.in.web.dto.AuthReq;
 import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
@@ -84,5 +85,14 @@ public class AuthController {
             @CurrentUserId Long userId) {
         AuthRes.SessionDto sessionDto = authUseCase.getMySession(userId);
         return ResponseEntity.ok(ApiResponse.success(sessionDto));
+    }
+
+    @Operation(summary = "닉네임 중복 체크", description = "입력한 닉네임의 사용 가능 여부를 확인합니다. (true: 사용가능, false: 중복)")
+    @GetMapping("/check-nickname")
+    public ResponseEntity<ApiResponse<Boolean>> checkNickname(
+            @Parameter(description = "확인할 닉네임", example = "우혁")
+            @RequestParam String nickname) {
+        boolean isAvailable = authUseCase.checkNicknameAvailability(nickname);
+        return ResponseEntity.ok(ApiResponse.success(isAvailable));
     }
 }
