@@ -19,6 +19,7 @@ interface UserInfo {
   nickname: string;
   name?: string;
   role: string;
+  profileImageUrl?: string;
 }
 
 export default function MyPageContent() {

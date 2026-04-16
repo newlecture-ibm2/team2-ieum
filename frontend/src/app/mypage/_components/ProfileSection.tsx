@@ -94,11 +94,20 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
       }
 
       // 닉네임 업데이트 (JSON 전송으로 단순화하여 안정성 확보)
-      await api.put(API_ENDPOINTS.MYPAGE.UPDATE, { nickname });
+      const profileRes = await api.put(API_ENDPOINTS.MYPAGE.UPDATE, { nickname });
+
+      // 🔑 [v18-Token] 닉네임이 변경되어 새 JWT가 발급된 경우, 세션 쿠키를 즉시 교체합니다.
+      const { newToken, nickname: updatedNickname } = profileRes.data?.data || {};
+      if (newToken) {
+        await api.post(API_ENDPOINTS.AUTH.UPDATE_SESSION, {
+          newToken,
+          nickname: updatedNickname,
+        });
+      }
 
       toast('프로필 정보가 성공적으로 반영되었습니다.', 'success');
       
-      // ✅ [v18-Sync] 전역 동기화: 헤더와 사이드바가 즉시 바뀌도록 커스텀 이벤트를 발행합니다.
+      // ✅ [v18-Sync] 세션 교체 완료 후 전역 동기화 이벤트를 발행합니다.
       window.dispatchEvent(new CustomEvent('userProfileUpdate'));
       
       // ✅ 로컬 상태 재동기화 및 캐시 새로고침
