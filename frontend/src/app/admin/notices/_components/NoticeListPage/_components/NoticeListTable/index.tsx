@@ -42,7 +42,7 @@ export default function NoticeListTable({
             <col style={{ width: '60px' }} />
             <col style={{ width: '70px' }} />
             <col style={{ width: '100px' }} />
-            <col style={{ width: '110px' }} />
+            <col style={{ width: '130px' }} />
           </colgroup>
           <thead>
             <tr className={common.tableHeaderRow}>
@@ -142,14 +142,14 @@ export default function NoticeListTable({
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                       <button
                         className={common.btnPrimary}
-                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        style={{ padding: '4px 12px', fontSize: 11, whiteSpace: 'nowrap' }}
                         onClick={() => onEditClick(notice)}
                       >
                         수정
                       </button>
                       <button
                         className={common.btnCancel}
-                        style={{ padding: '4px 12px', fontSize: 11, color: '#ef4444', borderColor: '#fca5a5' }}
+                        style={{ padding: '4px 12px', fontSize: 11, color: '#ef4444', borderColor: '#fca5a5', whiteSpace: 'nowrap' }}
                         onClick={() => onDeleteClick(notice)}
                       >
                         삭제
