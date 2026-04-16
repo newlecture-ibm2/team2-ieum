@@ -397,7 +397,7 @@
     <div class="header">
         <div class="header-left">
             <h1>🎪 이음 ERD</h1>
-            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (20 Tables)</span>
+            <span class="subtitle">지역 축제 통합 정보 플랫폼 — Entity Relationship Diagram (22 Tables)</span>
         </div>
         <div class="legend">
             <div class="legend-item">
@@ -435,20 +435,21 @@
         const tables = [
             {
                 id: 'users', name: 'users', label: '회원', type: 'core',
-                x: 1518.89, y: 1110.28,
+                x: 1500, y: 500,
                 columns: [
                     { name: 'user_id', type: 'bigint', pk: true, note: '회원 고유 ID' },
-                    { name: 'email', type: 'varchar(100)', uk: true, note: '이메일' },
-                    { name: 'password', type: 'varchar(255)', note: '비밀번호 (BCrypt)' },
+                    { name: 'login_id', type: 'varchar(100)', uk: true, note: '로그인 ID (이메일 또는 소셜)' },
+                    { name: 'password', type: 'varchar(255)', note: '비밀번호 (BCrypt, NULL 허용)' },
                     { name: 'name', type: 'varchar(50)', note: '이름 (실명)' },
                     { name: 'nickname', type: 'varchar(20)', uk: true, note: '닉네임' },
                     { name: 'phone', type: 'varchar(20)', note: '전화번호' },
                     { name: 'profile_image', type: 'varchar(500)', note: '프로필 이미지 URL' },
                     { name: 'role', type: 'varchar(10)', note: 'USER / ADMIN' },
                     { name: 'terms_agreed', type: 'boolean', note: '필수 약관 동의' },
-                    { name: 'marketing_agreed', type: 'boolean', note: '마케팅 동의' },
-                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE(정상) / SUSPENDED(정지) / DELETED(탈퇴)' },
-                    { name: 'suspended_until', type: 'timestamp', note: '정지 해제 예정일 (7일 정지 시 자동 설정)' },
+                    { name: 'security_question', type: 'varchar(255)', note: '보안 질문 (비밀번호 찾기용)' },
+                    { name: 'security_answer', type: 'varchar(255)', note: '보안 답변' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / SUSPENDED / DELETED' },
+                    { name: 'suspended_until', type: 'timestamp', note: '정지 해제 예정일' },
                     { name: 'created_at', type: 'timestamp', note: '가입일' },
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
                     { name: 'deleted_at', type: 'timestamp', note: '탈퇴일 (소프트 삭제)' },
@@ -456,21 +457,24 @@
             },
             {
                 id: 'festivals', name: 'festivals', label: '축제', type: 'core',
-                x: 578.611, y: 286.111,
+                x: 400, y: 300,
                 columns: [
-                    { name: 'festival_id', type: 'bigint', pk: true, note: '축제 고유 ID' },
-                    { name: 'source_id', type: 'varchar(20)', uk: true, note: '공공API contentId (Upsert 키)' },
-                    { name: 'source', type: 'varchar(10)', note: 'API / MANUAL (데이터 출처)' },
-                    { name: 'title', type: 'varchar(200)', note: '축제명' },
+                    { name: 'id', type: 'bigint', pk: true, note: '축제 고유 ID' },
+                    { name: 'source_id', type: 'varchar(100)', uk: true, note: '공공API contentId (Upsert 키)' },
+                    { name: 'source', type: 'varchar(20)', note: 'API / MANUAL (데이터 출처)' },
+                    { name: 'title', type: 'varchar(255)', note: '축제명' },
                     { name: 'description', type: 'text', note: '상세 설명' },
                     { name: 'overview', type: 'text', note: '축제 개요 (API detailCommon1)' },
-                    { name: 'address', type: 'varchar(300)', note: '주소' },
+                    { name: 'address', type: 'varchar(500)', note: '주소' },
+                    { name: 'location', type: 'varchar(255)', note: '지역명 (표시용)' },
                     { name: 'start_date', type: 'date', note: '시작일' },
                     { name: 'end_date', type: 'date', note: '종료일' },
-                    { name: 'status', type: 'varchar(10)', note: 'ONGOING/UPCOMING/ENDED/HIDDEN' },
+                    { name: 'status', type: 'varchar(20)', note: 'ONGOING/UPCOMING/ENDED' },
                     { name: 'image_url', type: 'varchar(500)', note: '대표 이미지 URL' },
-                    { name: 'latitude', type: 'decimal(10,7)', note: '위도' },
-                    { name: 'longitude', type: 'decimal(10,7)', note: '경도' },
+                    { name: 'thumbnail_url', type: 'varchar(500)', note: '썸네일 이미지 URL' },
+                    { name: 'extra_images', type: 'text', note: '갤러리 이미지 (콤마 구분)' },
+                    { name: 'latitude', type: 'double', note: '위도' },
+                    { name: 'longitude', type: 'double', note: '경도' },
                     { name: 'tel', type: 'varchar(50)', note: '연락처' },
                     { name: 'homepage', type: 'varchar(500)', note: '홈페이지 URL' },
                     { name: 'category', type: 'varchar(10)', fk: true, note: '대분류 코드' },
@@ -484,9 +488,12 @@
                     { name: 'program', type: 'text', note: '행사 프로그램 (API)' },
                     { name: 'use_fee', type: 'varchar(200)', note: '이용 요금 (API)' },
                     { name: 'sponsor', type: 'varchar(100)', note: '주최 기관 (API)' },
-                    { name: 'is_custom', type: 'boolean', note: '축제 등록 여부' },
+                    { name: 'is_custom', type: 'boolean', note: '자체 등록 축제 여부' },
                     { name: 'is_visible', type: 'boolean', note: '노출 여부' },
-                    { name: 'view_count', type: 'int', note: '조회수' },
+                    { name: 'avg_rating', type: 'double', note: '평균 별점 (default 0.0)' },
+                    { name: 'review_count', type: 'int', note: '리뷰 수 (default 0)' },
+                    { name: 'favorite_count', type: 'int', note: '찜 수 (default 0)' },
+                    { name: 'view_count', type: 'int', note: '조회수 (default 0)' },
                     { name: 'api_modified_at', type: 'timestamp', note: 'API 수정일 (변경 감지용)' },
                     { name: 'created_at', type: 'timestamp', note: '등록일' },
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
@@ -495,26 +502,24 @@
             },
             {
                 id: 'reviews', name: 'reviews', label: '리뷰', type: 'core',
-                x: 1091.67, y: 749.167,
+                x: 800, y: 500,
                 columns: [
-                    { name: 'review_id', type: 'bigint', pk: true, note: '리뷰 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '리뷰 고유 ID' },
                     { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
                     { name: 'rating', type: 'int', note: '별점 (1~5)' },
-                    { name: 'content', type: 'varchar(500)', note: '리뷰 내용' },
-                    { name: 'image_url', type: 'varchar(500)', note: '리뷰 이미지' },
+                    { name: 'content', type: 'varchar(1000)', note: '리뷰 내용' },
                     { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
                     { name: 'created_at', type: 'timestamp', note: '작성일' },
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
-                    { name: 'deleted_at', type: 'timestamp', note: '삭제일' },
                 ],
                 footer: 'UK: (festival_id, user_id)'
             },
             {
-                id: 'scraps', name: 'scraps', label: '찜하기', type: 'relation',
-                x: 848.611, y: 1131.67,
+                id: 'favorites', name: 'favorites', label: '찜하기', type: 'relation',
+                x: 800, y: 850,
                 columns: [
-                    { name: 'scrap_id', type: 'bigint', pk: true, note: '찜 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '찜 고유 ID' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
                     { name: 'festival_id', type: 'bigint', fk: true, note: 'FK → festivals' },
                     { name: 'created_at', type: 'timestamp', note: '찜한 날짜' },
@@ -523,11 +528,11 @@
             },
             {
                 id: 'posts', name: 'posts', label: '게시글', type: 'core',
-                x: 1757.5, y: 265,
+                x: 2000, y: 200,
                 columns: [
-                    { name: 'post_id', type: 'bigint', pk: true, note: '게시글 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '게시글 고유 ID' },
                     { name: 'category', type: 'varchar(20)', note: '말머리 (QNA, TIP, REVIEW 등)' },
-                    { name: 'title', type: 'varchar(100)', note: '제목' },
+                    { name: 'title', type: 'varchar(200)', note: '제목' },
                     { name: 'content', type: 'text', note: '내용' },
                     { name: 'area_code', type: 'varchar(10)', note: '지역 코드' },
                     { name: 'festival_id', type: 'varchar(50)', note: '연관 축제 ID (선택)' },
@@ -544,11 +549,12 @@
             },
             {
                 id: 'comments', name: 'comments', label: '댓글', type: 'core',
-                x: 2393.06, y: 803.333,
+                x: 2500, y: 600,
                 columns: [
                     { name: 'comment_id', type: 'bigint', pk: true, note: '댓글 고유 ID' },
                     { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
+                    { name: 'user_name', type: 'varchar(50)', note: '작성자 닉네임' },
                     { name: 'parent_id', type: 'bigint', fk: true, note: 'FK → comments (자기참조, NULL 허용)' },
                     { name: 'content', type: 'text', note: '댓글 내용' },
                     { name: 'status', type: 'varchar(10)', note: 'ACTIVE / REMOVED' },
@@ -558,9 +564,9 @@
             },
             {
                 id: 'post_likes', name: 'post_likes', label: '게시글 좋아요', type: 'relation',
-                x: 1308.33, y: 455,
+                x: 2500, y: 200,
                 columns: [
-                    { name: 'like_id', type: 'bigint', pk: true, note: '좋아요 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '좋아요 고유 ID' },
                     { name: 'post_id', type: 'bigint', fk: true, note: 'FK → posts' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
                     { name: 'created_at', type: 'timestamp', note: '좋아요 날짜' },
@@ -569,7 +575,7 @@
             },
             {
                 id: 'attachments', name: 'attachments', label: '첨부파일 (공통)', type: 'support',
-                x: 22.5, y: 21.1111,
+                x: 1200, y: 100,
                 columns: [
                     { name: 'file_id', type: 'bigint', pk: true, note: '파일 고유 ID' },
                     { name: 'target_type', type: 'varchar(10)', note: 'POST / NOTICE / INQUIRY' },
@@ -584,27 +590,29 @@
             },
             {
                 id: 'notices', name: 'notices', label: '공지사항', type: 'support',
-                x: 59.7222, y: 906.111,
+                x: 800, y: 100,
                 columns: [
                     { name: 'notice_id', type: 'bigint', pk: true, note: '공지 고유 ID' },
                     { name: 'title', type: 'varchar(200)', note: '공지 제목' },
                     { name: 'content', type: 'text', note: '공지 내용' },
                     { name: 'summary', type: 'varchar(300)', note: '팝업용 요약' },
+                    { name: 'category', type: 'varchar(20)', note: 'GENERAL/EVENT/UPDATE/URGENT' },
                     { name: 'view_count', type: 'int', note: '조회수' },
                     { name: 'is_pinned', type: 'boolean', note: '고정 여부' },
                     { name: 'is_popup', type: 'boolean', note: '팝업 표시 여부' },
+                    { name: 'is_pushed', type: 'boolean', note: '푸시 발송 여부' },
+                    { name: 'is_active', type: 'boolean', note: '활성화 여부' },
                     { name: 'start_date', type: 'timestamp', note: '게시 시작일' },
                     { name: 'end_date', type: 'timestamp', note: '게시 종료일' },
                     { name: 'created_at', type: 'timestamp', note: '등록일' },
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
                 ]
             },
-
             {
                 id: 'inquiries', name: 'inquiries', label: '1:1 문의', type: 'support',
-                x: 396.944, y: 1247.5,
+                x: 1100, y: 1050,
                 columns: [
-                    { name: 'inquiry_id', type: 'bigint', pk: true, note: '문의 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '문의 고유 ID' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
                     { name: 'title', type: 'varchar(200)', note: '문의 제목' },
                     { name: 'content', type: 'text', note: '문의 내용' },
@@ -617,17 +625,17 @@
             },
             {
                 id: 'reports', name: 'reports', label: '신고', type: 'support',
-                x: 2325.28, y: 1128.89,
+                x: 2000, y: 900,
                 columns: [
-                    { name: 'report_id', type: 'bigint', pk: true, note: '신고 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '신고 고유 ID' },
                     { name: 'reporter_id', type: 'bigint', fk: true, note: 'FK → users (신고자)' },
                     { name: 'target_type', type: 'varchar(10)', note: 'REVIEW/POST/COMMENT' },
                     { name: 'target_id', type: 'bigint', note: '신고 대상 ID' },
-                    { name: 'reason', type: 'report_reason', note: 'SPAM/ABUSE/INAPPROPRIATE/FALSE_INFO/OTHER' },
+                    { name: 'reason', type: 'varchar(50)', note: 'SPAM/ABUSE/INAPPROPRIATE/FALSE_INFO/OTHER' },
                     { name: 'description', type: 'varchar(500)', note: '상세 사유 (사용자 입력)' },
-                    { name: 'status', type: 'report_status', note: 'PENDING/RESOLVED/REJECTED' },
-                    { name: 'action', type: 'report_action', note: 'DELETE_CONTENT/WARN_USER/NONE' },
-                    { name: 'admin_note', type: 'varchar(500)', note: '관리자 답변 (하위호환)' },
+                    { name: 'status', type: 'varchar(20)', note: 'PENDING/RESOLVED/REJECTED' },
+                    { name: 'action', type: 'varchar(20)', note: 'DELETE_CONTENT/WARN_USER/NONE' },
+                    { name: 'admin_note', type: 'varchar(500)', note: '관리자 메모' },
                     { name: 'processed_at', type: 'timestamp', note: '처리 완료 일시' },
                     { name: 'created_at', type: 'timestamp', note: '신고 접수 일시' },
                 ],
@@ -635,9 +643,9 @@
             },
             {
                 id: 'report_responses', name: 'report_responses', label: '신고 처리 답변', type: 'support',
-                x: 2700, y: 1128.89,
+                x: 2500, y: 1000,
                 columns: [
-                    { name: 'id', type: 'bigserial', pk: true, note: '답변 고유 ID' },
+                    { name: 'id', type: 'bigint', pk: true, note: '답변 고유 ID' },
                     { name: 'report_id', type: 'bigint', fk: true, note: 'FK → reports (신고)' },
                     { name: 'admin_id', type: 'bigint', fk: true, note: 'FK → users (관리자, NULL 허용)' },
                     { name: 'action_type', type: 'varchar(20)', note: 'DISMISS / DELETE' },
@@ -648,7 +656,7 @@
             },
             {
                 id: 'notifications', name: 'notifications', label: '알림', type: 'support',
-                x: 2196.39, y: 1551.94,
+                x: 2000, y: 1300,
                 columns: [
                     { name: 'notification_id', type: 'bigint', pk: true, note: '알림 고유 ID' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (수신자)' },
@@ -662,7 +670,7 @@
             },
             {
                 id: 'fcm_tokens', name: 'fcm_tokens', label: 'FCM 토큰', type: 'support',
-                x: 874.722, y: 1603.33,
+                x: 1500, y: 1100,
                 columns: [
                     { name: 'token_id', type: 'bigint', pk: true, note: '토큰 고유 ID' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users' },
@@ -674,7 +682,7 @@
             },
             {
                 id: 'notification_settings', name: 'notification_settings', label: '알림 설정', type: 'support',
-                x: 1550.83, y: 1540.56,
+                x: 1500, y: 1400,
                 columns: [
                     { name: 'setting_id', type: 'bigint', pk: true, note: '설정 고유 ID' },
                     { name: 'user_id', type: 'bigint', fk: true, note: 'FK → users (UK)' },
@@ -688,18 +696,18 @@
                 footer: 'UK: (user_id)'
             },
             {
-                id: 'categories', name: 'categories', label: '카테고리', type: 'support',
-                x: 1856.94, y: 897.5,
+                id: 'refresh_tokens', name: 'refresh_tokens', label: '리프레시 토큰', type: 'support',
+                x: 1500, y: 150,
                 columns: [
-                    { name: 'category_id', type: 'bigint', pk: true, note: '카테고리 ID' },
-                    { name: 'name', type: 'varchar(50)', note: '카테고리명' },
-                    { name: 'color', type: 'varchar(10)', note: '태그 색상코드' },
-                    { name: 'sort_order', type: 'int', note: '정렬 순서' },
+                    { name: 'user_id', type: 'bigint', pk: true, note: 'PK & FK → users' },
+                    { name: 'token', type: 'varchar(500)', note: 'JWT 리프레시 토큰' },
+                    { name: 'expires_at', type: 'timestamp', note: '만료 일시 (+7일)' },
+                    { name: 'updated_at', type: 'timestamp', note: '갱신일' },
                 ]
             },
             {
                 id: 'batch_log', name: 'batch_log', label: '배치 로그', type: 'support',
-                x: 48.6111, y: 1514.44,
+                x: 1900, y: 1700,
                 columns: [
                     { name: 'id', type: 'bigserial', pk: true, note: '로그 고유 ID' },
                     { name: 'batch_id', type: 'varchar(10)', note: 'BAT-001 / BAT-002 / BAT-003' },
@@ -723,7 +731,7 @@
             },
             {
                 id: 'region_master', name: 'region_master', label: '지역 마스터', type: 'support',
-                x: 232.0, y: 151.0,
+                x: 40, y: 300,
                 columns: [
                     { name: 'region_code', type: 'varchar(20)', pk: true, note: 'PK: 지역 코드' },
                     { name: 'name', type: 'varchar(50)', note: '지역명 (시/도)' },
@@ -734,7 +742,7 @@
             },
             {
                 id: 'sigungu_master', name: 'sigungu_master', label: '시군구 마스터', type: 'support',
-                x: 232.0, y: 454.0,
+                x: 40, y: 550,
                 columns: [
                     { name: 'id', type: 'bigint', pk: true, note: 'PK: 고유 ID' },
                     { name: 'region_code', type: 'varchar(20)', fk: true, note: 'FK → region_master' },
@@ -747,7 +755,7 @@
             },
             {
                 id: 'category_master', name: 'category_master', label: '카테고리 마스터', type: 'support',
-                x: 232.0, y: 754.0,
+                x: 40, y: 800,
                 columns: [
                     { name: 'category_code', type: 'varchar(20)', pk: true, note: 'PK: 카테고리 코드' },
                     { name: 'name', type: 'varchar(50)', note: '카테고리명' },
@@ -756,30 +764,69 @@
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
                 ]
             },
+            {
+                id: 'inquiry_history', name: 'inquiry_history', label: '문의 이력 (보존)', type: 'support',
+                x: 1100, y: 1400,
+                columns: [
+                    { name: 'id', type: 'bigint', pk: true, note: '이력 고유 ID' },
+                    { name: 'original_id', type: 'bigint', note: '원본 문의 ID' },
+                    { name: 'user_id', type: 'bigint', note: '회원 ID (FK 없음)' },
+                    { name: 'title', type: 'varchar(200)', note: '문의 제목' },
+                    { name: 'content', type: 'text', note: '문의 내용' },
+                    { name: 'status', type: 'varchar(20)', note: '처리 상태' },
+                    { name: 'answer', type: 'text', note: '관리자 답변' },
+                    { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
+                    { name: 'answered_by', type: 'bigint', note: '답변 관리자 ID' },
+                    { name: 'created_at', type: 'timestamp', note: '원본 작성일' },
+                    { name: 'deleted_reason', type: 'varchar(30)', note: 'USER_HARD_DELETE' },
+                    { name: 'deleted_at', type: 'timestamp', note: '파기 일시' },
+                ]
+            },
+            {
+                id: 'report_history', name: 'report_history', label: '신고 이력 (보존)', type: 'support',
+                x: 2500, y: 1400,
+                columns: [
+                    { name: 'id', type: 'bigint', pk: true, note: '이력 고유 ID' },
+                    { name: 'original_id', type: 'bigint', note: '원본 신고 ID' },
+                    { name: 'reporter_id', type: 'bigint', note: '신고자 ID (FK 없음)' },
+                    { name: 'target_type', type: 'varchar(10)', note: '대상 유형' },
+                    { name: 'target_id', type: 'bigint', note: '대상 ID' },
+                    { name: 'reason', type: 'varchar(50)', note: '신고 사유' },
+                    { name: 'description', type: 'varchar(500)', note: '상세 사유' },
+                    { name: 'status', type: 'varchar(20)', note: '처리 상태' },
+                    { name: 'action', type: 'varchar(20)', note: '처리 조치' },
+                    { name: 'admin_note', type: 'varchar(500)', note: '관리자 메모' },
+                    { name: 'processed_at', type: 'timestamp', note: '처리 일시' },
+                    { name: 'created_at', type: 'timestamp', note: '원본 접수일' },
+                    { name: 'deleted_reason', type: 'varchar(30)', note: 'USER_HARD_DELETE' },
+                    { name: 'deleted_at', type: 'timestamp', note: '파기 일시' },
+                ]
+            },
         ];
 
         // ─── Relationships ───
         const relationships = [
             { from: 'users', to: 'reviews', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-            { from: 'festivals', to: 'reviews', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
-            { from: 'users', to: 'scraps', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-            { from: 'festivals', to: 'scraps', label: '1:N', fromCol: 'festival_id', toCol: 'festival_id' },
+            { from: 'festivals', to: 'reviews', label: '1:N', fromCol: 'id', toCol: 'festival_id' },
+            { from: 'users', to: 'favorites', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'festivals', to: 'favorites', label: '1:N', fromCol: 'id', toCol: 'festival_id' },
             { from: 'users', to: 'posts', label: '1:N', fromCol: 'user_id', toCol: 'author_id' },
             { from: 'users', to: 'comments', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-            { from: 'posts', to: 'comments', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
+            { from: 'posts', to: 'comments', label: '1:N', fromCol: 'id', toCol: 'post_id' },
             { from: 'comments', to: 'comments', label: '1:N (자기참조)', fromCol: 'comment_id', toCol: 'parent_id' },
             { from: 'users', to: 'post_likes', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
-            { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'post_id', toCol: 'post_id' },
-            { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'post_id', toCol: 'target_id' },
+            { from: 'posts', to: 'post_likes', label: '1:N', fromCol: 'id', toCol: 'post_id' },
+            { from: 'posts', to: 'attachments', label: '1:N (논리적)', fromCol: 'id', toCol: 'target_id' },
             { from: 'notices', to: 'attachments', label: '1:N (논리적)', fromCol: 'notice_id', toCol: 'target_id' },
-            { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'inquiry_id', toCol: 'target_id' },
+            { from: 'inquiries', to: 'attachments', label: '1:N (논리적)', fromCol: 'id', toCol: 'target_id' },
             { from: 'users', to: 'inquiries', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'reports', label: '1:N', fromCol: 'user_id', toCol: 'reporter_id' },
-            { from: 'reports', to: 'report_responses', label: '1:N', fromCol: 'report_id', toCol: 'report_id' },
+            { from: 'reports', to: 'report_responses', label: '1:N', fromCol: 'id', toCol: 'report_id' },
             { from: 'users', to: 'report_responses', label: '1:N', fromCol: 'user_id', toCol: 'admin_id' },
             { from: 'users', to: 'notifications', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'fcm_tokens', label: '1:N', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'notification_settings', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },
+            { from: 'users', to: 'refresh_tokens', label: '1:1', fromCol: 'user_id', toCol: 'user_id' },
             { from: 'users', to: 'batch_log', label: '1:N', fromCol: 'user_id', toCol: 'triggered_by' },
             { from: 'region_master', to: 'sigungu_master', label: '1:N', fromCol: 'region_code', toCol: 'region_code' },
             { from: 'region_master', to: 'festivals', label: '1:N (논리적)', fromCol: 'region_code', toCol: 'area_code' },
