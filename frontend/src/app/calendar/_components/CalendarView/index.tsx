@@ -23,7 +23,7 @@ export default function CalendarView() {
   } = useCalendarView();
 
   const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 7 }, (_, i) => currentYear - 3 + i);
+  const yearOptions = Array.from({ length: 5 }, (_, i) => currentYear - 3 + i);
 
   return (
     <div className={styles.calendarContainer}>

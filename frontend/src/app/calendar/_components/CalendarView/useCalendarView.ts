@@ -106,7 +106,11 @@ export default function useCalendarView(): UseCalendarViewReturn {
     }
   }, [month]);
 
+  const maxYear = today.getFullYear() + 1;
+
   const goToNextMonth = useCallback(() => {
+    // 미래 1년(maxYear) 12월을 넘지 않도록 제한
+    if (year === maxYear && month === 12) return;
     setSelectedDay(null);
     setSelectedFestivals([]);
     if (month === 12) {
@@ -115,7 +119,7 @@ export default function useCalendarView(): UseCalendarViewReturn {
     } else {
       setMonth((prev) => prev + 1);
     }
-  }, [month]);
+  }, [year, month, maxYear]);
 
   const selectDay = useCallback(
     (day: number) => {
