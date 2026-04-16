@@ -1,3 +1,7 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { useSearchParams } from 'next/navigation';
 import HeroBanner from './festivals/_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
 import FestivalList from './festivals/_components/FestivalList';
@@ -6,65 +10,66 @@ import styles from './page.module.css';
 import { Festival } from '@/types/festival';
 import NoticePopup from './notices/_components/NoticePopup';
 
-// 백엔드 API 호출 함수 (서버 컴포넌트 환경)
-async function getFestivals(status?: string, page: string = '1', keyword?: string, areaCode?: string, month?: string, sort?: string, lat?: string, lng?: string): Promise<{ list: Festival[], total: number, totalPages?: number, currentPage?: number }> {
-  try {
-    const params = new URLSearchParams();
-    if (status) params.append('status', status);
-    if (keyword) params.append('keyword', keyword);
-    if (areaCode) params.append('areaCode', areaCode);
-    if (month) params.append('month', month);
-    if (sort) params.append('sort', sort);
-    if (lat) params.append('lat', lat);
-    if (lng) params.append('lng', lng);
-    params.append('page', page);
-    params.append('size', '12');
-
-    const backendUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-    const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
-      cache: 'no-store' // SSR 환경이므로 항상 최신 데이터 가져오기
-    });
-
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.success) {
-        return data.data; // { list: [...], total: ... }
-      }
-    }
-  } catch (error) {
-    console.error('Festivals fetch error. Falling back to empty array.', error);
-  }
-
-  return { list: [], total: 0 };
+interface FestivalData {
+  list: Festival[];
+  total: number;
+  totalPages?: number;
+  currentPage?: number;
 }
 
-export default async function MainPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | undefined }>;
-}) {
-  // await searchParams (Next.js 15+ 방식 호환)
-  const resolvedParams = await searchParams;
-  const currentTab = resolvedParams.status || 'all';
-  const currentPageParams = resolvedParams.page || '1';
-  const currentKeyword = resolvedParams.keyword || '';
-  const currentAreaCode = resolvedParams.areaCode || '';
-  const currentMonth = resolvedParams.month || '';
-  const currentSort = resolvedParams.sort || '';
-  const currentLat = resolvedParams.lat || '';
-  const currentLng = resolvedParams.lng || '';
+export default function MainPage() {
+  const searchParams = useSearchParams();
 
-  const statusQuery = currentTab === 'all' ? '' : currentTab;
+  const currentTab = searchParams.get('status') || 'all';
+  const currentPageParam = searchParams.get('page') || '1';
+  const currentKeyword = searchParams.get('keyword') || '';
+  const currentAreaCode = searchParams.get('areaCode') || '';
+  const currentMonth = searchParams.get('month') || '';
+  const currentSort = searchParams.get('sort') || '';
+  const currentLat = searchParams.get('lat') || '';
+  const currentLng = searchParams.get('lng') || '';
 
-  const festivalData = await getFestivals(statusQuery, currentPageParams, currentKeyword || undefined, currentAreaCode || undefined, currentMonth || undefined, currentSort || undefined, currentLat || undefined, currentLng || undefined);
+  const [festivalData, setFestivalData] = useState<FestivalData>({ list: [], total: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchFestivals = async () => {
+      setLoading(true);
+      try {
+        const params = new URLSearchParams();
+        const statusQuery = currentTab === 'all' ? '' : currentTab;
+        if (statusQuery) params.append('status', statusQuery);
+        if (currentKeyword) params.append('keyword', currentKeyword);
+        if (currentAreaCode) params.append('areaCode', currentAreaCode);
+        if (currentMonth) params.append('month', currentMonth);
+        if (currentSort) params.append('sort', currentSort);
+        if (currentLat) params.append('lat', currentLat);
+        if (currentLng) params.append('lng', currentLng);
+        params.append('page', currentPageParam);
+        params.append('size', '12');
+
+        const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+        const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`);
+
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.success) {
+            setFestivalData(data.data);
+          }
+        }
+      } catch (error) {
+        console.error('Festivals fetch error:', error);
+        setFestivalData({ list: [], total: 0 });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchFestivals();
+  }, [currentTab, currentPageParam, currentKeyword, currentAreaCode, currentMonth, currentSort, currentLat, currentLng]);
 
   return (
     <main className={styles.mainContainer}>
-      {/* 
-        팀원이 공통 헤더를 개발할 예정이므로 자리를 비워두지만,
-        page Layout 측면에서 최상단 Nav는 /app/layout.tsx 에 들어갈 것입니다.
-      */}
-
       {/* 1. 메인 다이내믹 히어로 캐러셀 배너 */}
       <HeroBanner currentTab={currentTab} />
 
@@ -74,10 +79,16 @@ export default async function MainPage({
           <SearchFilter />
 
           {/* 3. 축제 목록 그리드 */}
-          <FestivalList festivals={festivalData.list} />
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '80px 0', color: '#94a3b8', fontSize: '15px' }}>
+              축제 정보를 불러오는 중입니다...
+            </div>
+          ) : (
+            <FestivalList festivals={festivalData.list} />
+          )}
 
           {/* 4. 페이지네이션 UI */}
-          {festivalData.totalPages && festivalData.totalPages > 1 && (
+          {!loading && festivalData.totalPages && festivalData.totalPages > 1 && (
             <Pagination
               currentPage={Number(festivalData.currentPage) || 1}
               totalPages={festivalData.totalPages}
@@ -86,8 +97,6 @@ export default async function MainPage({
         </div>
       </section>
 
-      {/* 팀원이 공통 푸터를 개발할 예정 */}
-      
       {/* 5. 팝업 공지사항 */}
       <NoticePopup />
     </main>
