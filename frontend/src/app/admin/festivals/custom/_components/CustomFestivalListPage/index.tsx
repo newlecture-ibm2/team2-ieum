@@ -5,6 +5,8 @@ import type { CustomFestivalItem, CustomFestivalListResult, ApiResponse } from '
 import adminApi from '@/lib/adminApi';
 import styles from './CustomFestivalListPage.module.css';
 import { FESTIVAL_STATUS } from '@/constants/filterOptions';
+import { useToast } from '@/_component/common/Toast';
+import { ConfirmModal } from '@/_component/common/Modal';
 
 function formatDate(dateStr: string): string {
   if (!dateStr) return '';
@@ -21,12 +23,14 @@ function getStatusLabel(status: string): string {
 }
 
 export default function CustomFestivalListPage() {
+  const { toast } = useToast();
   const [festivals, setFestivals] = useState<CustomFestivalItem[]>([]);
   const [keyword, setKeyword] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   // Form State
   const [showForm, setShowForm] = useState(false);
@@ -95,21 +99,28 @@ export default function CustomFestivalListPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (!confirm('자체 기획 축제를 완전히 삭제하시겠습니까?')) return;
+    setDeleteTargetId(id);
+  };
+
+  const executeDelete = async () => {
+    if (deleteTargetId === null) return;
     try {
-      const res = await adminApi.delete(`/festivals/custom/${id}`);
+      const res = await adminApi.delete(`/festivals/custom/${deleteTargetId}`);
       if (res.data.success) {
-        alert('삭제되었습니다.');
+        toast('삭제되었습니다.', 'success');
         fetchFestivals();
       }
     } catch (err) {
-      alert('삭제에 실패했습니다.');
+      toast('삭제에 실패했습니다.', 'error');
+    } finally {
+      setDeleteTargetId(null);
     }
   };
 
   const handleSubmit = async () => {
     if (!formData.title || !formData.startDate || !formData.endDate || !formData.areaLabel) {
-      return alert('필수 값(축제명, 지역, 날짜)을 입력해주세요.');
+      toast('필수 값(축제명, 지역, 날짜)을 입력해주세요.', 'warning');
+      return;
     }
     try {
       const data = new FormData();
@@ -135,12 +146,12 @@ export default function CustomFestivalListPage() {
       }
 
       if (res.data.success) {
-        alert(isEdit ? '수정되었습니다.' : '등록되었습니다.');
+        toast(isEdit ? '수정되었습니다.' : '등록되었습니다.', 'success');
         resetForm();
         fetchFestivals();
       }
     } catch (err) {
-      alert('저장에 실패했습니다.');
+      toast('저장에 실패했습니다.', 'error');
     }
   };
 
@@ -302,6 +313,19 @@ export default function CustomFestivalListPage() {
             <button className={styles.submitBtn} onClick={handleSubmit}>{editingId ? '수정 완료' : '등록 완료'}</button>
           </div>
         </section>
+      )}
+
+      {/* 삭제 확인 모달 */}
+      {deleteTargetId !== null && (
+        <ConfirmModal
+          title="축제 삭제"
+          message="자체 기획 축제를 완전히 삭제하시겠습니까?"
+          confirmText="삭제"
+          cancelText="취소"
+          danger={true}
+          onConfirm={executeDelete}
+          onCancel={() => setDeleteTargetId(null)}
+        />
       )}
     </div>
   );

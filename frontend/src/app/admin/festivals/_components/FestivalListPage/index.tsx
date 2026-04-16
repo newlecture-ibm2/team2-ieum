@@ -17,12 +17,35 @@ import s from './FestivalListPage.module.css';
 import AdminListSummary from '../AdminListSummary';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import Pagination from '@/_component/common/Pagination';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
   ongoing:  { label: '진행중',   badge: 'badgeOngoing' },
   upcoming: { label: '진행예정', badge: 'badgeUpcoming' },
   ended:    { label: '종료',     badge: 'badgeEnded' },
+};
+
+// ── 카테고리 뱃지 포맷팅 ──
+const renderCategoryBadge = (categoryLabel?: string) => {
+  if (!categoryLabel) return '-';
+  const parts = categoryLabel.split(' > ');
+  if (parts.length === 1) return <span title={categoryLabel}>{parts[0]}</span>;
+  
+  const parent = parts[0];
+  const child = parts[1];
+  const shortParent = parent.includes('행사') ? '공연' : parent.includes('축제') ? '축제' : '기타';
+
+  return (
+    <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }} title={categoryLabel}>
+      <span style={{ fontSize: '10px', padding: '2px 6px', background: '#e2e8f0', color: '#475569', borderRadius: '4px', fontWeight: 600, whiteSpace: 'nowrap' }}>
+        {shortParent}
+      </span>
+      <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', fontSize: '13px' }}>
+        {child}
+      </span>
+    </div>
+  );
 };
 
 
@@ -217,7 +240,64 @@ export default function FestivalListPage() {
       {/* ── 카드 그리드 ── */}
       <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 축제" />
-        <div className={s.cardGrid}>
+        <div className={c.desktopOnly}>
+        <table className={c.table}>
+          <colgroup>
+            <col className={s.festivalNameCol} />
+            <col className={s.categoryCol} />
+            <col className={s.regionCol} />
+            <col className={s.dateCol} />
+            <col className={s.statusCol} />
+            <col className={s.visibilityCol} />
+          </colgroup>
+          <thead>
+            <tr className={c.tableHeaderRow}>
+              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>축제명</th>
+              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>카테고리</th>
+              <th className={`${c.tableHeaderCell} ${c.textLeft}`}>지역</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>날짜</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>상태</th>
+              <th className={`${c.tableHeaderCell} ${c.textCenter}`}>관리 (노출/숨김)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {list.loading ? (
+              <tr><td colSpan={6} className={c.emptyRow}>로딩 중...</td></tr>
+            ) : festivals.length === 0 ? (
+              <tr><td colSpan={6} className={c.emptyRow}>검색 결과가 없습니다.</td></tr>
+            ) : (
+              festivals.map(festival => {
+                const { label, badge } = STATUS_MAP[festival.status] || STATUS_MAP.ended;
+                return (
+                  <tr key={festival.id} className={`${c.tableRow} ${c.tableRowHover} ${!festival.isVisible ? c.hiddenRow : ''}`}>
+                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary}`}>
+                      <div className={c.cellEllipsis}>{festival.title}</div>
+                    </td>
+                    <td className={`${c.tableCell} ${c.textLeft}`}>{renderCategoryBadge(festival.categoryLabel)}</td>
+                    <td className={`${c.tableCell} ${c.textLeft}`}>{festival.region}</td>
+                    <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(festival.startDate, festival.endDate)}</td>
+                    <td className={`${c.tableCell} ${c.textLeft}`}>
+                      <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
+                    </td>
+                    <td className={`${c.tableCell} ${c.textRight}`}>
+                      <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(festival.id, festival.isVisible)}>
+                        <span className={`${c.toggleLabel} ${festival.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
+                          {festival.isVisible ? '공개' : '숨김'}
+                        </span>
+                        <div className={`${c.toggleTrack} ${festival.isVisible ? c.toggleTrackOn : ''}`}>
+                          <div className={`${c.toggleThumb} ${festival.isVisible ? c.toggleThumbOn : ''}`} />
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                );
+              })
+            )}
+          </tbody>
+        </table>
+      </div>
+
+        <div className={`${s.cardGrid} ${c.mobileOnly}`}>
           {list.loading ? (
             <div className={s.loadingState}>로딩 중...</div>
           ) : festivals.length === 0 ? (
@@ -282,12 +362,12 @@ export default function FestivalListPage() {
           )}
         </div>
 
-        <div className={c.pagination}>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => Math.max(1, p - 10))}>« 10페이지 이전</button>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>
-          <span className={c.pageInfo}>{list.currentPage} / {list.totalPages} 페이지</span>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => Math.min(list.totalPages, p + 10))}>다음 10페이지 »</button>
+        <div style={{ marginTop: '20px' }}>
+          <Pagination 
+            currentPage={list.currentPage} 
+            totalPages={list.totalPages} 
+            onPageChange={list.setCurrentPage} 
+          />
         </div>
       </section>
 

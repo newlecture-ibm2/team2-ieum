@@ -521,11 +521,11 @@ public class DemoDataSeeder implements CommandLineRunner {
                 "PC에서 찜한 축제가 모바일에서 안 보입니다.", "PENDING", 2, null);
 
         // ANSWERED (3건)
-        insertInquiry("축제요정", "축제 일정 정보가 원래와 다릅니다",
+        insertInquiry("축제탐험가", "축제 일정 정보가 원래와 다릅니다",
                 "서울 벚꽃 축제 시작일이 실제와 다른 것 같습니다. 확인 부탁드립니다.",
                 "ANSWERED", 20,
                 "안녕하세요. 확인 후 수정 반영하였습니다. 이용해 주셔서 감사합니다.");
-        insertInquiry("양은지", "프로필 이미지 업로드 오류",
+        insertInquiry("은지트래블", "프로필 이미지 업로드 오류",
                 "프로필 사진을 변경하려고 하는데 업로드가 안 됩니다.",
                 "ANSWERED", 15,
                 "안녕하세요. 10MB 이하의 JPG/PNG 파일만 업로드 가능합니다. 파일 크기를 확인해 주세요.");

@@ -49,3 +49,27 @@
   pointer-events: none;
   background: #f3f4f6;
 }
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 480px) {
+  .paginationContainer {
+    gap: 4px;
+    margin-top: 32px;
+    margin-bottom: 16px;
+  }
+
+  .pageButton, .navButton {
+    min-width: 36px;
+    height: 36px;
+    font-size: 14px;
+    border-radius: 6px;
+  }
+
+  .navButton {
+    padding: 0 12px;
+  }
+  
+  .pageButton {
+    min-width: 36px;
+  }
+}

@@ -8,6 +8,7 @@ import styles from './Pagination.module.css';
 interface PaginationProps {
   currentPage: number;
   totalPages: number;
+  onPageChange?: (page: number) => void;
 }
 
 export default function Pagination(props: PaginationProps) {
@@ -18,7 +19,7 @@ export default function Pagination(props: PaginationProps) {
   );
 }
 
-function PaginationInner({ currentPage, totalPages }: PaginationProps) {
+function PaginationInner({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
@@ -28,6 +29,13 @@ function PaginationInner({ currentPage, totalPages }: PaginationProps) {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', Math.max(1, Math.min(pageNumber, totalPages)).toString());
     return `${pathname}?${params.toString()}`;
+  };
+
+  const handlePageClick = (e: React.MouseEvent, pageNumber: number) => {
+    if (onPageChange) {
+      e.preventDefault();
+      onPageChange(pageNumber);
+    }
   };
 
   // 한 화면에 최대 5개의 페이지 번호만 표시
@@ -42,31 +50,64 @@ function PaginationInner({ currentPage, totalPages }: PaginationProps) {
 
   return (
     <div className={styles.paginationContainer}>
-      <Link 
-        href={createPageUrl(currentPage - 1)} 
-        className={`${styles.navButton} ${currentPage === 1 ? styles.disabled : ''}`}
-        aria-disabled={currentPage === 1}
-      >
-        이전
-      </Link>
+      {onPageChange ? (
+        <button
+          type="button"
+          onClick={(e) => handlePageClick(e, currentPage - 1)}
+          className={`${styles.navButton} ${currentPage === 1 ? styles.disabled : ''}`}
+          disabled={currentPage === 1}
+        >
+          이전
+        </button>
+      ) : (
+        <Link 
+          href={createPageUrl(currentPage - 1)} 
+          className={`${styles.navButton} ${currentPage === 1 ? styles.disabled : ''}`}
+          aria-disabled={currentPage === 1}
+        >
+          이전
+        </Link>
+      )}
       
       {pages.map(p => (
-        <Link 
-          key={p} 
-          href={createPageUrl(p)}
-          className={`${styles.pageButton} ${currentPage === p ? styles.active : ''}`}
-        >
-          {p}
-        </Link>
+        onPageChange ? (
+          <button
+            key={p}
+            type="button"
+            onClick={(e) => handlePageClick(e, p)}
+            className={`${styles.pageButton} ${currentPage === p ? styles.active : ''}`}
+          >
+            {p}
+          </button>
+        ) : (
+          <Link 
+            key={p} 
+            href={createPageUrl(p)}
+            className={`${styles.pageButton} ${currentPage === p ? styles.active : ''}`}
+          >
+            {p}
+          </Link>
+        )
       ))}
 
-      <Link 
-        href={createPageUrl(currentPage + 1)} 
-        className={`${styles.navButton} ${currentPage === totalPages ? styles.disabled : ''}`}
-        aria-disabled={currentPage === totalPages}
-      >
-        다음
-      </Link>
+      {onPageChange ? (
+        <button
+          type="button"
+          onClick={(e) => handlePageClick(e, currentPage + 1)}
+          className={`${styles.navButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+          disabled={currentPage === totalPages}
+        >
+          다음
+        </button>
+      ) : (
+        <Link 
+          href={createPageUrl(currentPage + 1)} 
+          className={`${styles.navButton} ${currentPage === totalPages ? styles.disabled : ''}`}
+          aria-disabled={currentPage === totalPages}
+        >
+          다음
+        </Link>
+      )}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import s from './ReportListPage.module.css';
 import { REPORT_REASON_LABELS } from '@/constants/reportOptions';
 import { REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/statusLabels';
 import { TARGET_TYPE } from '@/constants/targetType';
+import Pagination from '@/_component/common/Pagination';
 
 /* ── 대상 타입 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
@@ -202,8 +203,88 @@ export default function ReportListPage() {
       </div>
 
       {/* ── 리스트 ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div className={common.listGrid}>
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '60px' }} />
+              <col style={{ width: '130px' }} />
+              <col style={{ width: '90px' }} />
+              <col style={{ width: '150px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '100px' }} />
+              <col style={{ width: '110px' }} />
+            </colgroup>
+            <thead>
+              <tr className={common.tableHeaderRow}>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고자</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>유형</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>신고 사유</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>상세 내용</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>신고 날짜</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {reports.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={common.emptyRow}>
+                    신고 내역이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                reports.map((report, idx) => (
+                  <tr
+                    key={report.id}
+                    className={`${common.tableRow} ${common.tableRowHover}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedReport(report)}
+                  >
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(currentPage - 1) * 10 + idx + 1}
+                    </td>
+                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
+                      {report.reporterNickname}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
+                        {TARGET_TYPE_MAP[report.targetType] || report.targetType}
+                      </span>
+                    </td>
+                    <td className={common.tableCell}>
+                      {REPORT_REASON_LABELS[report.reason] || report.reason}
+                    </td>
+                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                      {report.description || '-'}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {report.createdAt?.slice(0, 10)}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                        {REPORT_STATUS_LABELS[report.status]?.label || report.status}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <button
+                        className={report.status === REPORT_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
+                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                      >
+                        {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
           {loading ? (
             <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
           ) : reports.length === 0 ? (
@@ -256,25 +337,15 @@ export default function ReportListPage() {
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedReport && (

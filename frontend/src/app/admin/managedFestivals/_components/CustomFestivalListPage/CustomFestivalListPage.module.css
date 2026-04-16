@@ -410,3 +410,59 @@
   cursor: pointer;
   white-space: nowrap;
 }
+
+/* ── 반응형 상단 필터 조합 ── */
+.filterRowWrap {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap; /* 데스크톱에서는 자연스러운 래핑 허용 */
+}
+
+.filterCheckboxLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  margin-left: auto;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .filterRowWrap {
+    width: 100%;
+    flex-wrap: nowrap; /* 모바일에서는 줄바꿈 방지하고 가로로 유지 */
+  }
+
+  .filterSelectHalf {
+    flex: 1 1 0% !important; /* width 자동 계산 */
+  }
+
+  .filterCheckboxLabel {
+    margin-left: 0; /* flex-wrap nowrap이므로 시작점 근처 배치 혹은 끝쪽 */
+  }
+}
+
+/* ── 반응형 날짜/시간 기간 입력 ── */
+.formDateRange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+}
+
+.dateSeparator {
+  color: #94a3b8;
+}
+
+@media (max-width: 480px) {
+  .formDateRange {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .dateSeparator {
+    display: none;
+  }
+}
