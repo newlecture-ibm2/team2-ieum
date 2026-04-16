@@ -158,19 +158,21 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  color: white;
+  color: var(--color-primary-600);
   font-size: 13px;
   font-weight: 600;
-  background: rgba(0,0,0,0.4);
-  backdrop-filter: blur(8px);
+  background: white;
   padding: 8px 16px;
   border-radius: var(--radius-full);
-  border: 1px solid rgba(255,255,255,0.2);
-  transition: background 0.2s;
+  border: 1px solid rgba(255,255,255,0.9);
+  transition: all 0.2s;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
 }
 
 .mapBtn:hover {
-  background: rgba(0,0,0,0.6);
+  background: var(--color-primary-50);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
 /* Dots */
