@@ -40,7 +40,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .orElseThrow(() -> new IllegalArgumentException("가입된 유저를 찾을 수 없습니다. (ID: " + loginId + ")"));
 
         // 토큰 발급 (userId(Long) 기반으로 전환)
-        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole().name());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
         // Refresh Token DB 저장

@@ -7,6 +7,7 @@ import { User, Phone, Lock, Eye, EyeOff, HelpCircle } from 'lucide-react';
 import axios from 'axios';
 import styles from '../register.module.css';
 import { useToast } from '@/_component/common/Toast';
+import { API_STATUS, API_ENDPOINTS } from '@/constants/api';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -146,7 +147,7 @@ export default function RegisterForm() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('/api/auth/signup', {
+      const response = await axios.post(API_ENDPOINTS.AUTH.SIGNUP, {
         id,
         password,
         nickname,
@@ -156,7 +157,7 @@ export default function RegisterForm() {
         securityAnswer
       });
 
-      if (response.data.status === 'SUCCESS') {
+      if (response.data.status === API_STATUS.SUCCESS) {
         toast('회원가입이 성공적으로 완료되었습니다.', 'success');
         router.push('/login');
       } else {

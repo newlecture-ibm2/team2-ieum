@@ -7,6 +7,7 @@ import com.ieum.user.auth.application.port.in.AuthUseCase;
 import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
+import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
 import com.ieum.global.common.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +40,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
 
         // 🛡️ 탈퇴 유예 정책 체크
         String successMessage = null;
-        if (UserStatus.WITHDRAWAL.name().equals(user.getStatus())) {
+        if (user.getStatus() == UserStatus.WITHDRAWAL) {
             if (user.isWithdrawalExpired()) {
                 throw new BadCredentialsException("존재하지 않는 아이디입니다.");
             }
@@ -53,7 +54,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
             throw new BadCredentialsException("비밀번호가 일치하지 않습니다.");
         }
 
-        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String accessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole().name());
         String refreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
         saveUserPort.saveRefreshToken(user.getUserId(), refreshToken);
@@ -106,11 +107,11 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .name(realName)
                 .nickname(request.getNickname())
                 .phone(normalizedPhone)
-                .role("USER")
+                .role(Role.USER)
                 .termsAgreed(request.isTermsAgreed())
                 .securityQuestion(request.getSecurityQuestion())
                 .securityAnswer(request.getSecurityAnswer())
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .build();
 
         saveUserPort.saveUser(newUser);
@@ -140,7 +141,7 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
             throw new IllegalArgumentException("DB에 존재하지 않거나 일치하지 않는 Refresh Token입니다.");
         }
 
-        String newAccessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole());
+        String newAccessToken = jwtProvider.generateAccessToken(user.getUserId(), user.getNickname(), user.getRole().name());
         String newRefreshToken = jwtProvider.generateRefreshToken(user.getUserId());
 
         saveUserPort.saveRefreshToken(user.getUserId(), newRefreshToken);
@@ -247,9 +248,9 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                         .isLoggedIn(true)
                         .user(AuthRes.UserInfoDto.builder()
                                 .nickname(user.getNickname())
-                                .role(user.getRole())
+                                .role(user.getRole().name())
                                 .profileImage(user.getProfileImage())
-                                .status(user.getStatus())
+                                .status(user.getStatus().name())
                                 .build())
                         .build())
                 .orElseGet(() -> AuthRes.SessionDto.builder()
