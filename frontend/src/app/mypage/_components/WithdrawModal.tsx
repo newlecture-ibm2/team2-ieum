@@ -75,7 +75,7 @@ export default function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
       // ✅ 탈퇴 후 로그아웃 처리 (iron-session 정리)
       await fetch("/api/auth/logout", { method: "POST" });
 
-      setAlertMsg('그동안 이음을 이용해주셔서 감사합니다.\n소중한 의견을 바탕으로 더 나은 서비스가 되도록 노력하겠습니다.');
+      setAlertMsg('탈퇴가 되었습니다.\n그동안 이음을 이용해주셔서 감사합니다.\n\n📌 30일 이내에 다시 로그인하시면\n계정이 자동으로 복구됩니다.\n30일이 지나면 모든 데이터가\n영구 삭제되오니 참고해 주세요.');
     } catch (error: any) {
       console.error('Withdrawal failed:', error);
       const errorMsg = error.response?.data?.message || '탈퇴 처리 중 오류가 발생했습니다.\n비밀번호를 다시 확인해 주세요.';
@@ -90,8 +90,8 @@ export default function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
     const msg = alertMsg;
     setAlertMsg(null);
     // 탈퇴 성공 메시지인 경우 메인으로 이동
-    if (msg?.includes('감사합니다')) {
-      window.location.href = '/';
+    if (msg?.includes('탈퇴가 되었습니다')) {
+      window.location.href = '/login';
     }
   };
 
@@ -122,7 +122,11 @@ export default function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
 
         return (
           <div className={styles.modalOverlay}>
-            <div className={styles.modal} onClick={(e) => e.stopPropagation()}>
+            <div
+              className={styles.modal}
+              onClick={isLastStep ? handleWithdraw : (e) => e.stopPropagation()}
+              style={isLastStep ? { cursor: 'pointer' } : undefined}
+            >
               <div className={styles.confirmStepWrapper}>
                 <div className={styles.confirmEmoji} key={step}>{currentStep.emoji}</div>
                 <p className={styles.confirmMessage} key={`msg-${step}`}>{currentStep.message}</p>
@@ -131,7 +135,7 @@ export default function WithdrawModal({ isOpen, onClose }: WithdrawModalProps) {
                 {isLastStep ? (
                   <button
                     className={styles.cancelBtn}
-                    onClick={handleClose}
+                    onClick={(e) => { e.stopPropagation(); handleClose(); }}
                     style={{ flex: 1 }}
                   >
                     구라얌😜
