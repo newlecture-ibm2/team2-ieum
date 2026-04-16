@@ -753,6 +753,8 @@
   font-size: 13px;
   font-weight: 500;
   transition: color 0.2s;
+  white-space: nowrap;
+  word-break: keep-all;
 }
 
 .toggleLabelOn {

@@ -262,10 +262,10 @@ export default function CustomFestivalListPage() {
         <table className={c.table} style={{ tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: 'auto' }} />
-            <col style={{ width: '100px' }} />
+            <col style={{ width: '130px' }} />
             <col style={{ width: '80px' }} />
-            <col style={{ width: '150px' }} />
-            <col style={{ width: '70px' }} />
+            <col style={{ width: '190px' }} />
+            <col style={{ width: '80px' }} />
             <col style={{ width: '140px' }} />
           </colgroup>
           <thead>
