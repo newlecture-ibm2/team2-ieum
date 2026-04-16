@@ -39,7 +39,11 @@ export default function FestivalHero({
 
       <div className={styles.topNav}>
         <div className={styles.topNavInner}>
-          <button className={styles.backButton} onClick={() => router.push('/')} aria-label="뒤로가기">
+          <button 
+            className={styles.backButton} 
+            onClick={() => router.push(status === 'ENDED' ? '/pastFestivals' : '/')} 
+            aria-label="뒤로가기"
+          >
             <ArrowLeft size={18} />
             <span>목록으로</span>
           </button>
