@@ -1,5 +1,6 @@
 package com.ieum.user.mypage.application.service;
 
+import com.ieum.global.security.JwtProvider;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
 import com.ieum.user.auth.domain.User;
@@ -34,6 +35,7 @@ public class MyPageService implements MyPageUseCase {
     private final LoadMyActivityPort loadMyActivityPort;
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
+    private final JwtProvider jwtProvider;
 
     private static final String UPLOAD_DIR = "uploads" + File.separator + "profile" + File.separator;
 
@@ -61,14 +63,17 @@ public class MyPageService implements MyPageUseCase {
         User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        String newNickname = user.getNickname();
+        String oldNickname = user.getNickname();
+        String newNickname = oldNickname;
+        boolean nicknameChanged = false;
 
         // 1. 닉네임 변경 및 중복 체크
-        if (request != null && request.getNickname() != null && !request.getNickname().equals(user.getNickname())) {
+        if (request != null && request.getNickname() != null && !request.getNickname().equals(oldNickname)) {
             if (loadUserPort.existsByNickname(request.getNickname())) {
                 throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
             }
             newNickname = request.getNickname();
+            nicknameChanged = true;
         }
 
         // 2. 사용자 정보 갱신 (이미지는 이미지 전용 API에서 처리함)
@@ -78,7 +83,21 @@ public class MyPageService implements MyPageUseCase {
 
         saveUserPort.saveUser(updatedUser);
 
-        return new ProfileUpdateResult(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        // 3. 닉네임이 실제로 변경된 경우에만 새 JWT 토큰을 발급합니다.
+        String newToken = null;
+        if (nicknameChanged) {
+            newToken = jwtProvider.generateAccessToken(
+                    updatedUser.getUserId(),
+                    updatedUser.getNickname(),
+                    updatedUser.getRole().name()
+            );
+        }
+
+        return ProfileUpdateResult.builder()
+                .updatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .newToken(newToken)
+                .nickname(nicknameChanged ? newNickname : null)
+                .build();
     }
 
     @Override
@@ -118,7 +137,9 @@ public class MyPageService implements MyPageUseCase {
 
         saveUserPort.saveUser(updatedUser);
 
-        return new ProfileUpdateResult(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+        return ProfileUpdateResult.builder()
+                .updatedAt(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))
+                .build();
     }
 
     /**
