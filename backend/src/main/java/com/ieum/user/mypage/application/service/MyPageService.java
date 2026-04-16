@@ -78,6 +78,11 @@ public class MyPageService implements MyPageUseCase {
 
         // 1. 닉네임 변경 및 중복 체크
         if (request != null && request.getNickname() != null && !request.getNickname().equals(oldNickname)) {
+            // 🚫 공백 차단
+            if (request.getNickname().contains(" ")) {
+                throw new IllegalArgumentException("닉네임에 공백을 포함할 수 없습니다.");
+            }
+            // 🚫 중복 체크
             if (loadUserPort.existsByNickname(request.getNickname())) {
                 throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
             }
