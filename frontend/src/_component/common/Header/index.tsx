@@ -29,7 +29,7 @@ export default function Header({ forceRender = false }: { forceRender?: boolean 
   const {
     isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
     isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
-    closePopup, logout, devRefreshFestivals, isDarkHeroPage
+    closePopup, logout, isDarkHeroPage
   } = useHeader();
 
   // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
@@ -79,16 +79,7 @@ export default function Header({ forceRender = false }: { forceRender?: boolean 
 
         {/* ③④ 우측 액션 영역 */}
         <div className={styles.actions}>
-          {/* ⚙️ [DEV] 축제 상태 최신화 버튼 — 개발 완료 후 제거 */}
-          <button
-            className={styles.devRefreshBtn}
-            onClick={devRefreshFestivals}
-            title="[DEV] 축제 status DB 일괄 갱신"
-          >
-            🔄 상태 최신화
-          </button>
-
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+        {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
           {isLoggedIn && (
             <div className={styles.bellWrapper}>
               <button
@@ -174,31 +165,33 @@ export default function Header({ forceRender = false }: { forceRender?: boolean 
 
       </header>
 
-      {/* ⑧ 모바일 하단 플로팅 네비게이션 바 (Mobile Exclusive) */}
-      <nav className={styles.mBottomNav}>
-        <div className={styles.mBottomNavInner}>
-          <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
-            <Home size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>홈</span>
-          </Link>
-          <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
-            <History size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>지난축제</span>
-          </Link>
-          <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
-            <CalendarDays size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>달력</span>
-          </Link>
-          <Link href="/community" className={`${styles.mBottomNavItem} ${pathname.startsWith('/community') ? styles.mBottomNavActive : ''}`}>
-            <MessageCircle size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>커뮤니티</span>
-          </Link>
-          <Link href="/notices" className={`${styles.mBottomNavItem} ${pathname.startsWith('/notices') ? styles.mBottomNavActive : ''}`}>
-            <Megaphone size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>공지</span>
-          </Link>
-        </div>
-      </nav>
+      {/* ⑧ 모바일 하단 플로팅 네비게이션 바 (Mobile Exclusive) - 사용자 페이지 전용 */}
+      {!pathname.startsWith('/admin') && (
+        <nav className={styles.mBottomNav}>
+          <div className={styles.mBottomNavInner}>
+            <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
+              <Home size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>홈</span>
+            </Link>
+            <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
+              <History size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>지난축제</span>
+            </Link>
+            <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
+              <CalendarDays size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>달력</span>
+            </Link>
+            <Link href="/community" className={`${styles.mBottomNavItem} ${pathname.startsWith('/community') ? styles.mBottomNavActive : ''}`}>
+              <MessageCircle size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>커뮤니티</span>
+            </Link>
+            <Link href="/notices" className={`${styles.mBottomNavItem} ${pathname.startsWith('/notices') ? styles.mBottomNavActive : ''}`}>
+              <Megaphone size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>공지</span>
+            </Link>
+          </div>
+        </nav>
+      )}
     </>
   );
 }

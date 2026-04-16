@@ -389,6 +389,114 @@
   cursor: not-allowed;
 }
 
+/* 리뷰 수정 버튼 */
+.editReviewBtn {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.2s;
+}
+
+.editReviewBtn:hover {
+  background-color: #eef2ff;
+}
+
+/* 리뷰 인라인 수정 폼 */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.editHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.editStars {
+  display: flex;
+  gap: 2px;
+}
+
+.editTextarea {
+  width: 100%;
+  min-height: 70px;
+  padding: 10px 12px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  line-height: 1.6;
+  resize: vertical;
+  outline: none;
+  background: #fff;
+  transition: border-color 0.2s;
+}
+
+.editTextarea:focus {
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.08);
+}
+
+.editActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.editCharCount {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.editCancelBtn {
+  padding: 6px 14px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editCancelBtn:hover {
+  background: #f1f5f9;
+}
+
+.editSaveBtn {
+  padding: 6px 14px;
+  border: none;
+  background: #6366f1;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.editSaveBtn:hover {
+  background: #4f46e5;
+}
+
+.editSaveBtn:disabled,
+.editCancelBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 /* ===== 반응형: 768px 이하 ===== */
 @media (max-width: 768px) {
   .section {

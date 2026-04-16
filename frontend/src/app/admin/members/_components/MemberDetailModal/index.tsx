@@ -6,11 +6,13 @@ import s from './MemberDetailModal.module.css';
 import adminApi from '@/lib/adminApi';
 import type { MemberItem } from '@/types/admin-member';
 import { USER_STATUS, USER_ROLE } from '@/constants/userStatus';
+import { useToast } from '@/_component/common/Toast';
 
 /* ── 상태 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
   [USER_STATUS.ACTIVE]:    { label: '정상 회원', className: 'badgeOngoing' },
   [USER_STATUS.SUSPENDED]: { label: '정지 회원', className: 'badgePending' },
+  [USER_STATUS.WITHDRAWAL]: { label: '탈퇴 유예', className: 'badgeEnded' },
   [USER_STATUS.DELETED]:   { label: '탈퇴 대기', className: 'badgeEnded' },
 };
 
@@ -37,6 +39,7 @@ interface Props {
 type ConfirmActionType = 'SUSPENDED' | 'ACTIVE' | 'DELETE' | 'DELETE_FINAL' | 'ROLE_USER' | 'ROLE_ADMIN' | null;
 
 export default function MemberDetailModal({ member, onClose, onStatusChanged }: Props) {
+  const { toast } = useToast();
   const [processing, setProcessing] = useState(false);
   const [confirmAction, setConfirmAction] = useState<ConfirmActionType>(null);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
@@ -73,7 +76,7 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
   /* ── 보호 대상 클릭 시 알림 ── */
   const handleProtectedClick = () => {
     const reason = getBlockReasonMessage();
-    if (reason) alert(reason);
+    if (reason) toast(reason, 'warning');
   };
 
   /* ── 정지 해제 남은 일수 계산 ── */
@@ -93,14 +96,14 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
     try {
       const res = await adminApi.patch(`/members/${member.userId}/status`, { status: newStatus });
       if (res.data?.success === false) {
-        alert(res.data?.error?.message || '상태 변경에 실패했습니다.');
+        toast(res.data?.error?.message || '상태 변경에 실패했습니다.', 'error');
         return;
       }
       onStatusChanged();
     } catch (err: any) {
       const errMsg = err?.response?.data?.error?.message || '상태 변경에 실패했습니다.';
       console.error('상태 변경 실패:', err);
-      alert(errMsg);
+      toast(errMsg, 'error');
     } finally {
       setProcessing(false);
       setConfirmAction(null);
@@ -113,14 +116,14 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
     try {
       const res = await adminApi.delete(`/members/${member.userId}`);
       if (res.data?.success === false) {
-        alert(res.data?.error?.message || '강제 탈퇴에 실패했습니다.');
+        toast(res.data?.error?.message || '강제 탈퇴에 실패했습니다.', 'error');
         return;
       }
       onStatusChanged();
     } catch (err: any) {
       const errMsg = err?.response?.data?.error?.message || '강제 탈퇴에 실패했습니다.';
       console.error('강제 탈퇴 실패:', err);
-      alert(errMsg);
+      toast(errMsg, 'error');
     } finally {
       setProcessing(false);
       setConfirmAction(null);
@@ -133,14 +136,14 @@ export default function MemberDetailModal({ member, onClose, onStatusChanged }: 
     try {
       const res = await adminApi.patch(`/members/${member.userId}/role`, { role: newRole });
       if (res.data?.success === false) {
-        alert(res.data?.error?.message || '역할 변경에 실패했습니다.');
+        toast(res.data?.error?.message || '역할 변경에 실패했습니다.', 'error');
         return;
       }
       onStatusChanged();
     } catch (err: any) {
       const errMsg = err?.response?.data?.error?.message || '역할 변경에 실패했습니다.';
       console.error('역할 변경 실패:', err);
-      alert(errMsg);
+      toast(errMsg, 'error');
     } finally {
       setProcessing(false);
       setConfirmAction(null);

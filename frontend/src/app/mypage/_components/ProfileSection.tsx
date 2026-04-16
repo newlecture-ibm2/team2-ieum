@@ -4,6 +4,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 
 interface ProfileSectionProps {
   user: {
@@ -14,6 +15,7 @@ interface ProfileSectionProps {
 }
 
 export default function ProfileSection({ user }: ProfileSectionProps) {
+  const { toast } = useToast();
   const [nickname, setNickname] = useState(user.nickname);
   const [isNicknameChecked, setIsNicknameChecked] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -67,12 +69,12 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
 
   const handleSaveProfile = async () => {
     if (nickname.length < 2 || nickname.length > 8) {
-      alert('닉네임은 2자 이상 8자 이하로 입력 가능합니다.');
+      toast('닉네임은 2자 이상 8자 이하로 입력 가능합니다.', 'warning');
       return;
     }
 
     if (!isNicknameChecked) {
-      alert('닉네임 중복 확인이 필요합니다.');
+      toast('닉네임 중복 확인이 필요합니다.', 'warning');
       return;
     }
 
@@ -88,11 +90,11 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
       // 닉네임 업데이트 (JSON 전송으로 단순화하여 안정성 확보)
       await api.put('/api/mypage', { nickname });
 
-      alert('프로필 정보가 성공적으로 반영되었습니다.');
+      toast('프로필 정보가 성공적으로 반영되었습니다.', 'success');
       window.location.reload();
     } catch (error) {
       console.error('Failed to save profile:', error);
-      alert('프로필 저장 중 오류가 발생했습니다.');
+      toast('프로필 저장 중 오류가 발생했습니다.', 'error');
     } finally {
       setIsSaving(false);
     }

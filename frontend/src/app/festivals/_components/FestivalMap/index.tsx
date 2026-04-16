@@ -8,6 +8,7 @@ import {
   CustomOverlayMap,
   useKakaoLoader,
 } from "react-kakao-maps-sdk";
+import { useToast } from '@/_component/common/Toast';
 import styles from "./FestivalMap.module.css";
 
 // ===== 타입 정의 =====
@@ -44,6 +45,7 @@ type IntroPhase = "warp" | "fadeout" | "done";
 const CUSTOM_MARKER_IMAGE = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 36' width='28' height='42'%3E%3Cpath d='M12 0C5.373 0 0 5.373 0 12c0 8.01 10.155 22.378 11.162 23.774a1.025 1.025 0 0 0 1.676 0C13.845 34.378 24 20.01 24 12c0-6.627-5.373-12-12-12z' fill='%236c4ff5'/%3E%3Cpath d='M12 6.5l1.5 3.5 4 .5-3 2.5 1 4-3.5-2-3.5 2 1-4-3-2.5 4-.5z' fill='%23ffffff'/%3E%3C/svg%3E";
 
 export default function FestivalMap() {
+  const { toast } = useToast();
   // ===== 카카오맵 SDK 로드 =====
   const [loading, error] = useKakaoLoader({
     appkey: process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY as string,
@@ -277,7 +279,7 @@ export default function FestivalMap() {
   // ===== GPS 현위치 =====
   const handleMyLocation = () => {
     if (!navigator.geolocation) {
-      alert("이 브라우저에서는 현위치(GPS) 기능을 지원하지 않습니다.");
+      toast("이 브라우저에서는 현위치(GPS) 기능을 지원하지 않습니다.", 'warning');
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -289,7 +291,7 @@ export default function FestivalMap() {
         setLevel(5);
       },
       () => {
-        alert("위치 정보 이용 동의를 확인해주세요.");
+        toast("위치 정보 이용 동의를 확인해주세요.", 'warning');
       }
     );
   };

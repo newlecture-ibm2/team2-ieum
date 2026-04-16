@@ -3,8 +3,10 @@
 import React, { useState } from 'react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 
 export default function NotificationSection() {
+  const { toast } = useToast();
   // 알림 상태 (설계서 v2.0 규격 반영)
   const [notifications, setNotifications] = useState({
     pushEnabled: true,
@@ -38,7 +40,7 @@ export default function NotificationSection() {
           await api.post('/api/users/me/fcm-token', { token });
         } else {
           // 권한 거부 시 원상복구 및 안내
-          alert('알림 권한이 차단되었습니다. 브라우저 설정에서 알림을 허용해주세요.');
+          toast('알림 권한이 차단되었습니다. 브라우저 설정에서 알림을 허용해주세요.', 'warning');
           setNotifications(prevNotifications);
           return;
         }
@@ -54,7 +56,7 @@ export default function NotificationSection() {
       console.error('알림 설정 변경 실패:', error);
       // 에러 발생 시 UI 롤백
       setNotifications(prevNotifications);
-      alert('설정 변경 중 오류가 발생했습니다.');
+      toast('설정 변경 중 오류가 발생했습니다.', 'error');
     }
   };
 

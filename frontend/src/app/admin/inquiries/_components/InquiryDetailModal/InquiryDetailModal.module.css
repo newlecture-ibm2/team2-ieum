@@ -231,32 +231,56 @@
 
 /* ── 모바일 반응형 ── */
 @media (max-width: 640px) {
+  .headerArea {
+    margin-bottom: 20px;
+  }
+
   .mainTitle {
-    font-size: 16px;
+    font-size: 17px;
+    line-height: 1.5;
   }
 
   .titleRow {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 
   .statusBadge {
-    font-size: 11px;
+    font-size: 12px;
     padding: 4px 10px;
   }
 
-  .questionBubble,
-  .answerBubble {
-    padding: 14px;
-  }
-
-  .responseTextarea {
-    min-height: 90px;
-    padding: 12px;
+  .metaWrap {
+    margin-top: 16px;
+    justify-content: flex-start;
   }
 
   .metaRowBox {
     flex-wrap: wrap;
     font-size: 12px;
+    gap: 6px;
+    line-height: 1.5;
+  }
+
+  .questionBubble,
+  .answerBubble {
+    padding: 16px;
+    margin-bottom: 24px;
+  }
+
+  .questionTextScroll,
+  .answerContent {
+    line-height: 1.7;
+    font-size: 14px;
+  }
+
+  .answerSectionTitle {
+    margin-top: 16px;
+    margin-bottom: 12px;
+  }
+
+  .responseTextarea {
+    min-height: 100px;
+    padding: 14px;
   }
 }

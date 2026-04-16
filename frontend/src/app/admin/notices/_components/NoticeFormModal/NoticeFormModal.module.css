@@ -205,10 +205,10 @@
 
 /* ── 옵션 토글 ── */
 .optionRow {
-  display: flex;
-  gap: 16px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 12px;
   padding: 12px 0 4px;
-  flex-wrap: wrap;
 }
 
 .toggleWrap {

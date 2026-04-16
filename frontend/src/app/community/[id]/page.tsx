@@ -83,6 +83,7 @@ export default function CommunityDetailPage() {
   // 댓글 수정 관련 상태
   const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [deleteCommentId, setDeleteCommentId] = useState<number | null>(null);
 
 
   // 로그인 상태 확인 및 신고 여부 확인
@@ -197,15 +198,21 @@ export default function CommunityDetailPage() {
   };
 
   // 댓글/대댓글 삭제
-  const handleDeleteComment = async (commentId: number) => {
-    if (!confirm('정말 삭제하시겠습니까?')) return;
+  const handleDeleteComment = (commentId: number) => {
+    setDeleteCommentId(commentId);
+  };
+
+  const executeDeleteComment = async () => {
+    if (deleteCommentId === null) return;
     try {
-      await api.delete(`/api/community/comments/${commentId}`);
+      await api.delete(`/api/community/comments/${deleteCommentId}`);
       toast('삭제되었습니다.', 'success');
       fetchDetail(true, 'comments');
     } catch (err: unknown) {
       const errorObj = err as { response?: { data?: { message?: string } } };
       toast(errorObj?.response?.data?.message || '삭제에 실패했습니다.', 'error');
+    } finally {
+      setDeleteCommentId(null);
     }
   };
 
@@ -731,6 +738,17 @@ export default function CommunityDetailPage() {
           confirmText="로그인"
           onConfirm={() => router.push('/login')}
           onCancel={() => setShowLoginModal(false)}
+        />
+      )}
+
+      {/* 댓글 삭제 확인 모달 */}
+      {deleteCommentId !== null && (
+        <ConfirmModal
+          message="정말 삭제하시겠습니까?"
+          confirmText="삭제"
+          danger={true}
+          onConfirm={executeDeleteComment}
+          onCancel={() => setDeleteCommentId(null)}
         />
       )}
 
