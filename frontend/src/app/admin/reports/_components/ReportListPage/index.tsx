@@ -10,6 +10,7 @@ import s from './ReportListPage.module.css';
 import { REPORT_REASON_LABELS } from '@/constants/reportOptions';
 import { REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/statusLabels';
 import { TARGET_TYPE } from '@/constants/targetType';
+import Pagination from '@/_component/common/Pagination';
 
 /* ── 대상 타입 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
@@ -201,14 +202,10 @@ export default function ReportListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+      {/* ── 리스트 ── */}
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
               <col style={{ width: '130px' }} />
@@ -285,29 +282,70 @@ export default function ReportListPage() {
               )}
             </tbody>
           </table>
-        )}
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : reports.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>신고 내역이 없습니다.</div>
+          ) : (
+            reports.map((report) => (
+              <div 
+                key={report.id} 
+                className={common.listCard}
+                onClick={() => setSelectedReport(report)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
+                      {TARGET_TYPE_MAP[report.targetType] || report.targetType}
+                    </span>
+                    <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                      {REPORT_STATUS_LABELS[report.status]?.label || report.status}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {report.createdAt?.slice(0, 10)}
+                  </span>
+                </div>
+
+                <div className={common.listCardTitle}>
+                  [{REPORT_REASON_LABELS[report.reason] || report.reason}] {report.description || '상세 내용 없음'}
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>👤</span>
+                    <span className={common.listCardValue}>신고자: {report.reporterNickname}</span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={`${common.listCardActionBtn} ${report.status === REPORT_STATUS.PENDING ? '' : 'danger'}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                  >
+                    {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedReport && (

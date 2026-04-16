@@ -8,6 +8,7 @@ import type { MemberItem, MemberListResponse } from '@/types/admin-member';
 import MemberDetailModal from '../MemberDetailModal';
 import s from './MemberListPage.module.css';
 import { USER_STATUS, USER_ROLE } from '@/constants/userStatus';
+import Pagination from '@/_component/common/Pagination';
 
 /* ── 상태 배지 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -24,9 +25,9 @@ const ROLE_MAP: Record<string, string> = {
 
 /* ── 가입 방식(provider) 표시 매핑 ── */
 const PROVIDER_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  KAKAO:  { label: '카카오 가입', color: '#3B1C0C', bg: '#FEE500' },
-  NAVER:  { label: '네이버 가입', color: '#fff',    bg: '#03C75A' },
-  GOOGLE: { label: '구글 가입',   color: '#fff',    bg: '#4285F4' },
+  KAKAO:  { label: '카카오', color: '#3B1C0C', bg: '#FEE500' },
+  NAVER:  { label: '네이버', color: '#fff',    bg: '#03C75A' },
+  GOOGLE: { label: '구글',   color: '#fff',    bg: '#4285F4' },
 };
 
 /** provider별 리스트 아이디 컬럼 표시 */
@@ -279,23 +280,56 @@ export default function MemberListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
+      {/* ── 리스트 ── */}
+      <section className={common.card}>
+        <div className={common.mobileOnly}>
+          <div style={{ display: 'flex', gap: '8px', padding: '0 4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('nickname')}
+            >
+              닉네임 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('nickname')}</span>
+            </button>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('createdAt')}
+            >
+              가입일 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('createdAt')}</span>
+            </button>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('reportedCount')}
+            >
+              신고수 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('reportedCount')}</span>
+            </button>
           </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+        </div>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
-              <col style={{ width: '150px' }} />
+              <col style={{ width: 'auto' }} />
               <col style={{ width: 'auto' }} />
               <col style={{ width: '90px' }} />
               <col style={{ width: '120px' }} />
+              <col style={{ width: '70px' }} />
               <col style={{ width: '80px' }} />
-              <col style={{ width: '80px' }} />
-              <col style={{ width: '110px' }} />
+              <col style={{ width: '100px' }} />
             </colgroup>
             <thead>
               <tr className={common.tableHeaderRow}>
@@ -331,7 +365,13 @@ export default function MemberListPage() {
               </tr>
             </thead>
             <tbody>
-              {members.length === 0 ? (
+              {loading && members.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={common.emptyRow}>
+                    로딩 중...
+                  </td>
+                </tr>
+              ) : members.length === 0 ? (
                 <tr>
                   <td colSpan={8} className={common.emptyRow}>
                     회원 정보가 없습니다.
@@ -348,26 +388,26 @@ export default function MemberListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
+                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
                       <div className={s.profileCell}>
                         {member.profileImage ? (
                           <img src={member.profileImage} alt="" className={s.profileImage} />
                         ) : (
                           <span className={s.profilePlaceholder}>👤</span>
                         )}
-                        {(member.provider && member.provider !== 'LOCAL') ? (
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-                            <span style={{
-                              fontSize: 11, fontWeight: 600,
-                              background: '#f1f5f9', color: '#64748b',
-                              padding: '1px 8px', borderRadius: 10,
-                            }}>
-                              소셜 가입자
-                            </span>
-                          </span>
-                        ) : (
-                          member.nickname
-                        )}
+                        <span 
+                          style={{ 
+                            fontWeight: 500, 
+                            color: '#1e293b',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block'
+                          }} 
+                          title={member.nickname}
+                        >
+                          {member.nickname}
+                        </span>
                       </div>
                     </td>
                     <td className={`${common.tableCell} ${s.ellipsisCell}`}>
@@ -417,29 +457,100 @@ export default function MemberListPage() {
               )}
             </tbody>
           </table>
-        )}
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading && members.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : members.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>회원 정보가 없습니다.</div>
+          ) : (
+            members.map((member) => (
+              <div 
+                key={member.userId} 
+                className={`${common.listCard} ${member.status === USER_STATUS.DELETED ? common.hiddenRow : ''}`}
+                onClick={() => setSelectedMember(member)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <div className={s.profileCell} style={{ gap: '8px' }}>
+                    {member.profileImage ? (
+                      <img src={member.profileImage} alt="" className={s.profileImage} />
+                    ) : (
+                      <span className={s.profilePlaceholder}>👤</span>
+                    )}
+                    <span style={{ fontWeight: 600, color: '#1e293b' }}>
+                      {member.nickname}
+                    </span>
+                  </div>
+                  <span className={`${common.statusBadge} ${common[STATUS_MAP[member.status]?.className || 'badgeEnded'] || ''}`}>
+                    {STATUS_MAP[member.status]?.label || member.status}
+                  </span>
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🆔</span>
+                    <span className={common.listCardValue}>
+                      {(member.provider && member.provider !== 'LOCAL') ? (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontSize: 11, fontWeight: 600,
+                          background: PROVIDER_MAP[member.provider]?.bg || '#e2e8f0',
+                          color: PROVIDER_MAP[member.provider]?.color || '#334155',
+                          padding: '2px 10px', borderRadius: 12,
+                        }}>
+                          {PROVIDER_MAP[member.provider]?.label || member.provider}
+                        </span>
+                      ) : (
+                        member.loginId
+                      )}
+                    </span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🔑</span>
+                    <span className={common.listCardValue}>
+                      <span className={`${common.statusBadge} ${member.role === USER_ROLE.ADMIN ? common.badgeUpcoming : common.badgeDismissed}`}>
+                        {ROLE_MAP[member.role] || member.role}
+                      </span>
+                    </span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>📅</span>
+                    <span className={common.listCardValue}>{member.createdAt?.slice(0, 10)}</span>
+                  </div>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>🚨</span>
+                    <span className={common.listCardValue}>
+                      신고 횟수 <span className={getReportCountClass(member.reportedCount)}>{member.reportedCount}</span>회
+                    </span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={common.listCardActionBtn}
+                    onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
+                  >
+                    상세보기
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedMember && (

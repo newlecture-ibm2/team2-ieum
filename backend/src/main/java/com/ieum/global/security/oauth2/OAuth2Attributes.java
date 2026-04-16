@@ -61,7 +61,7 @@ public class OAuth2Attributes {
                 .socialId(id)
                 .loginId(loginId)
                 .nickname(getSafeNickname(nickname, id))
-                .name(name != null ? name : "NaverUser")
+                .name(name != null && !name.isBlank() ? name : getSafeNickname(nickname, id))
                 .profileImage(profileImage)
                 .build();
     }
@@ -85,7 +85,7 @@ public class OAuth2Attributes {
                 .socialId(id)
                 .loginId(loginId)
                 .nickname(getSafeNickname(nickname, id))
-                .name("KakaoUser") // 카카오는 이름 권한이 따로 필요하므로 기본값 설정
+                .name(getSafeNickname(nickname, id)) // 카카오는 이름 권한이 따로 필요하므로 닉네임을 기본값으로 사용
                 .profileImage(profileImage)
                 .build();
     }

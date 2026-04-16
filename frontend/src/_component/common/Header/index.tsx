@@ -23,7 +23,7 @@ const NAV_ITEMS: NavItem[] = [
   { label: "공지", href: "/notices", match: "/notices" },
 ];
 
-export default function Header() {
+export default function Header({ forceRender = false }: { forceRender?: boolean } = {}) {
   const pathname = usePathname();
 
   const {
@@ -32,7 +32,8 @@ export default function Header() {
     closePopup, logout, devRefreshFestivals, isDarkHeroPage
   } = useHeader();
 
-  if (pathname.startsWith("/admin")) return null;
+  // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
+  if (!forceRender && pathname.startsWith("/admin")) return null;
 
 
 
@@ -173,31 +174,33 @@ export default function Header() {
 
       </header>
 
-      {/* ⑧ 모바일 하단 플로팅 네비게이션 바 (Mobile Exclusive) */}
-      <nav className={styles.mBottomNav}>
-        <div className={styles.mBottomNavInner}>
-          <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
-            <Home size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>홈</span>
-          </Link>
-          <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
-            <History size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>지난축제</span>
-          </Link>
-          <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
-            <CalendarDays size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>달력</span>
-          </Link>
-          <Link href="/community" className={`${styles.mBottomNavItem} ${pathname.startsWith('/community') ? styles.mBottomNavActive : ''}`}>
-            <MessageCircle size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>커뮤니티</span>
-          </Link>
-          <Link href="/notices" className={`${styles.mBottomNavItem} ${pathname.startsWith('/notices') ? styles.mBottomNavActive : ''}`}>
-            <Megaphone size={22} className={styles.mBottomNavIcon} />
-            <span className={styles.mBottomNavLabel}>공지</span>
-          </Link>
-        </div>
-      </nav>
+      {/* ⑧ 모바일 하단 플로팅 네비게이션 바 (Mobile Exclusive) - 사용자 페이지 전용 */}
+      {!pathname.startsWith('/admin') && (
+        <nav className={styles.mBottomNav}>
+          <div className={styles.mBottomNavInner}>
+            <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
+              <Home size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>홈</span>
+            </Link>
+            <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
+              <History size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>지난축제</span>
+            </Link>
+            <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
+              <CalendarDays size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>달력</span>
+            </Link>
+            <Link href="/community" className={`${styles.mBottomNavItem} ${pathname.startsWith('/community') ? styles.mBottomNavActive : ''}`}>
+              <MessageCircle size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>커뮤니티</span>
+            </Link>
+            <Link href="/notices" className={`${styles.mBottomNavItem} ${pathname.startsWith('/notices') ? styles.mBottomNavActive : ''}`}>
+              <Megaphone size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>공지</span>
+            </Link>
+          </div>
+        </nav>
+      )}
     </>
   );
 }

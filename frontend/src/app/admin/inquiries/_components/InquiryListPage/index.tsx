@@ -8,6 +8,7 @@ import type { InquiryItem, InquiryListResponse } from '@/types/admin-inquiry';
 import InquiryDetailModal from '../InquiryDetailModal';
 import s from './InquiryListPage.module.css';
 import { INQUIRY_STATUS, INQUIRY_STATUS_LABELS } from '@/constants/statusLabels';
+import Pagination from '@/_component/common/Pagination';
 
 
 
@@ -186,14 +187,10 @@ export default function InquiryListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+      {/* ── 리스트 ── */}
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
               <col style={{ width: 'auto' }} />
@@ -258,29 +255,65 @@ export default function InquiryListPage() {
               )}
             </tbody>
           </table>
-        )}
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : inquiries.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>문의 내역이 없습니다.</div>
+          ) : (
+            inquiries.map((inquiry) => (
+              <div 
+                key={inquiry.id} 
+                className={common.listCard}
+                onClick={() => setSelectedInquiry(inquiry)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <span className={`${common.statusBadge} ${common[INQUIRY_STATUS_LABELS[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                    {INQUIRY_STATUS_LABELS[inquiry.status]?.label || inquiry.status}
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {inquiry.createdAt?.slice(0, 10)}
+                  </span>
+                </div>
+
+                <div className={common.listCardTitle}>
+                  {inquiry.title}
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>👤</span>
+                    <span className={common.listCardValue}>작성자: {inquiry.authorNickname}</span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={`${common.listCardActionBtn} ${inquiry.status === INQUIRY_STATUS.PENDING ? '' : 'danger'}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
+                  >
+                    {inquiry.status === INQUIRY_STATUS.PENDING ? '답변' : '보기'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedInquiry && (

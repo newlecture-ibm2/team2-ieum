@@ -13,6 +13,7 @@ import AdminListSummary from '@/app/admin/festivals/_components/AdminListSummary
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
 import { FESTIVAL_STATUS } from '@/constants/filterOptions';
+import Pagination from '@/_component/common/Pagination';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
@@ -231,7 +232,7 @@ export default function CustomFestivalListPage() {
 
       {/* ── 필터 바 ── */}
       <section className={c.filterBar}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select className={c.filterSelect} value={list.extraFilters.categoryCode} onChange={e => list.setExtraFilter('categoryCode', e.target.value)}>
             <option value="">전체 카테고리</option>
             <optgroup label="공공 분류">
@@ -241,15 +242,17 @@ export default function CustomFestivalListPage() {
               {categoryOptions.filter(o => o.type === 'CUSTOM').map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
             </optgroup>
           </select>
-          <select className={c.filterSelect} value={list.extraFilters.areaCode} onChange={e => list.setExtraFilter('areaCode', e.target.value)}>
-            <option value="">전체 지역</option>
-            {regionOptions.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
-          </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', marginLeft: '10px' }}>
-            <input type="checkbox" checked={list.extraFilters.excludeHidden === 'true'}
-              onChange={e => list.setExtraFilter('excludeHidden', e.target.checked ? 'true' : '')} />
-            숨김 축제 제외
-          </label>
+          <div className={s.filterRowWrap}>
+            <select className={`${c.filterSelect} ${s.filterSelectHalf}`} value={list.extraFilters.areaCode} onChange={e => list.setExtraFilter('areaCode', e.target.value)}>
+              <option value="">전체 지역</option>
+              {regionOptions.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
+            </select>
+            <label className={s.filterCheckboxLabel}>
+              <input type="checkbox" checked={list.extraFilters.excludeHidden === 'true'}
+                onChange={e => list.setExtraFilter('excludeHidden', e.target.checked ? 'true' : '')} />
+              숨김 축제 제외
+            </label>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input type="text" className={c.searchInput} placeholder="축제명 또는 지역으로 검색하세요"
@@ -258,9 +261,9 @@ export default function CustomFestivalListPage() {
         </div>
       </section>
 
-      {/* ── 테이블 ── */}
-      <section className={c.tableCard}>
+      <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 관리 축제" />
+        <div className={c.desktopOnly}>
         <table className={c.table}>
           <colgroup>
             <col className={s.festivalNameCol} />
@@ -320,11 +323,63 @@ export default function CustomFestivalListPage() {
             )}
           </tbody>
         </table>
+      </div>
 
-        <div className={c.pagination}>
-          <button className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>
-          <span className={c.pageInfo}>{list.currentPage} / {list.totalPages} 페이지</span>
-          <button className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
+        <div className={`${c.listGrid} ${c.mobileOnly}`}>
+          {list.loading ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : festivals.length === 0 ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>조회된 축제가 없습니다.</div>
+          ) : (
+            festivals.map(f => {
+              const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
+              return (
+                <div key={f.festivalId} className={`${c.listCard} ${!f.isVisible ? c.hiddenRow : ''}`}>
+                  <div className={c.listCardTop}>
+                    {renderCategoryBadge(f.categoryLabel)}
+                    <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
+                  </div>
+
+                  <div className={c.listCardTitle} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
+                    {f.title}
+                  </div>
+
+                  <div className={c.listCardInfo}>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📍</span>
+                      <span className={c.listCardValue}>{f.areaLabel || f.areaCode}</span>
+                    </div>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📅</span>
+                      <span className={c.listCardValue}>{formatDateRange(f.startDate, f.endDate)}</span>
+                    </div>
+                  </div>
+
+                  <div className={c.listCardActions} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
+                      <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
+                        {f.isVisible ? '공개' : '숨김'}
+                      </span>
+                      <div className={`${c.toggleTrack} ${f.isVisible ? c.toggleTrackOn : ''}`}>
+                        <div className={`${c.toggleThumb} ${f.isVisible ? c.toggleThumbOn : ''}`} />
+                      </div>
+                    </div>
+                    <button className={c.listCardActionBtn} onClick={() => handleOpenEdit(f)} title="수정">
+                      수정
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div style={{ marginTop: '20px' }}>
+          <Pagination 
+            currentPage={list.currentPage} 
+            totalPages={list.totalPages} 
+            onPageChange={list.setCurrentPage} 
+          />
         </div>
       </section>
 

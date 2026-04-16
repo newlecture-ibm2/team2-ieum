@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { User, Trash2, Siren } from 'lucide-react';
 import api from '@/lib/api';
 import { Modal, ConfirmModal } from '@/_component/common/Modal';
+import { useToast } from '@/_component/common/Toast';
 import styles from './ReviewBoard.module.css';
 import { REPORT_REASON, REPORT_REASON_OPTIONS } from '@/constants/reportOptions';
 import { TARGET_TYPE } from '@/constants/targetType';
@@ -15,6 +16,7 @@ interface ReviewBoardProps {
 }
 
 export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoardProps) {
+  const { toast } = useToast();
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
@@ -41,11 +43,11 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
     setDeletingId(confirmDeleteId);
     try {
       await api.delete(`/api/reviews/${confirmDeleteId}`);
-      alert('리뷰가 삭제되었습니다.');
+      toast('리뷰가 삭제되었습니다.', 'success');
       onRefresh(); // 페이지 컴포넌트에 목록 갱신 요청
     } catch (err: any) {
       const apiErrorMsg = err.response?.data?.error?.message || err.response?.data?.message;
-      alert(apiErrorMsg || '리뷰 삭제에 실패했습니다.');
+      toast(apiErrorMsg || '리뷰 삭제에 실패했습니다.', 'error');
     } finally {
       setDeletingId(null);
       setConfirmDeleteId(null);
@@ -53,7 +55,7 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
   };
 
   const handleReportReview = (reviewId: number) => {
-    if (!currentUser) return alert('로그인이 필요합니다.');
+    if (!currentUser) { toast('로그인이 필요합니다.', 'warning'); return; }
     setReportingReviewId(reviewId);
   };
 
@@ -196,14 +198,14 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                       reason: reportReason,
                       description: reportReason === REPORT_REASON.OTHER ? reportDescription : null,
                     });
-                    alert('신고가 성공적으로 접수되었습니다.');
+                    toast('신고가 성공적으로 접수되었습니다.', 'success');
                   } catch (err: any) {
                     const status = err?.response?.status;
                     if (status === 409) {
-                      alert('이미 신고한 리뷰입니다.');
+                      toast('이미 신고한 리뷰입니다.', 'warning');
                     } else {
                       const msg = err?.response?.data?.error?.message || err?.response?.data?.message || '신고 처리에 실패했습니다.';
-                      alert(msg);
+                      toast(msg, 'error');
                     }
                   } finally {
                     setReportingReviewId(null);

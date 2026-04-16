@@ -17,6 +17,7 @@ import s from './FestivalListPage.module.css';
 import AdminListSummary from '../AdminListSummary';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import Pagination from '@/_component/common/Pagination';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
@@ -46,6 +47,8 @@ const renderCategoryBadge = (categoryLabel?: string) => {
     </div>
   );
 };
+
+
 
 // ── KPI 카드 정의 ──
 const KPI_ITEMS = (counts: FestivalStatusCounts) => [
@@ -234,9 +237,10 @@ export default function FestivalListPage() {
         </div>
       </section>
 
-      {/* ── 테이블 ── */}
-      <section className={c.tableCard}>
+      {/* ── 카드 그리드 ── */}
+      <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 축제" />
+        <div className={c.desktopOnly}>
         <table className={c.table}>
           <colgroup>
             <col className={s.festivalNameCol} />
@@ -291,13 +295,79 @@ export default function FestivalListPage() {
             )}
           </tbody>
         </table>
+      </div>
 
-        <div className={c.pagination}>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => Math.max(1, p - 10))}>« 10페이지 이전</button>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>
-          <span className={c.pageInfo}>{list.currentPage} / {list.totalPages} 페이지</span>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
-          <button type="button" className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => Math.min(list.totalPages, p + 10))}>다음 10페이지 »</button>
+        <div className={`${s.cardGrid} ${c.mobileOnly}`}>
+          {list.loading ? (
+            <div className={s.loadingState}>로딩 중...</div>
+          ) : festivals.length === 0 ? (
+            <div className={s.emptyState}>검색 결과가 없습니다.</div>
+          ) : (
+            festivals.map(festival => {
+              const { label, badge } = STATUS_MAP[festival.status] || STATUS_MAP.ended;
+              const categoryParts = festival.categoryLabel?.split(' > ') ?? [];
+              const categoryShort = categoryParts.length > 1 ? categoryParts[1] : (categoryParts[0] ?? '-');
+              const categoryParent = categoryParts.length > 1 ? categoryParts[0] : null;
+
+              return (
+                <div
+                  key={festival.id}
+                  className={`${s.festivalCard} ${!festival.isVisible ? s.festivalCardHidden : ''}`}
+                >
+                  {/* 상태 배지 + 토글 */}
+                  <div className={s.cardTop}>
+                    <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
+                    <div
+                      className={c.toggleWrapper}
+                      onClick={() => handleToggleVisibility(festival.id, festival.isVisible)}
+                      title={festival.isVisible ? '숨김 처리' : '공개 처리'}
+                    >
+                      <span className={`${c.toggleLabel} ${festival.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
+                        {festival.isVisible ? '공개' : '숨김'}
+                      </span>
+                      <div className={`${c.toggleTrack} ${festival.isVisible ? c.toggleTrackOn : ''}`}>
+                        <div className={`${c.toggleThumb} ${festival.isVisible ? c.toggleThumbOn : ''}`} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 제목 */}
+                  <div className={s.cardTitle}>{festival.title}</div>
+
+                  <hr className={s.cardDivider} />
+
+                  {/* 상세 정보 */}
+                  <div className={s.cardInfo}>
+                    <div className={s.cardInfoRow}>
+                      <span className={s.cardInfoIcon}>🗂</span>
+                      <span className={s.cardInfoValue}>
+                        {categoryParent && (
+                          <span className={s.categoryTag}>{categoryParent.includes('행사') ? '공연' : categoryParent.includes('축제') ? '축제' : categoryParent}</span>
+                        )}{' '}
+                        {categoryShort}
+                      </span>
+                    </div>
+                    <div className={s.cardInfoRow}>
+                      <span className={s.cardInfoIcon}>📍</span>
+                      <span className={s.cardInfoValue}>{festival.region || '-'}</span>
+                    </div>
+                    <div className={s.cardInfoRow}>
+                      <span className={s.cardInfoIcon}>📅</span>
+                      <span className={s.cardInfoValue}>{formatDateRange(festival.startDate, festival.endDate)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div style={{ marginTop: '20px' }}>
+          <Pagination 
+            currentPage={list.currentPage} 
+            totalPages={list.totalPages} 
+            onPageChange={list.setCurrentPage} 
+          />
         </div>
       </section>
 
