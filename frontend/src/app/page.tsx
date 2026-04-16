@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import HeroBanner from './festivals/_components/HeroBanner'
 import SearchFilter from '@/_component/common/SearchFilter';
@@ -17,7 +17,7 @@ interface FestivalData {
   currentPage?: number;
 }
 
-export default function MainPage() {
+function MainPageContent() {
   const searchParams = useSearchParams();
 
   const currentTab = searchParams.get('status') || 'all';
@@ -100,5 +100,19 @@ export default function MainPage() {
       {/* 5. 팝업 공지사항 */}
       <NoticePopup />
     </main>
+  );
+}
+
+export default function MainPage() {
+  return (
+    <Suspense fallback={
+      <main className={styles.mainContainer}>
+        <div style={{ textAlign: 'center', padding: '120px 0', color: '#94a3b8', fontSize: '15px' }}>
+          페이지를 불러오는 중입니다...
+        </div>
+      </main>
+    }>
+      <MainPageContent />
+    </Suspense>
   );
 }

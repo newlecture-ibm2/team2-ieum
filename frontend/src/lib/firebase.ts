@@ -38,8 +38,12 @@ export const requestFcmToken = async () => {
         } else {
             return null;
         }
-    } catch (err) {
-        console.error("FCM 토큰 발급 중 에러 발생:", err);
+    } catch (err: any) {
+        if (err?.code === 'messaging/permission-blocked') {
+            console.warn("FCM 알림 권한이 차단되었습니다.");
+        } else {
+            console.error("FCM 토큰 발급 중 에러 발생:", err);
+        }
         return null;
     }
 };

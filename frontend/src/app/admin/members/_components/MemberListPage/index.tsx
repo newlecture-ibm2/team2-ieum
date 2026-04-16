@@ -14,6 +14,7 @@ import Pagination from '@/_component/common/Pagination';
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
   [USER_STATUS.ACTIVE]:    { label: '정상 회원', className: 'badgeOngoing' },
   [USER_STATUS.SUSPENDED]: { label: '정지 회원', className: 'badgePending' },
+  [USER_STATUS.WITHDRAWAL]: { label: '탈퇴 유예', className: 'badgeEnded' },
   [USER_STATUS.DELETED]:   { label: '탈퇴 대기', className: 'badgeEnded' },
 };
 
