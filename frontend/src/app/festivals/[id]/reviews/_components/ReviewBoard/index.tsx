@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { User, Trash2, Siren } from 'lucide-react';
+import { User, Trash2, Pencil, Siren } from 'lucide-react';
 import api from '@/lib/api';
 import { Modal, ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
@@ -20,6 +20,11 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
   const [currentUser, setCurrentUser] = useState<any>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [confirmDeleteId, setConfirmDeleteId] = useState<number | null>(null);
+  const [editingReviewId, setEditingReviewId] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [editRating, setEditRating] = useState(0);
+  const [editHoverRating, setEditHoverRating] = useState(0);
+  const [isEditing, setIsEditing] = useState(false);
   const [reportingReviewId, setReportingReviewId] = useState<number | null>(null);
   const [reportReason, setReportReason] = useState('');
   const [reportDescription, setReportDescription] = useState('');
@@ -59,6 +64,60 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
     setReportingReviewId(reviewId);
   };
 
+  const handleEditClick = (review: any) => {
+    setEditingReviewId(review.id);
+    setEditContent(review.content);
+    setEditRating(review.rating);
+    setEditHoverRating(0);
+  };
+
+  const handleEditCancel = () => {
+    setEditingReviewId(null);
+    setEditContent('');
+    setEditRating(0);
+    setEditHoverRating(0);
+  };
+
+  const handleEditSubmit = async () => {
+    if (editingReviewId === null) return;
+    if (editRating === 0) { toast('별점을 선택해주세요.', 'warning'); return; }
+    if (editContent.trim().length < 10) { toast('리뷰를 최소 10자 이상 작성해주세요.', 'warning'); return; }
+
+    setIsEditing(true);
+    try {
+      await api.put(`/api/reviews/${editingReviewId}`, {
+        rating: editRating,
+        content: editContent.trim(),
+      });
+      toast('리뷰가 수정되었습니다.', 'success');
+      handleEditCancel();
+      onRefresh();
+    } catch (err: any) {
+      const apiErrorMsg = err.response?.data?.error?.message || err.response?.data?.message;
+      toast(apiErrorMsg || '리뷰 수정에 실패했습니다.', 'error');
+    } finally {
+      setIsEditing(false);
+    }
+  };
+
+  const renderEditStars = () => {
+    return [1, 2, 3, 4, 5].map(num => (
+      <span
+        key={num}
+        onMouseEnter={() => setEditHoverRating(num)}
+        onMouseLeave={() => setEditHoverRating(0)}
+        onClick={() => setEditRating(num)}
+        style={{
+          color: num <= (editHoverRating || editRating) ? '#fbbf24' : '#e2e8f0',
+          fontSize: '16px',
+          cursor: 'pointer',
+        }}
+      >
+        ★
+      </span>
+    ));
+  };
+
   const renderStars = (score: number) => {
     return [1, 2, 3, 4, 5].map(num => (
       <span key={num} style={{ color: num <= score ? '#fbbf24' : '#e2e8f0', fontSize: '16px' }}>★</span>
@@ -89,12 +148,11 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
             </div>
             <div className={styles.ratingBox} style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <div>{renderStars(review.rating)}</div>
-              {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 */}
-              {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+              {/* 리뷰 작성자 본인인 경우 수정 버튼 표출 */}
+              {(currentUser && String(currentUser.userId) === String(review.userId) && editingReviewId !== review.id) && (
                 <button
-                  onClick={() => handleDeleteClick(review.id)}
-                  disabled={deletingId === review.id}
-                  title="삭제하기"
+                  onClick={() => handleEditClick(review)}
+                  title="수정하기"
                   style={{
                     background: 'transparent',
                     border: 'none',
@@ -103,12 +161,12 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    borderRadius: '4px'
+                    borderRadius: '4px',
                   }}
-                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#eef2ff' }}
                   onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
                 >
-                  <Trash2 size={16} color={deletingId === review.id ? "#cbd5e1" : "#e53e3e"} />
+                  <Pencil size={15} color="#6366f1" />
                 </button>
               )}
 
@@ -141,11 +199,111 @@ export default function ReviewBoard({ reviews, loading, onRefresh }: ReviewBoard
                   <Siren size={15} color="currentColor" strokeWidth={2.2} />
                 </button>
               )}
+
+              {/* 리뷰 작성자와 현재 세션 유저가 일치하거나 ADMIN 스태프인 경우 삭제 버튼 표출 (항상 마지막) */}
+              {(currentUser && (String(currentUser.userId) === String(review.userId) || currentUser.role === 'ADMIN' || currentUser.role === 'ROLE_ADMIN')) && (
+                <button
+                  onClick={() => handleDeleteClick(review.id)}
+                  disabled={deletingId === review.id}
+                  title="삭제하기"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    borderRadius: '4px'
+                  }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = '#f1f5f9' }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'transparent' }}
+                >
+                  <Trash2 size={16} color={deletingId === review.id ? "#cbd5e1" : "#e53e3e"} />
+                </button>
+              )}
             </div>
           </div>
-          <div className={styles.cardBody}>
-            {review.content}
-          </div>
+
+          {/* 수정 모드 / 일반 보기 모드 */}
+          {editingReviewId === review.id ? (
+            <div style={{
+              background: '#f8fafc',
+              border: '1px solid #e2e8f0',
+              borderRadius: '10px',
+              padding: '14px',
+              marginTop: '8px',
+              display: 'flex',
+              flexDirection: 'column' as const,
+              gap: '10px',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <span style={{ fontSize: '13px', fontWeight: 600, color: '#475569' }}>별점 수정:</span>
+                <span style={{ display: 'flex', gap: '2px' }}>{renderEditStars()}</span>
+              </div>
+              <textarea
+                value={editContent}
+                onChange={(e) => setEditContent(e.target.value)}
+                placeholder="리뷰를 수정해주세요 (최소 10자 이상)"
+                maxLength={1000}
+                style={{
+                  width: '100%',
+                  minHeight: '70px',
+                  padding: '10px 12px',
+                  border: '1px solid #e2e8f0',
+                  borderRadius: '8px',
+                  fontSize: '14px',
+                  fontFamily: 'inherit',
+                  lineHeight: '1.6',
+                  resize: 'vertical' as const,
+                  outline: 'none',
+                  background: '#fff',
+                }}
+              />
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                <span style={{ fontSize: '12px', color: '#94a3b8' }}>{editContent.length} / 1000</span>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <button
+                    onClick={handleEditCancel}
+                    disabled={isEditing}
+                    style={{
+                      padding: '6px 14px',
+                      border: '1px solid #e2e8f0',
+                      background: '#fff',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#64748b',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    취소
+                  </button>
+                  <button
+                    onClick={handleEditSubmit}
+                    disabled={isEditing}
+                    style={{
+                      padding: '6px 14px',
+                      border: 'none',
+                      background: '#6366f1',
+                      borderRadius: '6px',
+                      fontSize: '13px',
+                      fontWeight: 600,
+                      color: '#fff',
+                      cursor: 'pointer',
+                      opacity: isEditing ? 0.6 : 1,
+                    }}
+                  >
+                    {isEditing ? '저장 중...' : '수정 완료'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className={styles.cardBody}>
+              {review.content}
+            </div>
+          )}
         </div>
       ))}
 

@@ -76,7 +76,7 @@ public interface FestivalJpaRepository extends JpaRepository<FestivalEntity, Lon
                      "AND (:keyword IS NULL OR f.title LIKE %:keyword% OR f.address LIKE %:keyword%) " +
                      "AND (:areaCode IS NULL OR f.areaCode = :areaCode) " +
                      "AND (:month IS NULL OR EXTRACT(MONTH FROM f.startDate) = :month OR EXTRACT(MONTH FROM f.endDate) = :month) " +
-                     "ORDER BY f.endDate DESC")
+                     "ORDER BY f.endDate DESC, f.id DESC")
        Page<FestivalEntity> findEndedFestivals(@Param("keyword") String keyword, @Param("areaCode") String areaCode,
                      @Param("month") Integer month, Pageable pageable);
 }
