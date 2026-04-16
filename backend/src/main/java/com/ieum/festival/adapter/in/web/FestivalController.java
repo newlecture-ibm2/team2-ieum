@@ -14,7 +14,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 축제 컨트롤러 (Input Adapter)
@@ -54,21 +57,49 @@ public class FestivalController {
             "- 진행중(ongoing): 오늘 날짜 기준 startDate ≤ 오늘 ≤ endDate\n" +
             "- 진행예정(upcoming): startDate > 오늘, 시작일 가까운 순\n" +
             "- 종료(ended): endDate < 오늘, 최근 종료순\n" +
-            "- sort=distance 시 lat, lng 파라미터 필수 (사용자 위치 기반 거리순 정렬)")
+            "- sort=distance 시 lat, lng 파라미터 필수 (사용자 위치 기반 거리순 정렬)\n" +
+            "- areaCode, month는 콤마(,) 구분으로 다중 선택 가능 (예: areaCode=1,6,31)")
     @GetMapping
     public ApiResponse<FestivalPageResult> getFestivals(
             @Parameter(description = "필터 상태 (all, ongoing, upcoming, ended)", example = "ongoing") @RequestParam(required = false) String status,
             @Parameter(description = "검색 키워드 (축제명, 지역명)", example = "벚꽃") @RequestParam(required = false) String keyword,
-            @Parameter(description = "지역 코드 (1=서울, 31=경기 등)", example = "1") @RequestParam(required = false) String areaCode,
-            @Parameter(description = "월별 필터 (1~12)", example = "5") @RequestParam(required = false) Integer month,
+            @Parameter(description = "지역 코드 (콤마 구분 다중 선택 가능, 1=서울, 31=경기 등)", example = "1,6") @RequestParam(required = false) String areaCode,
+            @Parameter(description = "월별 필터 (콤마 구분 다중 선택 가능, 1~12)", example = "4,5") @RequestParam(required = false) String month,
             @Parameter(description = "정렬 기준 (latest, popular, views, reviews, distance)", example = "distance") @RequestParam(required = false) String sort,
             @Parameter(description = "사용자 위도 (거리순 정렬 시 필수)", example = "37.5665") @RequestParam(required = false) Double lat,
             @Parameter(description = "사용자 경도 (거리순 정렬 시 필수)", example = "126.978") @RequestParam(required = false) Double lng,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "12") int size) {
 
-        FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCode, month, sort, lat, lng, page, size);
+        // 콤마 구분 문자열 → List 변환 (다중 선택 지원)
+        List<String> areaCodes = parseStringList(areaCode);
+        List<Integer> months = parseIntList(month);
+
+        FestivalPageResult data = loadFestivalListUseCase.loadFestivals(status, keyword, areaCodes, months, sort, lat, lng, page, size);
         return ApiResponse.success(data);
+    }
+
+    /** 콤마 구분 문자열 → List<String> (null/빈값이면 null 반환 → 쿼리에서 전체 조회) */
+    private List<String> parseStringList(String csv) {
+        if (csv == null || csv.isBlank()) return null;
+        return Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
+    }
+
+    /** 콤마 구분 문자열 → List<Integer> (null/빈값이면 null 반환) */
+    private List<Integer> parseIntList(String csv) {
+        if (csv == null || csv.isBlank()) return null;
+        try {
+            return Arrays.stream(csv.split(","))
+                    .map(String::trim)
+                    .filter(s -> !s.isEmpty())
+                    .map(Integer::parseInt)
+                    .collect(Collectors.toList());
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     /**
