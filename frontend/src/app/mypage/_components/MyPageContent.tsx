@@ -51,7 +51,25 @@ export default function MyPageContent() {
       const res = await api.get<UserInfo>('/api/users/me');
       
       if (res.data && res.data.userId) {
-        setUser(res.data);
+        let userData = res.data;
+        
+        // 🚀 [v18-Sync] 세션 정보 외에 최신 프로필(닉네임, 이미지)을 추가로 조회하여 
+        // DB 변경사항이 즉시 사이드바에 반영되도록 합니다. (이미지 로직과 동일화)
+        try {
+          const profileRes = await api.get('/api/mypage/profile');
+          const profileData = profileRes.data.data;
+          if (profileData) {
+            userData = {
+              ...userData,
+              nickname: profileData.nickname || userData.nickname,
+              profileImageUrl: profileData.profileImageUrl ? `${profileData.profileImageUrl}?t=${Date.now()}` : undefined
+            };
+          }
+        } catch (err) {
+          console.warn('사이드바 최신 프로필 연동 실패 (세션 정보로 대체):', err);
+        }
+        
+        setUser(userData);
       } else {
         router.push('/login');
       }
