@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
@@ -42,31 +42,44 @@ export default function MyPageContent() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  useEffect(() => {
-    /**
-     * 사용자 정보 및 인증 체크 (표준 api 유틸리티 적용)
-     */
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get<UserInfo>('/api/users/me');
-        
-        if (res.data && res.data.userId) {
-          setUser(res.data);
-        } else {
-          router.push('/login');
-        }
-      } catch (err) {
-        console.error('MyPage auth check failed:', err);
-        // api interceptor가 401 등을 처리하지만 안전을 위해 추가 리다이렉트
+  /**
+   * 사용자 정보 및 인증 체크 (표준 api 유틸리티 적용)
+   */
+  const checkAuth = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await api.get<UserInfo>('/api/users/me');
+      
+      if (res.data && res.data.userId) {
+        setUser(res.data);
+      } else {
         router.push('/login');
-      } finally {
-        setIsLoading(false);
       }
+    } catch (err) {
+      console.error('MyPage auth check failed:', err);
+      // api interceptor가 401 등을 처리하지만 안전을 위해 추가 리다이렉트
+      router.push('/login');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  /**
+   * 🚀 [v18-Sync] 프로필 변경 시 사이드바 정보 재동기화 리스너
+   */
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log("MyPageContent received userProfileUpdate event");
+      checkAuth();
     };
 
-    checkAuth();
-  }, [router]);
+    window.addEventListener('userProfileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdate', handleProfileUpdate);
+  }, []);
 
   if (isLoading) return <div className={styles.loading}>사용자 정보를 불러오는 중...</div>;
   if (!user) return null;

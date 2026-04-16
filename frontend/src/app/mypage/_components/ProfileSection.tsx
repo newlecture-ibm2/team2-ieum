@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import styles from '../mypage.module.css';
@@ -27,23 +27,26 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(user.profileImageUrl || null);
 
-  // 🚀 [v15] 도메인 자가 동기화: 남의 팀 API가 사진을 빠뜨려도 우리 팀 API로 다시 조회해옵니다.
-  useEffect(() => {
-    const fetchLatestProfile = async () => {
-      try {
-        const response = await api.get(API_ENDPOINTS.MYPAGE.PROFILE);
-        const profileData = response.data.data;
-        if (profileData) {
-          if (profileData.nickname) setNickname(profileData.nickname);
-          if (profileData.profileImageUrl) setPreviewUrl(profileData.profileImageUrl);
+  // 🚀 [v18] 도메인 자가 동기화 로직을 함수화하여 저장 직후에도 호출할 수 있게 합니다.
+  const fetchLatestProfile = useCallback(async () => {
+    try {
+      const response = await api.get(API_ENDPOINTS.MYPAGE.PROFILE);
+      const profileData = response.data.data;
+      if (profileData) {
+        if (profileData.nickname) setNickname(profileData.nickname);
+        if (profileData.profileImageUrl) {
+          // 캐시 무력화를 위해 타임스탬프를 쿼리 파라미터로 추가합니다.
+          setPreviewUrl(`${profileData.profileImageUrl}?t=${Date.now()}`);
         }
-      } catch (error) {
-        console.error('마이페이지 프로필 자가 조회 실패:', error);
       }
-    };
-    
-    fetchLatestProfile();
+    } catch (error) {
+      console.error('마이페이지 프로필 자가 조회 실패:', error);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchLatestProfile();
+  }, [fetchLatestProfile]);
 
   const handleImageClick = () => {
     fileInputRef.current?.click();
@@ -95,8 +98,14 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
 
       toast('프로필 정보가 성공적으로 반영되었습니다.', 'success');
       
-      // ✅ 전체 새로고침(window.reload) 대신 Next.js router.refresh()를 사용하여 
-      // 데이터만 최신화하고 불필요한 레이아웃 초기화 및 오버레이 버그를 방지합니다.
+      // ✅ [v18-Sync] 전역 동기화: 헤더와 사이드바가 즉시 바뀌도록 커스텀 이벤트를 발행합니다.
+      window.dispatchEvent(new CustomEvent('userProfileUpdate'));
+      
+      // ✅ 로컬 상태 재동기화 및 캐시 새로고침
+      await fetchLatestProfile();
+      setSelectedFile(null); // 파일 선택 상태 초기화
+      
+      // Next.js router.refresh()는 서버 컴포넌트 데이터 갱신을 위해 유지합니다.
       router.refresh();
       
     } catch (error) {
@@ -120,7 +129,12 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
           onClick={handleImageClick}
         >
           {previewUrl ? (
-            <img src={previewUrl} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            <img 
+              src={previewUrl} 
+              alt="Profile" 
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }} 
+              onError={() => setPreviewUrl(null)} // 이미지 로드 실패 시 기본 아이콘으로 복구
+            />
           ) : (
             <Camera size={32} />
           )}
