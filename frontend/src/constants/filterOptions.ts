@@ -84,6 +84,22 @@ export const FESTIVAL_STATUS_OPTIONS = [
   { value: 'upcoming', label: '진행 예정' },
 ];
 
+// ─── 공지사항 카테고리 ───
+
+export const NOTICE_CATEGORY_MAP: Record<string, string> = {
+  GENERAL: '일반',
+  EVENT: '행사',
+  UPDATE: '업데이트',
+  URGENT: '긴급',
+};
+
+export const NOTICE_CATEGORY_CODES = [
+  { code: 'GENERAL', name: '일반' },
+  { code: 'EVENT', name: '행사' },
+  { code: 'UPDATE', name: '업데이트' },
+  { code: 'URGENT', name: '긴급' },
+];
+
 /** 축제 상태 값 상수 (관리자용) */
 export const FESTIVAL_STATUS = {
   ONGOING: 'ONGOING',
