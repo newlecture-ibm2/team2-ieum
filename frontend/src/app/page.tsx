@@ -88,10 +88,10 @@ function MainPageContent() {
           )}
 
           {/* 4. 페이지네이션 UI */}
-          {!loading && festivalData.totalPages && festivalData.totalPages > 1 && (
+          {!loading && (festivalData.totalPages ?? 0) > 1 && (
             <Pagination
               currentPage={Number(festivalData.currentPage) || 1}
-              totalPages={festivalData.totalPages}
+              totalPages={festivalData.totalPages!}
             />
           )}
         </div>
