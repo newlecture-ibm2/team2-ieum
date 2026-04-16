@@ -53,7 +53,7 @@ export default function MemberListPage() {
   const [members, setMembers] = useState<MemberItem[]>([]);
   const [activeCount, setActiveCount] = useState(0);
   const [suspendedCount, setSuspendedCount] = useState(0);
-  const [deletedCount, setDeletedCount] = useState(0);
+  const [withdrawalCount, setWithdrawalCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
 
   /* ── 모달/토스트 상태 ── */
@@ -123,10 +123,10 @@ export default function MemberListPage() {
 
       setMembers(result.content);
       setTotalPages(result.totalPages || 1);
-      setTotalCount(result.activeCount + result.suspendedCount + result.deletedCount);
+      setTotalCount(result.activeCount + result.suspendedCount + result.withdrawalCount);
       setActiveCount(result.activeCount);
       setSuspendedCount(result.suspendedCount);
-      setDeletedCount(result.deletedCount);
+      setWithdrawalCount(result.withdrawalCount);
     } catch (err) {
       console.error('회원 목록 조회 실패:', err);
       setMembers([]);
@@ -187,11 +187,11 @@ export default function MemberListPage() {
             <div className={`${common.statValue} ${common.textPurple}`}>{suspendedCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === USER_STATUS.DELETED ? common.statActive : ''}`}
-            onClick={() => handleStatClick(USER_STATUS.DELETED)}
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === USER_STATUS.WITHDRAWAL ? common.statActive : ''}`}
+            onClick={() => handleStatClick(USER_STATUS.WITHDRAWAL)}
           >
-            <div className={common.statLabel}>탈퇴 대기</div>
-            <div className={`${common.statValue} ${common.textGray}`}>{deletedCount}</div>
+            <div className={common.statLabel}>탈퇴 유예</div>
+            <div className={`${common.statValue} ${common.textGray}`}>{withdrawalCount}</div>
           </div>
         </div>
       </div>

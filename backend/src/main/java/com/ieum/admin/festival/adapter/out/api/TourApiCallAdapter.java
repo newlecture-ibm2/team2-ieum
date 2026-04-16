@@ -33,7 +33,7 @@ public class TourApiCallAdapter implements TourApiOutPort {
     public List<ApiCategoryItem> fetchCategoryOptions(String cat1, String cat2) {
         log.info("Tour API 조회: /categoryCode1 (cat1={}, cat2={})", cat1, cat2);
         
-        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/categoryCode1")
+        UriComponentsBuilder builder = UriComponentsBuilder.fromHttpUrl(baseUrl + "/categoryCode2")
                 .queryParam("serviceKey", apiKey)
                 .queryParam("MobileOS", "ETC")
                 .queryParam("MobileApp", "ieum")
@@ -62,6 +62,12 @@ public class TourApiCallAdapter implements TourApiOutPort {
                     if (code != null && name != null) {
                         result.add(new ApiCategoryItem(code, name));
                     }
+                }
+            } else if (itemsNode.isObject()) {
+                String code = itemsNode.path("code").asText(null);
+                String name = itemsNode.path("name").asText(null);
+                if (code != null && name != null) {
+                    result.add(new ApiCategoryItem(code, name));
                 }
             }
         } catch (Exception e) {
