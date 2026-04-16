@@ -5,27 +5,33 @@
 
 /* ── 테이블 컬럼 너비 (축제 관리 전용) ── */
 .festivalNameCol {
-  width: auto;
+  min-width: 200px;
+}
+
+/* 축제명 셀: 최대 너비를 제한하여 긴 텍스트 말줄임 처리 */
+.festivalNameCell {
+  max-width: 320px;
+  overflow: hidden;
 }
 
 .categoryCol {
-  width: 130px;
+  min-width: 100px;
 }
 
 .regionCol {
-  width: 120px;
+  min-width: 80px;
 }
 
 .dateCol {
-  width: 180px;
+  min-width: 150px;
 }
 
 .statusCol {
-  width: 70px;
+  min-width: 60px;
 }
 
 .actionCol {
-  width: 160px;
+  min-width: 140px;
 }
 
 /* ── 폼 모달 레이아웃 ── */

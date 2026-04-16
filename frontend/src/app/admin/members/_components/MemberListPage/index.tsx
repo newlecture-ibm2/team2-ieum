@@ -389,7 +389,7 @@ export default function MemberListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary} ${s.ellipsisCell}`}>
                       <div className={s.profileCell}>
                         {member.profileImage ? (
                           <img src={member.profileImage} alt="" className={s.profileImage} />
@@ -411,7 +411,7 @@ export default function MemberListPage() {
                         </span>
                       </div>
                     </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${s.ellipsisCell}`}>
                       {(member.provider && member.provider !== 'LOCAL') ? (
                         <span style={{
                           display: 'inline-flex', alignItems: 'center', gap: 4,

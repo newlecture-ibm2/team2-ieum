@@ -227,10 +227,10 @@ export default function InquiryListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary} ${s.ellipsisCell}`}>
                       {inquiry.title}
                     </td>
-                    <td className={common.tableCell}>
+                    <td className={`${common.tableCell} ${common.textLeft}`}>
                       {inquiry.authorNickname}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>

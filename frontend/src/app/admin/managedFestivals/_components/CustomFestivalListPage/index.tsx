@@ -293,18 +293,18 @@ export default function CustomFestivalListPage() {
                 const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
                 return (
                   <tr key={f.festivalId} className={`${c.tableRow} ${c.tableRowHover} ${!f.isVisible ? c.hiddenRow : ''}`}>
-                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary}`}>
+                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary} ${s.festivalNameCell}`}>
                       <div className={c.cellEllipsis} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
                         {f.title}
                       </div>
                     </td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{renderCategoryBadge(f.categoryLabel)}</td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{f.areaLabel || f.areaCode}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(f.startDate, f.endDate)}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>{formatDateRange(f.startDate, f.endDate)}</td>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
                       <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
                     </td>
-                    <td className={`${c.tableCell} ${c.textRight}`}>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
                       <div className={c.actionGroup}>
                         <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
                           <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>

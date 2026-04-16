@@ -275,11 +275,11 @@ export default function FestivalListPage() {
                     </td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{renderCategoryBadge(festival.categoryLabel)}</td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{festival.region}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(festival.startDate, festival.endDate)}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>{formatDateRange(festival.startDate, festival.endDate)}</td>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
                       <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
                     </td>
-                    <td className={`${c.tableCell} ${c.textRight}`}>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
                       <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(festival.id, festival.isVisible)}>
                         <span className={`${c.toggleLabel} ${festival.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
                           {festival.isVisible ? '공개' : '숨김'}

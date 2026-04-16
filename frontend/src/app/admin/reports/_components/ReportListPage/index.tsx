@@ -246,7 +246,7 @@ export default function ReportListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary}`}>
                       {report.reporterNickname}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
@@ -254,10 +254,10 @@ export default function ReportListPage() {
                         {TARGET_TYPE_MAP[report.targetType] || report.targetType}
                       </span>
                     </td>
-                    <td className={common.tableCell}>
+                    <td className={`${common.tableCell} ${common.textLeft}`}>
                       {REPORT_REASON_LABELS[report.reason] || report.reason}
                     </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${s.ellipsisCell}`}>
                       {report.description || '-'}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
