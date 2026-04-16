@@ -38,3 +38,46 @@ export async function GET() {
 
   return NextResponse.json({ isLoggedIn: true, user: session.user });
 }
+
+// DELETE /api/auth/me — withdraw (member deletion)
+export async function DELETE(request: Request) {
+  const session = await getSession();
+
+  if (!session.user || !session.accessToken) {
+    return NextResponse.json({ success: false, message: "Not authenticated" }, { status: 401 });
+  }
+
+  try {
+    const body = await request.json();
+    const apiBaseUrl = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+    const res = await fetch(`${apiBaseUrl}/api/auth/me`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": `Bearer ${session.accessToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(body),
+    });
+
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}));
+      return NextResponse.json(
+        { success: false, message: errorData.message || "Withdrawal failed" },
+        { status: res.status }
+      );
+    }
+
+    // Clear session after successful withdrawal
+    session.destroy();
+
+    const data = await res.json().catch(() => ({ success: true }));
+    return NextResponse.json(data);
+  } catch (error) {
+    console.error("Withdrawal error:", error);
+    return NextResponse.json(
+      { success: false, message: "Server error during withdrawal" },
+      { status: 500 }
+    );
+  }
+}

@@ -46,7 +46,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = saveOrUpdate(attributes);
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
@@ -78,9 +78,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .name(attributes.getName())
                 .nickname(attributes.getNickname())
                 .profileImage(attributes.getProfileImage())
-                .role(Role.USER.name())
+                .role(Role.USER)
                 .termsAgreed(true) // 소셜 로그인은 기본적으로 제공처에서 동의됨
-                .status(UserStatus.ACTIVE.name())
+                .status(UserStatus.ACTIVE)
                 .build();
 
         return saveUserPort.saveUser(newUser);

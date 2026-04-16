@@ -29,7 +29,7 @@ export default function Header({ forceRender = false }: { forceRender?: boolean 
   const {
     isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
     isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
-    closePopup, logout, devRefreshFestivals, isDarkHeroPage
+    closePopup, logout, isDarkHeroPage
   } = useHeader();
 
   // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
@@ -79,16 +79,7 @@ export default function Header({ forceRender = false }: { forceRender?: boolean 
 
         {/* ③④ 우측 액션 영역 */}
         <div className={styles.actions}>
-          {/* ⚙️ [DEV] 축제 상태 최신화 버튼 — 개발 완료 후 제거 */}
-          <button
-            className={styles.devRefreshBtn}
-            onClick={devRefreshFestivals}
-            title="[DEV] 축제 status DB 일괄 갱신"
-          >
-            🔄 상태 최신화
-          </button>
-
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+        {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
           {isLoggedIn && (
             <div className={styles.bellWrapper}>
               <button

@@ -3,31 +3,6 @@
    공통 스타일은 admin-common.module.css 사용
    ====================================================== */
 
-/* ── 테이블 컬럼 너비 (축제 관리 전용) ── */
-.festivalNameCol {
-  width: auto;
-}
-
-.categoryCol {
-  width: 130px;
-}
-
-.regionCol {
-  width: 120px;
-}
-
-.dateCol {
-  width: 180px;
-}
-
-.statusCol {
-  width: 70px;
-}
-
-.actionCol {
-  width: 160px;
-}
-
 /* ── 폼 모달 레이아웃 ── */
 .formGrid {
   display: flex;

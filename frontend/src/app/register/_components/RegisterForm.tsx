@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { User, Phone, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Phone, Lock, Eye, EyeOff, HelpCircle } from 'lucide-react';
 import axios from 'axios';
 import styles from '../register.module.css';
 import { useToast } from '@/_component/common/Toast';
+import { API_STATUS, API_ENDPOINTS } from '@/constants/api';
 
 export default function RegisterForm() {
   const router = useRouter();
@@ -20,6 +21,18 @@ export default function RegisterForm() {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showPasswordConfirm, setShowPasswordConfirm] = useState(false);
+  
+  // 보안 질문
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [securityAnswer, setSecurityAnswer] = useState('');
+
+  const SECURITY_QUESTIONS = [
+    "가장 기억에 남는 장소는?",
+    "나의 고향은 어디인가요?",
+    "나의 첫 반려동물 이름은?",
+    "가장 좋아하는 색깔은?",
+    "나만의 소중한 기념일은?"
+  ];
 
   // 약관 동의
   const [allAgreed, setAllAgreed] = useState(false);
@@ -34,6 +47,8 @@ export default function RegisterForm() {
     phone: '',
     password: '',
     passwordConfirm: '',
+    securityQuestion: '',
+    securityAnswer: '',
     global: ''
   });
 
@@ -66,6 +81,12 @@ export default function RegisterForm() {
         const phoneClean = value.replace(/[^0-9]/g, '');
         if (!phoneClean || phoneClean.length < 10) error = '올바른 전화번호를 입력해주세요.';
         break;
+      case 'securityQuestion':
+        if (!value) error = '보안 질문을 선택해주세요.';
+        break;
+      case 'securityAnswer':
+        if (!value) error = '보안 답변을 입력해주세요.';
+        break;
     }
     setErrors(prev => ({ ...prev, [name]: error }));
     return !error;
@@ -96,6 +117,8 @@ export default function RegisterForm() {
     const isPhoneValid = validateField('phone', phone);
     const isPasswordValid = validateField('password', password);
     const isPasswordConfirmValid = validateField('passwordConfirm', passwordConfirm);
+    const isQuestionValid = validateField('securityQuestion', securityQuestion);
+    const isAnswerValid = validateField('securityAnswer', securityAnswer);
     
     let isAgreed = true;
     if (!agreements.terms || !agreements.privacy) {
@@ -103,7 +126,7 @@ export default function RegisterForm() {
       isAgreed = false;
     }
 
-    return isIdValid && isNicknameValid && isPhoneValid && isPasswordValid && isPasswordConfirmValid && isAgreed;
+    return isIdValid && isNicknameValid && isPhoneValid && isPasswordValid && isPasswordConfirmValid && isQuestionValid && isAnswerValid && isAgreed;
   };
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,14 +147,17 @@ export default function RegisterForm() {
 
     try {
       setIsLoading(true);
-      const response = await axios.post('/api/auth/signup', {
+      const response = await axios.post(API_ENDPOINTS.AUTH.SIGNUP, {
         id,
         password,
         nickname,
-        phone: phone.replace(/[^0-9]/g, '') // 📱 백엔드와 정합성을 위해 숫자만 추출해서 전송
+        phone: phone.replace(/[^0-9]/g, ''), 
+        termsAgreed: true,
+        securityQuestion,
+        securityAnswer
       });
 
-      if (response.data.status === 'SUCCESS') {
+      if (response.data.status === API_STATUS.SUCCESS) {
         toast('회원가입이 성공적으로 완료되었습니다.', 'success');
         router.push('/login');
       } else {
@@ -159,7 +185,7 @@ export default function RegisterForm() {
     }
   };
 
-  const isSubmitDisabled = !id || !password || !nickname || !agreements.terms || !agreements.privacy || isLoading;
+  const isSubmitDisabled = !id || !password || !nickname || !securityQuestion || !securityAnswer || !agreements.terms || !agreements.privacy || isLoading;
 
   return (
     <div className={styles.card}>
@@ -230,6 +256,53 @@ export default function RegisterForm() {
             />
           </div>
           {errors.phone && <div className={styles.errorMessage}>{errors.phone}</div>}
+        </div>
+
+        {/* 보안 질문 */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="securityQuestion" className={styles.inputLabel}>보안 질문 (비밀번호 찾기용)</label>
+          <div className={styles.inputWrapper}>
+            <HelpCircle className={styles.inputIcon} />
+            <select 
+              id="securityQuestion"
+              className={`${styles.input} ${errors.securityQuestion ? styles.inputError : ''}`}
+              value={securityQuestion}
+              onChange={(e) => {
+                setSecurityQuestion(e.target.value);
+                validateField('securityQuestion', e.target.value);
+              }}
+              style={{ appearance: 'none', cursor: 'pointer' }}
+            >
+              <option value="" disabled>질문을 선택하세요</option>
+              {SECURITY_QUESTIONS.map((q, idx) => (
+                <option key={idx} value={q}>{q}</option>
+              ))}
+            </select>
+            <div className={styles.eyeButton} style={{ pointerEvents: 'none' }}>
+              <div style={{ width: 0, height: 0, borderLeft: '5px solid transparent', borderRight: '5px solid transparent', borderTop: '6px solid var(--color-gray-400)' }}></div>
+            </div>
+          </div>
+          {errors.securityQuestion && <div className={styles.errorMessage}>{errors.securityQuestion}</div>}
+        </div>
+
+        {/* 보안 답변 */}
+        <div className={styles.inputGroup}>
+          <label htmlFor="securityAnswer" className={styles.inputLabel}>보안 답변</label>
+          <div className={styles.inputWrapper}>
+            <HelpCircle className={styles.inputIcon} />
+            <input 
+              id="securityAnswer"
+              type="text" 
+              className={`${styles.input} ${errors.securityAnswer ? styles.inputError : ''}`} 
+              placeholder="답변을 입력하세요"
+              value={securityAnswer}
+              onChange={(e) => {
+                setSecurityAnswer(e.target.value);
+                validateField('securityAnswer', e.target.value);
+              }}
+            />
+          </div>
+          {errors.securityAnswer && <div className={styles.errorMessage}>{errors.securityAnswer}</div>}
         </div>
 
         {/* 비밀번호 */}
