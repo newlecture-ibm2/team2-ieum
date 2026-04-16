@@ -126,16 +126,6 @@ export function useHeader() {
     window.location.href = "/";
   };
 
-  const devRefreshFestivals = async () => {
-    try {
-      const res = await api.patch('/api/festivals/refresh-status');
-      const payload = res.data.data || res.data;
-      setPopupConfig({ msg: `✅ ${payload.message} (${payload.updatedCount}건 변경)`, reload: true });
-    } catch (err) {
-      setPopupConfig({ msg: '❌ 상태 최신화 실패: ' + err, reload: false });
-    }
-  };
-
   return {
     isLoggedIn,
     userNickname,
@@ -149,7 +139,6 @@ export function useHeader() {
     popupConfig,
     closePopup,
     logout,
-    devRefreshFestivals,
     isDarkHeroPage,
   };
 }
