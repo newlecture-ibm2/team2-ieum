@@ -4,6 +4,8 @@ import com.ieum.community.adapter.out.persistence.entity.CommentEntity;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -12,4 +14,12 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface MyPageCommentRepository extends JpaRepository<CommentEntity, Long> {
     Page<CommentEntity> findByUserIdAndStatus(Long userId, String status, Pageable pageable);
+
+    @Query("SELECT c FROM CommentEntity c JOIN PostEntity p ON c.postId = p.id " +
+           "WHERE c.userId = :userId AND c.status = :status AND p.status = 'ACTIVE'")
+    Page<CommentEntity> findByUserIdAndStatusWithActivePost(
+            @Param("userId") Long userId,
+            @Param("status") String status,
+            Pageable pageable
+    );
 }

@@ -208,13 +208,13 @@ export default function ReportListPage() {
         <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
-              <col style={{ width: '130px' }} />
-              <col style={{ width: '90px' }} />
-              <col style={{ width: '150px' }} />
-              <col style={{ width: 'auto' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '100px' }} />
               <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '100px' }} />
             </colgroup>
             <thead>
               <tr className={common.tableHeaderRow}>
@@ -246,7 +246,7 @@ export default function ReportListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary}`}>
                       {report.reporterNickname}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
@@ -254,10 +254,10 @@ export default function ReportListPage() {
                         {TARGET_TYPE_MAP[report.targetType] || report.targetType}
                       </span>
                     </td>
-                    <td className={common.tableCell}>
+                    <td className={`${common.tableCell} ${common.textLeft}`}>
                       {REPORT_REASON_LABELS[report.reason] || report.reason}
                     </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${s.ellipsisCell}`}>
                       {report.description || '-'}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>

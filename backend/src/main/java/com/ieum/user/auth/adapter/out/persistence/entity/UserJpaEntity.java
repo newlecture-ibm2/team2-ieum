@@ -1,6 +1,8 @@
 package com.ieum.user.auth.adapter.out.persistence.entity;
 
+import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
+import com.ieum.global.common.enums.UserStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -40,8 +42,9 @@ public class UserJpaEntity {
     @Column(name = "profile_image", length = 500)
     private String profileImage;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private String role = "USER";
+    private Role role = Role.USER;
 
     @Column(name = "terms_agreed", nullable = false)
     private boolean termsAgreed;
@@ -52,8 +55,9 @@ public class UserJpaEntity {
     @Column(name = "security_answer")
     private String securityAnswer;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
-    private String status = "ACTIVE";
+    private UserStatus status = UserStatus.ACTIVE;
 
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
@@ -70,7 +74,7 @@ public class UserJpaEntity {
     private LocalDateTime suspendedUntil;
 
     @Builder
-    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, String role, boolean termsAgreed, String securityQuestion, String securityAnswer, String status, LocalDateTime deletedAt, LocalDateTime suspendedUntil) {
+    public UserJpaEntity(Long userId, String loginId, String password, String name, String nickname, String phone, String profileImage, Role role, boolean termsAgreed, String securityQuestion, String securityAnswer, UserStatus status, LocalDateTime deletedAt, LocalDateTime suspendedUntil) {
         this.userId = userId;
         this.loginId = loginId;
         this.password = password;
@@ -78,11 +82,11 @@ public class UserJpaEntity {
         this.nickname = nickname;
         this.phone = phone;
         this.profileImage = profileImage;
-        this.role = role != null ? role : "USER";
+        this.role = role != null ? role : Role.USER;
         this.termsAgreed = termsAgreed;
         this.securityQuestion = securityQuestion;
         this.securityAnswer = securityAnswer;
-        this.status = status != null ? status : "ACTIVE";
+        this.status = status != null ? status : UserStatus.ACTIVE;
         this.deletedAt = deletedAt;
         this.suspendedUntil = suspendedUntil;
     }

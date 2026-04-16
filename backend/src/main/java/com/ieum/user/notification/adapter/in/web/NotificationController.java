@@ -11,6 +11,7 @@ import com.ieum.user.notification.application.port.in.GetMyNotificationsUseCase;
 import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCase;
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
+import com.ieum.user.notification.application.port.in.GetNotificationSettingsUseCase;
 import com.ieum.user.notification.domain.model.NotificationSetting;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,6 +36,7 @@ public class NotificationController {
     private final GetMyNotificationsUseCase getMyNotificationsUseCase;
     private final RegisterFcmTokenUseCase registerFcmTokenUseCase;
     private final UpdateNotificationSettingUseCase updateNotificationSettingUseCase;
+    private final GetNotificationSettingsUseCase getNotificationSettingsUseCase;
     private final MarkNotificationsReadUseCase markNotificationsReadUseCase;
     private final DeleteNotificationUseCase deleteNotificationUseCase;
 
@@ -63,6 +65,18 @@ public class NotificationController {
             return ResponseEntity.status(401).build();
         registerFcmTokenUseCase.register(userId, request.getToken());
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    /**
+     * 알림 설정 조회
+     */
+    @Operation(summary = "알림 설정 조회", description = "푸시 수신 동의 여부 및 세부 알림 설정을 조회합니다.")
+    @GetMapping("/notifications/settings")
+    public ResponseEntity<ApiResponse<NotificationSetting>> getSettings(
+            @CurrentUserId Long userId) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(ApiResponse.success(getNotificationSettingsUseCase.getSettings(userId)));
     }
 
     /**

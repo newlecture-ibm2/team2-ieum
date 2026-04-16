@@ -5,6 +5,7 @@ import com.ieum.user.notification.application.port.in.GetMyNotificationsUseCase;
 import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCase;
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
+import com.ieum.user.notification.application.port.in.GetNotificationSettingsUseCase;
 import com.ieum.user.notification.application.port.in.DeleteNotificationUseCase;
 import com.ieum.user.notification.application.port.in.SendNotificationUseCase;
 import com.ieum.user.notification.application.port.out.FcmPort;
@@ -28,7 +29,7 @@ import java.util.List;
 @RequiredArgsConstructor
 @Transactional
 public class NotificationService implements GetMyNotificationsUseCase, RegisterFcmTokenUseCase,
-        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase, SendNotificationUseCase {
+        UpdateNotificationSettingUseCase, MarkNotificationsReadUseCase, DeleteNotificationUseCase, SendNotificationUseCase, GetNotificationSettingsUseCase {
 
     private final NotificationPort notificationPort;
     private final FcmPort fcmPort;
@@ -84,6 +85,22 @@ public class NotificationService implements GetMyNotificationsUseCase, RegisterF
                 .build();
 
         return notificationPort.saveSetting(updated);
+    }
+
+    // ── 알림 설정 조회 ──
+
+    @Override
+    @Transactional(readOnly = true)
+    public NotificationSetting getSettings(Long userId) {
+        return notificationPort.findSettingByUserId(userId)
+                .orElse(NotificationSetting.builder()
+                        .userId(userId)
+                        .pushEnabled(true)
+                        .festivalStart(true)
+                        .festivalEnd(true)
+                        .notice(true)
+                        .comment(true)
+                        .build());
     }
 
     // ── API_USR_0070: 알림 읽음 처리 ──

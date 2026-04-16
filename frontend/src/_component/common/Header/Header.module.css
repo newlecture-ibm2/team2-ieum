@@ -278,28 +278,6 @@
   color: white;
 }
 
-/* ===== [DEV] 상태 최신화 버튼 — 개발 완료 후 제거 ===== */
-.devRefreshBtn {
-  padding: 5px 12px;
-  border-radius: var(--radius-full);
-  background: linear-gradient(135deg, #f39c12, #e67e22);
-  color: white;
-  font-size: 12px;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: opacity var(--transition-fast), transform var(--transition-fast);
-  white-space: nowrap;
-}
-
-.devRefreshBtn:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
-
-.devRefreshBtn:active {
-  transform: scale(0.95);
-}
 
 /* ===== 팝업 모달 ===== */
 .modalOverlay {
@@ -520,9 +498,6 @@
     display: none;
   }
 
-  .devRefreshBtn {
-    display: none;
-  }
 
   .userName {
     display: none !important;

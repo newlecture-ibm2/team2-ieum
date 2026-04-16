@@ -1,5 +1,6 @@
 package com.ieum.user.auth.adapter.in.web.dto;
 
+import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,8 +39,8 @@ public class AuthRes {
                     .id(user.getLoginId())
                     .name(user.getName())
                     .nickname(user.getNickname())
-                    .role(user.getRole())
-                    .status(user.getStatus())
+                    .role(user.getRole().name())
+                    .status(user.getStatus().name())
                     .build();
         }
     }

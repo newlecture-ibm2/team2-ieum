@@ -30,8 +30,8 @@ export default function NoticeListTable({
 
   return (
     <section className={common.card}>
-      <div className={common.desktopOnly} style={{ overflowX: 'auto' }}>
-        <table className={common.table} style={{ tableLayout: 'fixed', minWidth: '950px' }}>
+      <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
           <colgroup>
             <col style={{ width: '60px' }} />
             <col style={{ width: 'auto' }} />
