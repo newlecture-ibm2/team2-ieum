@@ -175,32 +175,27 @@ export default function FestivalListPage() {
       <header className={c.pageHeader}>
         <div>
           <h1 className={c.pageTitle}>🌐 공공 축제 리스트</h1>
-          <p className={c.pageSubtitle}>공공 API로 수집된 축제 데이터를 관리합니다</p>
+          <p className={c.pageSubtitle}>공공 API로 수집된 축제 데이터를 관리합니다 (최근 갱신: {lastSyncTime})</p>
+        </div>
+        <div className={c.dropdownContainer} ref={menuRef}>
+          <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
+            {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
+          </button>
+          {syncMenuOpen && (
+            <div className={c.dropdownMenu}>
+              {PUBLIC_SYNC_MENU.map(menu => (
+                <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
+                  {menu.label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
       </header>
 
       {/* ── 동기화 + KPI ── */}
       <section className={c.card}>
-        <div className={c.cardHeader}>
-          <div>
-            <div className={c.cardTitle}>공공 API 데이터 갱신</div>
-            <div className={c.cardSubtitle}>최근 갱신: {lastSyncTime}</div>
-          </div>
-          <div className={c.dropdownContainer} ref={menuRef}>
-            <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
-              {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
-            </button>
-            {syncMenuOpen && (
-              <div className={c.dropdownMenu}>
-                {PUBLIC_SYNC_MENU.map(menu => (
-                  <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
-                    {menu.label}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-        </div>
+
         <div className={c.statGrid}>
           {KPI_ITEMS(statusCounts).map(item => (
             <div key={item.key}
@@ -241,14 +236,14 @@ export default function FestivalListPage() {
       <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 축제" />
         <div className={c.desktopOnly}>
-        <table className={c.table}>
+        <table className={c.table} style={{ tableLayout: 'fixed' }}>
           <colgroup>
-            <col className={s.festivalNameCol} />
-            <col className={s.categoryCol} />
-            <col className={s.regionCol} />
-            <col className={s.dateCol} />
-            <col className={s.statusCol} />
-            <col className={s.visibilityCol} />
+            <col style={{ width: 'auto' }} />
+            <col style={{ width: '100px' }} />
+            <col style={{ width: '120px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '90px' }} />
           </colgroup>
           <thead>
             <tr className={c.tableHeaderRow}>

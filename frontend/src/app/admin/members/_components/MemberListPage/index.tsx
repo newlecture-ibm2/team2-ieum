@@ -159,33 +159,7 @@ export default function MemberListPage() {
           <h1 className={common.pageTitle}>👥 회원 관리</h1>
           <p className={common.pageSubtitle}>등록된 회원 정보를 조회하고 상태를 관리합니다</p>
         </div>
-        <button
-          type="button"
-          style={{
-            height: 36, padding: '0 16px',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            background: '#4f46e5', color: '#ffffff', border: 'none', borderRadius: '8px',
-            cursor: 'pointer', fontSize: 13, fontWeight: 600,
-            boxShadow: '0 2px 4px rgba(79, 70, 229, 0.2)'
-          }}
-          onClick={async () => {
-            try {
-              const res = await adminApi.post('/members/batch/trigger');
-              if (res.data.success) {
-                setToastMessage(res.data.data || '배치 작업이 성공적으로 실행되었습니다.');
-                setTimeout(() => setToastMessage(''), 3000);
-                fetchMembers(); // Update the list after batch run
-              }
-            } catch (e) {
-              console.error(e);
-              setToastMessage('배치 작업 실행 중 오류가 발생했습니다.');
-              setTimeout(() => setToastMessage(''), 3000);
-            }
-          }}
-          title="현재 정지(SUSPENDED) 중인 모든 회원을 즉시 탈퇴(물리 삭제) 처리합니다."
-        >
-          ⚡ 정지회원 즉시 탈퇴로직 실행
-        </button>
+
       </div>
 
       {/* ── KPI 카드 ── */}

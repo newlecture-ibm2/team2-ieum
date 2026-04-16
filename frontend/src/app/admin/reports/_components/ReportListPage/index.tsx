@@ -208,13 +208,13 @@ export default function ReportListPage() {
         <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
-              <col style={{ width: '130px' }} />
-              <col style={{ width: '90px' }} />
-              <col style={{ width: '150px' }} />
-              <col style={{ width: 'auto' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '100px' }} />
               <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '100px' }} />
             </colgroup>
             <thead>
               <tr className={common.tableHeaderRow}>

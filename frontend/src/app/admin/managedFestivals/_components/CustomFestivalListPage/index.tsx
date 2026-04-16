@@ -189,35 +189,30 @@ export default function CustomFestivalListPage() {
       <header className={c.pageHeader}>
         <div>
           <h1 className={c.pageTitle}>🎪 축제 관리</h1>
-          <p className={c.pageSubtitle}>등록 축제를 관리합니다.</p>
+          <p className={c.pageSubtitle}>등록 축제를 관리합니다. (최근 갱신: {lastRefreshTime})</p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <div className={c.dropdownContainer} ref={menuRef}>
+            <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
+              {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
+            </button>
+            {syncMenuOpen && (
+              <div className={c.dropdownMenu}>
+                {CUSTOM_SYNC_MENU.map(menu => (
+                  <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
+                    {menu.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={handleOpenCreate} className={c.btnPrimary}><span>+</span> 축제 등록</button>
         </div>
       </header>
 
       {/* ── KPI 카드 ── */}
       <section className={c.card}>
-        <div className={c.cardHeader}>
-          <div>
-            <div className={c.cardTitle}>축제 현황 및 관리</div>
-            <div className={c.cardSubtitle}>최근 갱신: {lastRefreshTime}</div>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <div className={c.dropdownContainer} ref={menuRef}>
-              <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
-                {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
-              </button>
-              {syncMenuOpen && (
-                <div className={c.dropdownMenu}>
-                  {CUSTOM_SYNC_MENU.map(menu => (
-                    <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
-                      {menu.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={handleOpenCreate} className={c.btnPrimary}><span>+</span> 축제 등록</button>
-          </div>
-        </div>
+
         <div className={c.statGrid}>
           {KPI_ITEMS(statusCounts).map(item => (
             <div key={item.key}
@@ -264,14 +259,14 @@ export default function CustomFestivalListPage() {
       <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 관리 축제" />
         <div className={c.desktopOnly}>
-        <table className={c.table}>
+        <table className={c.table} style={{ tableLayout: 'fixed' }}>
           <colgroup>
-            <col className={s.festivalNameCol} />
-            <col className={s.categoryCol} />
-            <col className={s.regionCol} />
-            <col className={s.dateCol} />
-            <col className={s.statusCol} />
-            <col className={s.actionCol} />
+            <col style={{ width: 'auto' }} />
+            <col style={{ width: '100px' }} />
+            <col style={{ width: '80px' }} />
+            <col style={{ width: '150px' }} />
+            <col style={{ width: '70px' }} />
+            <col style={{ width: '140px' }} />
           </colgroup>
           <thead>
             <tr className={c.tableHeaderRow}>

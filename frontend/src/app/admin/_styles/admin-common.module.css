@@ -644,7 +644,7 @@
   padding: 16px 12px;
   color: #475569;
   vertical-align: middle;
-  word-break: keep-all;
+  word-break: break-all;
   overflow-wrap: break-word;
 }
 
@@ -668,7 +668,7 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  word-break: keep-all;
+  word-break: break-all;
   line-height: 1.4;
   white-space: normal;
   padding-right: 8px;
@@ -1073,10 +1073,15 @@
   background: #dc2626;
 }
 /* ── 반응형 가시성 제어 ── */
-@media (max-width: 768px) {
+.desktopOnly {
+  width: 100%;
+  overflow-x: auto;
+}
+
+@media (max-width: 1024px) {
   .desktopOnly { display: none !important; }
 }
-@media (min-width: 769px) {
+@media (min-width: 1025px) {
   .mobileOnly { display: none !important; }
 }
 
