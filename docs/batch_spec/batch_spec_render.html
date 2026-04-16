@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <title>배치 설계서</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap');
+    body {
+      font-family: 'Noto Sans KR', sans-serif;
+      background: #f8fafc;
+      padding: 0;
+      margin: 0;
+      color: #1e293b;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 40px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      min-height: 100vh;
+    }
+    h1 { font-size: 2em; color: #0f172a; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; margin-top: 0; }
+    h2 { font-size: 1.5em; color: #334155; margin-top: 30px; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }
+    h3 { font-size: 1.25em; color: #475569; margin-top: 25px; }
+    p, li { line-height: 1.7; font-size: 1.05em; color: #475569; }
+    table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 0.95em; }
+    th { background: #f1f5f9; color: #0f172a; padding: 12px; border: 1px solid #cbd5e1; text-align: left; font-weight: 600; }
+    td { padding: 12px; border: 1px solid #cbd5e1; }
+    tr:nth-child(even) { background: #f8fafc; }
+    code { font-family: monospace; background: #f1f5f9; padding: 3px 6px; border-radius: 4px; color: #dc2626; font-size: 0.9em; }
+    pre { background: #1e293b; color: #f8fafc; padding: 15px; border-radius: 8px; overflow-x: auto; }
+    pre code { background: none; color: inherit; padding: 0; }
+    blockquote { border-left: 4px solid #3b82f6; margin: 0; padding-left: 15px; color: #64748b; background: #e0f2fe; padding: 10px 15px; border-radius: 0 8px 8px 0; }
+  </style>
+</head>
+<body>
+  <div class="container" id="content">로딩 중...</div>
+  <script>
+    fetch('배치_설계서.md')
+      .then(response => {
+        if (!response.ok) throw new Error('파일을 찾을 수 없습니다.');
+        return response.text();
+      })
+      .then(text => {
+        document.getElementById('content').innerHTML = marked.parse(text);
+      })
+      .catch(err => {
+        document.getElementById('content').innerHTML = '<p style="color:red;">배치_설계서.md 파일을 불러오지 못했습니다.</p>';
+      });
+  </script>
+</body>
+</html>
