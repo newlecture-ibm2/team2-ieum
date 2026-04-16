@@ -11,6 +11,7 @@ import { useToast } from '@/_component/common/Toast';
 import { REPORT_REASON_LABELS, REPORT_ACTION } from '@/constants/reportOptions';
 import { REPORT_STATUS } from '@/constants/statusLabels';
 import { TARGET_TYPE } from '@/constants/targetType';
+import DOMPurify from 'isomorphic-dompurify';
 
 /* ── 매핑 상수 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
@@ -206,7 +207,10 @@ export default function ReportDetailModal({ report, onClose, onProcessed }: Prop
                   <span>·</span>
                   <span>{original.createdAt?.slice(0, 10)}</span>
                 </div>
-                <div className={s.originalContentScroll}>{original.content}</div>
+                <div 
+                  className={s.originalContentScroll}
+                  dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(original.content) }}
+                />
               </div>
             )}
           </div>

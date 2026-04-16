@@ -11,6 +11,7 @@ import styles from '../mypage.module.css';
 import { REPORT_REASON_LABELS, REPORT_ACTION } from '@/constants/reportOptions';
 import { REPORT_STATUS } from '@/constants/statusLabels';
 import { TARGET_TYPE } from '@/constants/targetType';
+import DOMPurify from 'isomorphic-dompurify';
 
 // 🛡️ 매핑 및 라우팅 설정 (컴포넌트 외부로 분리하여 유지보수성 향상)
 const ROUTES = {
@@ -158,7 +159,11 @@ export default function ReportList() {
                 <div className={styles.detailSection}>
                   <div className={styles.detailLabel}>[신고 대상 원문]</div>
                   <div className={styles.detailContent}>
-                    {report.targetContent || '원문 내용을 불러올 수 없습니다.'}
+                    {report.targetContent ? (
+                      <div dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(report.targetContent) }} />
+                    ) : (
+                      '원문 내용을 불러올 수 없습니다.'
+                    )}
                   </div>
                 </div>
 

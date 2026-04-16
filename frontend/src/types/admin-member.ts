@@ -27,5 +27,5 @@ export interface MemberListResponse {
   totalElements: number;
   activeCount: number;
   suspendedCount: number;
-  deletedCount: number;
+  withdrawalCount: number;
 }

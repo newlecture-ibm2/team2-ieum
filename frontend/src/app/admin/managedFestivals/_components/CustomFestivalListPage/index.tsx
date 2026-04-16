@@ -263,7 +263,7 @@ export default function CustomFestivalListPage() {
           <colgroup>
             <col style={{ width: 'auto' }} />
             <col style={{ width: '130px' }} />
-            <col style={{ width: '80px' }} />
+            <col style={{ width: '120px' }} />
             <col style={{ width: '190px' }} />
             <col style={{ width: '80px' }} />
             <col style={{ width: '140px' }} />
