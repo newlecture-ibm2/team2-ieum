@@ -50,7 +50,7 @@ export default function AdminFAB() {
               href={item.href}
               className={`${styles.subMenuItem} ${isActive ? styles.subMenuItemActive : ''}`}
               style={{ 
-                transitionDelay: isOpen ? `${idx * 50}ms` : '0ms',
+                transitionDelay: isOpen ? `${(FAB_ITEMS.length - 1 - idx) * 50}ms` : '0ms',
               }}
             >
               <span className={styles.subMenuIcon} style={{ background: item.color }}>
