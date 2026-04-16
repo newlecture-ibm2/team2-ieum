@@ -87,7 +87,7 @@ public class MyPagePersistenceAdapter implements LoadMyActivityPort {
 
     @Override
     public ActivityPageResult loadMyComments(Long userId, int page, int size) {
-        Page<CommentEntity> commentPage = commentRepository.findByUserIdAndStatus(userId, "ACTIVE", PageRequest.of(page, size, Sort.by("createdAt").descending()));
+        Page<CommentEntity> commentPage = commentRepository.findByUserIdAndStatusWithActivePost(userId, "ACTIVE", PageRequest.of(page, size, Sort.by("createdAt").descending()));
 
         List<ActivityItemResult> items = commentPage.getContent().stream()
                 .map(comment -> {

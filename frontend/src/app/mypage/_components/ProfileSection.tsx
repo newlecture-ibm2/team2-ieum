@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
 import { useToast } from '@/_component/common/Toast';
+import { API_ENDPOINTS } from '@/constants/api';
 
 interface ProfileSectionProps {
   user: {
@@ -15,6 +17,7 @@ interface ProfileSectionProps {
 }
 
 export default function ProfileSection({ user }: ProfileSectionProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [nickname, setNickname] = useState(user.nickname);
   const [isNicknameChecked, setIsNicknameChecked] = useState(true);
@@ -28,7 +31,7 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
   useEffect(() => {
     const fetchLatestProfile = async () => {
       try {
-        const response = await api.get('/api/mypage/profile');
+        const response = await api.get(API_ENDPOINTS.MYPAGE.PROFILE);
         const profileData = response.data.data;
         if (profileData) {
           if (profileData.nickname) setNickname(profileData.nickname);
@@ -84,14 +87,18 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
       if (selectedFile) {
         // 🚀 Base64 우회 전략: 이미지를 텍스트로 변환하여 프록시 이슈 회피
         const base64Image = await fileToBase64(selectedFile);
-        await api.patch('/api/mypage/profile/image', { base64Image });
+        await api.patch(API_ENDPOINTS.MYPAGE.UPDATE_IMAGE, { base64Image });
       }
 
       // 닉네임 업데이트 (JSON 전송으로 단순화하여 안정성 확보)
-      await api.put('/api/mypage', { nickname });
+      await api.put(API_ENDPOINTS.MYPAGE.UPDATE, { nickname });
 
       toast('프로필 정보가 성공적으로 반영되었습니다.', 'success');
-      window.location.reload();
+      
+      // ✅ 전체 새로고침(window.reload) 대신 Next.js router.refresh()를 사용하여 
+      // 데이터만 최신화하고 불필요한 레이아웃 초기화 및 오버레이 버그를 방지합니다.
+      router.refresh();
+      
     } catch (error) {
       console.error('Failed to save profile:', error);
       toast('프로필 저장 중 오류가 발생했습니다.', 'error');

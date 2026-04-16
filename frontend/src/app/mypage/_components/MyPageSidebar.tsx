@@ -15,6 +15,7 @@ import {
 } from 'lucide-react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
+import { API_ENDPOINTS } from '@/constants/api';
 
 export type MenuType = 'favorites' | 'posts' | 'reviews' | 'comments' | 'inquiries' | 'reports' | 'settings';
 
@@ -51,6 +52,15 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
   const [profileImageUrl, setProfileImageUrl] = useState<string | null>(null);
   const [nickname, setNickname] = useState(user.nickname);
   const [isDialOpen, setIsDialOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // 📱 모바일 여부 실시간 감지 (오버레이 오작동 방지)
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth <= 768);
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // 수직 막대(Speed Dial) 메뉴 계산용
   const SPACING = 58; // 아이콘 간의 간격
@@ -60,7 +70,7 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const response = await api.get('/api/mypage/profile');
+        const response = await api.get(API_ENDPOINTS.MYPAGE.PROFILE);
         const profileData = response.data.data;
         if (profileData) {
           if (profileData.profileImageUrl) setProfileImageUrl(profileData.profileImageUrl);
@@ -119,9 +129,9 @@ export default function MyPageSidebar({ user, activeMenu, onMenuChange }: MyPage
         </nav>
       </aside>
 
-      {/* 모바일 반원 다이얼 메뉴 (Mobile Exclusive) */}
+      {/* 모바일 반원 다이얼 메뉴 (Mobile Exclusive) - JS 레벨에서도 너비 체크 강화 */}
       <div className={`${styles.radialMenuWrapper} ${isDialOpen ? styles.radialOpen : ''}`}>
-        {isDialOpen && <div className={styles.radialOverlay} onClick={() => setIsDialOpen(false)} />}
+        {(isMobile && isDialOpen) && <div className={styles.radialOverlay} onClick={() => setIsDialOpen(false)} />}
 
         <div className={styles.radialItemsContainer}>
           {MENU_ITEMS.map((item, index) => {
