@@ -7,14 +7,75 @@ import Dropdown from '@/_component/common/Dropdown';
 import styles from './SearchFilter.module.css';
 import Modal from '@/_component/common/Modal/Modal';
 import modalStyles from '@/_component/common/Modal/Modal.module.css';
-import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES } from '@/constants/filterOptions';
+import { REGION_CODES, CATEGORY_CODES, PERIOD_CODES, NOTICE_CATEGORY_CODES, NOTICE_CATEGORY_MAP } from '@/constants/filterOptions';
 
-const NOTICE_CATEGORY_CODES = [
-  { code: 'GENERAL', name: '일반' },
-  { code: 'EVENT', name: '행사' },
-  { code: 'UPDATE', name: '업데이트' },
-  { code: 'URGENT', name: '긴급' },
-];
+/** 콤마 구분 문자열 → 배열 */
+function csvToArr(val: string): string[] {
+  return val ? val.split(',').filter(Boolean) : [];
+}
+/** 배열 → 콤마 구분 문자열 */
+function arrToCsv(arr: string[]): string {
+  return arr.join(',');
+}
+/** 토글: 배열에 값이 있으면 제거, 없으면 추가 */
+function toggleInArr(arr: string[], val: string): string[] {
+  return arr.includes(val) ? arr.filter(v => v !== val) : [...arr, val];
+}
+
+/** URL searchParams에서 현재 적용된 필터 태그 배열 생성 (다중 선택 지원) */
+function buildActiveFilterTags(
+  searchParams: URLSearchParams,
+  filterType: string
+): { key: string; label: string; paramKey: string; removeValue?: string }[] {
+  const tags: { key: string; label: string; paramKey: string; removeValue?: string }[] = [];
+
+  // 지역 (다중)
+  const acRaw = searchParams.get('areaCode') || '';
+  csvToArr(acRaw).forEach(code => {
+    const region = REGION_CODES.find(r => r.code === code);
+    if (region) tags.push({ key: `areaCode-${code}`, label: `지역: ${region.name}`, paramKey: 'areaCode', removeValue: code });
+  });
+
+  if (filterType === 'festival') {
+    // 월 (다중)
+    const mRaw = searchParams.get('month') || '';
+    csvToArr(mRaw).forEach(m => {
+      tags.push({ key: `month-${m}`, label: `기간: ${m}월`, paramKey: 'month', removeValue: m });
+    });
+  }
+
+  if (filterType === 'community') {
+    // 카테고리 (다중)
+    const catRaw = searchParams.get('category') || '';
+    csvToArr(catRaw).forEach(code => {
+      const found = CATEGORY_CODES.find(c => c.code === code);
+      if (found) tags.push({ key: `category-${code}`, label: `말머리: ${found.name}`, paramKey: 'category', removeValue: code });
+    });
+    // 기간 (단일)
+    const p = searchParams.get('period');
+    if (p) {
+      const pFound = PERIOD_CODES.find(x => x.code === p);
+      if (pFound) {
+        let periodLabel = `기간: ${pFound.name}`;
+        if (p === 'custom') {
+          const sd = searchParams.get('startDate');
+          const ed = searchParams.get('endDate');
+          if (sd || ed) periodLabel = `기간: ${sd || '?'} ~ ${ed || '?'}`;
+        }
+        tags.push({ key: 'period', label: periodLabel, paramKey: 'period' });
+      }
+    }
+  }
+
+  if (filterType === 'notice') {
+    const cat = searchParams.get('category');
+    if (cat && NOTICE_CATEGORY_MAP[cat]) {
+      tags.push({ key: 'category', label: `카테고리: ${NOTICE_CATEGORY_MAP[cat]}`, paramKey: 'category' });
+    }
+  }
+
+  return tags;
+}
 
 interface SearchFilterProps {
   variant?: 'search-only' | 'with-filter';
@@ -53,6 +114,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
   const [sortOpen, setSortOpen] = useState(false);
   const sortRef = useRef<HTMLDivElement>(null);
 
+  // 다중 선택 필터는 콤마 구분 문자열로 관리
   const [areaCode, setAreaCode] = useState(currentAreaCode);
   const [month, setMonth] = useState(currentMonth);
   const [category, setCategory] = useState(currentCategory);
@@ -62,6 +124,11 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
   const [searchType, setSearchType] = useState(currentSearchType);
   
   const [sort, setSort] = useState(currentSort);
+
+  /** 다중 선택 토글 헬퍼 */
+  const toggleAreaCode = (code: string) => setAreaCode(prev => arrToCsv(toggleInArr(csvToArr(prev), code)));
+  const toggleMonth = (m: string) => setMonth(prev => arrToCsv(toggleInArr(csvToArr(prev), m)));
+  const toggleCategory = (code: string) => setCategory(prev => arrToCsv(toggleInArr(csvToArr(prev), code)));
 
   // URL 파라미터가 변경될 때 로컬 상태를 동기화 (예: HeroBanner 탭 전환 시)
   useEffect(() => {
@@ -237,6 +304,36 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
     setEndDate('');
   };
 
+  // 적용된 필터 태그 목록 (URL 기반)
+  const activeFilterTags = buildActiveFilterTags(searchParams, filterType);
+
+  /** 개별 필터 태그 제거 (다중 선택 값에서 하나만 제거) */
+  const handleRemoveFilterTag = (paramKey: string, removeValue?: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (removeValue && ['areaCode', 'month', 'category'].includes(paramKey)) {
+      const current = csvToArr(params.get(paramKey) || '');
+      const updated = current.filter(v => v !== removeValue);
+      if (updated.length > 0) params.set(paramKey, arrToCsv(updated));
+      else params.delete(paramKey);
+    } else {
+      params.delete(paramKey);
+      if (paramKey === 'period') {
+        params.delete('startDate');
+        params.delete('endDate');
+      }
+    }
+    params.delete('page');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  /** 모든 필터 한 번에 제거 */
+  const handleClearAllFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    ['areaCode', 'month', 'category', 'period', 'startDate', 'endDate'].forEach(k => params.delete(k));
+    params.delete('page');
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
   return (
     <div className={`${styles.wrapper} ${filterType === 'notice' ? styles.wrapperNotice : ''}`}>
       <div className={styles.searchBar}>
@@ -288,7 +385,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                   {filterType === 'community' && (
                     <>
                       <div className={styles.filterGroup}>
-                        <h4>말머리</h4>
+                        <h4>말머리 <span className={styles.multiHint}>(다중 선택 가능)</span></h4>
                         <div className={styles.filterTags}>
                           <span 
                             className={category === '' ? styles.active : ''} 
@@ -297,14 +394,14 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                           {CATEGORY_CODES.map((cat) => (
                             <span 
                               key={cat.code} 
-                              className={category === cat.code ? styles.active : ''}
-                              onClick={() => setCategory(cat.code)}
+                              className={csvToArr(category).includes(cat.code) ? styles.active : ''}
+                              onClick={() => toggleCategory(cat.code)}
                             >{cat.name}</span>
                           ))}
                         </div>
                       </div>
                       <div className={styles.filterGroup}>
-                        <h4>지역</h4>
+                        <h4>지역 <span className={styles.multiHint}>(다중 선택 가능)</span></h4>
                         <div className={styles.filterTags}>
                           <span 
                             className={areaCode === '' ? styles.active : ''} 
@@ -313,8 +410,8 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                           {REGION_CODES.map((region) => (
                             <span 
                               key={region.code} 
-                              className={areaCode === region.code ? styles.active : ''}
-                              onClick={() => setAreaCode(region.code)}
+                              className={csvToArr(areaCode).includes(region.code) ? styles.active : ''}
+                              onClick={() => toggleAreaCode(region.code)}
                             >{region.name}</span>
                           ))}
                         </div>
@@ -349,7 +446,7 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                   {filterType === 'festival' && (
                     <>
                       <div className={styles.filterGroup}>
-                        <h4>지역</h4>
+                        <h4>지역 <span className={styles.multiHint}>(다중 선택 가능)</span></h4>
                         <div className={styles.filterTags}>
                           <span 
                             className={areaCode === '' ? styles.active : ''} 
@@ -358,14 +455,14 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                           {REGION_CODES.map((region) => (
                             <span 
                               key={region.code} 
-                              className={areaCode === region.code ? styles.active : ''}
-                              onClick={() => setAreaCode(region.code)}
+                              className={csvToArr(areaCode).includes(region.code) ? styles.active : ''}
+                              onClick={() => toggleAreaCode(region.code)}
                             >{region.name}</span>
                           ))}
                         </div>
                       </div>
                       <div className={styles.filterGroup}>
-                        <h4>기간(월)</h4>
+                        <h4>기간(월) <span className={styles.multiHint}>(다중 선택 가능)</span></h4>
                         <div className={styles.filterTags}>
                           <span 
                             className={month === '' ? styles.active : ''} 
@@ -374,8 +471,8 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
                           {Array.from({ length: 12 }, (_, i) => i + 1).map((m) => (
                             <span 
                               key={m} 
-                              className={month === m.toString() ? styles.active : ''}
-                              onClick={() => setMonth(m.toString())}
+                              className={csvToArr(month).includes(m.toString()) ? styles.active : ''}
+                              onClick={() => toggleMonth(m.toString())}
                             >{m}월</span>
                           ))}
                         </div>
@@ -487,6 +584,32 @@ function SearchFilterInner({ variant = 'with-filter', filterType = 'festival' }:
             </button>
           </div>
         </Modal>
+      )}
+
+      {/* ───── 적용된 필터 태그 칩 ───── */}
+      {activeFilterTags.length > 0 && (
+        <div className={styles.activeTagsRow}>
+          {activeFilterTags.map((tag) => (
+            <span key={tag.key} className={styles.activeTag}>
+              {tag.label}
+              <button
+                type="button"
+                className={styles.activeTagRemove}
+                onClick={() => handleRemoveFilterTag(tag.paramKey, tag.removeValue)}
+                aria-label={`${tag.label} 필터 해제`}
+              >
+                <X size={11} />
+              </button>
+            </span>
+          ))}
+          <button
+            type="button"
+            className={styles.clearAllTagsBtn}
+            onClick={handleClearAllFilters}
+          >
+            전체 해제
+          </button>
+        </div>
       )}
     </div>
   );

@@ -35,32 +35,32 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
     //  목록 조회
     // ───────────────────────────────────
     @Override
-    public FestivalPageResult loadFestivals(String status, String keyword, String areaCode,
-                                             Integer month, String sort, Double lat, Double lng,
+    public FestivalPageResult loadFestivals(String status, String keyword, List<String> areaCodes,
+                                             List<Integer> months, String sort, Double lat, Double lng,
                                              int page, int size) {
         String searchKeyword = (keyword != null && !keyword.isBlank()) ? keyword.trim() : null;
 
         // 거리순 정렬 시: 위치 좌표 기반
         if ("distance".equalsIgnoreCase(sort) && lat != null && lng != null) {
-            return loadFestivalsByDistance(status, searchKeyword, areaCode, month, lat, lng, page, size);
+            return loadFestivalsByDistance(status, searchKeyword, areaCodes, months, lat, lng, page, size);
         }
 
         // 인기순 / 조회순 / 리뷰순: 애플리케이션 레벨 정렬
         if ("popular".equalsIgnoreCase(sort) || "views".equalsIgnoreCase(sort) || "reviews".equalsIgnoreCase(sort)) {
-            return loadFestivalsSortedBy(status, searchKeyword, areaCode, month, sort, page, size);
+            return loadFestivalsSortedBy(status, searchKeyword, areaCodes, months, sort, page, size);
         }
 
         // 기본 정렬 (최신순 = 날짜 기반 동적 정렬)
         PagedResult<Festival> result;
 
         if ("ongoing".equalsIgnoreCase(status)) {
-            result = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCode, month, page, size);
+            result = festivalPersistencePort.findOngoingFestivals(searchKeyword, areaCodes, months, page, size);
         } else if ("upcoming".equalsIgnoreCase(status)) {
-            result = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCode, month, page, size);
+            result = festivalPersistencePort.findUpcomingFestivals(searchKeyword, areaCodes, months, page, size);
         } else if ("ended".equalsIgnoreCase(status)) {
-            result = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCode, month, page, size);
+            result = festivalPersistencePort.findEndedFestivals(searchKeyword, areaCodes, months, page, size);
         } else {
-            result = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCode, month, page, size);
+            result = festivalPersistencePort.findAllWithDynamicOrder(searchKeyword, areaCodes, months, page, size);
         }
 
         List<FestivalListItemResult> items = result.getContent().stream()
@@ -76,9 +76,9 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
      * - views: 조회수 내림차순
      * - reviews: 리뷰수 내림차순 → 평균 별점 내림차순
      */
-    private FestivalPageResult loadFestivalsSortedBy(String status, String keyword, String areaCode,
-                                                      Integer month, String sort, int page, int size) {
-        PagedResult<Festival> allResult = fetchAll(status, keyword, areaCode, month);
+    private FestivalPageResult loadFestivalsSortedBy(String status, String keyword, List<String> areaCodes,
+                                                      List<Integer> months, String sort, int page, int size) {
+        PagedResult<Festival> allResult = fetchAll(status, keyword, areaCodes, months);
 
         Comparator<FestivalListItemResult> comparator;
         switch (sort.toLowerCase()) {
@@ -109,10 +109,10 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
     /**
      * 거리순 정렬 — Haversine 공식으로 사용자 위치와 축제 좌표 간 거리를 계산하여 가까운 순 정렬
      */
-    private FestivalPageResult loadFestivalsByDistance(String status, String keyword, String areaCode,
-                                                       Integer month, double userLat, double userLng,
+    private FestivalPageResult loadFestivalsByDistance(String status, String keyword, List<String> areaCodes,
+                                                       List<Integer> months, double userLat, double userLng,
                                                        int page, int size) {
-        PagedResult<Festival> allResult = fetchAll(status, keyword, areaCode, month);
+        PagedResult<Festival> allResult = fetchAll(status, keyword, areaCodes, months);
 
         List<FestivalListItemResult> sorted = allResult.getContent().stream()
                 .map(FestivalListItemResult::from)
@@ -178,16 +178,16 @@ public class FestivalQueryService implements LoadFestivalListUseCase, LoadFestiv
     // ───────────────────────────────────
 
     /** status 필터에 따라 전체 데이터 조회 (애플리케이션 레벨 정렬용) */
-    private PagedResult<Festival> fetchAll(String status, String keyword, String areaCode, Integer month) {
+    private PagedResult<Festival> fetchAll(String status, String keyword, List<String> areaCodes, List<Integer> months) {
         int maxSize = 10000;
         if ("ongoing".equalsIgnoreCase(status)) {
-            return festivalPersistencePort.findOngoingFestivals(keyword, areaCode, month, 1, maxSize);
+            return festivalPersistencePort.findOngoingFestivals(keyword, areaCodes, months, 1, maxSize);
         } else if ("upcoming".equalsIgnoreCase(status)) {
-            return festivalPersistencePort.findUpcomingFestivals(keyword, areaCode, month, 1, maxSize);
+            return festivalPersistencePort.findUpcomingFestivals(keyword, areaCodes, months, 1, maxSize);
         } else if ("ended".equalsIgnoreCase(status)) {
-            return festivalPersistencePort.findEndedFestivals(keyword, areaCode, month, 1, maxSize);
+            return festivalPersistencePort.findEndedFestivals(keyword, areaCodes, months, 1, maxSize);
         } else {
-            return festivalPersistencePort.findAllWithDynamicOrder(keyword, areaCode, month, 1, maxSize);
+            return festivalPersistencePort.findAllWithDynamicOrder(keyword, areaCodes, months, 1, maxSize);
         }
     }
 

@@ -30,30 +30,30 @@ public class FestivalPersistenceAdapter implements FestivalPersistencePort {
     // ── 목록 조회 (페이징) ──
 
     @Override
-    public PagedResult<Festival> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, int page, int size) {
+    public PagedResult<Festival> findAllWithDynamicOrder(String keyword, List<String> areaCodes, List<Integer> months, int page, int size) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<FestivalEntity> entityPage = repository.findAllWithDynamicOrder(keyword, areaCode, month, pageable);
+        Page<FestivalEntity> entityPage = repository.findAllWithDynamicOrder(keyword, areaCodes, months, pageable);
         return toPagedResult(entityPage);
     }
 
     @Override
-    public PagedResult<Festival> findOngoingFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+    public PagedResult<Festival> findOngoingFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<FestivalEntity> entityPage = repository.findOngoingFestivals(keyword, areaCode, month, pageable);
+        Page<FestivalEntity> entityPage = repository.findOngoingFestivals(keyword, areaCodes, months, pageable);
         return toPagedResult(entityPage);
     }
 
     @Override
-    public PagedResult<Festival> findUpcomingFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+    public PagedResult<Festival> findUpcomingFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<FestivalEntity> entityPage = repository.findUpcomingFestivals(keyword, areaCode, month, pageable);
+        Page<FestivalEntity> entityPage = repository.findUpcomingFestivals(keyword, areaCodes, months, pageable);
         return toPagedResult(entityPage);
     }
 
     @Override
-    public PagedResult<Festival> findEndedFestivals(String keyword, String areaCode, Integer month, int page, int size) {
+    public PagedResult<Festival> findEndedFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size) {
         Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size);
-        Page<FestivalEntity> entityPage = repository.findEndedFestivals(keyword, areaCode, month, pageable);
+        Page<FestivalEntity> entityPage = repository.findEndedFestivals(keyword, areaCodes, months, pageable);
         return toPagedResult(entityPage);
     }
 
