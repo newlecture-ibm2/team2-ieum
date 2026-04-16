@@ -8,6 +8,7 @@ import type { InquiryItem, InquiryListResponse } from '@/types/admin-inquiry';
 import InquiryDetailModal from '../InquiryDetailModal';
 import s from './InquiryListPage.module.css';
 import { INQUIRY_STATUS, INQUIRY_STATUS_LABELS } from '@/constants/statusLabels';
+import Pagination from '@/_component/common/Pagination';
 
 
 
@@ -187,8 +188,76 @@ export default function InquiryListPage() {
       </div>
 
       {/* ── 리스트 ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div className={common.listGrid}>
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '60px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '110px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '100px' }} />
+              <col style={{ width: '110px' }} />
+            </colgroup>
+            <thead>
+              <tr className={common.tableHeaderRow}>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>제목</th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>작성자</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>작성일</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {inquiries.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className={common.emptyRow}>
+                    문의 내역이 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                inquiries.map((inquiry, idx) => (
+                  <tr
+                    key={inquiry.id}
+                    className={`${common.tableRow} ${common.tableRowHover}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedInquiry(inquiry)}
+                  >
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(currentPage - 1) * 10 + idx + 1}
+                    </td>
+                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                      {inquiry.title}
+                    </td>
+                    <td className={common.tableCell}>
+                      {inquiry.authorNickname}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {inquiry.createdAt?.slice(0, 10)}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${common[INQUIRY_STATUS_LABELS[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                        {INQUIRY_STATUS_LABELS[inquiry.status]?.label || inquiry.status}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <button
+                        className={inquiry.status === INQUIRY_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
+                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
+                      >
+                        {inquiry.status === INQUIRY_STATUS.PENDING ? '답변' : '보기'}
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
           {loading ? (
             <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
           ) : inquiries.length === 0 ? (
@@ -236,25 +305,15 @@ export default function InquiryListPage() {
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedInquiry && (

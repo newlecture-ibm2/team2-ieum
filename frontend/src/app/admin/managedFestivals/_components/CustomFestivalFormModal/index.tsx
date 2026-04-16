@@ -277,12 +277,12 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
               <div className={s.formSection}>
                 <div className={s.formGroup}>
                   <label className={s.formLabel}><span className={s.requiredStar}>*</span> 축제 기간</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1 }}>
+                  <div className={s.formDateRange}>
                     <input type="date" className={`${s.formInput} ${errors.startDate ? s.errorInput : ''}`} value={formData.startDate}
                       onChange={e => { updateField('startDate', e.target.value); setErrors(p => { const n = { ...p }; delete n.endDate; return n; }); }}
                       onClick={e => { const target = e.currentTarget as HTMLInputElement & { showPicker?: () => void }; if (typeof target.showPicker === 'function') target.showPicker(); }}
                       onKeyDown={e => e.preventDefault()} />
-                    <span style={{ color: '#94a3b8' }}>~</span>
+                    <span className={s.dateSeparator}>~</span>
                     <input type="date" className={`${s.formInput} ${errors.endDate ? s.errorInput : ''}`} value={formData.endDate}
                       onChange={e => updateField('endDate', e.target.value)}
                       onClick={e => { const target = e.currentTarget as HTMLInputElement & { showPicker?: () => void }; if (typeof target.showPicker === 'function') target.showPicker(); }}
@@ -292,9 +292,9 @@ export default function CustomFestivalFormModal({ editingItem, regionOptions, ca
                 </div>
                 <div className={s.formGroup}>
                   <label className={s.formLabel}>운영 시간</label>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flex: 1, opacity: formData.isAllDay ? 0.5 : 1, pointerEvents: formData.isAllDay ? 'none' : 'auto' }}>
+                  <div className={s.formDateRange} style={{ opacity: formData.isAllDay ? 0.5 : 1, pointerEvents: formData.isAllDay ? 'none' : 'auto' }}>
                     <input type="time" disabled={formData.isAllDay} className={s.formInput} value={formData.startTime} onChange={e => updateField('startTime', e.target.value)} />
-                    <span style={{ color: '#94a3b8' }}>~</span>
+                    <span className={s.dateSeparator}>~</span>
                     <input type="time" disabled={formData.isAllDay} className={s.formInput} value={formData.endTime} onChange={e => updateField('endTime', e.target.value)} />
                   </div>
                   <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', userSelect: 'none', marginLeft: '8px', flex: 'none' }}>

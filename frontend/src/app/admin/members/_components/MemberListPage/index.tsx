@@ -8,6 +8,7 @@ import type { MemberItem, MemberListResponse } from '@/types/admin-member';
 import MemberDetailModal from '../MemberDetailModal';
 import s from './MemberListPage.module.css';
 import { USER_STATUS, USER_ROLE } from '@/constants/userStatus';
+import Pagination from '@/_component/common/Pagination';
 
 /* ── 상태 배지 매핑 ── */
 const STATUS_MAP: Record<string, { label: string; className: string }> = {
@@ -24,9 +25,9 @@ const ROLE_MAP: Record<string, string> = {
 
 /* ── 가입 방식(provider) 표시 매핑 ── */
 const PROVIDER_MAP: Record<string, { label: string; color: string; bg: string }> = {
-  KAKAO:  { label: '카카오 가입', color: '#3B1C0C', bg: '#FEE500' },
-  NAVER:  { label: '네이버 가입', color: '#fff',    bg: '#03C75A' },
-  GOOGLE: { label: '구글 가입',   color: '#fff',    bg: '#4285F4' },
+  KAKAO:  { label: '카카오', color: '#3B1C0C', bg: '#FEE500' },
+  NAVER:  { label: '네이버', color: '#fff',    bg: '#03C75A' },
+  GOOGLE: { label: '구글',   color: '#fff',    bg: '#4285F4' },
 };
 
 /** provider별 리스트 아이디 컬럼 표시 */
@@ -280,14 +281,186 @@ export default function MemberListPage() {
       </div>
 
       {/* ── 리스트 ── */}
-      <div style={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <div style={{ display: 'flex', gap: '10px', padding: '0 8px', fontSize: '13px', color: '#64748b' }}>
-          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('nickname')}>닉네임{getSortIndicator('nickname')}</span>
-          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('createdAt')}>가입일{getSortIndicator('createdAt')}</span>
-          <span style={{ cursor: 'pointer' }} onClick={() => handleSort('reportedCount')}>신고수{getSortIndicator('reportedCount')}</span>
+      <section className={common.card}>
+        <div className={common.mobileOnly}>
+          <div style={{ display: 'flex', gap: '8px', padding: '0 4px', marginBottom: '12px', flexWrap: 'wrap' }}>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('nickname')}
+            >
+              닉네임 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('nickname')}</span>
+            </button>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('createdAt')}
+            >
+              가입일 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('createdAt')}</span>
+            </button>
+            <button 
+              type="button"
+              style={{
+                padding: '6px 12px', borderRadius: '16px', border: '1px solid #e2e8f0',
+                background: '#f8fafc', color: '#475569', fontSize: '13px', fontWeight: 600,
+                display: 'inline-flex', alignItems: 'center', gap: '4px', cursor: 'pointer'
+              }}
+              onClick={() => handleSort('reportedCount')}
+            >
+              신고수 <span style={{ fontSize: '11px', color: '#94a3b8' }}>{getSortIndicator('reportedCount')}</span>
+            </button>
+          </div>
         </div>
-        <div className={common.listGrid}>
-          {loading ? (
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
+            <colgroup>
+              <col style={{ width: '60px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '90px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: '70px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '100px' }} />
+            </colgroup>
+            <thead>
+              <tr className={common.tableHeaderRow}>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>No</th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textLeft}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('nickname')}
+                  title="닉네임 기준 정렬"
+                >
+                  닉네임{getSortIndicator('nickname')}
+                </th>
+                <th className={`${common.tableHeaderCell} ${common.textLeft}`}>아이디</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>역할</th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textCenter}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('createdAt')}
+                  title="가입일 기준 정렬"
+                >
+                  가입일{getSortIndicator('createdAt')}
+                </th>
+                <th
+                  className={`${common.tableHeaderCell} ${common.textCenter}`}
+                  style={{ cursor: 'pointer', userSelect: 'none' }}
+                  onClick={() => handleSort('reportedCount')}
+                  title="신고수 기준 정렬"
+                >
+                  신고{getSortIndicator('reportedCount')}
+                </th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>상태</th>
+                <th className={`${common.tableHeaderCell} ${common.textCenter}`}>관리</th>
+              </tr>
+            </thead>
+            <tbody>
+              {loading && members.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={common.emptyRow}>
+                    로딩 중...
+                  </td>
+                </tr>
+              ) : members.length === 0 ? (
+                <tr>
+                  <td colSpan={8} className={common.emptyRow}>
+                    회원 정보가 없습니다.
+                  </td>
+                </tr>
+              ) : (
+                members.map((member, idx) => (
+                  <tr
+                    key={member.userId}
+                    className={`${common.tableRow} ${common.tableRowHover} ${member.status === USER_STATUS.DELETED ? common.hiddenRow : ''}`}
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => setSelectedMember(member)}
+                  >
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {(currentPage - 1) * 10 + idx + 1}
+                    </td>
+                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                      <div className={s.profileCell}>
+                        {member.profileImage ? (
+                          <img src={member.profileImage} alt="" className={s.profileImage} />
+                        ) : (
+                          <span className={s.profilePlaceholder}>👤</span>
+                        )}
+                        <span 
+                          style={{ 
+                            fontWeight: 500, 
+                            color: '#1e293b',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap',
+                            display: 'block'
+                          }} 
+                          title={member.nickname}
+                        >
+                          {member.nickname}
+                        </span>
+                      </div>
+                    </td>
+                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                      {(member.provider && member.provider !== 'LOCAL') ? (
+                        <span style={{
+                          display: 'inline-flex', alignItems: 'center', gap: 4,
+                          fontSize: 11, fontWeight: 600,
+                          background: PROVIDER_MAP[member.provider]?.bg || '#e2e8f0',
+                          color: PROVIDER_MAP[member.provider]?.color || '#334155',
+                          padding: '2px 10px', borderRadius: 12,
+                        }}>
+                          {PROVIDER_MAP[member.provider]?.label || member.provider}
+                        </span>
+                      ) : (
+                        member.loginId
+                      )}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${member.role === USER_ROLE.ADMIN ? common.badgeUpcoming : common.badgeDismissed}`}>
+                        {ROLE_MAP[member.role] || member.role}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      {member.createdAt?.slice(0, 10)}
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={getReportCountClass(member.reportedCount)}>
+                        {member.reportedCount}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <span className={`${common.statusBadge} ${common[STATUS_MAP[member.status]?.className || 'badgeEnded'] || ''}`}>
+                        {STATUS_MAP[member.status]?.label || member.status}
+                      </span>
+                    </td>
+                    <td className={`${common.tableCell} ${common.textCenter}`}>
+                      <button
+                        className={common.btnPrimary}
+                        style={{ padding: '4px 12px', fontSize: 11 }}
+                        onClick={(e) => { e.stopPropagation(); setSelectedMember(member); }}
+                      >
+                        상세보기
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading && members.length === 0 ? (
             <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
           ) : members.length === 0 ? (
             <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>회원 정보가 없습니다.</div>
@@ -369,25 +542,15 @@ export default function MemberListPage() {
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedMember && (

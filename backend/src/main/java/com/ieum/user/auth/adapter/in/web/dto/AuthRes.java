@@ -57,6 +57,7 @@ public class AuthRes {
         private String nickname;
         private String role;
         private String profileImage;
+        private String status;
     }
 
     @Getter

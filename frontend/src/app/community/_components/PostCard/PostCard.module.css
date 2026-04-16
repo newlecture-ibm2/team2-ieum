@@ -48,6 +48,26 @@
   background: rgba(253, 203, 110, 0.15);
 }
 
+.catReview {
+  color: #0984e3;
+  background: rgba(9, 132, 227, 0.1);
+}
+
+.catCompanion {
+  color: #e84393;
+  background: rgba(232, 67, 147, 0.1);
+}
+
+.catInfo {
+  color: #636e72;
+  background: rgba(99, 110, 114, 0.1);
+}
+
+.catFree {
+  color: #6c5ce7;
+  background: rgba(108, 92, 231, 0.1);
+}
+
 .title {
   font-size: 15px;
   font-weight: 700;

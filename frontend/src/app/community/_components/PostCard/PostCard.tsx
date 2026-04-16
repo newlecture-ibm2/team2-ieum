@@ -30,8 +30,12 @@ function HighlightText({ text, keyword }: { text: string; keyword?: string }) {
 
 const CATEGORY_MAP: Record<string, { label: string; className: string }> = {
   qna: { label: 'Q&A', className: 'catQna' },
-  tip: { label: '축제꿀팁', className: 'catTip' },
-  review: { label: '먹거리 리뷰', className: 'catFood' },
+  tip: { label: '축제 꿀팁', className: 'catTip' },
+  food: { label: '먹거리 리뷰', className: 'catFood' },
+  review: { label: '축제 후기', className: 'catReview' },
+  companion: { label: '동행 구해요', className: 'catCompanion' },
+  info: { label: '축제 정보', className: 'catInfo' },
+  free: { label: '자유게시판', className: 'catFree' },
 };
 
 function timeAgo(dateStr: string): string {

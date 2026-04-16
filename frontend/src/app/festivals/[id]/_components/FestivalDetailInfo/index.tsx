@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Image from 'next/image';
 import styles from './FestivalDetailInfo.module.css';
 
@@ -34,6 +34,19 @@ export default function FestivalDetailInfo({
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+
+  // Close lightbox on Escape key
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handleKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setLightboxOpen(false);
+      if (e.key === 'ArrowLeft') setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1));
+      if (e.key === 'ArrowRight') setSelectedIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0));
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [lightboxOpen, allImages.length]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!stripRef.current) return;
@@ -67,17 +80,24 @@ export default function FestivalDetailInfo({
 
       {/* 이미지 갤러리 */}
       <div className={styles.gallery}>
-        {/* 메인 이미지 (선택된 이미지가 크게 표시) */}
-        <div className={styles.mainImageWrapper}>
+        {/* Main image - click to open full size */}
+        <div
+          className={styles.mainImageWrapper}
+          onClick={() => setLightboxOpen(true)}
+          style={{ cursor: 'pointer' }}
+        >
           <Image
             key={mainImage}
             src={mainImage}
-            alt="축제 이미지"
+            alt="Festival image"
             fill
             sizes="(max-width: 1200px) 100vw, 800px"
             style={{ objectFit: 'cover' }}
             priority
           />
+          <div className={styles.zoomOverlay}>
+            <span>🔍 클릭하여 크게 보기</span>
+          </div>
         </div>
 
       {/* 서브 썸네일 스트립 (모든 이미지가 가로 나열) */}
@@ -111,6 +131,52 @@ export default function FestivalDetailInfo({
         </div>
       )}
     </div>
-  </div>
+
+      {/* Lightbox Modal */}
+      {lightboxOpen && (
+        <div className={styles.lightboxOverlay} onClick={() => setLightboxOpen(false)}>
+          <button
+            className={styles.lightboxClose}
+            onClick={() => setLightboxOpen(false)}
+            type="button"
+          >
+            ✕
+          </button>
+
+          {allImages.length > 1 && (
+            <button
+              className={`${styles.lightboxNav} ${styles.lightboxPrev}`}
+              onClick={(e) => { e.stopPropagation(); setSelectedIndex((prev) => (prev > 0 ? prev - 1 : allImages.length - 1)); }}
+              type="button"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+            </button>
+          )}
+
+          <div className={styles.lightboxContent} onClick={(e) => e.stopPropagation()}>
+            <img
+              src={mainImage}
+              alt="Festival full image"
+              className={styles.lightboxImg}
+            />
+            {allImages.length > 1 && (
+              <div className={styles.lightboxCounter}>
+                {selectedIndex + 1} / {allImages.length}
+              </div>
+            )}
+          </div>
+
+          {allImages.length > 1 && (
+            <button
+              className={`${styles.lightboxNav} ${styles.lightboxNext}`}
+              onClick={(e) => { e.stopPropagation(); setSelectedIndex((prev) => (prev < allImages.length - 1 ? prev + 1 : 0)); }}
+              type="button"
+            >
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
