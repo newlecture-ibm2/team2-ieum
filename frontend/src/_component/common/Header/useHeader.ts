@@ -39,6 +39,25 @@ export function useHeader() {
   const [hasUnread, setHasUnread] = useState(false);
   const [notiRefreshKey, setNotiRefreshKey] = useState(0);
 
+  /**
+   * 🚀 [v18-Sync] 최신 프로필 정보만 따로 재조회하는 함수
+   */
+  const refetchProfile = async () => {
+    try {
+      const profileRes = await api.get("/api/mypage/profile");
+      const profileData = profileRes.data.data;
+      if (profileData) {
+        if (profileData.profileImageUrl) {
+          // 헤더 이미지도 즉시 바뀌도록 타임스탬프 추가
+          setUserProfileImage(`${profileData.profileImageUrl}?t=${Date.now()}`);
+        }
+        if (profileData.nickname) setUserNickname(profileData.nickname);
+      }
+    } catch (err) {
+      console.error("헤더 프로필 상세 조회 실패:", err);
+    }
+  };
+
   const closePopup = () => {
     const shouldReload = popupConfig?.reload;
     setPopupConfig(null);
@@ -101,6 +120,19 @@ export function useHeader() {
         console.error("세션 확인 실패:", err);
         setIsLoggedIn(false);
       });
+  }, []);
+
+  /**
+   * 🚀 [v18-Sync] 전역 프로필 업데이트 이벤트 리스너
+   */
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log("Header received userProfileUpdate event");
+      refetchProfile();
+    };
+
+    window.addEventListener('userProfileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdate', handleProfileUpdate);
   }, []);
 
   useEffect(() => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
@@ -19,6 +19,7 @@ interface UserInfo {
   nickname: string;
   name?: string;
   role: string;
+  profileImageUrl?: string;
 }
 
 export default function MyPageContent() {
@@ -42,31 +43,62 @@ export default function MyPageContent() {
     router.push(`${pathname}?${params.toString()}`, { scroll: false });
   };
 
-  useEffect(() => {
-    /**
-     * 사용자 정보 및 인증 체크 (표준 api 유틸리티 적용)
-     */
-    const checkAuth = async () => {
-      try {
-        setIsLoading(true);
-        const res = await api.get<UserInfo>('/api/users/me');
+  /**
+   * 사용자 정보 및 인증 체크 (표준 api 유틸리티 적용)
+   */
+  const checkAuth = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const res = await api.get<UserInfo>('/api/users/me');
+      
+      if (res.data && res.data.userId) {
+        let userData = res.data;
         
-        if (res.data && res.data.userId) {
-          setUser(res.data);
-        } else {
-          router.push('/login');
+        // 🚀 [v18-Sync] 세션 정보 외에 최신 프로필(닉네임, 이미지)을 추가로 조회하여 
+        // DB 변경사항이 즉시 사이드바에 반영되도록 합니다. (이미지 로직과 동일화)
+        try {
+          const profileRes = await api.get('/api/mypage/profile');
+          const profileData = profileRes.data.data;
+          if (profileData) {
+            userData = {
+              ...userData,
+              nickname: profileData.nickname || userData.nickname,
+              profileImageUrl: profileData.profileImageUrl ? `${profileData.profileImageUrl}?t=${Date.now()}` : undefined
+            };
+          }
+        } catch (err) {
+          console.warn('사이드바 최신 프로필 연동 실패 (세션 정보로 대체):', err);
         }
-      } catch (err) {
-        console.error('MyPage auth check failed:', err);
-        // api interceptor가 401 등을 처리하지만 안전을 위해 추가 리다이렉트
+        
+        setUser(userData);
+      } else {
         router.push('/login');
-      } finally {
-        setIsLoading(false);
       }
+    } catch (err) {
+      console.error('MyPage auth check failed:', err);
+      // api interceptor가 401 등을 처리하지만 안전을 위해 추가 리다이렉트
+      router.push('/login');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [router]);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
+
+  /**
+   * 🚀 [v18-Sync] 프로필 변경 시 사이드바 정보 재동기화 리스너
+   */
+  useEffect(() => {
+    const handleProfileUpdate = () => {
+      console.log("MyPageContent received userProfileUpdate event");
+      checkAuth();
     };
 
-    checkAuth();
-  }, [router]);
+    window.addEventListener('userProfileUpdate', handleProfileUpdate);
+    return () => window.removeEventListener('userProfileUpdate', handleProfileUpdate);
+  }, []);
 
   if (isLoading) return <div className={styles.loading}>사용자 정보를 불러오는 중...</div>;
   if (!user) return null;

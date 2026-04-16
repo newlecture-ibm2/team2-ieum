@@ -17,6 +17,7 @@ export const API_ENDPOINTS = {
       RESET: '/api/auth/password-recovery/reset',
     },
     ME: '/api/auth/me',
+    UPDATE_SESSION: '/api/auth/update-session',
   },
   MYPAGE: {
     PROFILE: '/api/mypage/profile',
