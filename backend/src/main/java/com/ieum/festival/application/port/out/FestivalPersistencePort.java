@@ -15,10 +15,10 @@ public interface FestivalPersistencePort {
 
     // ── 목록 조회 (페이징) ──
 
-    PagedResult<Festival> findAllWithDynamicOrder(String keyword, String areaCode, Integer month, int page, int size);
-    PagedResult<Festival> findOngoingFestivals(String keyword, String areaCode, Integer month, int page, int size);
-    PagedResult<Festival> findUpcomingFestivals(String keyword, String areaCode, Integer month, int page, int size);
-    PagedResult<Festival> findEndedFestivals(String keyword, String areaCode, Integer month, int page, int size);
+    PagedResult<Festival> findAllWithDynamicOrder(String keyword, List<String> areaCodes, List<Integer> months, int page, int size);
+    PagedResult<Festival> findOngoingFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size);
+    PagedResult<Festival> findUpcomingFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size);
+    PagedResult<Festival> findEndedFestivals(String keyword, List<String> areaCodes, List<Integer> months, int page, int size);
 
     // ── 단건 조회 ──
 

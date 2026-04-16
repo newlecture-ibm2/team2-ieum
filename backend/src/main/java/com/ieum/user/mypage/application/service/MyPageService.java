@@ -1,5 +1,6 @@
 package com.ieum.user.mypage.application.service;
 
+import com.ieum.attachment.application.port.out.FileStoragePort;
 import com.ieum.global.security.JwtProvider;
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
@@ -11,14 +12,14 @@ import com.ieum.user.mypage.application.result.ActivityPageResult;
 import com.ieum.user.mypage.application.result.MyProfileResult;
 import com.ieum.user.mypage.application.result.ProfileUpdateResult;
 import lombok.RequiredArgsConstructor;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Base64;
 import java.util.UUID;
 import java.time.LocalDateTime;
@@ -27,6 +28,11 @@ import java.time.format.DateTimeFormatter;
 /**
  * [Service] 마이페이지 도메인 로직 실장
  * 설계서 API_USR_0030, API_USR_0020 준수
+ *
+ * 프로필 이미지 저장은 공통 파일 저장 모듈(FileStoragePort)과 동일한
+ * ${file.upload-dir} 경로 체계를 사용합니다.
+ * - 로컬: ./uploads/profile/
+ * - Docker: /app/upload/profile/ (볼륨 → 호스트 /dist/upload/profile/)
  */
 @Service
 @RequiredArgsConstructor
@@ -36,8 +42,11 @@ public class MyPageService implements MyPageUseCase {
     private final LoadUserPort loadUserPort;
     private final SaveUserPort saveUserPort;
     private final JwtProvider jwtProvider;
+    private final FileStoragePort fileStoragePort;
 
-    private static final String UPLOAD_DIR = "uploads" + File.separator + "profile" + File.separator;
+    /** 공통 파일 저장 모듈과 동일한 루트 경로 설정값 사용 */
+    @Value("${file.upload-dir:./uploads}")
+    private String uploadDir;
 
     @Override
     @Transactional(readOnly = true)
@@ -53,7 +62,7 @@ public class MyPageService implements MyPageUseCase {
         } else if ("reports".equalsIgnoreCase(type)) {
             return loadMyActivityPort.loadMyReports(userId, page, size);
         }
-        
+
         throw new IllegalArgumentException("유효하지 않은 활동 유형입니다: " + type);
     }
 
@@ -69,6 +78,11 @@ public class MyPageService implements MyPageUseCase {
 
         // 1. 닉네임 변경 및 중복 체크
         if (request != null && request.getNickname() != null && !request.getNickname().equals(oldNickname)) {
+            // 🚫 공백 차단
+            if (request.getNickname().contains(" ")) {
+                throw new IllegalArgumentException("닉네임에 공백을 포함할 수 없습니다.");
+            }
+            // 🚫 중복 체크
             if (loadUserPort.existsByNickname(request.getNickname())) {
                 throw new IllegalStateException("이미 사용 중인 닉네임입니다.");
             }
@@ -89,8 +103,7 @@ public class MyPageService implements MyPageUseCase {
             newToken = jwtProvider.generateAccessToken(
                     updatedUser.getUserId(),
                     updatedUser.getNickname(),
-                    updatedUser.getRole().name()
-            );
+                    updatedUser.getRole().name());
         }
 
         return ProfileUpdateResult.builder()
@@ -102,19 +115,9 @@ public class MyPageService implements MyPageUseCase {
 
     @Override
     public Resource getProfileImage(String filename) {
-        try {
-            // 물리 프로젝트 루트 기준 uploads/profile 폴더에서 파일을 찾습니다.
-            File uploadRoot = new File(System.getProperty("user.dir"), "uploads" + File.separator + "profile");
-            File file = new File(uploadRoot, filename);
-            
-            if (!file.exists()) {
-                throw new IllegalArgumentException("요청하신 파일을 찾을 수 없습니다: " + filename);
-            }
-            
-            return new FileSystemResource(file);
-        } catch (Exception e) {
-            throw new RuntimeException("프로필 이미지 조회 중 오류가 발생했습니다.", e);
-        }
+        // 공통 모듈과 동일한 경로 체계: {upload-dir}/profile/{filename}
+        Path filePath = Paths.get(uploadDir, "profile", filename).toAbsolutePath().normalize();
+        return fileStoragePort.loadAsResource(filePath.toString());
     }
 
     @Override
@@ -127,10 +130,8 @@ public class MyPageService implements MyPageUseCase {
             throw new IllegalArgumentException("업로드할 이미지 데이터가 없습니다.");
         }
 
-        // 블로그 방식 + Base64 우회: 텍스트 수신 -> 디코딩 -> 파일 저장
         String newProfileImage = saveBase64Image(base64Image);
 
-        // 2. 사용자 정보 갱신
         User updatedUser = user.toBuilder()
                 .profileImage(newProfileImage)
                 .build();
@@ -143,69 +144,39 @@ public class MyPageService implements MyPageUseCase {
     }
 
     /**
-     * Base64 문자열을 디코딩하여 서버 디스크에 저장합니다.
+     * Base64 문자열을 디코딩하여 공통 업로드 경로에 저장합니다.
+     * 저장 위치: {file.upload-dir}/profile/UUID.확장자
+     * - 로컬: ./uploads/profile/
+     * - Docker: /app/upload/profile/ (볼륨 → 호스트 /dist/upload/profile/)
      */
     private String saveBase64Image(String base64Image) {
         try {
             String base64Data = base64Image;
-            String extension = ".png"; // 기본 확장자
+            String extension = ".png";
 
-            // "data:image/png;base64,iVBOR..." 형태의 접두사 제거 및 확장자 추출
             if (base64Image.contains(",")) {
                 String[] parts = base64Image.split(",");
                 String header = parts[0];
                 base64Data = parts[1];
-                
+
                 if (header.contains("image/jpeg")) extension = ".jpg";
                 else if (header.contains("image/gif")) extension = ".gif";
                 else if (header.contains("image/webp")) extension = ".webp";
             }
 
-            // 1. Base64 디코딩
             byte[] imageBytes = Base64.getDecoder().decode(base64Data);
             String savedFileName = UUID.randomUUID().toString() + extension;
 
-            // 2. 물리적 저장 경로 설정
-            File uploadRoot = new File(System.getProperty("user.dir"), "uploads" + File.separator + "profile");
-            if (!uploadRoot.exists()) {
-                uploadRoot.mkdirs();
-            }
+            // 공통 모듈과 동일한 경로: {upload-dir}/profile/
+            Path profileDir = Paths.get(uploadDir, "profile");
+            Files.createDirectories(profileDir);
 
-            File destFile = new File(uploadRoot, savedFileName);
-            
-            // 3. 파일 쓰기
-            java.nio.file.Files.write(destFile.toPath(), imageBytes);
+            Path destPath = profileDir.resolve(savedFileName);
+            Files.write(destPath, imageBytes);
 
-            // 4. 우리 집 전용 조회 창구 주소를 반환합니다.
+            // 프론트에서 접근 가능한 URL
             return "/api/mypage/profile/view/" + savedFileName;
         } catch (Exception e) {
-            throw new RuntimeException("프로필 이미지 저장 중 오류가 발생했습니다: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Multipart 파일을 서버 디스크에 저장합니다.
-     */
-    private String saveProfileFile(MultipartFile profileImg) {
-        try {
-            String originalFileName = profileImg.getOriginalFilename();
-            String extension = ".png";
-            if (originalFileName != null && originalFileName.contains(".")) {
-                extension = originalFileName.substring(originalFileName.lastIndexOf("."));
-            }
-            String savedFileName = UUID.randomUUID().toString() + extension;
-
-            File uploadRoot = new File(System.getProperty("user.dir"), "uploads" + File.separator + "profile");
-            if (!uploadRoot.exists()) {
-                uploadRoot.mkdirs();
-            }
-
-            File destFile = new File(uploadRoot, savedFileName);
-            profileImg.transferTo(destFile);
-
-            // 우리 집 전용 조회 창구 주소를 반환합니다.
-            return "/api/mypage/profile/view/" + savedFileName;
-        } catch (IOException e) {
             throw new RuntimeException("프로필 이미지 저장 중 오류가 발생했습니다: " + e.getMessage(), e);
         }
     }
@@ -216,7 +187,7 @@ public class MyPageService implements MyPageUseCase {
         User user = loadUserPort.loadUserById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        // 🚀 [v18-1] Festival 패턴 전매특허: 서비스는 비즈니스 로직만! 매핑은 Result가 알아서!
         return MyProfileResult.from(user);
     }
 }
+

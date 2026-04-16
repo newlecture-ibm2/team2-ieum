@@ -81,12 +81,12 @@ public class PostController {
         return ApiResponse.success(PostResponse.fromDomain(post));
     }
 
-    @Operation(summary = "게시글 목록 조회", description = "게시판 타입별 게시글 목록을 조회합니다. 비회원 이용 가능.")
+    @Operation(summary = "게시글 목록 조회", description = "게시판 타입별 게시글 목록을 조회합니다. 다중 선택은 콤마(,)로 구분합니다.")
     @GetMapping
     public ApiResponse<Page<PostResponse>> getPosts(
-            @Parameter(description = "카테고리 (QNA, TIP, FOOD, REVIEW, COMPANION)")
+            @Parameter(description = "카테고리 (콤마 구분 다중 가능: QNA, TIP, FOOD, REVIEW, COMPANION)")
             @RequestParam(required = false) String category,
-            @Parameter(description = "지역 코드")
+            @Parameter(description = "지역 코드 (콤마 구분 다중 가능)")
             @RequestParam(required = false) String areaCode,
             @Parameter(description = "검색 키워드")
             @RequestParam(required = false) String keyword,
@@ -115,10 +115,21 @@ public class PostController {
                 sortObj = Sort.by(Sort.Direction.DESC, "createdAt");
                 break;
         }
+
+        List<String> categories = parseStringList(category);
+        List<String> areaCodes = parseStringList(areaCode);
         
-        Page<PostResponse> result = loadPostUseCase.getPosts(category, areaCode, keyword, searchType, PageRequest.of(page, size, sortObj))
+        Page<PostResponse> result = loadPostUseCase.getPosts(categories, areaCodes, keyword, searchType, PageRequest.of(page, size, sortObj))
                                                    .map(PostResponse::fromDomain);
         return ApiResponse.success(result);
+    }
+
+    private List<String> parseStringList(String csv) {
+        if (csv == null || csv.isBlank()) return null;
+        return java.util.Arrays.stream(csv.split(","))
+                .map(String::trim)
+                .filter(s -> !s.isEmpty())
+                .collect(Collectors.toList());
     }
 
     @Operation(summary = "게시글 상세 조회", description = "게시글 ID로 상세 내용을 조회합니다.")
