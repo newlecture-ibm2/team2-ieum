@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Camera, Check, Loader2 } from 'lucide-react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
@@ -16,6 +17,7 @@ interface ProfileSectionProps {
 }
 
 export default function ProfileSection({ user }: ProfileSectionProps) {
+  const router = useRouter();
   const { toast } = useToast();
   const [nickname, setNickname] = useState(user.nickname);
   const [isNicknameChecked, setIsNicknameChecked] = useState(true);

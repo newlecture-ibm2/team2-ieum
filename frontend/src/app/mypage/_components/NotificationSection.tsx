@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styles from '../mypage.module.css';
 import api from '@/lib/api';
 import { useToast } from '@/_component/common/Toast';
@@ -15,6 +15,26 @@ export default function NotificationSection() {
     notice: true,
     comment: true
   });
+  const [isLoading, setIsLoading] = useState(true);
+
+  // 🚀 [v1.1] 컴포넌트 마운트 시 서버에서 실제 설정값 가져오기 (동기화 버그 해결)
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        setIsLoading(true);
+        const response = await api.get('/api/users/me/notifications/settings');
+        if (response.data && response.data.data) {
+          setNotifications(response.data.data);
+        }
+      } catch (error) {
+        console.error('알림 설정 로드 실패:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchSettings();
+  }, []);
 
   /**
    * 알림 토글 핸들러 (FCM 연동 포함)
@@ -59,6 +79,16 @@ export default function NotificationSection() {
       toast('설정 변경 중 오류가 발생했습니다.', 'error');
     }
   };
+
+  if (isLoading) {
+    return (
+      <section className={styles.settingsSection}>
+        <div style={{ textAlign: 'center', padding: '40px 0', color: 'var(--color-gray-400)' }}>
+          알림 설정을 불러오는 중입니다...
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className={styles.settingsSection}>
