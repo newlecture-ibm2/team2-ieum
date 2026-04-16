@@ -21,7 +21,67 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
   const { toast } = useToast();
   const [nickname, setNickname] = useState(user.nickname);
   const [isNicknameChecked, setIsNicknameChecked] = useState(true);
+  const [isCheckingNickname, setIsCheckingNickname] = useState(false);
+  const [nicknameMessage, setNicknameMessage] = useState({ text: '', isError: false });
   const [isSaving, setIsSaving] = useState(false);
+
+  // 닉네임 유효성 검사 (실시간)
+  const validateNicknameRealtime = (value: string) => {
+    if (value === user.nickname) {
+      setNicknameMessage({ text: '', isError: false });
+      setIsNicknameChecked(true);
+      return;
+    }
+
+    if (value.includes(' ')) {
+      setNicknameMessage({ text: '닉네임에 공백은 포함할 수 없습니다.', isError: true });
+      setIsNicknameChecked(false);
+      return;
+    }
+
+    if (value.length > 0 && (value.length < 2 || value.length > 8)) {
+      setNicknameMessage({ text: '닉네임은 2자 이상 8자 이하로 입력해주세요.', isError: true });
+      setIsNicknameChecked(false);
+      return;
+    }
+
+    setNicknameMessage({ text: '중복 확인이 필요합니다.', isError: true });
+    setIsNicknameChecked(false);
+  };
+
+  // 닉네임 중복 확인 (서버 통신)
+  const handleCheckNickname = async () => {
+    if (nickname === user.nickname) return;
+    
+    if (nickname.includes(' ')) {
+      toast('공백은 사용할 수 없습니다.', 'warning');
+      return;
+    }
+
+    if (nickname.length < 2 || nickname.length > 8) {
+      toast('닉네임 길이를 확인해주세요.', 'warning');
+      return;
+    }
+
+    try {
+      setIsCheckingNickname(true);
+      const response = await api.get(`${API_ENDPOINTS.AUTH.CHECK_NICKNAME}?nickname=${nickname}`);
+      const isAvailable = response.data.data;
+
+      if (isAvailable) {
+        setNicknameMessage({ text: '사용 가능한 닉네임입니다.', isError: false });
+        setIsNicknameChecked(true);
+      } else {
+        setNicknameMessage({ text: '이미 사용 중인 닉네임입니다.', isError: true });
+        setIsNicknameChecked(false);
+      }
+    } catch (error) {
+      console.error('Nickname check failed:', error);
+      toast('중복 확인 중 오류가 발생했습니다.', 'error');
+    } finally {
+      setIsCheckingNickname(false);
+    }
+  };
   
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -173,30 +233,34 @@ export default function ProfileSection({ user }: ProfileSectionProps) {
             className={styles.inputField} 
             value={nickname}
             onChange={(e) => {
-              setNickname(e.target.value);
-              setIsNicknameChecked(false);
+              const value = e.target.value;
+              setNickname(value);
+              validateNicknameRealtime(value);
             }}
-            disabled={isSaving}
+            disabled={isSaving || isCheckingNickname}
             maxLength={8}
             placeholder="2~8자 사이로 입력"
           />
           <button 
             className={styles.btnCheck} 
-            style={{ whiteSpace: 'nowrap' }}
-            onClick={() => setIsNicknameChecked(true)}
-            disabled={isSaving}
+            style={{ whiteSpace: 'nowrap', display: 'flex', alignItems: 'center', gap: '4px' }}
+            onClick={handleCheckNickname}
+            disabled={isSaving || isCheckingNickname || nickname === user.nickname || nickname.includes(' ')}
           >
-            중복확인
+            {isCheckingNickname ? <Loader2 className={styles.spinner} size={14} /> : '중복확인'}
           </button>
         </div>
-        {(nickname.length > 0 && (nickname.length < 2 || nickname.length > 8)) && (
-          <p style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px' }}>
-            닉네임은 2자 이상 8자 이하로 입력해주세요.
-          </p>
-        )}
-        {isNicknameChecked && nickname.length >= 2 && nickname.length <= 8 && (
-          <p style={{ fontSize: '0.75rem', color: 'var(--color-primary-500)', marginTop: '4px', display: 'flex', alignItems: 'center', gap: '4px' }}>
-            <Check size={12} /> 사용 가능한 닉네임입니다.
+        {nicknameMessage.text && (
+          <p style={{ 
+            fontSize: '0.75rem', 
+            color: nicknameMessage.isError ? '#ef4444' : 'var(--color-primary-500)', 
+            marginTop: '4px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px'
+          }}>
+            {!nicknameMessage.isError && <Check size={12} />}
+            {nicknameMessage.text}
           </p>
         )}
       </div>

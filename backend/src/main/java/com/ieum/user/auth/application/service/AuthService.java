@@ -268,4 +268,11 @@ public class AuthService implements AuthUseCase, CheckUserSuspensionUseCase {
                 .map(User::isSuspended)
                 .orElse(false);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public boolean checkNicknameAvailability(String nickname) {
+        // 이미 사용 중이면 false(사용불가), 없으면 true(사용가능)를 반환합니다.
+        return !loadUserPort.existsByNickname(nickname);
+    }
 }

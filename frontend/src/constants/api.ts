@@ -18,6 +18,7 @@ export const API_ENDPOINTS = {
     },
     ME: '/api/auth/me',
     UPDATE_SESSION: '/api/auth/update-session',
+    CHECK_NICKNAME: '/api/auth/check-nickname',
   },
   MYPAGE: {
     PROFILE: '/api/mypage/profile',

@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 게시글 서비스 (UseCase 구현체)
  * - Input Port(UseCase) 인터페이스를 구현
@@ -75,13 +77,13 @@ public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePo
 
     @Override
     @Transactional(readOnly = true)
-    public Page<Post> getPosts(String category, String areaCode, String keyword, String searchType, Pageable pageable) {
-        String queryCategory = (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) ? category : null;
-        String queryAreaCode = (areaCode != null && !areaCode.isEmpty() && !areaCode.equalsIgnoreCase("all")) ? areaCode : null;
+    public Page<Post> getPosts(List<String> categories, List<String> areaCodes, String keyword, String searchType, Pageable pageable) {
+        List<String> queryCategories = (categories != null && !categories.isEmpty() && !categories.contains("all")) ? categories : null;
+        List<String> queryAreaCodes = (areaCodes != null && !areaCodes.isEmpty() && !areaCodes.contains("all")) ? areaCodes : null;
         String queryKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
         String querySearchType = (searchType != null && !searchType.isEmpty()) ? searchType : "all";
 
-        return postPort.findByFilters(queryCategory, queryAreaCode, queryKeyword, querySearchType, pageable);
+        return postPort.findByFilters(queryCategories, queryAreaCodes, queryKeyword, querySearchType, pageable);
     }
 
     @Override

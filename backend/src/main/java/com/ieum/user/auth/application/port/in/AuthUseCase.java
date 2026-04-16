@@ -24,4 +24,7 @@ public interface AuthUseCase {
 
     /** 회원 탈퇴 */
     void withdraw(Long userId, String password);
+
+    /** 닉네임 중복 체크 */
+    boolean checkNicknameAvailability(String nickname);
 }

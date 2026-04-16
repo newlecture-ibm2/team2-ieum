@@ -4,6 +4,7 @@ import com.ieum.community.domain.model.Post;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -18,7 +19,7 @@ public interface PostPort {
 
     Optional<Post> findActiveById(Long postId);
 
-    Page<Post> findByFilters(String category, String areaCode, String keyword, String searchType, Pageable pageable);
+    Page<Post> findByFilters(List<String> categories, List<String> areaCodes, String keyword, String searchType, Pageable pageable);
 
     void deleteById(Long postId);
 }
