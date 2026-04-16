@@ -51,18 +51,18 @@ public class PostPersistenceAdapter implements PostPort {
     }
 
     @Override
-    public Page<Post> findByFilters(String category, String areaCode, String keyword, String searchType, Pageable pageable) {
+    public Page<Post> findByFilters(List<String> categories, List<String> areaCodes, String keyword, String searchType, Pageable pageable) {
         Page<Post> postPage;
 
         // searchType에 따라 검색 범위 분기
         if ("title".equals(searchType)) {
-            postPage = postJpaRepository.findByFiltersTitle(category, areaCode, keyword, pageable)
+            postPage = postJpaRepository.findByFiltersTitle(categories, areaCodes, keyword, pageable)
                     .map(PostEntity::toDomain);
         } else if ("content".equals(searchType)) {
-            postPage = postJpaRepository.findByFiltersContent(category, areaCode, keyword, pageable)
+            postPage = postJpaRepository.findByFiltersContent(categories, areaCodes, keyword, pageable)
                     .map(PostEntity::toDomain);
         } else {
-            postPage = postJpaRepository.findByFilters(category, areaCode, keyword, pageable)
+            postPage = postJpaRepository.findByFilters(categories, areaCodes, keyword, pageable)
                     .map(PostEntity::toDomain);
         }
 
