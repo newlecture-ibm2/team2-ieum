@@ -65,7 +65,10 @@ public class CategoryMasterSyncService implements SyncCategoryMasterUseCase {
 
             // 6. DB 일괄 저장
             if (!toSaveMap.isEmpty()) {
-                categoryMasterPort.saveAll(toSaveMap.values());
+                List<CategoryMaster> sortedList = toSaveMap.values().stream()
+                        .sorted(java.util.Comparator.comparing(c -> c.getLevel() == null ? 0 : c.getLevel()))
+                        .collect(java.util.stream.Collectors.toList());
+                categoryMasterPort.saveAll(sortedList);
             }
 
             log.info("계층형 카테고리 동기화 완료: 총 {}건 저장/업데이트", toSaveMap.size());

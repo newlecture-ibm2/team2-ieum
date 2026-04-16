@@ -16,5 +16,5 @@ public class MemberListResult {
     private long totalElements;
     private long activeCount;
     private long suspendedCount;
-    private long deletedCount;
+    private long withdrawalCount;
 }

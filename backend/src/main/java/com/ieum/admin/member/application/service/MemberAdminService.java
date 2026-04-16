@@ -79,7 +79,7 @@ public class MemberAdminService implements
                 .totalElements(members.getTotalElements())
                 .activeCount(memberPort.countByStatus(UserStatus.ACTIVE.name()))
                 .suspendedCount(memberPort.countByStatus(UserStatus.SUSPENDED.name()))
-                .deletedCount(memberPort.countByStatus(UserStatus.DELETED.name()))
+                .withdrawalCount(memberPort.countByStatus(UserStatus.WITHDRAWAL.name()))
                 .build();
     }
 
