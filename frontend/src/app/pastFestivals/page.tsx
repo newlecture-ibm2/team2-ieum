@@ -11,6 +11,8 @@ async function getEndedFestivals(
   areaCode?: string,
   month?: string,
   sort?: string,
+  lat?: string,
+  lng?: string,
 ): Promise<{ list: Festival[]; total: number; totalPages?: number; currentPage?: number }> {
   try {
     const params = new URLSearchParams();
@@ -19,6 +21,8 @@ async function getEndedFestivals(
     if (areaCode) params.append('areaCode', areaCode);
     if (month) params.append('month', month);
     if (sort) params.append('sort', sort);
+    if (lat) params.append('lat', lat);
+    if (lng) params.append('lng', lng);
     params.append('page', page);
     params.append('size', '12');
 
@@ -45,6 +49,8 @@ export default async function PastFestivalsPage({
   const currentAreaCode = resolvedParams.areaCode || '';
   const currentMonth = resolvedParams.month || '';
   const currentSort = resolvedParams.sort || '';
+  const currentLat = resolvedParams.lat || '';
+  const currentLng = resolvedParams.lng || '';
 
   const festivalData = await getEndedFestivals(
     currentPage,
@@ -52,6 +58,8 @@ export default async function PastFestivalsPage({
     currentAreaCode || undefined,
     currentMonth || undefined,
     currentSort || undefined,
+    currentLat || undefined,
+    currentLng || undefined,
   );
 
   return (
