@@ -2,6 +2,7 @@ package com.ieum.notice.adapter.in.web;
 
 import com.ieum.attachment.application.port.in.LoadAttachmentUseCase;
 import com.ieum.global.response.ApiResponse;
+import com.ieum.notice.adapter.in.web.dto.NoticeDetailResponse;
 import com.ieum.notice.application.port.in.GetNoticeDetailUseCase;
 import com.ieum.notice.application.port.in.GetNoticeListUseCase;
 import com.ieum.notice.application.port.in.GetPopupNoticeUseCase;
@@ -17,7 +18,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.util.List;
 
 /**
  * 사용자용 공지사항 컨트롤러 (Input Adapter)
@@ -47,12 +48,14 @@ public class NoticeController {
             @RequestParam(required = false) String searchType,
             @Parameter(description = "검색 키워드")
             @RequestParam(required = false) String keyword,
+            @Parameter(description = "카테고리 필터 (GENERAL/EVENT/UPDATE/URGENT)", example = "GENERAL")
+            @RequestParam(required = false) String category,
             @Parameter(description = "페이지 번호", example = "1")
             @RequestParam(defaultValue = "1") int page,
             @Parameter(description = "페이지 크기", example = "10")
             @RequestParam(defaultValue = "10") int size) {
         return ResponseEntity.ok(ApiResponse.success(
-                getNoticeListUseCase.getNotices(searchType, keyword, page, size)));
+                getNoticeListUseCase.getNotices(searchType, keyword, category, page, size)));
     }
 
     /**
@@ -64,7 +67,7 @@ public class NoticeController {
             @io.swagger.v3.oas.annotations.responses.ApiResponse(responseCode = "404", description = "공지사항을 찾을 수 없음")
     })
     @GetMapping("/{noticeId}")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getNoticeDetail(
+    public ResponseEntity<ApiResponse<NoticeDetailResponse>> getNoticeDetail(
             @Parameter(description = "공지사항 ID", required = true, example = "1")
             @PathVariable Long noticeId) {
         return ResponseEntity.ok(ApiResponse.success(
@@ -74,11 +77,11 @@ public class NoticeController {
     /**
      * 팝업용 공지 조회 (API_NTC_0020)
      */
-    @Operation(summary = "팝업 공지 조회", description = "메인 화면 진입 시 isPopup=true인 최신 공지 1건 반환")
+    @Operation(summary = "팝업 공지 조회", description = "메인 화면 진입 시 isPopup=true인 유효한 공지사항 목록 반환")
     @GetMapping("/popup")
-    public ResponseEntity<ApiResponse<Notice>> getPopupNotice() {
+    public ResponseEntity<ApiResponse<List<Notice>>> getPopupNotices() {
         return ResponseEntity.ok(ApiResponse.success(
-                getPopupNoticeUseCase.getPopupNotice()));
+                getPopupNoticeUseCase.getPopupNotices()));
     }
 
     /**

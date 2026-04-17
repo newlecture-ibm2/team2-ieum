@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS users (
     terms_agreed    BOOLEAN         NOT NULL DEFAULT FALSE,
     marketing_agreed BOOLEAN        NOT NULL DEFAULT FALSE,
     status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
+    suspended_until TIMESTAMP,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
     deleted_at      TIMESTAMP
@@ -198,7 +199,7 @@ COMMENT ON COLUMN festivals.is_custom           IS '자체 기획 축제 여부'
 COMMENT ON COLUMN festivals.is_visible          IS '노출 여부 (관리자 비공개 처리용)';
 COMMENT ON COLUMN festivals.avg_rating          IS '평균 별점 (캐시)';
 COMMENT ON COLUMN festivals.review_count        IS '리뷰 수 (캐시)';
-COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기 수 (캐시)';
+COMMENT ON COLUMN festivals.favorite_count      IS '즐겨찾기(찜) 수 (캐시)';
 COMMENT ON COLUMN festivals.view_count          IS '조회수';
 COMMENT ON COLUMN festivals.api_modified_at     IS 'API 수정일 (증분 동기화 변경 감지용)';
 
@@ -211,6 +212,7 @@ CREATE TABLE IF NOT EXISTS reviews (
     user_id         BIGINT          NOT NULL,
     rating          INTEGER         NOT NULL CHECK (rating >= 1 AND rating <= 5),
     content         VARCHAR(500)    NOT NULL,
+    status          VARCHAR(10)     NOT NULL DEFAULT 'ACTIVE',
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
@@ -225,6 +227,7 @@ CREATE TABLE IF NOT EXISTS reviews (
 COMMENT ON TABLE  reviews              IS '축제 리뷰 테이블';
 COMMENT ON COLUMN reviews.rating       IS '별점 (1~5)';
 COMMENT ON COLUMN reviews.content      IS '리뷰 내용 (10~500자)';
+COMMENT ON COLUMN reviews.status       IS '리뷰 상태 (ACTIVE, REMOVED)';
 
 -- ------------------------------------------------------------
 -- 2-5. 즐겨찾기 (favorites)
@@ -243,7 +246,7 @@ CREATE TABLE IF NOT EXISTS favorites (
         UNIQUE (user_id, festival_id)
 );
 
-COMMENT ON TABLE  favorites            IS '축제 즐겨찾기 테이블';
+COMMENT ON TABLE  favorites               IS '축제 즐겨찾기(찜) 테이블';
 
 -- ------------------------------------------------------------
 -- 2-6. 커뮤니티 게시글 (posts)
@@ -252,7 +255,7 @@ CREATE TABLE IF NOT EXISTS posts (
     id              BIGSERIAL       PRIMARY KEY,
     user_id         BIGINT          NOT NULL,
     category        board_category  NOT NULL,
-    title           VARCHAR(100)    NOT NULL,
+    title           VARCHAR(200)    NOT NULL,
     content         TEXT            NOT NULL,
     view_count      INTEGER         NOT NULL DEFAULT 0,
     comment_count   INTEGER         NOT NULL DEFAULT 0,
@@ -265,7 +268,7 @@ CREATE TABLE IF NOT EXISTS posts (
 
 COMMENT ON TABLE  posts                 IS '커뮤니티 게시글 테이블';
 COMMENT ON COLUMN posts.category        IS '게시판 카테고리 (QNA, TIP, FOOD)';
-COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~100자)';
+COMMENT ON COLUMN posts.title           IS '게시글 제목 (2~200자)';
 COMMENT ON COLUMN posts.content         IS '게시글 내용 (10~5000자)';
 COMMENT ON COLUMN posts.view_count      IS '조회수';
 COMMENT ON COLUMN posts.comment_count   IS '댓글 수 (캐시)';
@@ -277,7 +280,7 @@ CREATE TABLE IF NOT EXISTS comments (
     id              BIGSERIAL       PRIMARY KEY,
     post_id         BIGINT          NOT NULL,
     user_id         BIGINT          NOT NULL,
-    content         VARCHAR(1000)   NOT NULL,
+    content         VARCHAR(500)    NOT NULL,
     created_at      TIMESTAMP       NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      TIMESTAMP,
 
@@ -288,7 +291,7 @@ CREATE TABLE IF NOT EXISTS comments (
 );
 
 COMMENT ON TABLE  comments             IS '게시글 댓글 테이블';
-COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~1000자)';
+COMMENT ON COLUMN comments.content     IS '댓글 내용 (1~500자)';
 
 -- ------------------------------------------------------------
 -- 2-8. 신고 (reports)
@@ -307,7 +310,7 @@ CREATE TABLE IF NOT EXISTS reports (
     created_at      TIMESTAMP           NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT fk_reports_reporter
-        FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
+        FOREIGN KEY (reporter_id) REFERENCES users(user_id) ON DELETE CASCADE,
     CONSTRAINT uq_reports_reporter_target
         UNIQUE (reporter_id, target_type, target_id)
 );

@@ -3,6 +3,7 @@ package com.ieum.admin.notice.adapter.out.persistence;
 import com.ieum.admin.notice.adapter.out.persistence.entity.AdminNoticeJpaEntity;
 import com.ieum.admin.notice.application.port.out.AdminNoticePort;
 import com.ieum.admin.notice.domain.AdminNotice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,13 +33,32 @@ public class AdminNoticePersistenceAdapter implements AdminNoticePort {
     }
 
     @Override
-    public Page<AdminNotice> findAll(Pageable pageable) {
-        return adminNoticeJpaRepository.findAll(pageable)
-                .map(AdminNoticeJpaEntity::toDomain);
+    public Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned,
+            Boolean isPopup, Boolean isPushed, NoticeCategory category, String status) {
+        java.time.LocalDateTime now = java.time.LocalDateTime.now();
+        if (category != null) {
+            return adminNoticeJpaRepository
+                    .findWithFiltersAndCategory(searchType, keyword, isPinned, isPopup, isPushed, category, status, now, pageable)
+                    .map(AdminNoticeJpaEntity::toDomain);
+        } else {
+            return adminNoticeJpaRepository
+                    .findWithFilters(searchType, keyword, isPinned, isPopup, isPushed, status, now, pageable)
+                    .map(AdminNoticeJpaEntity::toDomain);
+        }
     }
 
     @Override
     public void deleteById(Long noticeId) {
         adminNoticeJpaRepository.deleteById(noticeId);
+    }
+
+    @Override
+    public boolean existsPopupActive() {
+        return adminNoticeJpaRepository.existsByIsPopupTrue();
+    }
+
+    @Override
+    public boolean existsPopupActiveExcept(Long noticeId) {
+        return adminNoticeJpaRepository.existsByIsPopupTrueAndIdNot(noticeId);
     }
 }

@@ -1,9 +1,12 @@
 package com.ieum.notice.application.port.out;
 
 import com.ieum.notice.domain.model.Notice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -19,9 +22,14 @@ public interface NoticePort {
     Page<Notice> findAll(String searchType, String keyword, Pageable pageable);
 
     /**
-     * 팝업 공지 (isPopup=true, 현재 유효 기간 내, 최신 1건)
+     * 활성 상태인 공지사항만 조회 (사용자용)
      */
-    Optional<Notice> findPopupNotice();
+    Page<Notice> findActiveAll(String searchType, String keyword, NoticeCategory category, LocalDateTime now, Pageable pageable);
+
+    /**
+     * 팝업 공지 리스트 (isPopup=true, 현재 유효 기간 내 목록)
+     */
+    List<Notice> findPopupNotices();
 
     /**
      * 이전글 (현재 ID보다 작은 것 중 가장 큰 것)

@@ -492,7 +492,7 @@ public record LoginRequest(
    → in/web/: Controller의 TODO 부분을 Service 호출로 교체
 ```
 
-### 📁 예시: 축제 조회 기능 개발
+### 📁 예시: 축제 조회 기능 개발 
 
 ```
 user/festival/

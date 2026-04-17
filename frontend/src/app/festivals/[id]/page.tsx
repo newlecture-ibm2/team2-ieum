@@ -1,8 +1,12 @@
 'use client';
 
 import { useState, useEffect, use } from 'react';
+import { useRouter } from 'next/navigation';
 import api from '@/lib/api';
+import { useToast } from '@/_component/common/Toast';
 import styles from './FestivalDetail.module.css';
+import Modal from '@/_component/common/Modal/Modal';
+import modalStyles from '@/_component/common/Modal/Modal.module.css';
 
 // 컴포넌트 임포트
 import FestivalHero from './_components/FestivalHero';
@@ -13,12 +17,17 @@ import ReviewSection from './_components/ReviewSection';
 export default function FestivalDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const resolvedParams = use(params);
   const fid = resolvedParams.id;
+  const router = useRouter();
 
   const [data, setData] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isBookmarked, setIsBookmarked] = useState(false);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // 팝업 상태
+  // 로그인 유도 모달 상태
+  const [showLoginModal, setShowLoginModal] = useState(false);
+
+  // 범용 팝업 메시지 상태
   const [popupMsg, setPopupMsg] = useState<string | null>(null);
 
   // 리뷰 데이터
@@ -55,18 +64,56 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
         setLoading(false);
       }
     };
+
+    const checkFavoriteStatus = async () => {
+      try {
+        // 로그인 상태 확인 후, 로그인된 경우에만 즐겨찾기 상태 체크
+        const authRes = await fetch('/api/auth/me');
+        if (!authRes.ok) return;
+        
+        const authData = await authRes.json();
+        if (!authData.isLoggedIn) return; // 비로그인 시 skip
+
+        setIsLoggedIn(true);
+
+        const res = await api.get(`/api/favorites/check?festivalId=${fid}`);
+        if (res.data?.success) {
+          setIsBookmarked(res.data.data.isFavorite);
+        }
+      } catch (error) {
+        // 인증 실패(401)는 무시 — 비로그인 사용자는 즐겨찾기 미표시
+        if ((error as any)?.response?.status !== 401) {
+          console.error('Failed to check favorite status', error);
+        }
+      }
+    };
+
     fetchFestival();
     fetchReviews();
+    checkFavoriteStatus();
   }, [fid]);
 
   // --- 이벤트 핸들러 ---
-  const toggleBookmark = () => {
-    setIsBookmarked(prev => !prev);
-    // TODO: API_FES_0040 연동
+  const { toast } = useToast();
+
+  const toggleBookmark = async () => {
+    if (!isLoggedIn) {
+      toast('찜하기 기능은 회원만 이용 가능합니다.', 'info');
+      return;
+    }
+    try {
+      const wasBookmarked = isBookmarked;
+      await api.post('/api/favorites', { festivalId: Number(fid) });
+      setIsBookmarked(prev => !prev);
+      toast(wasBookmarked ? '찜 목록에서 삭제했습니다.' : '찜 목록에 추가했습니다.', wasBookmarked ? 'info' : 'success');
+    } catch (err: any) {
+      console.error('Failed to toggle bookmark', err);
+      toast('찜하기에 실패했습니다.', 'error');
+    }
   };
 
+  // ReviewSection 등에서 사용하는 범용 메시지 팝업
   const showPopup = (msg: string) => setPopupMsg(msg);
-  const closePopup = () => setPopupMsg(null);
 
   // --- 로딩 / 에러 상태 ---
   if (loading) {
@@ -107,46 +154,82 @@ export default function FestivalDetailPage({ params }: { params: Promise<{ id: s
       <section className={styles.contentWrap}>
         <div className={styles.contentInner}>
 
-          {/* 좌측: 상세정보 + 리뷰 */}
+          {/* 좌측: 상세정보 + 리뷰 (모바일에서는 display: contents 로 해제됨) */}
           <div className={styles.leftCol}>
-            <FestivalDetailInfo
-              overview={data.overview}
-              description={data.description}
-              imageSrc={imageSrc}
-              images={data.images}
-            />
-            <ReviewSection
-              festivalId={fid}
-              reviews={reviews}
-              reviewStats={reviewStats}
-              onReviewSubmitted={fetchReviews}
-              onPopup={showPopup}
-            />
+            <div className={styles.orderDetail}>
+              <FestivalDetailInfo
+                overview={data.overview}
+                description={data.description}
+                imageSrc={imageSrc}
+                images={data.images}
+              />
+            </div>
+            <div className={styles.orderReview}>
+              <ReviewSection
+                festivalId={fid}
+                reviews={reviews}
+                reviewStats={reviewStats}
+                onReviewSubmitted={fetchReviews}
+                onPopup={showPopup}
+              />
+            </div>
           </div>
 
           {/* 우측: 사이드바 */}
-          <FestivalSidebar
-            address={data.address}
-            dateString={dateString}
-            tel={data.tel}
-            fee={data.fee}
-            reviewStats={reviewStats}
-          />
+          <div className={styles.orderSidebar}>
+            <FestivalSidebar
+              address={data.address}
+              dateString={dateString}
+              tel={data.tel}
+              fee={data.fee}
+              reviewStats={reviewStats}
+            />
+          </div>
 
         </div>
       </section>
 
-      {/* 팝업 모달 */}
+      {/* 범용 팝업 모달 (리뷰 등록/삭제 성공/실패 등) */}
       {popupMsg && (
         <div className={styles.modalOverlay}>
           <div className={styles.modalBox} style={{ border: 'none' }}>
             <p className={styles.modalText}>{popupMsg}</p>
-            <button className={styles.modalBtn} onClick={closePopup}>
+            <button className={styles.modalBtn} onClick={() => setPopupMsg(null)}>
               확인
             </button>
           </div>
         </div>
       )}
+
+      {/* 비로그인 유저 로그인 유도 모달 */}
+      {showLoginModal && (
+        <Modal
+          title="로그인이 필요합니다"
+          size="small"
+          onClose={() => setShowLoginModal(false)}
+        >
+          <p className={modalStyles.confirmMessage}>
+            찜하기는 로그인 후 이용할 수 있습니다.{'\n'}로그인하시겠습니까?
+          </p>
+          <div className={modalStyles.footer}>
+            <button
+              type="button"
+              className={modalStyles.btnCancel}
+              onClick={() => setShowLoginModal(false)}
+            >
+              취소
+            </button>
+            <button
+              type="button"
+              className={modalStyles.btnConfirm}
+              onClick={() => router.push('/login')}
+            >
+              로그인
+            </button>
+          </div>
+        </Modal>
+      )}
     </main>
   );
 }
+

@@ -7,6 +7,8 @@
 .heroBanner {
   background: linear-gradient(135deg, #a55eea 0%, #6c5ce7 60%, #4834d4 100%);
   padding: 36px 0 28px;
+  padding-top: calc(36px + var(--header-height));
+  margin-top: calc(-1 * var(--header-height));
   position: relative;
   overflow: hidden;
 }
@@ -76,6 +78,14 @@
   margin-left: 2px;
 }
 
+.countLabel {
+  display: block;
+  font-size: 11px;
+  color: #94a3b8;
+  margin-top: 4px;
+  text-align: right;
+}
+
 /* 셀렉트, 인풋 공통 */
 .formInput,
 .formSelect {
@@ -132,6 +142,67 @@
 .formTextarea:focus {
   border-color: #6c5ce7;
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.1);
+}
+/* React Quill 에디터 오버라이딩 */
+
+.quillWrapper {
+  margin-bottom: 8px;
+}
+
+/* 툴바 스타일 오버라이딩 */
+.quillWrapper :global(.ql-toolbar.ql-snow) {
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border-color: #cbd5e1;
+  background-color: #f8fafc;
+  padding: 12px 16px;
+  font-family: inherit;
+}
+
+/* 컨테이너 및 에디터 영역 라운딩, 높이 */
+.quillWrapper :global(.ql-container.ql-snow) {
+  border-bottom-left-radius: 8px;
+  border-bottom-right-radius: 8px;
+  border-color: #cbd5e1;
+  min-height: 480px; /* 기존 텍스트박스보다 비약적으로 높이를 늘렸습니다 */
+  font-family: 'Noto Sans KR', sans-serif;
+  font-size: 15px;
+  color: #334155;
+  background-color: #fff;
+}
+
+.quillWrapper :global(.ql-editor) {
+  min-height: 480px;
+  padding: 16px;
+  line-height: 1.7;
+  position: relative;
+}
+
+/* 플레이스홀더 기본 스타일 */
+.quillWrapper :global(.ql-editor.ql-blank::before) {
+  font-style: normal;
+  color: #94a3b8;
+  pointer-events: none;
+  position: absolute;
+  left: 16px;
+  right: 16px;
+}
+
+/* 포커스 시 플레이스홀더 즉시 숨김 (한글 IME 겹침 방지) */
+.quillWrapper :global(.ql-editor:focus::before) {
+  display: none !important;
+}
+
+/* 내용이 있으면 플레이스홀더 숨김 */
+.quillWrapper :global(.ql-editor:not(.ql-blank)::before) {
+  display: none !important;
+}
+
+/* 포커스 시 테두리 효과 */
+.quillWrapper:focus-within :global(.ql-container.ql-snow),
+.quillWrapper:focus-within :global(.ql-toolbar.ql-snow) {
+  border-color: #6c5ce7;
+  transition: border-color 0.2s;
 }
 
 /* 이미지 업로드 영역 */
@@ -262,3 +333,53 @@
   cursor: not-allowed;
   transform: none;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .heroBanner {
+    padding: 24px 0 20px;
+    padding-top: calc(24px + var(--header-height));
+  }
+
+  .heroInner {
+    padding: 0 16px;
+  }
+
+  .heroTitle {
+    font-size: 20px;
+  }
+
+  .formContainer {
+    padding: 24px 16px 40px;
+  }
+
+  .formHeader {
+    font-size: 17px;
+    margin-bottom: 20px;
+  }
+
+  .formMultiCols {
+    grid-template-columns: 1fr;
+  }
+
+  .quillWrapper :global(.ql-container.ql-snow),
+  .quillWrapper :global(.ql-editor) {
+    min-height: 300px;
+  }
+
+  .formActions {
+    flex-direction: column;
+  }
+
+  .btnCancel,
+  .btnSave {
+    width: 100%;
+    text-align: center;
+  }
+
+  .imagePreviewItem {
+    width: 64px;
+    height: 64px;
+  }
+}
+

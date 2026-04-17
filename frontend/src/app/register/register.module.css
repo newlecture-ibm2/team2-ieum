@@ -243,6 +243,5 @@
 }
 
 .loginLink:hover {
-  color: var(--color-primary-600);
   text-decoration: underline;
 }

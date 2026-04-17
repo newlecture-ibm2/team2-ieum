@@ -1,6 +1,7 @@
 'use client';
 
-import { Heart } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Heart, ArrowLeft } from 'lucide-react';
 import styles from './FestivalHero.module.css';
 
 interface FestivalHeroProps {
@@ -22,6 +23,8 @@ export default function FestivalHero({
   isBookmarked,
   onToggleBookmark,
 }: FestivalHeroProps) {
+  const router = useRouter();
+
   let badgeText = '진행예정';
   if (status === 'ONGOING') badgeText = '진행중';
   if (status === 'ENDED') badgeText = '종료';
@@ -29,8 +32,24 @@ export default function FestivalHero({
   return (
     <section
       className={styles.hero}
-      style={{ backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.7)), url(${imageSrc})` }}
+      style={{ '--hero-bg': `url(${imageSrc})` } as React.CSSProperties}
     >
+      {/* 백그라운드 블러 오버레이 */}
+      <div className={styles.heroBgOverlay} />
+
+      <div className={styles.topNav}>
+        <div className={styles.topNavInner}>
+          <button 
+            className={styles.backButton} 
+            onClick={() => router.push(status === 'ENDED' ? '/pastFestivals' : '/')} 
+            aria-label="뒤로가기"
+          >
+            <ArrowLeft size={18} />
+            <span>목록으로</span>
+          </button>
+        </div>
+      </div>
+
       <div className={styles.heroInner}>
         <div className={styles.badgeWrap}>
           <span className={styles.badge}>{badgeText}</span>

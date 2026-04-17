@@ -7,12 +7,10 @@ import adminApi from '@/lib/adminApi';
 import type { InquiryItem, InquiryListResponse } from '@/types/admin-inquiry';
 import InquiryDetailModal from '../InquiryDetailModal';
 import s from './InquiryListPage.module.css';
+import { INQUIRY_STATUS, INQUIRY_STATUS_LABELS } from '@/constants/statusLabels';
+import Pagination from '@/_component/common/Pagination';
 
-/* ── 상태 배지 매핑 ── */
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  PENDING:  { label: '대기중',   className: 'badgePending' },
-  ANSWERED: { label: '답변완료', className: 'badgeOngoing' },
-};
+
 
 export default function InquiryListPage() {
   const list = useAdminList({ extraFilterKeys: ['searchType'] });
@@ -27,6 +25,7 @@ export default function InquiryListPage() {
   const [inquiries, setInquiries] = useState<InquiryItem[]>([]);
   const [pendingCount, setPendingCount] = useState(0);
   const [answeredCount, setAnsweredCount] = useState(0);
+  const [newTodayCount, setNewTodayCount] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
 
   /* ── 모달/토스트 상태 ── */
@@ -47,8 +46,8 @@ export default function InquiryListPage() {
   };
 
   /* ── 데이터 로드 ── */
-  const fetchInquiries = useCallback(async () => {
-    setLoading(true);
+  const fetchInquiries = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
     try {
       const params: Record<string, string | number> = {
         page: currentPage,
@@ -66,19 +65,21 @@ export default function InquiryListPage() {
       setTotalCount(result.pendingCount + result.answeredCount);
       setPendingCount(result.pendingCount);
       setAnsweredCount(result.answeredCount);
+      setNewTodayCount(result.newTodayCount || 0);
     } catch (err) {
       console.error('문의 목록 조회 실패:', err);
-      setInquiries([]);
+      // do not blindly clear inquiries array on polling fail to prevent ui empty flash
+      if (!isPolling) setInquiries([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   }, [currentPage, statusFilter, extraFilters.searchType, keyword, setLoading, setTotalPages]);
 
   useEffect(() => {
-    fetchInquiries();
+    fetchInquiries(false);
 
     // 30초마다 목록 실시간 갱신 (폴링)
-    const intervalId = setInterval(fetchInquiries, 30000);
+    const intervalId = setInterval(() => fetchInquiries(true), 30000);
     return () => clearInterval(intervalId);
   }, [fetchInquiries]);
 
@@ -117,15 +118,26 @@ export default function InquiryListPage() {
             <div className={common.statValue}>{totalCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('PENDING')}
+            className={`${common.statCard} ${common.statCardInteractive} ${statusFilter === 'NEW_TODAY' ? common.statActive : ''}`}
+            style={{ 
+              backgroundColor: statusFilter === 'NEW_TODAY' ? '#dbeafe' : '#eff6ff', 
+              border: '1px solid #bfdbfe' 
+            }}
+            onClick={() => handleStatClick('NEW_TODAY')}
+          >
+            <div className={common.statLabel} style={{ color: '#1e3a8a' }}>오늘 신규 접수</div>
+            <div className={common.statValue} style={{ color: '#2563eb' }}>{newTodayCount}</div>
+          </div>
+          <div
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === INQUIRY_STATUS.PENDING ? common.statActive : ''}`}
+            onClick={() => handleStatClick(INQUIRY_STATUS.PENDING)}
           >
             <div className={common.statLabel}>대기중</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pendingCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'ANSWERED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('ANSWERED')}
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === INQUIRY_STATUS.ANSWERED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(INQUIRY_STATUS.ANSWERED)}
           >
             <div className={common.statLabel}>답변완료</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{answeredCount}</div>
@@ -143,8 +155,9 @@ export default function InquiryListPage() {
             onChange={(e) => setStatusFilterAndReset(e.target.value)}
           >
             <option value="">전체 상태</option>
-            <option value="PENDING">대기중</option>
-            <option value="ANSWERED">답변완료</option>
+            <option value="NEW_TODAY">오늘 신규 접수</option>
+            <option value={INQUIRY_STATUS.PENDING}>대기중</option>
+            <option value={INQUIRY_STATUS.ANSWERED}>답변완료</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -174,14 +187,10 @@ export default function InquiryListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+      {/* ── 리스트 ── */}
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
               <col style={{ width: 'auto' }} />
@@ -218,27 +227,27 @@ export default function InquiryListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary} ${s.ellipsisCell}`}>
                       {inquiry.title}
                     </td>
-                    <td className={common.tableCell}>
+                    <td className={`${common.tableCell} ${common.textLeft}`}>
                       {inquiry.authorNickname}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {inquiry.createdAt?.slice(0, 10)}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[STATUS_MAP[inquiry.status]?.className || 'badgePending'] || ''}`}>
-                        {STATUS_MAP[inquiry.status]?.label || inquiry.status}
+                      <span className={`${common.statusBadge} ${common[INQUIRY_STATUS_LABELS[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                        {INQUIRY_STATUS_LABELS[inquiry.status]?.label || inquiry.status}
                       </span>
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       <button
-                        className={inquiry.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        className={inquiry.status === INQUIRY_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
                         style={{ padding: '4px 12px', fontSize: 11 }}
                         onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
                       >
-                        {inquiry.status === 'PENDING' ? '답변' : '보기'}
+                        {inquiry.status === INQUIRY_STATUS.PENDING ? '답변' : '보기'}
                       </button>
                     </td>
                   </tr>
@@ -246,29 +255,65 @@ export default function InquiryListPage() {
               )}
             </tbody>
           </table>
-        )}
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : inquiries.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>문의 내역이 없습니다.</div>
+          ) : (
+            inquiries.map((inquiry) => (
+              <div 
+                key={inquiry.id} 
+                className={common.listCard}
+                onClick={() => setSelectedInquiry(inquiry)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <span className={`${common.statusBadge} ${common[INQUIRY_STATUS_LABELS[inquiry.status]?.className || 'badgePending'] || ''}`}>
+                    {INQUIRY_STATUS_LABELS[inquiry.status]?.label || inquiry.status}
+                  </span>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {inquiry.createdAt?.slice(0, 10)}
+                  </span>
+                </div>
+
+                <div className={common.listCardTitle}>
+                  {inquiry.title}
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>👤</span>
+                    <span className={common.listCardValue}>작성자: {inquiry.authorNickname}</span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={`${common.listCardActionBtn} ${inquiry.status === INQUIRY_STATUS.PENDING ? '' : 'danger'}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedInquiry(inquiry); }}
+                  >
+                    {inquiry.status === INQUIRY_STATUS.PENDING ? '답변' : '보기'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedInquiry && (

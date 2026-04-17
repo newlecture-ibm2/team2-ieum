@@ -59,24 +59,7 @@
   flex-shrink: 0;
 }
 
-.badge {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-}
 
-.badgePopup {
-  background: #e3f2fd;
-  color: #1565c0;
-}
-
-.badgeActive {
-  background: #e8f5e9;
-  color: #2e7d32;
-}
 
 .emptyState {
   text-align: center;
@@ -97,10 +80,39 @@
 }
 
 @media (max-width: 768px) {
+  .noticeTable th,
+  .noticeTable td {
+    padding: 10px 8px;
+    font-size: 12px;
+  }
+
+  /* No, 작성일 숨기고 → 카테고리, 제목, 조회수만 표시 */
+  .noticeTable th:nth-child(1),
+  .noticeTable td:nth-child(1),
   .noticeTable th:nth-child(4),
-  .noticeTable td:nth-child(4),
-  .noticeTable th:nth-child(5),
-  .noticeTable td:nth-child(5) {
+  .noticeTable td:nth-child(4) {
     display: none;
+  }
+
+  /* 제목 셀: 말줄임 처리 */
+  .noticeTable td:nth-child(3) {
+    max-width: 120px;
+  }
+
+  .titleCell {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: block;
+    max-width: 100%;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 2px 8px;
+  }
+
+  .emptyState {
+    padding: 40px 16px;
   }
 }

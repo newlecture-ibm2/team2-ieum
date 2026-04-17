@@ -1,5 +1,6 @@
 package com.ieum.user.auth.domain;
 
+import com.ieum.global.common.enums.UserStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -21,13 +22,15 @@ public class User {
     private final String nickname;
     private final String phone;
     private final String profileImage;
-    private final String role;
+    private final Role role;
     private final boolean termsAgreed;
-    private final boolean marketingAgreed;
-    private final String status;
+    private final String securityQuestion;
+    private final String securityAnswer;
+    private final UserStatus status;
     private final LocalDateTime createdAt;
     private final LocalDateTime updatedAt;
     private final LocalDateTime deletedAt;
+    private final LocalDateTime suspendedUntil;
 
     /**
      * 비밀번호 검증 비즈니스 로직
@@ -41,7 +44,7 @@ public class User {
      */
     public User withdraw() {
         return this.toBuilder()
-                .status("WITHDRAWAL")
+                .status(UserStatus.WITHDRAWAL)
                 .deletedAt(LocalDateTime.now())
                 .build();
     }
@@ -51,7 +54,7 @@ public class User {
      */
     public User reactivate() {
         return this.toBuilder()
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .deletedAt(null)
                 .build();
     }
@@ -60,9 +63,17 @@ public class User {
      * 탈퇴 유예 기간(30일) 만료 여부 확인
      */
     public boolean isWithdrawalExpired() {
-        if (!"WITHDRAWAL".equals(this.status) || this.deletedAt == null) {
+        if (this.status != UserStatus.WITHDRAWAL || this.deletedAt == null) {
             return false;
         }
         return this.deletedAt.plusDays(30).isBefore(LocalDateTime.now());
+    }
+
+    /**
+     * 정지 상태 여부 확인
+     * 배치 스케쥴러가 정지 해제 시 status를 ACTIVE로 변경하므로 status만 확인
+     */
+    public boolean isSuspended() {
+        return this.status == UserStatus.SUSPENDED;
     }
 }

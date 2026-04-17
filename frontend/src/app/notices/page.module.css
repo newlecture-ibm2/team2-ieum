@@ -1,5 +1,5 @@
 .page {
-  max-width: 960px;
+  max-width: 1200px;
   margin: 0 auto;
   padding: 40px var(--spacing-lg) 80px;
   min-height: 70vh;
@@ -14,3 +14,16 @@
   align-items: center;
   gap: 8px;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .page {
+    padding: 24px 16px 40px;
+  }
+
+  .pageTitle {
+    font-size: 18px;
+    margin-bottom: 16px;
+  }
+}
+

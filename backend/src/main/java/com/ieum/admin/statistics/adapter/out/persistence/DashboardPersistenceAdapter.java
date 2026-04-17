@@ -3,6 +3,9 @@ package com.ieum.admin.statistics.adapter.out.persistence;
 import com.ieum.admin.statistics.application.port.out.DashboardQueryPort;
 import com.ieum.admin.statistics.application.result.DashboardRecentItem;
 import com.ieum.admin.statistics.application.result.DashboardTrendItem;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
+import com.ieum.global.common.enums.InquiryStatus;
+import com.ieum.global.common.enums.ReportReason;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
@@ -30,14 +33,16 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
     @Override
     public long countOngoingPublicFestivals() {
         return (long) em.createQuery(
-                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = 'ONGOING' AND f.isCustom = false")
+                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = :status AND f.isCustom = false")
+                .setParameter("status", FestivalStatus.ONGOING.name())
                 .getSingleResult();
     }
 
     @Override
     public long countOngoingCustomFestivals() {
         return (long) em.createQuery(
-                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = 'ONGOING' AND f.isCustom = true")
+                "SELECT COUNT(f) FROM FestivalEntity f WHERE f.status = :status AND f.isCustom = true")
+                .setParameter("status", FestivalStatus.ONGOING.name())
                 .getSingleResult();
     }
 
@@ -70,7 +75,8 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
 
     @Override
     public long countAnsweredInquiries() {
-        return (long) em.createQuery("SELECT COUNT(i) FROM InquiryEntity i WHERE i.status = 'ANSWERED'")
+        return (long) em.createQuery("SELECT COUNT(i) FROM InquiryEntity i WHERE i.status = :status")
+                .setParameter("status", InquiryStatus.ANSWERED.name())
                 .getSingleResult();
     }
 
@@ -110,7 +116,11 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
                 "SELECT FUNCTION('DATE', r.createdAt), COUNT(r) FROM ReportEntity r " +
                 "WHERE r.createdAt >= :from AND r.createdAt <= :to GROUP BY FUNCTION('DATE', r.createdAt) ORDER BY FUNCTION('DATE', r.createdAt)")
                 .setParameter("from", from).setParameter("to", to).getResultList();
-        Map<String, Long> m = rows.stream().collect(Collectors.toMap(r -> r[0].toString(), r -> (long) r[1]));
+        Map<String, Long> m = rows.stream().collect(Collectors.toMap(
+                r -> r[0].toString(), 
+                r -> (long) r[1], 
+                (a, b) -> a + b
+        ));
         return buildDynamicDays(m, startDate, endDate, true);
     }
 
@@ -123,7 +133,11 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
                 "SELECT FUNCTION('DATE', i.createdAt), COUNT(i) FROM InquiryEntity i " +
                 "WHERE i.createdAt >= :from AND i.createdAt <= :to GROUP BY FUNCTION('DATE', i.createdAt) ORDER BY FUNCTION('DATE', i.createdAt)")
                 .setParameter("from", from).setParameter("to", to).getResultList();
-        Map<String, Long> m = rows.stream().collect(Collectors.toMap(r -> r[0].toString(), r -> (long) r[1]));
+        Map<String, Long> m = rows.stream().collect(Collectors.toMap(
+                r -> r[0].toString(), 
+                r -> (long) r[1], 
+                (a, b) -> a + b
+        ));
         return buildDynamicDays(m, startDate, endDate, false);
     }
 
@@ -155,12 +169,10 @@ public class DashboardPersistenceAdapter implements DashboardQueryPort {
 
     private String reasonLabel(String reason) {
         if (reason == null) return "신고";
-        return switch (reason) {
-            case "SPAM" -> "스팸 신고";
-            case "ABUSE" -> "욕설/비방 신고";
-            case "INAPPROPRIATE" -> "부적절한 콘텐츠 신고";
-            case "FALSE_INFO" -> "허위 정보 신고";
-            default -> "기타 신고";
-        };
+        try {
+            return ReportReason.valueOf(reason).getDisplayName();
+        } catch (IllegalArgumentException e) {
+            return "기타 신고";
+        }
     }
 }

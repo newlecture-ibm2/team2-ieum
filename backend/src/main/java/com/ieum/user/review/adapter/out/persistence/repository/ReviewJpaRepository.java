@@ -12,6 +12,7 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewEntity, Long> {
     Page<ReviewEntity> findByFestivalId(Long festivalId, Pageable pageable);
 
     @Query("SELECT new map(" +
+<<<<<<< HEAD
             "r.id as id, " +
             "r.festivalId as festivalId, " +
             "r.userId as userId, " +
@@ -32,6 +33,27 @@ public interface ReviewJpaRepository extends JpaRepository<ReviewEntity, Long> {
     Double getAverageRating(@Param("festivalId") Long festivalId);
 
     @Query("SELECT COUNT(r) FROM ReviewEntity r WHERE r.festivalId = :festivalId")
+=======
+           "r.id as id, " +
+           "r.festivalId as festivalId, " +
+           "r.userId as userId, " +
+           "r.rating as rating, " +
+           "r.content as content, " +
+           "r.createdAt as createdAt, " +
+           "r.updatedAt as updatedAt, " +
+           "u.nickname as nickname, " +
+           "u.role as role" +
+           ") " +
+           "FROM ReviewEntity r " +
+           "JOIN UserJpaEntity u ON r.userId = u.id " +
+           "WHERE r.festivalId = :festivalId AND r.status = 'ACTIVE'")
+    Page<java.util.Map<String, Object>> findReviewsWithNickname(@Param("festivalId") Long festivalId, Pageable pageable);
+    
+    @Query("SELECT AVG(r.rating) FROM ReviewEntity r WHERE r.festivalId = :festivalId AND r.status = 'ACTIVE'")
+    Double getAverageRating(@Param("festivalId") Long festivalId);
+    
+    @Query("SELECT COUNT(r) FROM ReviewEntity r WHERE r.festivalId = :festivalId AND r.status = 'ACTIVE'")
+>>>>>>> ce61236a579d796cf9a033f8ad18fdff8f7fdc97
     Long countByFestivalId(@Param("festivalId") Long festivalId);
 
     boolean existsByFestivalIdAndUserId(Long festivalId, Long userId);

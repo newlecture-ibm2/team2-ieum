@@ -83,11 +83,45 @@
 
 .charCount {
   position: absolute;
-  bottom: 10px;
-  right: 14px;
+  bottom: 8px;
+  right: 12px;
   font-size: 11px;
-  color: #94a3b8;
-  pointer-events: none;
+  color: var(--color-gray-400);
+}
+
+.dateRangeInput {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 480px) {
+  .dateRangeInput {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .dateSeparator {
+    display: none;
+  }
+}
+
+.dateRangeInput input {
+  flex: 1;
+}
+
+.dateSeparator {
+  color: var(--color-gray-400);
+  font-weight: 500;
+}
+
+.fieldDesc {
+  margin-top: 8px;
+  font-size: 11px;
+  color: var(--color-gray-400);
+  line-height: 1.4;
 }
 
 .errorText {
@@ -96,25 +130,102 @@
   margin-top: 2px;
 }
 
+/* ── 첨부파일 ── */
+.fileDropZone {
+  border: 2px dashed #cbd5e1;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  background: #f8fafc;
+}
+
+.fileDropZone:hover {
+  border-color: #6c5ce7;
+  background: #f0ecff;
+}
+
+.fileDropText {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.fileInputHidden {
+  display: none;
+}
+
+.fileList {
+  list-style: none;
+  padding: 0;
+  margin: 4px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileItem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: #f1f5f9;
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.fileName {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: #334155;
+}
+
+.fileSize {
+  color: #94a3b8;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.fileRemoveBtn {
+  background: none;
+  border: none;
+  color: #ef4444;
+  cursor: pointer;
+  font-size: 14px;
+  padding: 0 4px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.fileRemoveBtn:hover {
+  color: #dc2626;
+}
+
 /* ── 옵션 토글 ── */
 .optionRow {
-  display: flex;
-  gap: 28px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 12px;
   padding: 12px 0 4px;
 }
 
 .toggleWrap {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
   cursor: pointer;
   user-select: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 
 .toggleLabel {
   font-size: 13px;
   font-weight: 600;
   color: #475569;
+  white-space: nowrap;
 }
 
 /* ── 하단 버튼 ── */
@@ -125,4 +236,15 @@
   padding-top: 16px;
   border-top: 1px solid #e2e8f0;
   margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 640px) {
+  .fieldTextarea {
+    min-height: 120px;
+  }
+
+  .fileDropZone {
+    padding: 14px;
+  }
 }

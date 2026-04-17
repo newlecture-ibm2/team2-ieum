@@ -32,38 +32,208 @@
   white-space: pre-wrap;
 }
 
-.descImageGallery {
+/* ── 이미지 갤러리 ── */
+
+.gallery {
   margin-top: 24px;
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
+/* Main image area */
 .mainImageWrapper {
   position: relative;
   width: 100%;
-  aspect-ratio: 16/9;
+  aspect-ratio: 16 / 9;
   background: var(--color-gray-100);
   border-radius: var(--radius-md);
   overflow: hidden;
 }
 
-.extraImageGrid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 12px;
+/* Zoom hint overlay */
+.zoomOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0);
+  transition: background 0.25s ease;
+  z-index: 2;
 }
 
-.extraImageWrapper {
+.zoomOverlay span {
+  opacity: 0;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  background: rgba(0, 0, 0, 0.6);
+  padding: 8px 18px;
+  border-radius: 24px;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.mainImageWrapper:hover .zoomOverlay {
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.mainImageWrapper:hover .zoomOverlay span {
+  opacity: 1;
+}
+
+/* 서브 썸네일 스트립 */
+.thumbnailStrip {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  /* 가로 스크롤 시 스크롤바 스타일 */
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-gray-300) transparent;
+}
+
+.thumbnailStrip::-webkit-scrollbar {
+  height: 4px;
+}
+
+.thumbnailStrip::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.thumbnailStrip::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 2px;
+}
+
+/* 개별 썸네일 버튼 */
+.thumbnailBtn {
   position: relative;
-  width: 100%;
-  aspect-ratio: 1;
+  flex: 0 0 calc((100% - 32px) / 5); /* 최대 5개 노출 (gap 8px * 4 = 32px) */
+  aspect-ratio: 1 / 1; /* 가로세로 정사각형 유지 */
   border-radius: var(--radius-sm);
   overflow: hidden;
   background: var(--color-gray-100);
-  transition: opacity 0.2s;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: border-color 0.2s, opacity 0.2s, transform 0.15s;
 }
 
-.extraImageWrapper:hover {
-  opacity: 0.8;
+.thumbnailBtn:hover {
+  opacity: 0.85;
+  transform: scale(1.03);
+}
+
+/* 선택된 썸네일 강조 */
+.thumbnailActive {
+  border-color: var(--color-primary-500);
+  box-shadow: 0 0 0 2px rgba(99, 102, 241, 0.25);
+}
+
+/* ── Lightbox Modal ── */
+
+.lightboxOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.9);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.lightboxClose {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border: none;
+  color: #fff;
+  font-size: 24px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+}
+
+.lightboxClose:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lightboxContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 90vw;
+  max-height: 85vh;
+}
+
+.lightboxImg {
+  max-width: 90vw;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.4);
+}
+
+.lightboxCounter {
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.lightboxNav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(4px);
+  border: none;
+  color: #fff;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  z-index: 10;
+  transition: background 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+}
+
+.lightboxNav:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.lightboxPrev { left: 20px; }
+.lightboxNext { right: 20px; }
+
+/* ── Responsive ── */
+
+@media (max-width: 768px) {
+  .section {
+    padding: 20px 16px;
+  }
+
+  .lightboxNav {
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+  }
+
+  .lightboxPrev { left: 8px; }
+  .lightboxNext { right: 8px; }
 }

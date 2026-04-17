@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getSession } from "@/lib/session";
 
-const BACKEND_URL = process.env.BACKEND_URL || "http://localhost:8080";
+const BACKEND_URL = process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 
 async function processProxyRequest(req: NextRequest) {
   const session = await getSession();
@@ -12,28 +12,40 @@ async function processProxyRequest(req: NextRequest) {
   const targetUrl = `${BACKEND_URL}${req.nextUrl.pathname}${req.nextUrl.search}`;
 
   const headers = new Headers(req.headers);
-  // Important to override the host so the backend doesn't reject it
-  headers.set("host", new URL(BACKEND_URL).host);
+  // Remove hop-by-hop and restricted headers that cause Node.js fetch to crash (502 TypeError)
+  headers.delete("host");
+  headers.delete("connection");
+  headers.delete("content-length");
+  headers.delete("content-encoding");
+  headers.delete("transfer-encoding");
+
+  // Remove Origin/Referer so Spring Boot doesn't block the server-to-server proxy request with its CORS policy
+  headers.delete("origin");
+  headers.delete("referer");
 
   // If user has a valid iron-session access token, append it to Authorization Header
   if (token) {
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  // Handle the request body stream safely (requires duplex for streaming bodies)
-  let requestBody = undefined;
+  const fetchOptions: RequestInit = {
+    method: req.method,
+    headers: headers,
+    cache: "no-store", // Proxy should strictly never cache Data Cache, always forward to backend real-time
+  };
+
+  // POST/PUT/PATCH: body를 버퍼로 읽어서 전달 (스트리밍 전송 시 백엔드가 인증 거부 등으로
+  // body를 다 읽기 전에 응답을 끊으면 Node.js fetch가 ECONNRESET으로 throw하는 문제 방지)
   if (req.method !== "GET" && req.method !== "HEAD") {
-    requestBody = req.body;
+    const body = await req.arrayBuffer();
+    fetchOptions.body = body;
+  } else {
+    // GET requests should not have a content-type
+    headers.delete("content-type");
   }
 
   try {
-    const response = await fetch(targetUrl, {
-      method: req.method,
-      headers: headers,
-      body: requestBody,
-      // @ts-ignore - 'duplex' is required for Node.js fetch with ReadableStream bodies
-      duplex: "half",
-    });
+    const response = await fetch(targetUrl, fetchOptions);
 
     const responseHeaders = new Headers(response.headers);
     // Remove content-encoding so Next.js handles it properly

@@ -1,6 +1,8 @@
 package com.ieum.attachment.adapter.out.storage;
 
 import com.ieum.attachment.application.port.out.FileStoragePort;
+import com.ieum.global.exception.BusinessException;
+import com.ieum.global.exception.ErrorCode;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -59,7 +61,7 @@ public class LocalFileStorageAdapter implements FileStoragePort {
             if (resource.exists() && resource.isReadable()) {
                 return resource;
             }
-            throw new RuntimeException("파일을 읽을 수 없습니다: " + filePath);
+            throw new BusinessException(ErrorCode.FILE_001, "기존 업로드 파일을 찾을 수 없습니다: " + filePath);
         } catch (MalformedURLException e) {
             throw new RuntimeException("잘못된 파일 경로: " + filePath, e);
         }

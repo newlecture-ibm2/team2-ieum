@@ -1,13 +1,17 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, memo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { Heart, CornerDownRight, User } from 'lucide-react';
+import { Heart, CornerDownRight, User, ArrowLeft } from 'lucide-react';
 import api from '@/lib/api';
 import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
+import { USER_STATUS } from '@/constants/userStatus';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { Modal } from '@/_component/common/Modal';
+import DOMPurify from 'isomorphic-dompurify';
+import 'react-quill-new/dist/quill.snow.css';
+import ReportModal from '../_components/ReportModal';
 import styles from './detail.module.css';
 
 import { usePostDetail } from './usePostDetail';
@@ -16,6 +20,41 @@ import { usePostDetail } from './usePostDetail';
 const getCategoryLabel = (code: string) => CATEGORY_OPTIONS.find(c => c.value === code)?.label || code;
 const getRegionLabel = (code: string) => REGION_OPTIONS.find(r => r.value === code)?.label || '전국';
 
+// 본문 영역을 memo로 감싸서 댓글 변경 시 리렌더링(이미지 깜빡임) 방지
+const PostBody = memo(function PostBody({ content, attachments }: { content: string; attachments: any[] }) {
+  const sanitizedHtml = useMemo(() => {
+    if (/<[a-z][\s\S]*>/i.test(content)) {
+      return DOMPurify.sanitize(content);
+    }
+    return null;
+  }, [content]);
+
+  return (
+    <>
+      {attachments && attachments.length > 0 && (
+        <div style={{ display: 'flex', flexWrap: 'wrap' as const, gap: '12px', marginBottom: '20px' }}>
+          {attachments.map((attach: any) => (
+            <img
+              key={attach.id}
+              src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attach.id}/download`}
+              alt="첨부 이미지"
+              style={{ maxWidth: '100%', borderRadius: '8px' }}
+            />
+          ))}
+        </div>
+      )}
+      {sanitizedHtml ? (
+        <div
+          className="ql-editor"
+          style={{ padding: 0 }}
+          dangerouslySetInnerHTML={{ __html: sanitizedHtml }}
+        />
+      ) : (
+        content
+      )}
+    </>
+  );
+});
 export default function CommunityDetailPage() {
   const router = useRouter();
   const params = useParams();
@@ -25,21 +64,26 @@ export default function CommunityDetailPage() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [authChecked, setAuthChecked] = useState(false);
   const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+  const [isSuspended, setIsSuspended] = useState(false);
 
   const { post, setPost, comments, loading, error, fetchDetail, attachments } = usePostDetail(postId, authChecked && isLoggedIn);
 
   const [newComment, setNewComment] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-  const [reportReason, setReportReason] = useState('');
-  const [reportDescription, setReportDescription] = useState('');
+  const [reportTarget, setReportTarget] = useState<{ type: 'POST' | 'COMMENT', id: number | string } | null>(null);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [alreadyReported, setAlreadyReported] = useState(false);
+  const [reportedCommentIds, setReportedCommentIds] = useState<number[]>([]);
 
   // 대댓글(답글) 관련 상태
   const [replyingTo, setReplyingTo] = useState<number | null>(null);
   const [replyContent, setReplyContent] = useState('');
+
+  // 댓글 수정 관련 상태
+  const [editingCommentId, setEditingCommentId] = useState<number | null>(null);
+  const [editContent, setEditContent] = useState('');
+  const [deleteCommentId, setDeleteCommentId] = useState<number | null>(null);
 
 
   // 로그인 상태 확인 및 신고 여부 확인
@@ -50,12 +94,22 @@ export default function CommunityDetailPage() {
         setIsLoggedIn(data.isLoggedIn);
         if (data.isLoggedIn && data.user) {
           setCurrentUserId(data.user.userId);
+          setIsSuspended(data.user.status === USER_STATUS.SUSPENDED);
 
           // 이미 신고했는지 확인
           api.get(`/api/reports/check?targetType=POST&targetId=${postId}`)
             .then(res => {
               if (res.data?.data === true) {
                 setAlreadyReported(true);
+              }
+            })
+            .catch(() => { });
+
+          // 내가 신고한 댓글 목록 확인 (신고 완료 표시용)
+          api.get(`/api/reports/my-targets?targetType=COMMENT`)
+            .then(res => {
+              if (Array.isArray(res.data?.data)) {
+                setReportedCommentIds(res.data.data);
               }
             })
             .catch(() => { });
@@ -107,7 +161,7 @@ export default function CommunityDetailPage() {
       });
       if (res.data.success) {
         setNewComment('');
-        fetchDetail(); // 댓글 새로고침
+        fetchDetail(true, 'comments'); // 댓글 새로고침 (silent 모드로 전환, 댓글만)
       }
     } catch (err) {
       console.error(err);
@@ -133,13 +187,46 @@ export default function CommunityDetailPage() {
       if (res.data.success) {
         setReplyContent('');
         setReplyingTo(null);
-        fetchDetail(); // 댓글 새로고침
+        fetchDetail(true, 'comments'); // 댓글 새로고침 (silent, 댓글만)
       }
     } catch (err) {
       console.error(err);
       toast('답글 등록에 실패했습니다.', 'error');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  // 댓글/대댓글 삭제
+  const handleDeleteComment = (commentId: number) => {
+    setDeleteCommentId(commentId);
+  };
+
+  const executeDeleteComment = async () => {
+    if (deleteCommentId === null) return;
+    try {
+      await api.delete(`/api/community/comments/${deleteCommentId}`);
+      toast('삭제되었습니다.', 'success');
+      fetchDetail(true, 'comments');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      toast(errorObj?.response?.data?.message || '삭제에 실패했습니다.', 'error');
+    } finally {
+      setDeleteCommentId(null);
+    }
+  };
+
+  // 댓글/대댓글 수정 저장
+  const handleUpdateComment = async (commentId: number) => {
+    if (!editContent.trim()) return;
+    try {
+      await api.put(`/api/community/comments/${commentId}`, { content: editContent.trim() });
+      toast('수정되었습니다.', 'success');
+      setEditingCommentId(null);
+      fetchDetail(true, 'comments');
+    } catch (err: unknown) {
+      const errorObj = err as { response?: { data?: { message?: string } } };
+      toast(errorObj?.response?.data?.message || '수정에 실패했습니다.', 'error');
     }
   };
 
@@ -164,6 +251,33 @@ export default function CommunityDetailPage() {
     );
   }
 
+  // 정지 회원 — 비회원처럼 상세 페이지 접근 차단 (READ 제한)
+  if (isSuspended) {
+    return (
+      <main style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '12px' }}>활동 정지 안내</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px' }}>
+          활동이 정지된 계정입니다.<br />정지 해제 후 이용할 수 있습니다.
+        </p>
+        <button
+          style={{
+            padding: '10px 24px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+          }}
+          onClick={() => router.replace('/community')}
+        >
+          커뮤니티로 돌아가기
+        </button>
+      </main>
+    );
+  }
+
   if (loading) return <div className={styles.loading}>불러오는 중...</div>;
 
   if (error || !post) return <div className={styles.error}>{error}</div>;
@@ -175,11 +289,16 @@ export default function CommunityDetailPage() {
 
       {/* 본문 헤더 */}
       <div className={styles.postHeader}>
-        <h1 className={styles.postTitle}>{post.title}</h1>
+        <div className={styles.titleWrapper}>
+          <button className={styles.backBtn} onClick={() => router.push('/community')}>
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className={styles.postTitle}>{post.title}</h1>
+        </div>
 
         <div className={styles.metaWriter}>
           <div className={styles.writerLeft}>
-            <div className={styles.writerAvatar}><User size={20} /></div>
+            <div className={styles.writerAvatar}>{post.authorProfileImage ? <img src={post.authorProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={20} />}</div>
             <div className={styles.writerInfo}>
               <span className={styles.writerName}>{post.authorName}</span>
               <span className={styles.writerDate}>
@@ -218,19 +337,7 @@ export default function CommunityDetailPage() {
 
       {/* 글 내용 */}
       <div className={styles.postBody}>
-        {attachments && attachments.length > 0 && (
-          <div className={styles.postImages}>
-            {attachments.map(attach => (
-              <img
-                key={attach.id}
-                src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attach.id}/download`}
-                alt="첨부 이미지"
-                className={styles.postImageItem}
-              />
-            ))}
-          </div>
-        )}
-        {post.content}
+        <PostBody content={post.content} attachments={attachments} />
       </div>
 
       {/* 하단 액션 (공감/상태) */}
@@ -247,7 +354,7 @@ export default function CommunityDetailPage() {
               if (res.data.success) {
                 // 서버 재조회 대신 클라이언트 상태를 즉시 업데이트 (조회수 중복 증가 방지)
                 const isNowLiked = res.data.data;
-                setPost((prev: any) => {
+                setPost((prev) => {
                   if (!prev) return prev;
                   return {
                     ...prev,
@@ -256,8 +363,9 @@ export default function CommunityDetailPage() {
                   };
                 });
               }
-            } catch (err: any) {
-              const msg = err.response?.data?.message || '공감 처리에 실패했습니다.';
+            } catch (err: unknown) {
+              const errorResponse = (err as { response?: { data?: { message?: string } } }).response;
+              const msg = errorResponse?.data?.message || '공감 처리에 실패했습니다.';
               toast(msg, 'error');
             }
           }}
@@ -282,7 +390,7 @@ export default function CommunityDetailPage() {
                 setShowLoginModal(true);
                 return;
               }
-              setIsReportModalOpen(true);
+              setReportTarget({ type: 'POST', id: postId });
             }}
           >{alreadyReported ? '신고 완료' : '신고'}</span>
         </div>
@@ -298,58 +406,127 @@ export default function CommunityDetailPage() {
           <div key={comment.id}>
             {/* 부모 댓글 */}
             <div className={styles.commentItem}>
-              <div className={styles.commentAvatar}><User size={18} /></div>
+              <div className={styles.commentAvatar}>{comment.userProfileImage ? <img src={comment.userProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={18} />}</div>
               <div className={styles.commentContent}>
-                <div className={styles.commentTop}>
-                  <span className={styles.commentName}>{comment.userName} {comment.userId === post.authorId && '(작성자)'}</span>
-                  <span className={styles.commentTime}>{new Date(comment.createdAt).toLocaleString('ko-KR')}</span>
-                </div>
-                <div className={styles.commentText}>{comment.content}</div>
-                <div className={styles.commentActions}>
-                  <span onClick={() => {
-                    if (!isLoggedIn) { setShowLoginModal(true); return; }
-                    setReplyingTo(replyingTo === comment.id ? null : comment.id);
-                    setReplyContent('');
-                  }}>답글 달기</span>
-                  {comment.userId === currentUserId && (
-                    <>
-                      <span> · </span>
-                      <span>삭제</span>
-                    </>
-                  )}
-                </div>
+                {comment.status === 'REMOVED' ? (
+                  <div className={styles.deletedText}>삭제된 댓글입니다.</div>
+                ) : (
+                  <>
+                    <div className={styles.commentTop}>
+                      <span className={styles.commentName}>{comment.userName} {comment.userId === post.authorId && '(작성자)'}</span>
+                      <span className={styles.commentTime}>{new Date(comment.createdAt).toLocaleString('ko-KR')}</span>
+                    </div>
 
-                {/* 답글 입력 폼 */}
-                {replyingTo === comment.id && (
-                  <div className={styles.replyInputWrap}>
-                    <input
-                      type="text"
-                      className={styles.replyInput}
-                      placeholder={`${comment.userName}님에게 답글 작성...`}
-                      value={replyContent}
-                      onChange={e => setReplyContent(e.target.value)}
-                      onKeyDown={e => {
-                        if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                          e.preventDefault();
-                          handleSubmitReply(comment.id);
-                        }
-                      }}
-                      autoFocus
-                    />
-                    <button
-                      className={styles.replySubmitBtn}
-                      onClick={() => handleSubmitReply(comment.id)}
-                      disabled={submitting || !replyContent.trim()}
-                    >
-                      등록
-                    </button>
-                    <button
-                      className={styles.replyCancelBtn}
-                      onClick={() => { setReplyingTo(null); setReplyContent(''); }}
-                    >
-                      취소
-                    </button>
-                  </div>
+                    {editingCommentId === comment.id ? (
+                      <>
+                        <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
+                          <input
+                            type="text"
+                            className={styles.replyInput}
+                            value={editContent}
+                            onChange={e => setEditContent(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                e.preventDefault();
+                                handleUpdateComment(comment.id);
+                              }
+                            }}
+                            maxLength={500}
+                            autoFocus
+                          />
+                          <button
+                            className={styles.replySubmitBtn}
+                            onClick={() => handleUpdateComment(comment.id)}
+                            disabled={submitting || !editContent.trim()}
+                          >
+                            저장
+                          </button>
+                          <button
+                            className={styles.replyCancelBtn}
+                            onClick={() => { setEditingCommentId(null); setEditContent(''); }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                        <span className={styles.countLabel}>
+                          {editContent.length} / 500
+                        </span>
+                      </>
+                    ) : (
+                      <div className={styles.commentText}>{comment.content}</div>
+                    )}
+
+                    <div className={styles.commentActions}>
+                      <span onClick={() => {
+                        if (!isLoggedIn) { setShowLoginModal(true); return; }
+                        setReplyingTo(replyingTo === comment.id ? null : comment.id);
+                        setReplyContent('');
+                      }}>답글 달기</span>
+                      {comment.userId === currentUserId && editingCommentId !== comment.id ? (
+                        <>
+                          <span> · </span>
+                          <span onClick={() => {
+                            setEditingCommentId(comment.id);
+                            setEditContent(comment.content);
+                            setReplyingTo(null);
+                          }}>수정</span>
+                          <span> · </span>
+                          <span onClick={() => handleDeleteComment(comment.id)}>삭제</span>
+                        </>
+                      ) : comment.userId !== currentUserId ? (
+                        <>
+                          <span> · </span>
+                          {reportedCommentIds.includes(comment.id) ? (
+                            <span className={styles.reportedText}>신고완료</span>
+                          ) : (
+                            <span onClick={() => {
+                              if (!isLoggedIn) { setShowLoginModal(true); return; }
+                              setReportTarget({ type: 'COMMENT', id: comment.id });
+                            }}>신고</span>
+                          )}
+                        </>
+                      ) : null}
+                    </div>
+
+                    {/* 답글 입력 폼 */}
+                    {replyingTo === comment.id && (
+                      <>
+                        <div className={styles.replyInputWrap}>
+                          <input
+                            type="text"
+                            className={styles.replyInput}
+                            placeholder={`${comment.userName}님에게 답글 작성...`}
+                            value={replyContent}
+                            onChange={e => setReplyContent(e.target.value)}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                e.preventDefault();
+                                handleSubmitReply(comment.id);
+                              }
+                            }}
+                            maxLength={500}
+                            autoFocus
+                          />
+                          <button
+                            className={styles.replySubmitBtn}
+                            onClick={() => handleSubmitReply(comment.id)}
+                            disabled={submitting || !replyContent.trim()}
+                          >
+                            등록
+                          </button>
+                          <button
+                            className={styles.replyCancelBtn}
+                            onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                          >
+                            취소
+                          </button>
+                        </div>
+                        <span className={styles.countLabel}>
+                          {replyContent.length} / 500
+                        </span>
+                      </>
+                    )}
+                  </>
                 )}
               </div>
             </div>
@@ -358,70 +535,139 @@ export default function CommunityDetailPage() {
             {comment.children?.map(child => (
               <div key={child.id} className={styles.replyItem}>
                 <div className={styles.replyIcon}><CornerDownRight size={16} /></div>
-                <div className={styles.commentAvatar}><User size={18} /></div>
+                <div className={styles.commentAvatar}>{child.userProfileImage ? <img src={child.userProfileImage} alt="프로필" className={styles.avatarImg} /> : <User size={18} />}</div>
                 <div className={styles.commentContent}>
-                  <div className={styles.commentTop}>
-                    <span className={styles.commentName}>{child.userName} {child.userId === post.authorId && '(작성자)'}</span>
-                    <span className={styles.commentTime}>{new Date(child.createdAt).toLocaleString('ko-KR')}</span>
-                  </div>
-                  <div className={styles.commentText}>
-                    {child.content.match(/^@(\S+)\s/) ? (
-                      <>
-                        <span className={styles.mentionTag}>@{child.content.match(/^@(\S+)\s/)![1]}</span>
-                        {child.content.replace(/^@\S+\s/, '')}
-                      </>
-                    ) : child.content}
-                  </div>
-                  <div className={styles.commentActions}>
-                    <span onClick={() => {
-                      if (!isLoggedIn) { setShowLoginModal(true); return; }
-                      if (replyingTo === child.id) {
-                        setReplyingTo(null);
-                        setReplyContent('');
-                      } else {
-                        setReplyingTo(child.id);
-                        setReplyContent(`@${child.userName} `);
-                      }
-                    }}>답글 달기</span>
-                    {child.userId === currentUserId && (
-                      <>
-                        <span> · </span>
-                        <span>삭제</span>
-                      </>
-                    )}
-                  </div>
+                  {child.status === 'REMOVED' ? (
+                    <div className={styles.deletedText}>삭제된 댓글입니다.</div>
+                  ) : (
+                    <>
+                      <div className={styles.commentTop}>
+                        <span className={styles.commentName}>{child.userName} {child.userId === post.authorId && '(작성자)'}</span>
+                        <span className={styles.commentTime}>{new Date(child.createdAt).toLocaleString('ko-KR')}</span>
+                      </div>
 
-                  {/* 대댓글에 대한 답글 입력 폼 (parentId는 최상위 부모 댓글로 전달) */}
-                  {replyingTo === child.id && (
-                    <div className={styles.replyInputWrap}>
-                      <input
-                        type="text"
-                        className={styles.replyInput}
-                        placeholder={`${child.userName}님에게 답글 작성...`}
-                        value={replyContent}
-                        onChange={e => setReplyContent(e.target.value)}
-                        onKeyDown={e => {
-                          if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
-                            e.preventDefault();
-                            handleSubmitReply(comment.id);
+                      {editingCommentId === child.id ? (
+                        <>
+                          <div className={styles.replyInputWrap} style={{ marginTop: '4px', marginBottom: '8px' }}>
+                            <input
+                              type="text"
+                              className={styles.replyInput}
+                              value={editContent}
+                              onChange={e => setEditContent(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                  e.preventDefault();
+                                  handleUpdateComment(child.id);
+                                }
+                              }}
+                              maxLength={500}
+                              autoFocus
+                            />
+                            <button
+                              className={styles.replySubmitBtn}
+                              onClick={() => handleUpdateComment(child.id)}
+                              disabled={submitting || !editContent.trim()}
+                            >
+                              저장
+                            </button>
+                            <button
+                              className={styles.replyCancelBtn}
+                              onClick={() => { setEditingCommentId(null); setEditContent(''); }}
+                            >
+                              취소
+                            </button>
+                          </div>
+                          <span className={styles.countLabel}>
+                            {editContent.length} / 500
+                          </span>
+                        </>
+                      ) : (
+                        <div className={styles.commentText}>
+                          {child.content.match(/^@(\S+)\s/) ? (
+                            <>
+                              <span className={styles.mentionTag}>@{child.content.match(/^@(\S+)\s/)![1]}</span>
+                              {child.content.replace(/^@\S+\s/, '')}
+                            </>
+                          ) : child.content}
+                        </div>
+                      )}
+
+                      <div className={styles.commentActions}>
+                        <span onClick={() => {
+                          if (!isLoggedIn) { setShowLoginModal(true); return; }
+                          if (replyingTo === child.id) {
+                            setReplyingTo(null);
+                            setReplyContent('');
+                          } else {
+                            setReplyingTo(child.id);
+                            setReplyContent(`@${child.userName} `);
                           }
-                        }}
-                        autoFocus
-                      />
-                      <button
-                        className={styles.replySubmitBtn}
-                        onClick={() => handleSubmitReply(comment.id)}
-                        disabled={submitting || !replyContent.trim()}
-                      >
-                        등록
-                      </button>
-                      <button
-                        className={styles.replyCancelBtn}
-                        onClick={() => { setReplyingTo(null); setReplyContent(''); }}
-                      >
-                        취소
-                      </button>
-                    </div>
+                        }}>답글 달기</span>
+                        {child.userId === currentUserId && editingCommentId !== child.id ? (
+                          <>
+                            <span> · </span>
+                            <span onClick={() => {
+                              setEditingCommentId(child.id);
+                              setEditContent(child.content);
+                              setReplyingTo(null);
+                            }}>수정</span>
+                            <span> · </span>
+                            <span onClick={() => handleDeleteComment(child.id)}>삭제</span>
+                          </>
+                        ) : child.userId !== currentUserId ? (
+                          <>
+                            <span> · </span>
+                            {reportedCommentIds.includes(child.id) ? (
+                              <span className={styles.reportedText}>신고완료</span>
+                            ) : (
+                              <span onClick={() => {
+                                if (!isLoggedIn) { setShowLoginModal(true); return; }
+                                setReportTarget({ type: 'COMMENT', id: child.id });
+                              }}>신고</span>
+                            )}
+                          </>
+                        ) : null}
+                      </div>
+
+                      {/* 대댓글에 대한 답글 입력 폼 (parentId는 최상위 부모 댓글로 전달) */}
+                      {replyingTo === child.id && (
+                        <>
+                          <div className={styles.replyInputWrap}>
+                            <input
+                              type="text"
+                              className={styles.replyInput}
+                              placeholder={`${child.userName}님에게 답글 작성...`}
+                              value={replyContent}
+                              onChange={e => setReplyContent(e.target.value)}
+                              onKeyDown={e => {
+                                if (e.key === 'Enter' && !e.nativeEvent.isComposing) {
+                                  e.preventDefault();
+                                  handleSubmitReply(comment.id);
+                                }
+                              }}
+                              maxLength={500}
+                              autoFocus
+                            />
+                            <button
+                              className={styles.replySubmitBtn}
+                              onClick={() => handleSubmitReply(comment.id)}
+                              disabled={submitting || !replyContent.trim()}
+                            >
+                              등록
+                            </button>
+                            <button
+                              className={styles.replyCancelBtn}
+                              onClick={() => { setReplyingTo(null); setReplyContent(''); }}
+                            >
+                              취소
+                            </button>
+                          </div>
+                          <span className={styles.countLabel}>
+                            {replyContent.length} / 500
+                          </span>
+                        </>
+                      )}
+                    </>
                   )}
                 </div>
               </div>
@@ -452,6 +698,9 @@ export default function CommunityDetailPage() {
             등록
           </button>
         </div>
+        <span className={styles.countLabel}>
+          {newComment.length} / 500
+        </span>
       </div>
 
       {/* 삭제 확인 모달 */}
@@ -466,84 +715,20 @@ export default function CommunityDetailPage() {
       )}
 
       {/* 신고 모달 */}
-      {isReportModalOpen && (
-        <Modal title="게시글 신고" size="small" onClose={() => setIsReportModalOpen(false)}>
-          <div className={styles.reportModal}>
-            <p className={styles.reportDesc}>신고 사유를 선택해주세요.</p>
-            <div className={styles.reportOptions}>
-              {[
-                { value: 'SPAM', label: '스팸/광고' },
-                { value: 'ABUSE', label: '욕설/비방' },
-                { value: 'INAPPROPRIATE', label: '부적절한 내용' },
-                { value: 'FALSE_INFO', label: '허위 정보' },
-                { value: 'OTHER', label: '기타' },
-              ].map(opt => (
-                <label key={opt.value} className={styles.reportOption}>
-                  <input
-                    type="radio"
-                    name="reportReason"
-                    value={opt.value}
-                    checked={reportReason === opt.value}
-                    onChange={e => setReportReason(e.target.value)}
-                  />
-                  <span>{opt.label}</span>
-                </label>
-              ))}
-            </div>
-            {reportReason === 'OTHER' && (
-              <textarea
-                className={styles.reportTextarea}
-                placeholder="상세 사유를 입력해주세요 (최대 500자)"
-                maxLength={500}
-                value={reportDescription}
-                onChange={e => setReportDescription(e.target.value)}
-              />
-            )}
-            <div className={styles.reportActions}>
-              <button
-                className={styles.btnCancel}
-                onClick={() => {
-                  setIsReportModalOpen(false);
-                  setReportReason('');
-                  setReportDescription('');
-                }}
-              >
-                취소
-              </button>
-              <button
-                className={styles.btnReport}
-                disabled={!reportReason}
-                onClick={async () => {
-                  try {
-                    await api.post('/api/reports', {
-                      targetType: 'POST',
-                      targetId: Number(postId),
-                      reason: reportReason,
-                      description: reportReason === 'OTHER' ? reportDescription : null,
-                    });
-                    toast('신고가 접수되었습니다.', 'success');
-                    setAlreadyReported(true);
-                  } catch (err: any) {
-                    const status = err?.response?.status;
-                    if (status === 409) {
-                      toast('이미 신고한 게시글입니다.', 'info');
-                      setAlreadyReported(true);
-                    } else {
-                      const msg = err?.response?.data?.message || '신고 접수에 실패했습니다.';
-                      toast(msg, 'error');
-                    }
-                  } finally {
-                    setIsReportModalOpen(false);
-                    setReportReason('');
-                    setReportDescription('');
-                  }
-                }}
-              >
-                신고하기
-              </button>
-            </div>
-          </div>
-        </Modal>
+      {reportTarget && (
+        <ReportModal 
+          targetType={reportTarget.type}
+          targetId={reportTarget.id} 
+          onClose={() => setReportTarget(null)} 
+          onSuccess={() => {
+            if (reportTarget.type === 'POST') {
+              setAlreadyReported(true);
+            } else if (reportTarget.type === 'COMMENT') {
+              setReportedCommentIds(prev => [...prev, Number(reportTarget.id)]);
+            }
+            setReportTarget(null);
+          }} 
+        />
       )}
 
       {/* 비로그인 사용자 작업 시도 안내 모달 */}
@@ -553,6 +738,17 @@ export default function CommunityDetailPage() {
           confirmText="로그인"
           onConfirm={() => router.push('/login')}
           onCancel={() => setShowLoginModal(false)}
+        />
+      )}
+
+      {/* 댓글 삭제 확인 모달 */}
+      {deleteCommentId !== null && (
+        <ConfirmModal
+          message="정말 삭제하시겠습니까?"
+          confirmText="삭제"
+          danger={true}
+          onConfirm={executeDeleteComment}
+          onCancel={() => setDeleteCommentId(null)}
         />
       )}
 

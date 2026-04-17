@@ -5,6 +5,8 @@ import com.ieum.admin.statistics.application.port.out.DashboardQueryPort;
 import com.ieum.admin.statistics.application.result.DashboardRecentItem;
 import com.ieum.admin.statistics.application.result.DashboardResult;
 import com.ieum.admin.statistics.application.result.DashboardTrendItem;
+import com.ieum.admin.festival.domain.model.FestivalStatus;
+import com.ieum.global.common.enums.ReportStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,8 +31,8 @@ public class DashboardService implements GetDashboardUseCase {
         DashboardResult.KpiData kpi = DashboardResult.KpiData.builder()
                 .ongoingPublicFestivals(port.countOngoingPublicFestivals())
                 .ongoingCustomFestivals(port.countOngoingCustomFestivals())
-                .pendingReports(port.countReportsByStatus("PENDING"))
-                .pendingInquiries(port.countInquiriesByStatus("PENDING"))
+                .pendingReports(port.countReportsByStatus(ReportStatus.PENDING.name()))
+                .pendingInquiries(port.countInquiriesByStatus(ReportStatus.PENDING.name()))
                 .build();
 
         // 2. 추이
@@ -44,9 +46,9 @@ public class DashboardService implements GetDashboardUseCase {
 
         // 4. 운영 요약 — "처리 결과"
         DashboardResult.OperationSummary operation = DashboardResult.OperationSummary.builder()
-                .resolvedReports(port.countReportsByStatus("RESOLVED"))
+                .resolvedReports(port.countReportsByStatus(ReportStatus.RESOLVED.name()))
                 .answeredInquiries(port.countAnsweredInquiries())
-                .endedFestivals(port.countFestivalsByStatus("ENDED"))
+                .endedFestivals(port.countFestivalsByStatus(FestivalStatus.ENDED.name()))
                 .hiddenFestivals(port.countHiddenFestivals())
                 .lastUpdated(LocalDateTime.now().format(DT_FMT))
                 .build();
@@ -67,10 +69,13 @@ public class DashboardService implements GetDashboardUseCase {
     }
 
     private List<DashboardTrendItem> mergeTrend(List<DashboardTrendItem> r, List<DashboardTrendItem> i) {
-        Map<String, Long> iMap = i.stream()
-                .collect(Collectors.toMap(DashboardTrendItem::getDate, DashboardTrendItem::getInquiries));
-        return r.stream()
-                .map(x -> new DashboardTrendItem(x.getDate(), x.getReports(), iMap.getOrDefault(x.getDate(), 0L)))
-                .collect(Collectors.toList());
+        // r과 i는 buildDynamicDays에서 동일한 startDate ~ endDate 루프를 돌아 크기와 순서가 완벽히 일치합니다.
+        // MM/dd 중복 시 Collectors.toMap에서 에러가 발생하므로, 인덱스 기반으로 매핑합니다.
+        List<DashboardTrendItem> result = new java.util.ArrayList<>();
+        int minSize = Math.min(r.size(), i.size());
+        for (int j = 0; j < minSize; j++) {
+            result.add(new DashboardTrendItem(r.get(j).getDate(), r.get(j).getReports(), i.get(j).getInquiries()));
+        }
+        return result;
     }
 }

@@ -1,6 +1,6 @@
 package com.ieum.admin.festival.application.service;
 
-import com.ieum.admin.festival.adapter.in.web.request.CustomFestivalRequest;
+import com.ieum.admin.festival.application.command.CustomFestivalCommand;
 import com.ieum.admin.festival.application.port.in.CreateCustomFestivalUseCase;
 import com.ieum.admin.festival.application.port.in.DeleteCustomFestivalUseCase;
 import com.ieum.admin.festival.application.port.in.GetCustomFestivalListUseCase;
@@ -76,16 +76,16 @@ public class CustomFestivalAdminService implements GetCustomFestivalListUseCase,
         if (excludeHidden) {
             statusCounts = FestivalStatusCountsResult.builder()
                     .total(festivalPort.countVisibleCustomFestivals())
-                    .ongoing(festivalPort.countVisibleCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(festivalPort.countVisibleCustomFestivalsByStatus("UPCOMING"))
-                    .ended(festivalPort.countVisibleCustomFestivalsByStatus("ENDED"))
+                    .ongoing(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.ONGOING.name()))
+                    .upcoming(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.UPCOMING.name()))
+                    .ended(festivalPort.countVisibleCustomFestivalsByStatus(FestivalStatus.ENDED.name()))
                     .build();
         } else {
             statusCounts = FestivalStatusCountsResult.builder()
                     .total(festivalPort.countCustomFestivals())
-                    .ongoing(festivalPort.countCustomFestivalsByStatus("ONGOING"))
-                    .upcoming(festivalPort.countCustomFestivalsByStatus("UPCOMING"))
-                    .ended(festivalPort.countCustomFestivalsByStatus("ENDED"))
+                    .ongoing(festivalPort.countCustomFestivalsByStatus(FestivalStatus.ONGOING.name()))
+                    .upcoming(festivalPort.countCustomFestivalsByStatus(FestivalStatus.UPCOMING.name()))
+                    .ended(festivalPort.countCustomFestivalsByStatus(FestivalStatus.ENDED.name()))
                     .build();
         }
 
@@ -98,7 +98,7 @@ public class CustomFestivalAdminService implements GetCustomFestivalListUseCase,
 
     @Override
     @Transactional
-    public Long createCustomFestival(CustomFestivalRequest request) {
+    public Long createCustomFestival(CustomFestivalCommand request) {
         String imgUrl = null;
         if (request.getImg() != null && !request.getImg().isEmpty()) {
             imgUrl = fileStorageService.storeFile(request.getImg());
@@ -146,7 +146,7 @@ public class CustomFestivalAdminService implements GetCustomFestivalListUseCase,
 
     @Override
     @Transactional
-    public void updateCustomFestival(Long festivalId, CustomFestivalRequest request) {
+    public void updateCustomFestival(Long festivalId, CustomFestivalCommand request) {
         Festival festival = festivalPort.findById(festivalId)
                 .orElseThrow(() -> new RuntimeException("축제를 찾을 수 없습니다."));
 

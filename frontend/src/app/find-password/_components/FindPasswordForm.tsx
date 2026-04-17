@@ -3,9 +3,9 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
+import { User, Phone, ShieldCheck, Lock, Eye, EyeOff, ArrowLeft, CheckCircle2 } from 'lucide-react';
 import axios from 'axios';
-import styles from './find-password.module.css';
+import styles from '../find-password.module.css';
 
 type Step = 1 | 2 | 3 | 4; // 4는 완료 상태
 
@@ -13,8 +13,9 @@ export default function FindPasswordForm() {
   const router = useRouter();
 
   const [step, setStep] = useState<Step>(1);
-  const [email, setEmail] = useState('');
-  const [code, setCode] = useState('');
+  const [id, setId] = useState('');
+  const [securityQuestion, setSecurityQuestion] = useState('');
+  const [answer, setAnswer] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   
@@ -23,43 +24,47 @@ export default function FindPasswordForm() {
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
 
-  // 1단계: 인증 코드 요청
-  const handleRequestCode = async (e: React.FormEvent) => {
+  // 1단계: 질문 요청
+  const handleRequestQuestion = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) {
-      setError('이메일을 입력해주세요.');
+    if (!id) {
+      setError('아이디를 입력해주세요.');
       return;
     }
-
+    
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'request', email });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/request { id: string }
+      // ApiResponse<PasswordRecoveryQuestion> 형태의 응답을 받음
+      const response = await axios.post('/api/auth/password-recovery/request', { id });
+      setSecurityQuestion(response.data.data.question);
       setStep(2);
-      setSuccessMsg('인증 코드가 발송되었습니다. (서버 로그 확인)');
+      setSuccessMsg('');
     } catch (err: any) {
-      setError(err.response?.data?.message || '가입된 이메일을 찾을 수 없습니다.');
+      setError(err.response?.data?.message || '가입 정보를 찾을 수 없거나 보안 질문이 등록되지 않았습니다.');
     } finally {
       setIsLoading(false);
     }
   };
 
-  // 2단계: 코드 검증
-  const handleVerifyCode = async (e: React.FormEvent) => {
+  // 2단계: 답변 검증
+  const handleVerifyAnswer = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code) {
-      setError('인증 코드를 입력해주세요.');
+    if (!answer) {
+      setError('답변을 입력해주세요.');
       return;
     }
 
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'verify', email, code });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/verify { id: string, answer: string }
+      await axios.post('/api/auth/password-recovery/verify', { id, answer });
       setStep(3);
       setSuccessMsg('');
     } catch (err: any) {
-      setError(err.response?.data?.message || '인증 코드가 올바르지 않습니다.');
+      setError(err.response?.data?.message || '답변이 일치하지 않습니다.');
     } finally {
       setIsLoading(false);
     }
@@ -80,7 +85,8 @@ export default function FindPasswordForm() {
     try {
       setIsLoading(true);
       setError('');
-      await axios.post('/api/auth/password-recovery', { action: 'reset', email, newPassword });
+      // 📡 백엔드 규격: POST /api/auth/password-recovery/reset { id: string, newPassword: string }
+      await axios.post('/api/auth/password-recovery/reset', { id, newPassword });
       setStep(4);
     } catch (err: any) {
       setError(err.response?.data?.message || '비밀번호 재설정에 실패했습니다.');
@@ -91,7 +97,7 @@ export default function FindPasswordForm() {
 
   const renderProgress = () => {
     const steps = [
-      { id: 1, label: '이메일 입력' },
+      { id: 1, label: '정보 입력' },
       { id: 2, label: '인증 확인' },
       { id: 3, label: '비밀번호 재설정' }
     ];
@@ -133,49 +139,54 @@ export default function FindPasswordForm() {
       {step !== 4 && renderProgress()}
 
       {step === 1 && (
-        <form className={styles.form} onSubmit={handleRequestCode}>
+        <form className={styles.form} onSubmit={handleRequestQuestion}>
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>이메일 주소</label>
+            <label className={styles.inputLabel}>아이디</label>
             <div className={styles.inputWrapper}>
-              <Mail className={styles.inputIcon} />
+              <User className={styles.inputIcon} />
               <input 
-                type="email" 
+                type="text" 
                 className={styles.input} 
-                placeholder="example@email.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                placeholder="아이디를 입력하세요"
+                value={id}
+                onChange={(e) => setId(e.target.value)}
                 required
               />
             </div>
           </div>
+          <p className={styles.inputDesc}>비밀번호를 찾으려는 계정의 아이디를 입력해주세요.</p>
           {error && <p className={styles.errorMessage}>{error}</p>}
           <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-            {isLoading ? '요청 중...' : '인증 코드 받기'}
+            {isLoading ? '확인 중...' : '다음 단계'}
           </button>
         </form>
       )}
 
       {step === 2 && (
-        <form className={styles.form} onSubmit={handleVerifyCode}>
+        <form className={styles.form} onSubmit={handleVerifyAnswer}>
           <div className={styles.inputGroup}>
-            <label className={styles.inputLabel}>인증 코드 (6자리)</label>
+            <label className={styles.inputLabel}>보안 질문</label>
+            <div className={styles.questionBox}>
+              "{securityQuestion}"
+            </div>
+          </div>
+          <div className={styles.inputGroup}>
+            <label className={styles.inputLabel}>답변 입력</label>
             <div className={styles.inputWrapper}>
               <ShieldCheck className={styles.inputIcon} />
               <input 
                 type="text" 
                 className={styles.input} 
-                placeholder="000000"
-                maxLength={6}
-                value={code}
-                onChange={(e) => setCode(e.target.value)}
+                placeholder="회원가입 시 설정한 답변"
+                value={answer}
+                onChange={(e) => setAnswer(e.target.value)}
                 required
               />
             </div>
           </div>
-          {successMsg && <p className={styles.successMessage}>{successMsg}</p>}
           {error && <p className={styles.errorMessage}>{error}</p>}
           <button type="submit" className={styles.submitBtn} disabled={isLoading}>
-            {isLoading ? '확인 중...' : '인증 확인'}
+            {isLoading ? '확인 중...' : '본인 확인'}
           </button>
         </form>
       )}

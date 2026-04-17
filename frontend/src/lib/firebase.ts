@@ -1,7 +1,7 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
 import { getAnalytics } from "firebase/analytics";
-import { getMessaging, getToken } from "firebase/messaging";
+import { getMessaging, getToken, onMessage } from "firebase/messaging";
 
 // Firebase 설정 (클라이언트 키 — 브라우저에 노출되는 공개 정보이므로 하드코딩 OK)
 const firebaseConfig = {
@@ -33,15 +33,17 @@ export const requestFcmToken = async () => {
         });
 
         if (currentToken) {
-            console.log("🔥 FCM 토큰 발급 성공:", currentToken);
             // 백엔드로 토큰을 보내는 로직을 여기에 추가하거나 호출부에서 처리합니다.
             return currentToken;
         } else {
-            console.log("🚫 FCM 알림 권한이 거부되었습니다.");
             return null;
         }
-    } catch (err) {
-        console.error("FCM 토큰 발급 중 에러 발생:", err);
+    } catch (err: any) {
+        if (err?.code === 'messaging/permission-blocked') {
+            console.warn("FCM 알림 권한이 차단되었습니다.");
+        } else {
+            console.error("FCM 토큰 발급 중 에러 발생:", err);
+        }
         return null;
     }
 };

@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import com.ieum.admin.notice.adapter.in.web.dto.NoticeSaveRequest;
 
 /**
  * 관리자용 공지사항 컨트롤러 (Input Adapter)
@@ -42,10 +43,19 @@ public class NoticeAdminController {
     @GetMapping
     public ResponseEntity<ApiResponse<Page<AdminNotice>>> getAdminNotices(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String searchType,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) Boolean isPinned,
+            @RequestParam(required = false) Boolean isPopup,
+            @RequestParam(required = false) Boolean isPushed,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String status) {
         return ResponseEntity.ok(ApiResponse.success(
-                getAdminNoticeListUseCase.getAdminNotices(page, size)));
+                getAdminNoticeListUseCase.getAdminNotices(page, size, searchType, keyword, isPinned,
+                        isPopup, isPushed, category, status)));
     }
+
 
     /**
      * 공지사항 작성 (API_ADM_0061)
@@ -57,15 +67,12 @@ public class NoticeAdminController {
     })
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AdminNotice>> createNotice(
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam(required = false) String summary,
-            @RequestParam(required = false) Boolean isPinned,
-            @RequestParam(required = false) Boolean isPopup,
+            @ModelAttribute NoticeSaveRequest request,
             @RequestParam(required = false) List<MultipartFile> files) {
+        
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(ApiResponse.success(
-                        createNoticeUseCase.create(title, content, summary, isPinned, isPopup, files)));
+                        createNoticeUseCase.create(request.toCreateCommand(files))));
     }
 
     /**
@@ -78,17 +85,13 @@ public class NoticeAdminController {
     })
     @PutMapping(value = "/{noticeId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ApiResponse<AdminNotice>> updateNotice(
-            @Parameter(description = "공지사항 ID", required = true, example = "1")
-            @PathVariable Long noticeId,
-            @RequestParam String title,
-            @RequestParam String content,
-            @RequestParam(required = false) String summary,
-            @RequestParam(required = false) Boolean isPinned,
-            @RequestParam(required = false) Boolean isPopup,
+            @Parameter(description = "공지사항 ID", required = true, example = "1") @PathVariable Long noticeId,
+            @ModelAttribute NoticeSaveRequest request,
             @RequestParam(required = false) List<MultipartFile> newFiles,
             @RequestParam(required = false) List<Long> deleteFileIds) {
+            
         return ResponseEntity.ok(ApiResponse.success(
-                updateNoticeUseCase.update(noticeId, title, content, summary, isPinned, isPopup, newFiles, deleteFileIds)));
+                updateNoticeUseCase.update(request.toUpdateCommand(noticeId, newFiles, deleteFileIds))));
     }
 
     /**
@@ -101,8 +104,7 @@ public class NoticeAdminController {
     })
     @DeleteMapping("/{noticeId}")
     public ResponseEntity<ApiResponse<Void>> deleteNotice(
-            @Parameter(description = "공지사항 ID", required = true, example = "1")
-            @PathVariable Long noticeId) {
+            @Parameter(description = "공지사항 ID", required = true, example = "1") @PathVariable Long noticeId) {
         deleteNoticeUseCase.delete(noticeId);
         return ResponseEntity.ok(ApiResponse.success());
     }

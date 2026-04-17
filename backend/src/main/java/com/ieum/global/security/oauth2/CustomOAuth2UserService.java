@@ -2,7 +2,9 @@ package com.ieum.global.security.oauth2;
 
 import com.ieum.user.auth.application.port.out.LoadUserPort;
 import com.ieum.user.auth.application.port.out.SaveUserPort;
+import com.ieum.user.auth.domain.Role;
 import com.ieum.user.auth.domain.User;
+import com.ieum.global.common.enums.UserStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -44,7 +46,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         User user = saveOrUpdate(attributes);
 
         return new DefaultOAuth2User(
-                Collections.singleton(new SimpleGrantedAuthority(user.getRole())),
+                Collections.singleton(new SimpleGrantedAuthority(user.getRole().getKey())),
                 attributes.getAttributes(),
                 attributes.getNameAttributeKey()
         );
@@ -76,10 +78,9 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .name(attributes.getName())
                 .nickname(attributes.getNickname())
                 .profileImage(attributes.getProfileImage())
-                .role("USER")
+                .role(Role.USER)
                 .termsAgreed(true) // 소셜 로그인은 기본적으로 제공처에서 동의됨
-                .marketingAgreed(false)
-                .status("ACTIVE")
+                .status(UserStatus.ACTIVE)
                 .build();
 
         return saveUserPort.saveUser(newUser);

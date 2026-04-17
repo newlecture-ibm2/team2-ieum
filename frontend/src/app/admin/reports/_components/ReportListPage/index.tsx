@@ -7,28 +7,16 @@ import adminApi from '@/lib/adminApi';
 import type { ReportItem, ReportListResponse } from '@/types/admin-report';
 import ReportDetailModal from '../ReportDetailModal';
 import s from './ReportListPage.module.css';
-
-/* ── 상태 배지 매핑 ── */
-const STATUS_MAP: Record<string, { label: string; className: string }> = {
-  PENDING:  { label: '대기중',   className: 'badgePending' },
-  RESOLVED: { label: '처리완료', className: 'badgeOngoing' },
-  REJECTED: { label: '반려',     className: 'badgeDismissed' },
-};
+import { REPORT_REASON_LABELS } from '@/constants/reportOptions';
+import { REPORT_STATUS, REPORT_STATUS_LABELS } from '@/constants/statusLabels';
+import { TARGET_TYPE } from '@/constants/targetType';
+import Pagination from '@/_component/common/Pagination';
 
 /* ── 대상 타입 ── */
 const TARGET_TYPE_MAP: Record<string, string> = {
-  REVIEW:  '리뷰',
-  POST:    '게시글',
-  COMMENT: '댓글',
-};
-
-/* ── 신고 사유 ── */
-const REASON_MAP: Record<string, string> = {
-  SPAM:          '스팸',
-  ABUSE:         '욕설/비방',
-  INAPPROPRIATE: '부적절한 콘텐츠',
-  FALSE_INFO:    '허위 정보',
-  OTHER:         '기타',
+  [TARGET_TYPE.REVIEW]:  '리뷰',
+  [TARGET_TYPE.POST]:    '게시글',
+  [TARGET_TYPE.COMMENT]: '댓글',
 };
 
 export default function ReportListPage() {
@@ -65,8 +53,8 @@ export default function ReportListPage() {
   };
 
   /* ── 데이터 로드 ── */
-  const fetchReports = useCallback(async () => {
-    setLoading(true);
+  const fetchReports = useCallback(async (isPolling = false) => {
+    if (!isPolling) setLoading(true);
     try {
       const params: Record<string, string | number> = {
         page: currentPage,
@@ -88,17 +76,17 @@ export default function ReportListPage() {
       setRejectedCount(result.rejectedCount);
     } catch (err) {
       console.error('신고 목록 조회 실패:', err);
-      setReports([]);
+      if (!isPolling) setReports([]);
     } finally {
-      setLoading(false);
+      if (!isPolling) setLoading(false);
     }
   }, [currentPage, statusFilter, extraFilters.targetType, extraFilters.searchType, keyword, setLoading, setTotalPages]);
 
   useEffect(() => {
-    fetchReports();
+    fetchReports(false);
 
     // 30초마다 목록 실시간 갱신 (폴링)
-    const intervalId = setInterval(fetchReports, 30000);
+    const intervalId = setInterval(() => fetchReports(true), 30000);
     return () => clearInterval(intervalId);
   }, [fetchReports]);
 
@@ -137,22 +125,22 @@ export default function ReportListPage() {
             <div className={common.statValue}>{totalCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === 'PENDING' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('PENDING')}
+            className={`${common.statCard} ${common.statUpcoming} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.PENDING ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.PENDING)}
           >
             <div className={common.statLabel}>대기중</div>
             <div className={`${common.statValue} ${common.textPurple}`}>{pendingCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === 'RESOLVED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('RESOLVED')}
+            className={`${common.statCard} ${common.statOngoing} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.RESOLVED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.RESOLVED)}
           >
             <div className={common.statLabel}>처리완료</div>
             <div className={`${common.statValue} ${common.textGreen}`}>{resolvedCount}</div>
           </div>
           <div
-            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === 'REJECTED' ? common.statActive : ''}`}
-            onClick={() => handleStatClick('REJECTED')}
+            className={`${common.statCard} ${common.statEnded} ${common.statCardInteractive} ${statusFilter === REPORT_STATUS.REJECTED ? common.statActive : ''}`}
+            onClick={() => handleStatClick(REPORT_STATUS.REJECTED)}
           >
             <div className={common.statLabel}>반려</div>
             <div className={`${common.statValue} ${common.textGray}`}>{rejectedCount}</div>
@@ -170,9 +158,9 @@ export default function ReportListPage() {
             onChange={(e) => setStatusFilterAndReset(e.target.value)}
           >
             <option value="">전체 상태</option>
-            <option value="PENDING">대기중</option>
-            <option value="RESOLVED">처리완료</option>
-            <option value="REJECTED">반려</option>
+            <option value={REPORT_STATUS.PENDING}>대기중</option>
+            <option value={REPORT_STATUS.RESOLVED}>처리완료</option>
+            <option value={REPORT_STATUS.REJECTED}>반려</option>
           </select>
 
           <select
@@ -182,9 +170,9 @@ export default function ReportListPage() {
             onChange={(e) => setExtraFilter('targetType', e.target.value)}
           >
             <option value="">전체 유형</option>
-            <option value="REVIEW">리뷰</option>
-            <option value="POST">게시글</option>
-            <option value="COMMENT">댓글</option>
+            <option value={TARGET_TYPE.REVIEW}>리뷰</option>
+            <option value={TARGET_TYPE.POST}>게시글</option>
+            <option value={TARGET_TYPE.COMMENT}>댓글</option>
           </select>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
@@ -214,23 +202,19 @@ export default function ReportListPage() {
         </div>
       </div>
 
-      {/* ── 테이블 ── */}
-      <div className={common.tableCard}>
-        {loading ? (
-          <div style={{ textAlign: 'center', padding: 60 }}>
-            <span className={common.spinner} /> 불러오는 중...
-          </div>
-        ) : (
-          <table className={common.table} style={{ tableLayout: 'fixed' }}>
+      {/* ── 리스트 ── */}
+      <section className={common.card}>
+        <div className={common.desktopOnly}>
+        <table className={common.table} style={{ tableLayout: 'fixed' }}>
             <colgroup>
               <col style={{ width: '60px' }} />
-              <col style={{ width: '130px' }} />
-              <col style={{ width: '90px' }} />
-              <col style={{ width: '150px' }} />
-              <col style={{ width: 'auto' }} />
-              <col style={{ width: '120px' }} />
-              <col style={{ width: '100px' }} />
               <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '120px' }} />
+              <col style={{ width: 'auto' }} />
+              <col style={{ width: '110px' }} />
+              <col style={{ width: '80px' }} />
+              <col style={{ width: '100px' }} />
             </colgroup>
             <thead>
               <tr className={common.tableHeaderRow}>
@@ -262,7 +246,7 @@ export default function ReportListPage() {
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {(currentPage - 1) * 10 + idx + 1}
                     </td>
-                    <td className={`${common.tableCell} ${common.cellPrimary}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${common.cellPrimary}`}>
                       {report.reporterNickname}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
@@ -270,27 +254,27 @@ export default function ReportListPage() {
                         {TARGET_TYPE_MAP[report.targetType] || report.targetType}
                       </span>
                     </td>
-                    <td className={common.tableCell}>
-                      {REASON_MAP[report.reason] || report.reason}
+                    <td className={`${common.tableCell} ${common.textLeft}`}>
+                      {REPORT_REASON_LABELS[report.reason] || report.reason}
                     </td>
-                    <td className={`${common.tableCell} ${s.ellipsisCell}`}>
+                    <td className={`${common.tableCell} ${common.textLeft} ${s.ellipsisCell}`}>
                       {report.description || '-'}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       {report.createdAt?.slice(0, 10)}
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
-                      <span className={`${common.statusBadge} ${common[STATUS_MAP[report.status]?.className || 'badgePending'] || ''}`}>
-                        {STATUS_MAP[report.status]?.label || report.status}
+                      <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                        {REPORT_STATUS_LABELS[report.status]?.label || report.status}
                       </span>
                     </td>
                     <td className={`${common.tableCell} ${common.textCenter}`}>
                       <button
-                        className={report.status === 'PENDING' ? common.btnPrimary : common.btnCancel}
+                        className={report.status === REPORT_STATUS.PENDING ? common.btnPrimary : common.btnCancel}
                         style={{ padding: '4px 12px', fontSize: 11 }}
                         onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
                       >
-                        {report.status === 'PENDING' ? '처리하기' : '이력 보기'}
+                        {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
                       </button>
                     </td>
                   </tr>
@@ -298,29 +282,70 @@ export default function ReportListPage() {
               )}
             </tbody>
           </table>
-        )}
+      </div>
+
+      <div className={`${common.listGrid} ${common.mobileOnly}`}>
+          {loading ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : reports.length === 0 ? (
+            <div className={common.emptyRow} style={{ gridColumn: '1 / -1' }}>신고 내역이 없습니다.</div>
+          ) : (
+            reports.map((report) => (
+              <div 
+                key={report.id} 
+                className={common.listCard}
+                onClick={() => setSelectedReport(report)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className={common.listCardTop}>
+                  <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                    <span className={`${common.statusBadge} ${common.badgeUpcoming}`}>
+                      {TARGET_TYPE_MAP[report.targetType] || report.targetType}
+                    </span>
+                    <span className={`${common.statusBadge} ${common[REPORT_STATUS_LABELS[report.status]?.className || 'badgePending'] || ''}`}>
+                      {REPORT_STATUS_LABELS[report.status]?.label || report.status}
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '11px', color: '#94a3b8' }}>
+                    {report.createdAt?.slice(0, 10)}
+                  </span>
+                </div>
+
+                <div className={common.listCardTitle}>
+                  [{REPORT_REASON_LABELS[report.reason] || report.reason}] {report.description || '상세 내용 없음'}
+                </div>
+
+                <div className={common.listCardInfo}>
+                  <div className={common.listCardInfoRow}>
+                    <span className={common.listCardIcon}>👤</span>
+                    <span className={common.listCardValue}>신고자: {report.reporterNickname}</span>
+                  </div>
+                </div>
+
+                <div className={common.listCardActions}>
+                  <button
+                    className={`${common.listCardActionBtn} ${report.status === REPORT_STATUS.PENDING ? '' : 'danger'}`}
+                    onClick={(e) => { e.stopPropagation(); setSelectedReport(report); }}
+                  >
+                    {report.status === REPORT_STATUS.PENDING ? '처리하기' : '이력 보기'}
+                  </button>
+                </div>
+              </div>
+            ))
+          )}
+        </div>
 
         {/* ── 페이지네이션 ── */}
         {!loading && (
-          <div className={common.pagination}>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage <= 1}
-              onClick={() => setCurrentPage((p: number) => Math.max(1, p - 1))}
-            >
-              ← 이전
-            </button>
-            <span className={common.pageInfo}>{currentPage} / {totalPages}</span>
-            <button
-              className={common.pageBtn}
-              disabled={currentPage >= totalPages}
-              onClick={() => setCurrentPage((p: number) => Math.min(totalPages, p + 1))}
-            >
-              다음 →
-            </button>
+          <div style={{ marginTop: '20px' }}>
+            <Pagination 
+              currentPage={currentPage} 
+              totalPages={totalPages} 
+              onPageChange={setCurrentPage} 
+            />
           </div>
         )}
-      </div>
+      </section>
 
       {/* ── 상세 모달 ── */}
       {selectedReport && (

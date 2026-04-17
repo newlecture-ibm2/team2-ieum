@@ -8,6 +8,7 @@ import {
   CustomOverlayMap,
   useKakaoLoader,
 } from "react-kakao-maps-sdk";
+import { useToast } from '@/_component/common/Toast';
 import styles from "./FestivalMap.module.css";
 
 // ===== 타입 정의 =====
@@ -40,7 +41,11 @@ const KOREA_ZOOM = 13;
 // 인트로 애니메이션 단계
 type IntroPhase = "warp" | "fadeout" | "done";
 
+// 별 모양이 들어간 깔끔한 물방울 형태의 보라색 축제 핀 (크기 축소)
+const CUSTOM_MARKER_IMAGE = "data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 36' width='28' height='42'%3E%3Cpath d='M12 0C5.373 0 0 5.373 0 12c0 8.01 10.155 22.378 11.162 23.774a1.025 1.025 0 0 0 1.676 0C13.845 34.378 24 20.01 24 12c0-6.627-5.373-12-12-12z' fill='%236c4ff5'/%3E%3Cpath d='M12 6.5l1.5 3.5 4 .5-3 2.5 1 4-3.5-2-3.5 2 1-4-3-2.5 4-.5z' fill='%23ffffff'/%3E%3C/svg%3E";
+
 export default function FestivalMap() {
+  const { toast } = useToast();
   // ===== 카카오맵 SDK 로드 =====
   const [loading, error] = useKakaoLoader({
     appkey: process.env.NEXT_PUBLIC_KAKAO_MAP_API_KEY as string,
@@ -71,10 +76,11 @@ export default function FestivalMap() {
   const [selectedRegions, setSelectedRegions] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState("all");
   const [searchKeyword, setSearchKeyword] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false); // mobile filter toggle
 
   // ===== 하단 목록 토글 + 리사이즈 =====
-  const [listOpen, setListOpen] = useState(true);
-  const [listHeight, setListHeight] = useState(220);
+  const [listOpen, setListOpen] = useState(true); // 기본적으로 목록이 열려 있게 설정
+  const [listHeight, setListHeight] = useState(250);
   const isResizing = useRef(false);
   const startY = useRef(0);
   const startHeight = useRef(0);
@@ -227,8 +233,7 @@ export default function FestivalMap() {
       if (searchKeyword.trim()) params.set("keyword", searchKeyword.trim());
       params.set("size", "999"); // 한 번에 모든 지도 마커 호출을 위해 확장
 
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:8080";
-      const res = await fetch(`${backendUrl}/api/festivals?${params.toString()}`, {
+      const res = await fetch(`/api/festivals?${params.toString()}`, {
         cache: "no-store",
       });
       const json = await res.json();
@@ -274,7 +279,7 @@ export default function FestivalMap() {
   // ===== GPS 현위치 =====
   const handleMyLocation = () => {
     if (!navigator.geolocation) {
-      alert("이 브라우저에서는 현위치(GPS) 기능을 지원하지 않습니다.");
+      toast("이 브라우저에서는 현위치(GPS) 기능을 지원하지 않습니다.", 'warning');
       return;
     }
     navigator.geolocation.getCurrentPosition(
@@ -286,7 +291,7 @@ export default function FestivalMap() {
         setLevel(5);
       },
       () => {
-        alert("위치 정보 이용 동의를 확인해주세요.");
+        toast("위치 정보 이용 동의를 확인해주세요.", 'warning');
       }
     );
   };
@@ -343,10 +348,35 @@ export default function FestivalMap() {
     }
   };
 
+  // ===== 지역명 정규화 헬퍼 (주소 앞머리로 시/도 추출) =====
+  const getMatchableRegion = (addr: string | undefined | null) => {
+    if (!addr) return "";
+    const prefix = addr.trim().split(" ")[0] || ""; // 예: "서울특별시", "충청북도", "세종특별자치시"
+    if (prefix.startsWith("서울")) return "서울";
+    if (prefix.startsWith("인천")) return "인천";
+    if (prefix.startsWith("대전")) return "대전";
+    if (prefix.startsWith("대구")) return "대구";
+    if (prefix.startsWith("광주")) return "광주";
+    if (prefix.startsWith("부산")) return "부산";
+    if (prefix.startsWith("울산")) return "울산";
+    if (prefix.startsWith("세종")) return "세종";
+    if (prefix.startsWith("경기")) return "경기";
+    if (prefix.startsWith("강원")) return "강원";
+    if (prefix.startsWith("충청북") || prefix.startsWith("충북")) return "충북";
+    if (prefix.startsWith("충청남") || prefix.startsWith("충남")) return "충남";
+    if (prefix.startsWith("경상북") || prefix.startsWith("경북")) return "경북";
+    if (prefix.startsWith("경상남") || prefix.startsWith("경남")) return "경남";
+    if (prefix.startsWith("전라북") || prefix.startsWith("전북")) return "전북";
+    if (prefix.startsWith("전라남") || prefix.startsWith("전남")) return "전남";
+    if (prefix.startsWith("제주")) return "제주";
+    return prefix;
+  };
+
   // ===== 필터링 =====
   const filteredFestivals = festivals.filter((f) => {
     if (selectedRegions.length === 0) return true;
-    return selectedRegions.some((region) => f.address?.includes(region));
+    const actualRegion = getMatchableRegion(f.address);
+    return selectedRegions.includes(actualRegion);
   });
 
   const markerFestivals = filteredFestivals.filter(
@@ -364,67 +394,76 @@ export default function FestivalMap() {
   // ===== 렌더링 =====
   return (
     <div className={styles.mapPageWrapper}>
-      {/* 타이틀 */}
-      <div className={styles.pageTitle}>
-        <div>
-          <div className={styles.pageTitleText}>🎭 전국 축제 지도</div>
-          <div className={styles.pageTitleSub}>
-            지도로 전국의 축제를 한눈에 탐색하세요 🗺️
-          </div>
-        </div>
-      </div>
-
       {/* 메인 콘텐츠 */}
       <div className={styles.mapBody}>
-        {/* 필터 사이드바 (처음부터 보임) */}
+        {/* 필터 사이드바 */}
         <aside className={styles.filterSidebar}>
-          <div className={styles.filterSectionTitle}>📍 지역 필터</div>
-          <div className={styles.regionGrid}>
-            {REGIONS.map((region) => (
-              <label key={region} className={styles.filterItem}>
+
+          <div className={styles.sidebarHeader}>
+            <div className={styles.sidebarHeaderTop}>
+              <h1 className={styles.sidebarTitle}>🌍 전국 축제 지도</h1>
+              <button
+                type="button"
+                className={styles.filterToggleBtn}
+                onClick={() => setFilterOpen(!filterOpen)}
+              >
+                {filterOpen ? '▲ 접기' : '▼ 필터 열기'}
+              </button>
+            </div>
+            <p className={styles.sidebarDesc}>
+              지도에서 전국 축제를<br />한눈에 탐색해보세요.
+            </p>
+          </div>
+
+          <div className={`${styles.filterContent} ${filterOpen ? styles.filterContentOpen : ''}`}>
+            <div className={styles.filterSectionTitle}>📍 지역 필터</div>
+            <div className={styles.regionGrid}>
+              {REGIONS.map((region) => (
+                <label key={region} className={styles.filterItem}>
+                  <input
+                    type="checkbox"
+                    checked={selectedRegions.includes(region)}
+                    onChange={() => toggleRegion(region)}
+                  />
+                  {region}
+                </label>
+              ))}
+            </div>
+
+            <div className={styles.filterSectionTitle}>🔄 상태 필터</div>
+            {STATUS_OPTIONS.map((opt) => (
+              <label key={opt.value} className={styles.filterItem}>
                 <input
-                  type="checkbox"
-                  checked={selectedRegions.includes(region)}
-                  onChange={() => toggleRegion(region)}
+                  type="radio"
+                  name="statusFilter"
+                  checked={statusFilter === opt.value}
+                  onChange={() => setStatusFilter(opt.value)}
                 />
-                {region}
+                {opt.label}
               </label>
             ))}
-          </div>
 
-          <div className={styles.filterSectionTitle}>🔄 상태 필터</div>
-          {STATUS_OPTIONS.map((opt) => (
-            <label key={opt.value} className={styles.filterItem}>
+            <div className={styles.filterSectionTitle}>🔍 검색</div>
+            <div className={styles.searchInputWrapper}>
+              <span className={styles.searchIcon}>🔍</span>
               <input
-                type="radio"
-                name="statusFilter"
-                checked={statusFilter === opt.value}
-                onChange={() => setStatusFilter(opt.value)}
+                type="text"
+                placeholder="축제명 검색"
+                className={styles.filterSearchInput}
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                onKeyDown={handleSearchKeyDown}
               />
-              {opt.label}
-            </label>
-          ))}
+            </div>
 
-          <div className={styles.filterSectionTitle}>🔍 검색</div>
-          <div className={styles.searchInputWrapper}>
-            <span className={styles.searchIcon}>🔍</span>
-            <input
-              type="text"
-              placeholder="축제명 검색"
-              className={styles.filterSearchInput}
-              value={searchKeyword}
-              onChange={(e) => setSearchKeyword(e.target.value)}
-              onKeyDown={handleSearchKeyDown}
-            />
+            <button
+              type="button"
+              className={styles.filterBtnReset}
+              onClick={resetFilters}
+            >
+              🔄 필터 초기화
+            </button>
           </div>
-
-          <button
-            type="button"
-            className={styles.filterBtnReset}
-            onClick={resetFilters}
-          >
-            🔄 필터 초기화
-          </button>
         </aside>
 
         {/* 오른쪽 영역 */}
@@ -444,7 +483,7 @@ export default function FestivalMap() {
             ) : (
               <Map
                 center={center}
-                style={{ width: "100%", height: "100%" }}
+                style={{ position: "absolute", top: 0, left: 0, width: "100%", height: "100%" }}
                 level={level}
                 onZoomChanged={(map) => {
                   if (introComplete) setLevel(map.getLevel());
@@ -461,6 +500,11 @@ export default function FestivalMap() {
                         position={{
                           lat: fest.latitude!,
                           lng: fest.longitude!,
+                        }}
+                        image={{
+                          src: CUSTOM_MARKER_IMAGE,
+                          size: { width: 22, height: 26 },
+                          options: { offset: { x: 11, y: 26 } }
                         }}
                         onClick={() => handleMarkerClick(fest)}
                       />
@@ -562,6 +606,22 @@ export default function FestivalMap() {
                   −
                 </button>
               </div>
+            )}
+
+            {/* Scroll Indicator */}
+            {listOpen && (
+              <button
+                type="button"
+                className={`${styles.floatingScrollIndicator} ${introComplete ? styles.mapControlsVisible : ""}`}
+                onClick={() => {
+                  window.scrollTo({
+                    top: document.body.scrollHeight,
+                    behavior: "smooth",
+                  });
+                }}
+              >
+                👇 아래로 스크롤하여 {filteredFestivals.length}개 축제 목록 보기
+              </button>
             )}
           </div>
 

@@ -447,7 +447,8 @@
                     { name: 'role', type: 'varchar(10)', note: 'USER / ADMIN' },
                     { name: 'terms_agreed', type: 'boolean', note: '필수 약관 동의' },
                     { name: 'marketing_agreed', type: 'boolean', note: '마케팅 동의' },
-                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE / DELETED' },
+                    { name: 'status', type: 'varchar(10)', note: 'ACTIVE(정상) / SUSPENDED(정지) / DELETED(탈퇴)' },
+                    { name: 'suspended_until', type: 'timestamp', note: '정지 해제 예정일 (7일 정지 시 자동 설정)' },
                     { name: 'created_at', type: 'timestamp', note: '가입일' },
                     { name: 'updated_at', type: 'timestamp', note: '수정일' },
                     { name: 'deleted_at', type: 'timestamp', note: '탈퇴일 (소프트 삭제)' },
@@ -610,6 +611,7 @@
                     { name: 'status', type: 'varchar(10)', note: 'PENDING / ANSWERED' },
                     { name: 'answer', type: 'text', note: '관리자 답변' },
                     { name: 'answered_at', type: 'timestamp', note: '답변 일시' },
+                    { name: 'answered_by', type: 'bigint', fk: true, note: '답변 관리자 ID' },
                     { name: 'created_at', type: 'timestamp', note: '작성일' },
                 ]
             },

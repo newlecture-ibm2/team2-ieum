@@ -87,6 +87,15 @@
   transform: scale(1.1);
 }
 
+.heartActive {
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 0 12px rgba(231, 76, 60, 0.4);
+}
+
+.heartActive:hover {
+  background: rgba(255,255,255,1);
+}
+
 .heartIcon {
   stroke-width: 2.5px;
 }
@@ -122,6 +131,22 @@
   border-top: 1px solid var(--color-gray-100);
 }
 
+.favInfo {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-gray-400);
+}
+
+.favIcon {
+  color: var(--color-accent-500);
+  fill: var(--color-accent-500);
+  opacity: 0.7;
+}
+
 .stars {
   display: flex;
   align-items: center;
@@ -144,3 +169,37 @@
   font-size: 12px;
   color: var(--color-gray-500);
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .content {
+    padding: 12px;
+  }
+
+  .title {
+    font-size: 14px;
+  }
+
+  .date {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+
+  .ratingInfo {
+    padding-top: 8px;
+  }
+
+  .score {
+    font-size: 12px;
+  }
+
+  .heartBtn {
+    padding: 6px;
+  }
+
+  .badge {
+    font-size: 10px;
+    padding: 3px 8px;
+  }
+}
+

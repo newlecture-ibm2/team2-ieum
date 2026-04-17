@@ -4,6 +4,7 @@ import com.ieum.admin.inquiry.adapter.out.persistence.entity.InquiryEntity;
 import com.ieum.admin.inquiry.adapter.out.persistence.repository.InquiryAdminRepository;
 import com.ieum.admin.inquiry.application.port.out.InquiryPort;
 import com.ieum.admin.inquiry.domain.model.Inquiry;
+import com.ieum.global.common.enums.InquiryStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,8 +24,8 @@ public class InquiryPersistenceAdapter implements InquiryPort {
     private final InquiryAdminRepository repository;
 
     @Override
-    public Page<Inquiry> findAll(String status, String searchType, String keyword, Pageable pageable) {
-        Page<Object[]> page = repository.findInquiriesByConditions(status, searchType, keyword, pageable);
+    public Page<Inquiry> findAll(String status, String searchType, String keyword, LocalDateTime start, LocalDateTime end, Pageable pageable) {
+        Page<Object[]> page = repository.findInquiriesByConditions(status, searchType, keyword, start, end, pageable);
 
         var inquiries = page.getContent().stream().map(row -> {
             InquiryEntity entity = (InquiryEntity) row[0];
@@ -49,7 +50,8 @@ public class InquiryPersistenceAdapter implements InquiryPort {
      */
     @Override
     public Optional<Inquiry> findByIdWithNickname(Long id) {
-        return repository.findInquiryWithNickname(id).map(row -> {
+        return repository.findInquiryWithNickname(id).map(res -> {
+            Object[] row = (Object[]) res;
             InquiryEntity entity = (InquiryEntity) row[0];
             String nickname = (String) row[1];
             entity.setAuthorNickname(nickname != null ? nickname : "알 수 없음");
@@ -62,12 +64,12 @@ public class InquiryPersistenceAdapter implements InquiryPort {
         InquiryEntity entity = repository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("INQUIRY_NOT_FOUND"));
 
-        if ("ANSWERED".equals(entity.getStatus())) {
+        if (InquiryStatus.ANSWERED.name().equals(entity.getStatus())) {
             throw new IllegalStateException("ALREADY_ANSWERED");
         }
 
         entity.setAnswer(answer);
-        entity.setStatus("ANSWERED");
+        entity.setStatus(InquiryStatus.ANSWERED.name());
         entity.setAnsweredAt(LocalDateTime.now());
         repository.save(entity);
     }
@@ -75,5 +77,10 @@ public class InquiryPersistenceAdapter implements InquiryPort {
     @Override
     public long countByStatus(String status) {
         return repository.countByStatus(status);
+    }
+
+    @Override
+    public long countCreatedToday(LocalDateTime start, LocalDateTime end) {
+        return repository.countCreatedToday(start, end);
     }
 }

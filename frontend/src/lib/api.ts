@@ -5,9 +5,9 @@ import axios from "axios";
 // 서버사이드(SSR) 요청일 경우는 백엔드 API URL을 그대로 사용.
 const getBaseUrl = () => {
   if (typeof window !== "undefined") {
-    return ""; 
+    return "";
   }
-  return process.env.NEXT_PUBLIC_API_URL || process.env.BACKEND_URL || "http://localhost:8080";
+  return process.env.BACKEND_URL || process.env.API_BASE_URL || process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
 };
 
 const api = axios.create({

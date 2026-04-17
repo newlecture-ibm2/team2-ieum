@@ -262,6 +262,19 @@
   transform: translateY(-1px);
 }
 
+.googleBtn {
+  background-color: #FFFFFF;
+  color: #3c4043;
+  border: 1px solid #dadce0;
+}
+
+.googleBtn:hover {
+  background-color: #f8f9fa;
+  border-color: #d2d2d2;
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+
 .socialIcon {
   width: 17px; /* 전체적으로 살짝 줄여서 카카오와 밸런스를 맞춤 */
   height: 17px;

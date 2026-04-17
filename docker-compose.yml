@@ -7,18 +7,29 @@ services:
     container_name: ${USER_ID}-backend
     # ports 제거: 외부 노출 차단 (BFF 패턴)
     volumes:
-      - /home/ieum/dist/upload:/app/upload
+      - /dist/upload:/app/upload
     environment:
       - SPRING_PROFILES_ACTIVE=prod
       - SPRING_DATASOURCE_URL=${SPRING_DATASOURCE_URL:?SPRING_DATASOURCE_URL 환경변수가 설정되지 않았습니다.}
       - SPRING_DATASOURCE_USERNAME=${SPRING_DATASOURCE_USERNAME:-ieum}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?DB_PASSWORD 환경변수가 설정되지 않았습니다.}
+      - DB_PASSWORD=${DB_PASSWORD}
       - JWT_SECRET=${JWT_SECRET:?JWT_SECRET 환경변수가 설정되지 않았습니다.}
       - JWT_EXPIRATION=${JWT_EXPIRATION:-86400000}
       - FILE_UPLOAD_DIR=/app/upload
       - UPLOAD_LOCATION=file:/app/upload/
       - TOUR_API_SERVICE_KEY=${TOUR_API_SERVICE_KEY}
       - TOUR_API_BASE_URL=${TOUR_API_BASE_URL:-https://apis.data.go.kr/B551011/KorService2}
+      - OAUTH_KAKAO_CLIENT_ID=${OAUTH_KAKAO_CLIENT_ID}
+      - OAUTH_KAKAO_CLIENT_SECRET=${OAUTH_KAKAO_CLIENT_SECRET}
+      - OAUTH_NAVER_CLIENT_ID=${OAUTH_NAVER_CLIENT_ID}
+      - OAUTH_NAVER_CLIENT_SECRET=${OAUTH_NAVER_CLIENT_SECRET}
+      - OAUTH_GOOGLE_CLIENT_ID=${OAUTH_GOOGLE_CLIENT_ID}
+      - OAUTH_GOOGLE_CLIENT_SECRET=${OAUTH_GOOGLE_CLIENT_SECRET}
+      - NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
+      - TZ=Asia/Seoul
+      - SPRING_SERVLET_MULTIPART_MAX_FILE_SIZE=50MB
+      - SPRING_SERVLET_MULTIPART_MAX_REQUEST_SIZE=50MB
     restart: unless-stopped
     depends_on:
       - db
@@ -28,13 +39,23 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_KAKAO_MAP_API_KEY=${NEXT_PUBLIC_KAKAO_MAP_API_KEY}
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+        - NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
+        - BACKEND_URL=http://backend:8080
     container_name: ${USER_ID}-frontend
     ports:
-      - "${FRONTEND_PORT:-3333}:3000" # 외부 포트:내부 포트(3000)
+      - "${FRONTEND_PORT:-3000}:3000" # 외부 포트:내부 포트(3000)
     environment:
       - PORT=3000
       - API_BASE_URL=http://backend:8080
+      - BACKEND_URL=http://backend:8080
       - SESSION_SECRET=${SESSION_SECRET}
+      - NEXT_PUBLIC_KAKAO_MAP_API_KEY=${NEXT_PUBLIC_KAKAO_MAP_API_KEY}
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL}
+      - NEXT_PUBLIC_FRONTEND_URL=${NEXT_PUBLIC_FRONTEND_URL}
+      - TZ=Asia/Seoul
     depends_on:
       - backend
     restart: unless-stopped
@@ -47,6 +68,7 @@ services:
       POSTGRES_DB: ${DB_NAME:-ieum-db}
       POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME:-ieum}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
+      TZ: Asia/Seoul
     ports:
       - "${DB_PORT:-5454}:5432" # 외부 포트:내부 포트(5432) - 팀원 로컬 접속용
     volumes:

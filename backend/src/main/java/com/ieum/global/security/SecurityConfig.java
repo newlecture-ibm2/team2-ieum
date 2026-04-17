@@ -1,6 +1,7 @@
 package com.ieum.global.security;
 
 import com.ieum.global.security.oauth2.CustomOAuth2UserService;
+import com.ieum.global.security.oauth2.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.ieum.global.security.oauth2.OAuth2SuccessHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -44,7 +45,8 @@ public class SecurityConfig {
                         JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint,
                         JwtAccessDeniedHandler jwtAccessDeniedHandler,
                         CustomOAuth2UserService customOAuth2UserService,
-                        OAuth2SuccessHandler oAuth2SuccessHandler) throws Exception {
+                        OAuth2SuccessHandler oAuth2SuccessHandler,
+                        HttpCookieOAuth2AuthorizationRequestRepository httpCookieOAuth2AuthorizationRequestRepository) throws Exception {
                 http
                                 // CSRF 비활성화 (REST API는 Stateless)
                                 .csrf(csrf -> csrf.disable())
@@ -84,8 +86,11 @@ public class SecurityConfig {
                                                 // ✅ 공지사항 조회 — 비회원 허용
                                                 .requestMatchers(HttpMethod.GET, "/api/notices/**").permitAll()
 
+                                                // ✅ 첨부파일 조회/다운로드 — 비회원 허용
+                                                .requestMatchers(HttpMethod.GET, "/api/attachments/**").permitAll()
+
                                                 // 🔒 회원 전용 — 프로필, 알림, FCM
-                                                .requestMatchers("/api/users/me/**").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers("/api/users/me/**", "/api/mypage/**").hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 리뷰 CUD
                                                 .requestMatchers(HttpMethod.POST, "/api/reviews")
@@ -95,8 +100,8 @@ public class SecurityConfig {
                                                 .requestMatchers(HttpMethod.DELETE, "/api/reviews/**")
                                                 .hasAnyRole("USER", "ADMIN")
 
-                                                // 🔒 회원 전용 — 즐겨찾기
-                                                .requestMatchers("/api/favorites/**").hasAnyRole("USER", "ADMIN")
+                                                // 🔒 회원 전용 — 스크랩(찜)
+                                                .requestMatchers("/api/favorites/**").authenticated()
 
                                                 // 🔒 회원 전용 — 커뮤니티 CUD
                                                 .requestMatchers(HttpMethod.POST, "/api/community/**")
@@ -107,10 +112,16 @@ public class SecurityConfig {
                                                 .hasAnyRole("USER", "ADMIN")
 
                                                 // 🔒 회원 전용 — 신고
+<<<<<<< HEAD
                                                 .requestMatchers(HttpMethod.POST, "/api/reports")
                                                 .hasAnyRole("USER", "ADMIN")
                                                 .requestMatchers(HttpMethod.GET, "/api/reports/check")
                                                 .hasAnyRole("USER", "ADMIN")
+=======
+                                                .requestMatchers(HttpMethod.POST, "/api/reports").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/check").hasAnyRole("USER", "ADMIN")
+                                                .requestMatchers(HttpMethod.GET, "/api/reports/my-targets").hasAnyRole("USER", "ADMIN")
+>>>>>>> ce61236a579d796cf9a033f8ad18fdff8f7fdc97
 
                                                 // ✅ 관리자 로그인 — 인증 불필요
                                                 .requestMatchers(HttpMethod.POST, "/api/admin/auth/login").permitAll()
@@ -142,6 +153,9 @@ public class SecurityConfig {
 
                                 // 카카오 소셜 로그인(OAuth2) 설정
                                 .oauth2Login(oauth2 -> oauth2
+                                                .authorizationEndpoint(auth -> auth
+                                                                .baseUri("/oauth2/authorization")
+                                                                .authorizationRequestRepository(httpCookieOAuth2AuthorizationRequestRepository))
                                                 .userInfoEndpoint(userInfo -> userInfo
                                                                 .userService(customOAuth2UserService))
                                                 .successHandler(oAuth2SuccessHandler))

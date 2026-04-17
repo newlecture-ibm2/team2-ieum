@@ -25,6 +25,7 @@ function CommunityContent() {
   const category = searchParams.get('category') || '';
   const areaCode = searchParams.get('areaCode') || '';
   const keyword = searchParams.get('keyword') || '';
+  const searchType = searchParams.get('searchType') || 'all';
   const sort = searchParams.get('sort') || 'latest';
   const page = Number(searchParams.get('page')) || 1;
 
@@ -41,6 +42,7 @@ function CommunityContent() {
     category: category || undefined,
     areaCode: areaCode || undefined,
     keyword: keyword || undefined,
+    searchType: searchType || undefined,
     sort,
     page,
     size: 10,
@@ -77,7 +79,7 @@ function CommunityContent() {
           )}
 
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard key={post.id} post={post} keyword={keyword} />
           ))}
 
           {loading && (
@@ -93,8 +95,9 @@ function CommunityContent() {
 
       {/* 글쓰기 FAB — 로그인 사용자만 노출 */}
       {isLoggedIn && (
-        <Link href="/community/write" className={styles.fab} title="글쓰기">
-          <Pencil size={22} />
+        <Link href="/community/write" className={styles.fab} title="게시글 작성">
+          <Pencil size={18} />
+          <span>게시글 작성</span>
         </Link>
       )}
     </main>

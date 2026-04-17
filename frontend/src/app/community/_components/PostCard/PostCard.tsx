@@ -7,12 +7,35 @@ import type { Post } from './usePosts';
 
 interface PostCardProps {
   post: Post;
+  keyword?: string;
+}
+
+// Highlight matching keyword in text
+function HighlightText({ text, keyword }: { text: string; keyword?: string }) {
+  if (!keyword || !keyword.trim()) return <>{text}</>;
+  const escaped = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const parts = text.split(new RegExp(`(${escaped})`, 'gi'));
+  return (
+    <>
+      {parts.map((part, i) =>
+        part.toLowerCase() === keyword.toLowerCase() ? (
+          <mark key={i} className={styles.highlight}>{part}</mark>
+        ) : (
+          part
+        )
+      )}
+    </>
+  );
 }
 
 const CATEGORY_MAP: Record<string, { label: string; className: string }> = {
   qna: { label: 'Q&A', className: 'catQna' },
-  tip: { label: '축제꿀팁', className: 'catTip' },
-  review: { label: '먹거리 리뷰', className: 'catFood' },
+  tip: { label: '축제 꿀팁', className: 'catTip' },
+  food: { label: '먹거리 리뷰', className: 'catFood' },
+  review: { label: '축제 후기', className: 'catReview' },
+  companion: { label: '동행 구해요', className: 'catCompanion' },
+  info: { label: '축제 정보', className: 'catInfo' },
+  free: { label: '자유게시판', className: 'catFree' },
 };
 
 function timeAgo(dateStr: string): string {
@@ -27,15 +50,34 @@ function timeAgo(dateStr: string): string {
   return new Date(dateStr).toLocaleDateString('ko-KR');
 }
 
-export default function PostCard({ post }: PostCardProps) {
+export default function PostCard({ post, keyword }: PostCardProps) {
   const cat = CATEGORY_MAP[post.category?.toLowerCase()] || { label: post.category, className: '' };
+
+  let thumbnailUrl = null;
+  if (post.thumbnailId) {
+    thumbnailUrl = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${post.thumbnailId}/download`;
+  } else if (post.content && post.content.includes('<img')) {
+    const match = post.content.match(/<img[^>]+src=["']([^"']+)["']/i);
+    if (match) {
+      thumbnailUrl = match[1];
+    }
+  }
+
+  const plainTextContent = (post.content || '')
+    .replace(/<[^>]*>?/gm, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"');
 
   return (
     <Link href={`/community/${post.id}`} className={styles.item}>
-      {post.thumbnailId && (
+      {thumbnailUrl && (
         <div className={styles.thumbnailWrap}>
           <img 
-            src={`${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${post.thumbnailId}/download`} 
+            src={thumbnailUrl} 
             alt="게시글 이미지" 
             className={styles.thumbnailImg} 
           />
@@ -53,8 +95,8 @@ export default function PostCard({ post }: PostCardProps) {
             </span>
           )}
         </div>
-        <div className={styles.title}>{post.title}</div>
-        <div className={styles.desc}>{post.content}</div>
+        <div className={styles.title}><HighlightText text={post.title} keyword={keyword} /></div>
+        <div className={styles.desc}><HighlightText text={plainTextContent} keyword={keyword} /></div>
         <div className={styles.meta}>
           <span>{timeAgo(post.createdAt)}</span>
           <span>·</span>

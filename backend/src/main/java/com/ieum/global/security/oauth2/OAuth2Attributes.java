@@ -24,7 +24,18 @@ public class OAuth2Attributes {
         if ("naver".equals(registrationId)) {
             return ofNaver(userNameAttributeName, attributes);
         }
+        if ("google".equals(registrationId)) {
+            return ofGoogle(userNameAttributeName, attributes);
+        }
         return null;
+    }
+
+    private static String getSafeNickname(String expectedNickname, String fallbackId) {
+        String nickname = (expectedNickname != null && !expectedNickname.trim().isEmpty()) ? expectedNickname : "u_" + fallbackId;
+        if (nickname.length() > 20) {
+            return nickname.substring(0, 20);
+        }
+        return nickname;
     }
 
     private static OAuth2Attributes ofNaver(String userNameAttributeName, Map<String, Object> attributes) {
@@ -49,8 +60,8 @@ public class OAuth2Attributes {
                 .nameAttributeKey("id")
                 .socialId(id)
                 .loginId(loginId)
-                .nickname(nickname != null ? nickname : "u_" + id)
-                .name(name != null ? name : "NaverUser")
+                .nickname(getSafeNickname(nickname, id))
+                .name(name != null && !name.isBlank() ? name : getSafeNickname(nickname, id))
                 .profileImage(profileImage)
                 .build();
     }
@@ -73,9 +84,28 @@ public class OAuth2Attributes {
                 .nameAttributeKey(userNameAttributeName)
                 .socialId(id)
                 .loginId(loginId)
-                .nickname(nickname != null ? nickname : "u_" + id)
-                .name("KakaoUser") // 카카오는 이름 권한이 따로 필요하므로 기본값 설정
+                .nickname(getSafeNickname(nickname, id))
+                .name(getSafeNickname(nickname, id)) // 카카오는 이름 권한이 따로 필요하므로 닉네임을 기본값으로 사용
                 .profileImage(profileImage)
+                .build();
+    }
+
+    private static OAuth2Attributes ofGoogle(String userNameAttributeName, Map<String, Object> attributes) {
+        String sub = (String) attributes.get("sub");
+        String loginId = "google_" + sub;
+        
+        Map<String, Object> mutableAttributes = new HashMap<>(attributes);
+        mutableAttributes.put("loginId", loginId);
+        String name = (String) attributes.get("name");
+
+        return OAuth2Attributes.builder()
+                .attributes(mutableAttributes)
+                .nameAttributeKey(userNameAttributeName)
+                .socialId(sub)
+                .loginId(loginId)
+                .nickname(getSafeNickname(name, sub))
+                .name(name)
+                .profileImage((String) attributes.get("picture"))
                 .build();
     }
 }

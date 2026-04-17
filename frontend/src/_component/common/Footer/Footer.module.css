@@ -7,7 +7,7 @@
 .footerTop {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 40px var(--spacing-xl) 32px;
+  padding: 24px var(--spacing-xl) 20px;
   display: flex;
   justify-content: space-between;
   gap: var(--spacing-xl);
@@ -16,7 +16,7 @@
 
 /* 브랜드 영역 */
 .brand {
-  max-width: 280px;
+  max-width: 420px;
 }
 
 .brandLogo {
@@ -58,36 +58,7 @@
   color: #969faa;
 }
 
-/* 링크 컬럼 */
-.links {
-  display: flex;
-  gap: 48px;
-}
-
-.linkCol h4 {
-  color: white;
-  font-size: 12px;
-  font-weight: 700;
-  margin-bottom: 12px;
-}
-
-.linkCol ul {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.linkCol a {
-  font-size: 12px;
-  color: #969faa;
-  transition: color var(--transition-fast);
-}
-
-.linkCol a:hover {
-  color: var(--color-primary-400);
-}
-
-/* 하단 바 */
+/* 하단 바 (연락처 & 저작권) */
 .footerBottom {
   max-width: var(--max-width);
   margin: 0 auto;
@@ -95,6 +66,11 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.contactInfo {
+  font-size: 11px;
+  color: var(--color-gray-500);
 }
 
 .copyright {
@@ -111,30 +87,83 @@
   color: var(--color-primary-400);
 }
 
-/* SNS 아이콘 */
-.social {
-  display: flex;
-  gap: var(--spacing-sm);
+/* 모달 트리거 버튼 공통 초기화 */
+.modalLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
 }
 
-.socialIcon {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-sm);
-  background: rgba(255, 255, 255, 0.06);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition-fast), transform var(--transition-fast);
-}
-
-.socialIcon:hover {
-  background: rgba(165, 94, 234, 0.2);
-  transform: translateY(-2px);
-}
-
-.socialIcon svg {
-  width: 14px;
-  height: 14px;
+/* 고객지원 내 모달 링크 */
+.linkCol .modalLink {
+  font-size: 12px;
   color: #969faa;
+  transition: color var(--transition-fast);
 }
+
+.linkCol .modalLink:hover {
+  color: var(--color-primary-400);
+}
+
+/* 저작권(하단) 내 모달 링크 */
+.copyright .modalLink {
+  font-size: 11px;
+  color: var(--color-gray-500);
+  transition: color var(--transition-fast);
+}
+
+.copyright .modalLink:hover {
+  color: var(--color-primary-400);
+}
+
+/* 법적 문서 모달 콘텐츠 */
+.legalContent {
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.legalContent h3 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-gray-900);
+  margin: 20px 0 8px;
+}
+
+.legalContent h3:first-child {
+  margin-top: 0;
+}
+
+.legalContent p {
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--color-gray-600);
+}
+
+.legalDate {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid var(--color-gray-200);
+  font-size: 12px;
+  color: var(--color-gray-400);
+  text-align: right;
+}
+
+.legalContent::-webkit-scrollbar {
+  width: 4px;
+}
+
+.legalContent::-webkit-scrollbar-thumb {
+  background: var(--color-gray-300);
+  border-radius: 4px;
+}
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .footer {
+    display: none;
+  }
+}
+

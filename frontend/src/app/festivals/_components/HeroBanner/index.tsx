@@ -1,4 +1,7 @@
+'use client';
+
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 import { Map } from 'lucide-react';
 import { FESTIVAL_STATUS_TABS } from '@/constants/filterOptions';
 import styles from './HeroBanner.module.css';
@@ -17,6 +20,22 @@ const FIXED_BANNER = {
 
 export default function HeroBanner({ currentTab }: HeroBannerProps) {
   const TABS = FESTIVAL_STATUS_TABS;
+  const searchParams = useSearchParams();
+
+  /** 탭 전환 시 기존 검색/필터/정렬 파라미터를 유지한 URL 생성 */
+  const buildTabHref = (tabValue: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    // 탭(status) 변경
+    if (tabValue === 'all') {
+      params.delete('status');
+    } else {
+      params.set('status', tabValue);
+    }
+    // 페이지 초기화
+    params.delete('page');
+    const qs = params.toString();
+    return qs ? `/?${qs}` : '/';
+  };
 
   return (
     <section className={styles.heroSection}>
@@ -42,7 +61,7 @@ export default function HeroBanner({ currentTab }: HeroBannerProps) {
               {TABS.map(tab => (
                 <Link
                   key={tab.value}
-                  href={tab.value === 'all' ? '/' : `/?status=${tab.value}`}
+                  href={buildTabHref(tab.value)}
                   className={`${styles.pill} ${currentTab === tab.value ? styles.activePill : ''}`}
                 >
                   {tab.label}

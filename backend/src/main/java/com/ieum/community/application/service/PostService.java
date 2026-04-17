@@ -1,11 +1,11 @@
 package com.ieum.community.application.service;
 
-import com.ieum.community.adapter.in.web.dto.PostRequest;
-import com.ieum.community.adapter.in.web.dto.PostResponse;
-import com.ieum.community.adapter.out.persistence.entity.PostEntity;
-import com.ieum.community.adapter.out.persistence.entity.PostLikeEntity;
-import com.ieum.community.adapter.out.persistence.repository.PostJpaRepository;
-import com.ieum.community.adapter.out.persistence.repository.PostLikeJpaRepository;
+import com.ieum.community.application.port.in.*;
+import com.ieum.community.application.port.out.PostPort;
+import com.ieum.community.application.port.out.PostLikePort;
+import com.ieum.user.auth.application.port.in.CheckUserSuspensionUseCase;
+import com.ieum.community.domain.model.Post;
+import com.ieum.global.common.enums.ContentStatus;
 import com.ieum.global.exception.BusinessException;
 import com.ieum.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -14,111 +14,159 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
+/**
+ * 게시글 서비스 (UseCase 구현체)
+ * - Input Port(UseCase) 인터페이스를 구현
+ * - Output Port(PostPort, PostLikePort)만 의존 (JPA Repository 직접 참조 없음)
+ * - adapter.in.web 패키지의 DTO를 알지 못함
+ */
 @Service
 @RequiredArgsConstructor
-public class PostService {
+@Transactional
+public class PostService implements CreatePostUseCase, LoadPostUseCase, UpdatePostUseCase, DeletePostUseCase, ToggleLikeUseCase {
 
-    private final PostJpaRepository postJpaRepository;
-    private final PostLikeJpaRepository postLikeJpaRepository;
+    private final PostPort postPort;
+    private final PostLikePort postLikePort;
+    private final CheckUserSuspensionUseCase checkUserSuspensionUseCase;
 
-    @Transactional
-    public PostResponse createPost(PostRequest request, Long authorId, String authorName) {
+    /**
+     * 정지 회원 검증 — WRITE 작업 전 호출
+     */
+    private void validateNotSuspended(Long userId) {
+        if (userId != null && checkUserSuspensionUseCase.isSuspended(userId)) {
+            throw new BusinessException(ErrorCode.USER_001,
+                    "Suspended user attempted write operation. userId=" + userId);
+        }
+    }
+
+    // ──── CreatePostUseCase ────
+
+    @Override
+    public Post createPost(String category, String title, String content,
+                           String areaCode, String festivalId, String festivalName,
+                           Long authorId, String authorName) {
         if (authorId == null) {
             throw new BusinessException(ErrorCode.AUTH_001, "Author ID is null");
         }
+        validateNotSuspended(authorId);
+        if (title == null || title.length() < 2 || title.length() > 200) {
+            throw new BusinessException(ErrorCode.COMMON_001, "제목은 2자 이상 200자 이하로 작성해주세요.");
+        }
+        if (content == null || content.length() < 10 || content.length() > 5000) {
+            throw new BusinessException(ErrorCode.COMMON_001, "내용은 10자 이상 5000자 이하로 작성해주세요.");
+        }
 
-        PostEntity entity = PostEntity.builder()
-                .category(request.getCategory())
-                .title(request.getTitle())
-                .content(request.getContent())
-                .areaCode(request.getAreaCode())
-                .festivalId(request.getFestivalId())
-                .festivalName(request.getFestivalName())
+        Post post = Post.builder()
+                .category(category)
+                .title(title)
+                .content(content)
+                .areaCode(areaCode)
+                .festivalId(festivalId)
+                .festivalName(festivalName)
                 .authorId(authorId)
                 .authorName(authorName)
+                .status(ContentStatus.ACTIVE.name())
                 .build();
 
-        PostEntity saved = postJpaRepository.save(entity);
-        return PostResponse.fromEntity(saved);
+        return postPort.save(post);
     }
 
+    // ──── LoadPostUseCase ────
+
+    @Override
     @Transactional(readOnly = true)
-    public Page<PostResponse> getPosts(String category, String areaCode, String keyword, Pageable pageable) {
-        // category가 ALL이나 빈문자열이면 null로 처리
-        String queryCategory = (category != null && !category.isEmpty() && !category.equalsIgnoreCase("all")) ? category
-                : null;
-        String queryAreaCode = (areaCode != null && !areaCode.isEmpty() && !areaCode.equalsIgnoreCase("all")) ? areaCode
-                : null;
+    public Page<Post> getPosts(List<String> categories, List<String> areaCodes, String keyword, String searchType, Pageable pageable) {
+        List<String> queryCategories = (categories != null && !categories.isEmpty() && !categories.contains("all")) ? categories : null;
+        List<String> queryAreaCodes = (areaCodes != null && !areaCodes.isEmpty() && !areaCodes.contains("all")) ? areaCodes : null;
         String queryKeyword = (keyword != null && !keyword.trim().isEmpty()) ? keyword.trim() : null;
+        String querySearchType = (searchType != null && !searchType.isEmpty()) ? searchType : "all";
 
-        Page<PostEntity> page = postJpaRepository.findByFilters(queryCategory, queryAreaCode, queryKeyword, pageable);
-        return page.map(PostResponse::fromEntity);
+        return postPort.findByFilters(queryCategories, queryAreaCodes, queryKeyword, querySearchType, pageable);
     }
 
-    @Transactional
-    public PostResponse getPostDetail(Long postId, Long requesterId) {
-        PostEntity entity = postJpaRepository.findActiveById(postId)
+    @Override
+    public Post getPostDetail(Long postId, Long requesterId) {
+        Post post = postPort.findActiveById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
 
-        entity.increaseViewCount();
-        
+        post.increaseViewCount();
+        postPort.save(post);
+
         boolean isLiked = false;
         if (requesterId != null && requesterId > 0) {
-            isLiked = postLikeJpaRepository.existsByPostIdAndUserId(postId, requesterId);
+            isLiked = postLikePort.exists(postId, requesterId);
         }
-        
-        return PostResponse.fromEntity(entity).withIsLiked(isLiked);
+
+        return post.withIsLiked(isLiked);
     }
-    
-    @Transactional
+
+    // ──── UpdatePostUseCase ────
+
+    @Override
+    public Post updatePost(Long postId, String category, String title, String content,
+                           String areaCode, String festivalId, String festivalName,
+                           Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
+        if (title == null || title.length() < 2 || title.length() > 200) {
+            throw new BusinessException(ErrorCode.COMMON_001, "제목은 2자 이상 200자 이하로 작성해주세요.");
+        }
+        if (content == null || content.length() < 10 || content.length() > 5000) {
+            throw new BusinessException(ErrorCode.COMMON_001, "내용은 10자 이상 5000자 이하로 작성해주세요.");
+        }
+
+        Post post = postPort.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
+
+        if (!isAdmin && !post.getAuthorId().equals(requesterId)) {
+            throw new BusinessException(ErrorCode.AUTH_002,
+                    "Requester: " + requesterId + ", Author: " + post.getAuthorId());
+        }
+
+        post.update(category, title, content, areaCode, festivalId, festivalName);
+        return postPort.save(post);
+    }
+
+    // ──── DeletePostUseCase ────
+
+    @Override
+    public void deletePost(Long postId, Long requesterId, boolean isAdmin) {
+        validateNotSuspended(requesterId);
+        Post post = postPort.findById(postId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
+
+        if (!isAdmin && !post.getAuthorId().equals(requesterId)) {
+            throw new BusinessException(ErrorCode.AUTH_002,
+                    "Requester: " + requesterId + ", Author: " + post.getAuthorId());
+        }
+
+        postPort.deleteById(postId);
+    }
+
+    // ──── ToggleLikeUseCase ────
+
+    @Override
     public boolean toggleLike(Long postId, Long userId) {
         if (userId == null || userId <= 0) {
             throw new IllegalArgumentException("로그인이 필요합니다.");
         }
-        
-        PostEntity post = postJpaRepository.findActiveById(postId)
+        validateNotSuspended(userId);
+
+        Post post = postPort.findActiveById(postId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
-                
-        var existingLike = postLikeJpaRepository.findByPostIdAndUserId(postId, userId);
-        
-        if (existingLike.isPresent()) {
-            postLikeJpaRepository.delete(existingLike.get());
+
+        boolean alreadyLiked = postLikePort.exists(postId, userId);
+
+        if (alreadyLiked) {
+            postLikePort.delete(postId, userId);
             post.decreaseLikeCount();
-            return false; // 좋아요 취소됨
         } else {
-            postLikeJpaRepository.save(PostLikeEntity.builder()
-                    .postId(postId)
-                    .userId(userId)
-                    .build());
+            postLikePort.save(postId, userId);
             post.increaseLikeCount();
-            return true; // 좋아요 추가됨
-        }
-    }
-
-    @Transactional
-    public PostResponse updatePost(Long postId, PostRequest request, Long requesterId, boolean isAdmin) {
-        PostEntity entity = postJpaRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
-
-        if (!isAdmin && !entity.getAuthorId().equals(requesterId)) {
-            throw new BusinessException(ErrorCode.AUTH_002,
-                    "Requester: " + requesterId + ", Author: " + entity.getAuthorId());
         }
 
-        entity.update(request.getCategory(), request.getTitle(), request.getContent(), request.getAreaCode(), request.getFestivalId(), request.getFestivalName());
-        return PostResponse.fromEntity(entity);
-    }
-
-    @Transactional
-    public void deletePost(Long postId, Long requesterId, boolean isAdmin) {
-        PostEntity entity = postJpaRepository.findById(postId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.POST_001, "Post ID: " + postId));
-
-        if (!isAdmin && !entity.getAuthorId().equals(requesterId)) {
-            throw new BusinessException(ErrorCode.AUTH_002,
-                    "Requester: " + requesterId + ", Author: " + entity.getAuthorId());
-        }
-
-        postJpaRepository.delete(entity);
+        postPort.save(post);
+        return !alreadyLiked;
     }
 }

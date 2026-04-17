@@ -3,13 +3,16 @@ package com.ieum.notice.adapter.out.persistence;
 import com.ieum.notice.adapter.out.persistence.entity.NoticeJpaEntity;
 import com.ieum.notice.application.port.out.NoticePort;
 import com.ieum.notice.domain.model.Notice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 공지사항 영속성 어댑터 (Port OUT 구현체)
@@ -50,9 +53,34 @@ public class NoticePersistenceAdapter implements NoticePort {
     }
 
     @Override
-    public Optional<Notice> findPopupNotice() {
-        return noticeJpaRepository.findTopPopupNotice(LocalDateTime.now())
-                .map(NoticeJpaEntity::toDomain);
+    public Page<Notice> findActiveAll(String searchType, String keyword, NoticeCategory category, LocalDateTime now, Pageable pageable) {
+        Page<NoticeJpaEntity> page;
+        String searchKeyword = (keyword == null || keyword.isBlank()) ? null : keyword;
+        String type = searchType != null ? searchType : "all";
+
+        if (category != null) {
+            page = switch (type) {
+                case "title" -> noticeJpaRepository.findActiveNoticesByTitleAndCategory(searchKeyword, now, category, pageable);
+                case "content" -> noticeJpaRepository.findActiveNoticesByContentAndCategory(searchKeyword, now, category, pageable);
+                default -> noticeJpaRepository.findActiveNoticesByCategory(searchKeyword, now, category, pageable);
+            };
+        } else {
+            page = switch (type) {
+                case "title" -> noticeJpaRepository.findActiveNoticesByTitle(searchKeyword, now, pageable);
+                case "content" -> noticeJpaRepository.findActiveNoticesByContent(searchKeyword, now, pageable);
+                default -> noticeJpaRepository.findActiveNotices(searchKeyword, now, pageable);
+            };
+        }
+
+        return page.map(NoticeJpaEntity::toDomain);
+    }
+
+    @Override
+    public List<Notice> findPopupNotices() {
+        return noticeJpaRepository.findPopupNotices(LocalDateTime.now())
+                .stream()
+                .map(NoticeJpaEntity::toDomain)
+                .collect(Collectors.toList());
     }
 
     @Override

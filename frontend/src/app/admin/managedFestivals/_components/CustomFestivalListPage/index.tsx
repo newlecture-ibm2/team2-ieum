@@ -12,12 +12,14 @@ import CustomFestivalFormModal from '../CustomFestivalFormModal';
 import AdminListSummary from '@/app/admin/festivals/_components/AdminListSummary';
 import { ConfirmModal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import { FESTIVAL_STATUS } from '@/constants/filterOptions';
+import Pagination from '@/_component/common/Pagination';
 
 // ── 상태 배지 매핑 ──
 const STATUS_MAP: Record<string, { label: string; badge: string }> = {
-  ONGOING: { label: '진행중', badge: 'badgeOngoing' },
-  UPCOMING: { label: '진행예정', badge: 'badgeUpcoming' },
-  ENDED: { label: '종료', badge: 'badgeEnded' },
+  [FESTIVAL_STATUS.ONGOING]: { label: '진행중', badge: 'badgeOngoing' },
+  [FESTIVAL_STATUS.UPCOMING]: { label: '진행예정', badge: 'badgeUpcoming' },
+  [FESTIVAL_STATUS.ENDED]: { label: '종료', badge: 'badgeEnded' },
 };
 
 // ── 카테고리 뱃지 포맷팅 ──
@@ -45,9 +47,9 @@ const renderCategoryBadge = (categoryLabel?: string) => {
 // ── KPI 카드 정의 ──
 const KPI_ITEMS = (counts: Record<string, number>) => [
   { key: '', label: '전체 축제', count: counts.total, style: c.statTotal, valueClass: '' },
-  { key: 'ONGOING', label: '진행중', count: counts.ongoing, style: c.statOngoing, valueClass: c.textGreen },
-  { key: 'UPCOMING', label: '진행예정', count: counts.upcoming, style: c.statUpcoming, valueClass: c.textPurple },
-  { key: 'ENDED', label: '종료', count: counts.ended, style: c.statEnded, valueClass: c.textGray },
+  { key: FESTIVAL_STATUS.ONGOING, label: '진행중', count: counts.ongoing, style: c.statOngoing, valueClass: c.textGreen },
+  { key: FESTIVAL_STATUS.UPCOMING, label: '진행예정', count: counts.upcoming, style: c.statUpcoming, valueClass: c.textPurple },
+  { key: FESTIVAL_STATUS.ENDED, label: '종료', count: counts.ended, style: c.statEnded, valueClass: c.textGray },
 ];
 
 export default function CustomFestivalListPage() {
@@ -155,7 +157,7 @@ export default function CustomFestivalListPage() {
     setSyncMenuOpen(false);
     setSyncingAction(actionName);
     try {
-      const res = await adminApi.post<ApiResponse<any>>(url);
+      const res = await adminApi.post<ApiResponse<{ details?: Record<string, number> }>>(url);
       if (res.data.success) {
         const details = res.data.data?.details;
         let msg = `[${actionName}] 동기화 완료!`;
@@ -168,8 +170,9 @@ export default function CustomFestivalListPage() {
           refreshRegionOptions();
         }
       }
-    } catch (error: any) {
-      toast(error.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.', 'error');
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { error?: { message?: string } } } };
+      toast(err.response?.data?.error?.message || '동기화 실패. 다시 시도해주세요.', 'error');
     } finally {
       setSyncingAction(null);
     }
@@ -186,35 +189,30 @@ export default function CustomFestivalListPage() {
       <header className={c.pageHeader}>
         <div>
           <h1 className={c.pageTitle}>🎪 축제 관리</h1>
-          <p className={c.pageSubtitle}>등록 축제를 관리합니다.</p>
+          <p className={c.pageSubtitle}>등록 축제를 관리합니다. (최근 갱신: {lastRefreshTime})</p>
+        </div>
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <div className={c.dropdownContainer} ref={menuRef}>
+            <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
+              {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
+            </button>
+            {syncMenuOpen && (
+              <div className={c.dropdownMenu}>
+                {CUSTOM_SYNC_MENU.map(menu => (
+                  <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
+                    {menu.label}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <button onClick={handleOpenCreate} className={c.btnPrimary}><span>+</span> 축제 등록</button>
         </div>
       </header>
 
       {/* ── KPI 카드 ── */}
       <section className={c.card}>
-        <div className={c.cardHeader}>
-          <div>
-            <div className={c.cardTitle}>축제 현황 및 관리</div>
-            <div className={c.cardSubtitle}>최근 갱신: {lastRefreshTime}</div>
-          </div>
-          <div style={{ display: 'flex', gap: '8px' }}>
-            <div className={c.dropdownContainer} ref={menuRef}>
-              <button type="button" className={c.btnOutline} onClick={() => setSyncMenuOpen(!syncMenuOpen)} disabled={!!syncingAction}>
-                {syncingAction ? (<><span className={c.spinner} /> 갱신 중...</>) : '🔄 데이터 갱신 ▼'}
-              </button>
-              {syncMenuOpen && (
-                <div className={c.dropdownMenu}>
-                  {CUSTOM_SYNC_MENU.map(menu => (
-                    <button key={menu.action} className={c.dropdownItem} onClick={() => handleSync(menu.url, menu.label)}>
-                      {menu.label}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-            <button onClick={handleOpenCreate} className={c.btnPrimary}><span>+</span> 축제 등록</button>
-          </div>
-        </div>
+
         <div className={c.statGrid}>
           {KPI_ITEMS(statusCounts).map(item => (
             <div key={item.key}
@@ -229,7 +227,7 @@ export default function CustomFestivalListPage() {
 
       {/* ── 필터 바 ── */}
       <section className={c.filterBar}>
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
           <select className={c.filterSelect} value={list.extraFilters.categoryCode} onChange={e => list.setExtraFilter('categoryCode', e.target.value)}>
             <option value="">전체 카테고리</option>
             <optgroup label="공공 분류">
@@ -239,15 +237,17 @@ export default function CustomFestivalListPage() {
               {categoryOptions.filter(o => o.type === 'CUSTOM').map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
             </optgroup>
           </select>
-          <select className={c.filterSelect} value={list.extraFilters.areaCode} onChange={e => list.setExtraFilter('areaCode', e.target.value)}>
-            <option value="">전체 지역</option>
-            {regionOptions.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
-          </select>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '14px', cursor: 'pointer', marginLeft: '10px' }}>
-            <input type="checkbox" checked={list.extraFilters.excludeHidden === 'true'}
-              onChange={e => list.setExtraFilter('excludeHidden', e.target.checked ? 'true' : '')} />
-            숨김 축제 제외
-          </label>
+          <div className={s.filterRowWrap}>
+            <select className={`${c.filterSelect} ${s.filterSelectHalf}`} value={list.extraFilters.areaCode} onChange={e => list.setExtraFilter('areaCode', e.target.value)}>
+              <option value="">전체 지역</option>
+              {regionOptions.map(o => (<option key={o.value} value={o.value}>{o.label}</option>))}
+            </select>
+            <label className={s.filterCheckboxLabel}>
+              <input type="checkbox" checked={list.extraFilters.excludeHidden === 'true'}
+                onChange={e => list.setExtraFilter('excludeHidden', e.target.checked ? 'true' : '')} />
+              숨김 축제 제외
+            </label>
+          </div>
         </div>
         <div style={{ display: 'flex', gap: '8px' }}>
           <input type="text" className={c.searchInput} placeholder="축제명 또는 지역으로 검색하세요"
@@ -256,17 +256,17 @@ export default function CustomFestivalListPage() {
         </div>
       </section>
 
-      {/* ── 테이블 ── */}
-      <section className={c.tableCard}>
+      <section className={c.card}>
         <AdminListSummary totalCount={list.totalElements} label="검색된 관리 축제" />
-        <table className={c.table}>
+        <div className={c.desktopOnly}>
+        <table className={c.table} style={{ tableLayout: 'fixed' }}>
           <colgroup>
-            <col className={s.festivalNameCol} />
-            <col className={s.categoryCol} />
-            <col className={s.regionCol} />
-            <col className={s.dateCol} />
-            <col className={s.statusCol} />
-            <col className={s.actionCol} />
+            <col style={{ width: 'auto' }} />
+            <col style={{ width: '130px' }} />
+            <col style={{ width: '120px' }} />
+            <col style={{ width: '190px' }} />
+            <col style={{ width: '80px' }} />
+            <col style={{ width: '140px' }} />
           </colgroup>
           <thead>
             <tr className={c.tableHeaderRow}>
@@ -288,18 +288,18 @@ export default function CustomFestivalListPage() {
                 const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
                 return (
                   <tr key={f.festivalId} className={`${c.tableRow} ${c.tableRowHover} ${!f.isVisible ? c.hiddenRow : ''}`}>
-                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary}`}>
+                    <td className={`${c.tableCell} ${c.textLeft} ${c.cellPrimary} ${s.festivalNameCell}`}>
                       <div className={c.cellEllipsis} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
                         {f.title}
                       </div>
                     </td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{renderCategoryBadge(f.categoryLabel)}</td>
                     <td className={`${c.tableCell} ${c.textLeft}`}>{f.areaLabel || f.areaCode}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>{formatDateRange(f.startDate, f.endDate)}</td>
-                    <td className={`${c.tableCell} ${c.textLeft}`}>
-                      <span className={`${c.statusBadge} ${(c as any)[badge]}`}>{label}</span>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>{formatDateRange(f.startDate, f.endDate)}</td>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
+                      <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
                     </td>
-                    <td className={`${c.tableCell} ${c.textRight}`}>
+                    <td className={`${c.tableCell} ${c.textCenter}`}>
                       <div className={c.actionGroup}>
                         <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
                           <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
@@ -318,11 +318,63 @@ export default function CustomFestivalListPage() {
             )}
           </tbody>
         </table>
+      </div>
 
-        <div className={c.pagination}>
-          <button className={c.pageBtn} disabled={list.currentPage <= 1} onClick={() => list.setCurrentPage(p => p - 1)}>← 이전</button>
-          <span className={c.pageInfo}>{list.currentPage} / {list.totalPages} 페이지</span>
-          <button className={c.pageBtn} disabled={list.currentPage >= list.totalPages} onClick={() => list.setCurrentPage(p => p + 1)}>다음 →</button>
+        <div className={`${c.listGrid} ${c.mobileOnly}`}>
+          {list.loading ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>로딩 중...</div>
+          ) : festivals.length === 0 ? (
+            <div className={c.emptyRow} style={{ gridColumn: '1 / -1' }}>조회된 축제가 없습니다.</div>
+          ) : (
+            festivals.map(f => {
+              const { label, badge } = STATUS_MAP[f.status] || STATUS_MAP.ENDED;
+              return (
+                <div key={f.festivalId} className={`${c.listCard} ${!f.isVisible ? c.hiddenRow : ''}`}>
+                  <div className={c.listCardTop}>
+                    {renderCategoryBadge(f.categoryLabel)}
+                    <span className={`${c.statusBadge} ${c[badge as keyof typeof c]}`}>{label}</span>
+                  </div>
+
+                  <div className={c.listCardTitle} onClick={() => handleOpenEdit(f)} style={{ cursor: 'pointer' }} title="클릭하여 수정">
+                    {f.title}
+                  </div>
+
+                  <div className={c.listCardInfo}>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📍</span>
+                      <span className={c.listCardValue}>{f.areaLabel || f.areaCode}</span>
+                    </div>
+                    <div className={c.listCardInfoRow}>
+                      <span className={c.listCardIcon}>📅</span>
+                      <span className={c.listCardValue}>{formatDateRange(f.startDate, f.endDate)}</span>
+                    </div>
+                  </div>
+
+                  <div className={c.listCardActions} style={{ justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div className={c.toggleWrapper} onClick={() => handleToggleVisibility(f.festivalId, f.isVisible)} title="클릭하여 노출 상태 변경">
+                      <span className={`${c.toggleLabel} ${f.isVisible ? c.toggleLabelOn : c.toggleLabelOff}`}>
+                        {f.isVisible ? '공개' : '숨김'}
+                      </span>
+                      <div className={`${c.toggleTrack} ${f.isVisible ? c.toggleTrackOn : ''}`}>
+                        <div className={`${c.toggleThumb} ${f.isVisible ? c.toggleThumbOn : ''}`} />
+                      </div>
+                    </div>
+                    <button className={c.listCardActionBtn} onClick={() => handleOpenEdit(f)} title="수정">
+                      수정
+                    </button>
+                  </div>
+                </div>
+              );
+            })
+          )}
+        </div>
+
+        <div style={{ marginTop: '20px' }}>
+          <Pagination 
+            currentPage={list.currentPage} 
+            totalPages={list.totalPages} 
+            onPageChange={list.setCurrentPage} 
+          />
         </div>
       </section>
 

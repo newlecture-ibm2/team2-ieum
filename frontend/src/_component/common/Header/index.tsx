@@ -1,12 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+
 import { usePathname } from "next/navigation";
 import Link from "next/link";
-import Image from "next/image";
-import { Bell, User, LogOut, Shield } from "lucide-react";
-import api from "@/lib/api";
+import { Bell, User, LogOut, Shield, Home, CalendarDays, MessageCircle, Megaphone, History } from "lucide-react";
 import NotificationDropdown from "../NotificationDropdown";
+import { useHeader } from "./useHeader";
 import styles from "./Header.module.css";
 
 interface NavItem {
@@ -24,64 +23,39 @@ const NAV_ITEMS: NavItem[] = [
   { label: "공지", href: "/notices", match: "/notices" },
 ];
 
-export default function Header() {
+export default function Header({ forceRender = false }: { forceRender?: boolean } = {}) {
   const pathname = usePathname();
-  const [popupConfig, setPopupConfig] = useState<{ msg: string; reload: boolean } | null>(null);
 
-  const closePopup = () => {
-    const shouldReload = popupConfig?.reload;
-    setPopupConfig(null);
-    if (shouldReload) {
-      window.location.reload();
-    }
-  };
-  const [isNotiOpen, setIsNotiOpen] = useState(false);
+  const {
+    isLoggedIn, userNickname, userRole, userProfileImage, hasUnread, setHasUnread,
+    isNotiOpen, setIsNotiOpen, notiRefreshKey, popupConfig,
+    closePopup, logout, isDarkHeroPage
+  } = useHeader();
 
-  /* ===== 인증 상태 (iron-session 기반) ===== */
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userNickname, setUserNickname] = useState<string | null>(null);
-  const [userRole, setUserRole] = useState<string | null>(null);
+  // admin 페이지에서는 root layout의 Header를 숨김 (admin layout에서 forceRender로 별도 표시)
+  if (!forceRender && pathname.startsWith("/admin")) return null;
 
-  /* ===== 알림 읽지않음 여부 (로컬 state) ===== */
-  const [hasUnread, setHasUnread] = useState(false);
 
-  useEffect(() => {
-    // 1) 로그인 상태 확인 — iron-session 세션 쿠키 기반
-    fetch("/api/auth/me")
-      .then((res) => res.json())
-      .then((data) => {
-        setIsLoggedIn(data.isLoggedIn);
-        setUserNickname(data.user?.nickname ?? null);
-        setUserRole(data.user?.role ?? null);
-
-        // 2) 로그인 상태면 읽지 않은 알림 확인
-        if (data.isLoggedIn) {
-          api
-            .get("/api/users/me/notifications")
-            .then((res) => {
-              const unreadCount = res.data?.data?.unreadCount || 0;
-              setHasUnread(unreadCount > 0);
-            })
-            .catch(() => {}); // 에러 무시
-        }
-      })
-      .catch(() => {}); // 비로그인 or 에러 무시
-  }, []);
-
-  if (pathname.startsWith("/admin")) return null;
 
   return (
-    <header className={styles.header}>
-      <div className={styles.headerInner}>
+    <>
+      <header className={styles.header}>
+        <div className={styles.headerInner}>
         {/* ① 브랜드 로고 — E1: 클릭 시 홈 이동 */}
         <Link href="/" className={styles.logo} aria-label="이음 홈으로 이동">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/logo/logo-ieum-transparent.png"
             alt="이음 로고"
-            width={110}
-            height={110}
             className={styles.logoImg}
-            priority
+            data-logo-theme="dark"
+          />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo/logo-ieum-white.png"
+            alt="이음 로고"
+            className={styles.logoImg}
+            data-logo-theme="light"
           />
           <span className={styles.srOnly}>이음</span>
         </Link>
@@ -105,30 +79,7 @@ export default function Header() {
 
         {/* ③④ 우측 액션 영역 */}
         <div className={styles.actions}>
-          {/* ⚙️ [DEV] 축제 상태 최신화 버튼 — 개발 완료 후 제거 */}
-          <button
-            className={styles.devRefreshBtn}
-            onClick={async () => {
-              try {
-                const res = await api.patch('/api/festivals/refresh-status');
-                const data = res.data;
-                setPopupConfig({
-                  msg: `✅ ${data.message} (${data.updatedCount}건 변경)`,
-                  reload: true,
-                });
-              } catch (err) {
-                setPopupConfig({
-                  msg: '❌ 상태 최신화 실패: ' + err,
-                  reload: false,
-                });
-              }
-            }}
-            title="[DEV] 축제 status DB 일괄 갱신"
-          >
-            🔄 상태 최신화
-          </button>
-
-          {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
+        {/* ③ 알림 아이콘 — E3: 클릭 시 알림 드롭다운 토글 */}
           {isLoggedIn && (
             <div className={styles.bellWrapper}>
               <button
@@ -145,13 +96,13 @@ export default function Header() {
 
               {/* 알림 드롭다운 */}
               {isNotiOpen && (
-                <NotificationDropdown onClose={() => setIsNotiOpen(false)} />
+                <NotificationDropdown onClose={() => setIsNotiOpen(false)} refreshKey={notiRefreshKey} onUnreadChange={setHasUnread} />
               )}
             </div>
           )}
 
-          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN일 때만 표시 */}
-          {isLoggedIn && userRole === "ROLE_ADMIN" && (
+          {/* ④-1 관리자 버튼 — role이 ROLE_ADMIN 또는 ADMIN일 때만 표시 */}
+          {isLoggedIn && (userRole === "ROLE_ADMIN" || userRole === "ADMIN") && (
             <Link
               href="/admin"
               className={styles.adminBtn}
@@ -165,20 +116,27 @@ export default function Header() {
           {isLoggedIn ? (
             <>
               <Link
-                href="/myPage"
+                href="/mypage"
                 className={styles.userBtn}
                 aria-label="마이페이지"
               >
-                <User strokeWidth={2} />
+                <div className={styles.userIconWrapper} style={{ overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  {userProfileImage ? (
+                    <img src={userProfileImage} alt="Profile" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                  ) : (
+                    <User strokeWidth={2.5} />
+                  )}
+                </div>
+                {userNickname && (
+                  <span className={styles.userName}>{userNickname}님</span>
+                )}
               </Link>
               <button
                 type="button"
                 className={styles.logoutBtn}
                 aria-label="로그아웃"
-                onClick={async () => {
-                  await fetch("/api/auth/logout", { method: "POST" });
-                  window.location.href = "/";
-                }}
+                title="로그아웃"
+                onClick={logout}
               >
                 <LogOut strokeWidth={2} size={20} />
               </button>
@@ -191,6 +149,8 @@ export default function Header() {
         </div>
       </div>
 
+
+
       {/* 팝업 모달 */}
       {popupConfig && (
         <div className={styles.modalOverlay}>
@@ -202,6 +162,36 @@ export default function Header() {
           </div>
         </div>
       )}
-    </header>
+
+      </header>
+
+      {/* ⑧ 모바일 하단 플로팅 네비게이션 바 (Mobile Exclusive) - 사용자 페이지 전용 */}
+      {!pathname.startsWith('/admin') && (
+        <nav className={styles.mBottomNav}>
+          <div className={styles.mBottomNavInner}>
+            <Link href="/" className={`${styles.mBottomNavItem} ${pathname === '/' ? styles.mBottomNavActive : ''}`}>
+              <Home size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>홈</span>
+            </Link>
+            <Link href="/pastFestivals" className={`${styles.mBottomNavItem} ${pathname.startsWith('/pastFestivals') ? styles.mBottomNavActive : ''}`}>
+              <History size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>지난축제</span>
+            </Link>
+            <Link href="/calendar" className={`${styles.mBottomNavItem} ${pathname.startsWith('/calendar') ? styles.mBottomNavActive : ''}`}>
+              <CalendarDays size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>달력</span>
+            </Link>
+            <Link href="/community" className={`${styles.mBottomNavItem} ${pathname.startsWith('/community') ? styles.mBottomNavActive : ''}`}>
+              <MessageCircle size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>커뮤니티</span>
+            </Link>
+            <Link href="/notices" className={`${styles.mBottomNavItem} ${pathname.startsWith('/notices') ? styles.mBottomNavActive : ''}`}>
+              <Megaphone size={22} className={styles.mBottomNavIcon} />
+              <span className={styles.mBottomNavLabel}>공지</span>
+            </Link>
+          </div>
+        </nav>
+      )}
+    </>
   );
 }

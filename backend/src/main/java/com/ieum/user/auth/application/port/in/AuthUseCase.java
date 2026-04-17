@@ -12,13 +12,19 @@ public interface AuthUseCase {
     AuthRes.TokenDto refresh(AuthReq.Refresh request);
 
     /** 비밀번호 찾기 */
-    void requestRecovery(AuthReq.PasswordRecoveryRequest request);
-    void verifyCode(AuthReq.PasswordRecoveryVerify request);
+    AuthRes.PasswordRecoveryQuestion requestRecovery(AuthReq.PasswordRecoveryRequest request);
+    void verifyAnswer(AuthReq.PasswordRecoveryVerify request);
     void resetPassword(AuthReq.PasswordReset request);
 
     /** 내 정보 조회 */
     AuthRes.UserDto getMyProfile(Long userId);
 
+    /** 세션 정보 조회 */
+    AuthRes.SessionDto getMySession(Long userId);
+
     /** 회원 탈퇴 */
     void withdraw(Long userId, String password);
+
+    /** 닉네임 중복 체크 */
+    boolean checkNicknameAvailability(String nickname);
 }

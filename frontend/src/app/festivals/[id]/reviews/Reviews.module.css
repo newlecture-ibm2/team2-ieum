@@ -4,9 +4,9 @@
    ============================ */
 
 .container {
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 40px var(--spacing-lg);
   min-height: 80vh;
 }
 
@@ -88,3 +88,31 @@
   border-color: #3b82f6;
   font-weight: bold;
 }
+
+/* ===== 반응형: 768px 이하 ===== */
+@media (max-width: 768px) {
+  .container {
+    padding: 24px 16px;
+  }
+
+  .header {
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .pagination {
+    gap: 4px;
+    margin-top: 24px;
+  }
+
+  .pageBtn {
+    min-width: 32px;
+    height: 32px;
+    font-size: 13px;
+  }
+}
+

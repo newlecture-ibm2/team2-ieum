@@ -1,126 +1,77 @@
 package com.ieum.user.review.adapter.in.web;
 
+import com.ieum.global.response.ApiResponse;
+import com.ieum.user.review.adapter.in.web.dto.ReviewRequest;
+import com.ieum.user.review.application.port.in.CreateReviewUseCase;
+import com.ieum.user.review.application.port.in.DeleteReviewUseCase;
+import com.ieum.user.review.application.port.in.GetReviewsUseCase;
+import com.ieum.user.review.application.port.in.UpdateReviewUseCase;
+import com.ieum.user.review.application.result.ReviewListResult;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
+import java.security.Principal;
 
-@Tag(name = "리뷰", description = "축제 리뷰 작성 / 수정 / 삭제 / 조회")
 @RestController
-@RequestMapping("/api/reviews")
 @RequiredArgsConstructor
+@RequestMapping("/api/reviews")
+@Tag(name = "Review", description = "리뷰 API")
 public class ReviewController {
 
-    private final com.ieum.user.review.application.service.ReviewService reviewService;
+    private final GetReviewsUseCase getReviewsUseCase;
+    private final CreateReviewUseCase createReviewUseCase;
+    private final UpdateReviewUseCase updateReviewUseCase;
+    private final DeleteReviewUseCase deleteReviewUseCase;
 
-    @Operation(summary = "리뷰 목록 조회", description = "특정 축제의 리뷰 목록을 조회합니다. 비회원 이용 가능.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "조회 성공")
-    })
+    @Operation(summary = "리뷰 목록 조회", description = "특정 축제의 리뷰 목록을 페이징하여 조회합니다.")
     @GetMapping
-    public ResponseEntity<?> getReviews(
-            @Parameter(description = "축제 ID", required = true, example = "1")
-            @RequestParam Long festivalId,
-            @Parameter(description = "페이지 번호", example = "0")
-            @RequestParam(defaultValue = "1") int page,
-            @Parameter(description = "페이지 크기", example = "10")
-            @RequestParam(defaultValue = "10") int size,
-            @Parameter(description = "정렬 기준 (latest / rating)", example = "latest")
-            @RequestParam(defaultValue = "latest") String sort
-    ) {
-        Map<String, Object> response = reviewService.getReviews(festivalId, page, size, sort);
-        return ResponseEntity.ok(Map.of("success", true, "data", response));
+    public ApiResponse<ReviewListResult> getReviews(
+            @Parameter(description = "축제 ID", required = true) @RequestParam("festivalId") Long festivalId,
+            @Parameter(description = "페이지 번호 (1-based)", example = "1") @RequestParam(value = "page", defaultValue = "1") int page,
+            @Parameter(description = "페이지 크기", example = "10") @RequestParam(value = "size", defaultValue = "10") int size,
+            @Parameter(description = "정렬 기준 (latest, rating)", example = "latest") @RequestParam(value = "sort", defaultValue = "latest") String sort) {
+        
+        ReviewListResult result = getReviewsUseCase.getReviews(festivalId, page, size, sort);
+        return ApiResponse.success(result);
     }
 
-    @Operation(summary = "리뷰 작성", description = "특정 축제에 리뷰를 작성합니다. (회원 전용)")
-    @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "리뷰 작성 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요"),
-            @ApiResponse(responseCode = "403", description = "종료된 축제만 리뷰 작성 가능"),
-            @ApiResponse(responseCode = "404", description = "축제를 찾을 수 없음"),
-            @ApiResponse(responseCode = "409", description = "이미 해당 축제에 리뷰를 작성함")
-    })
+    @Operation(summary = "리뷰 작성", description = "특정 축제에 대한 리뷰를 작성합니다.")
     @PostMapping
-    public ResponseEntity<?> createReview(
-            @RequestBody Map<String, Object> request,
-            java.security.Principal principal
-    ) {
-        Long festivalId = Long.valueOf(request.get("festivalId").toString());
-        Integer rating = Integer.valueOf(request.get("rating").toString());
-        String content = request.get("content").toString();
-        
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<Void> createReview(@RequestBody ReviewRequest request, Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+            throw new IllegalArgumentException("로그인이 필요합니다."); // TODO: BusinessException으로 변경 필요
         }
-        String email = principal.getName();
-        
-        try {
-            reviewService.createReview(festivalId, email, rating, content);
-            return ResponseEntity.status(201).body(Map.of("success", true, "message", "리뷰 작성 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(409).body(Map.of("success", false, "message", e.getMessage()));
-        }
+        createReviewUseCase.createReview(request.getFestivalId(), principal.getName(), request.getRating(), request.getContent());
+        return ApiResponse.success(null);
     }
 
-    @Operation(summary = "리뷰 수정", description = "본인이 작성한 리뷰를 수정합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "수정 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요"),
-            @ApiResponse(responseCode = "403", description = "권한 없음 (본인 리뷰만 수정 가능)"),
-            @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
-    })
+    @Operation(summary = "리뷰 수정", description = "작성한 리뷰를 수정합니다.")
     @PutMapping("/{reviewId}")
-    public ResponseEntity<?> updateReview(
-            @Parameter(description = "리뷰 ID", required = true, example = "1")
-            @PathVariable Long reviewId,
-            @RequestBody Map<String, Object> request,
-            java.security.Principal principal
-    ) {
-        Integer rating = Integer.valueOf(request.get("rating").toString());
-        String content = request.get("content").toString();
-        
+    public ApiResponse<Void> updateReview(
+            @PathVariable("reviewId") Long reviewId,
+            @RequestBody ReviewRequest request,
+            Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+            throw new IllegalArgumentException("로그인이 필요합니다.");
         }
-        String email = principal.getName();
-        
-        try {
-            reviewService.updateReview(reviewId, email, rating, content);
-            return ResponseEntity.ok(Map.of("success", true, "message", "리뷰 수정 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).body(Map.of("success", false, "message", e.getMessage()));
-        }
+        updateReviewUseCase.updateReview(reviewId, principal.getName(), request.getRating(), request.getContent());
+        return ApiResponse.success(null);
     }
 
-    @Operation(summary = "리뷰 삭제", description = "본인이 작성한 리뷰를 삭제합니다.")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "삭제 성공"),
-            @ApiResponse(responseCode = "401", description = "인증 필요"),
-            @ApiResponse(responseCode = "403", description = "권한 없음"),
-            @ApiResponse(responseCode = "404", description = "리뷰를 찾을 수 없음")
-    })
+    @Operation(summary = "리뷰 삭제", description = "작성한 리뷰를 삭제합니다.")
     @DeleteMapping("/{reviewId}")
-    public ResponseEntity<?> deleteReview(
-            @Parameter(description = "리뷰 ID", required = true, example = "1")
-            @PathVariable Long reviewId,
-            java.security.Principal principal
-    ) {
+    public ApiResponse<Void> deleteReview(
+            @PathVariable("reviewId") Long reviewId,
+            Principal principal) {
         if (principal == null) {
-            return ResponseEntity.status(401).body(Map.of("success", false, "message", "인증이 필요합니다."));
+            throw new IllegalArgumentException("로그인이 필요합니다.");
         }
-        String email = principal.getName();
-        
-        try {
-            reviewService.deleteReview(reviewId, email);
-            return ResponseEntity.ok(Map.of("success", true, "message", "리뷰 삭제 성공"));
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(403).body(Map.of("success", false, "message", e.getMessage()));
-        }
+        deleteReviewUseCase.deleteReview(reviewId, principal.getName());
+        return ApiResponse.success(null);
     }
 }

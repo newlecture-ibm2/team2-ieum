@@ -6,9 +6,11 @@ export interface Notice {
   title: string;
   content: string;
   summary?: string;
+  category: 'GENERAL' | 'EVENT' | 'UPDATE' | 'URGENT';
   viewCount: number;
   isPinned: boolean;
   isPopup: boolean;
+  isActive: boolean;
   startDate?: string;
   endDate?: string;
   createdAt: string;

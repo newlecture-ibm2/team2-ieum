@@ -49,6 +49,19 @@ public class NotificationPersistenceAdapter implements NotificationPort {
         return notificationJpaRepository.markAsReadByIds(userId, notificationIds);
     }
 
+    @Override
+    public void saveAllNotifications(List<Notification> notifications) {
+        List<NotificationJpaEntity> entities = notifications.stream()
+                .map(NotificationJpaEntity::fromDomain)
+                .toList();
+        notificationJpaRepository.saveAll(entities);
+    }
+
+    @Override
+    public void deleteNotification(Long userId, Long notificationId) {
+        notificationJpaRepository.deleteByUserIdAndId(userId, notificationId);
+    }
+
     // ── FcmToken ──
 
     @Override
@@ -61,6 +74,20 @@ public class NotificationPersistenceAdapter implements NotificationPort {
     public FcmToken saveToken(FcmToken fcmToken) {
         FcmTokenJpaEntity entity = FcmTokenJpaEntity.fromDomain(fcmToken);
         return fcmTokenJpaRepository.save(entity).toDomain();
+    }
+
+    @Override
+    public List<FcmToken> findAllTokens() {
+        return fcmTokenJpaRepository.findAll().stream()
+                .map(FcmTokenJpaEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<FcmToken> findTokensByUserId(Long userId) {
+        return fcmTokenJpaRepository.findByUserId(userId).stream()
+                .map(FcmTokenJpaEntity::toDomain)
+                .toList();
     }
 
     // ── NotificationSetting ──

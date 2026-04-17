@@ -10,6 +10,13 @@ interface NoticeTableProps {
   loading: boolean;
 }
 
+const CATEGORY_LABELS: Record<string, { label: string; color: string; bg: string }> = {
+  GENERAL: { label: '일반', color: '#4b5563', bg: '#f3f4f6' },
+  EVENT: { label: '행사', color: '#7c3aed', bg: '#ede9fe' },
+  UPDATE: { label: '업데이트', color: '#2563eb', bg: '#dbeafe' },
+  URGENT: { label: '긴급', color: '#dc2626', bg: '#fee2e2' },
+};
+
 export default function NoticeTable({ notices, totalElements, currentPage, loading }: NoticeTableProps) {
   const router = useRouter();
 
@@ -18,10 +25,6 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
     return dt.substring(0, 10).replace(/-/g, '.');
   };
 
-  const getBadge = (notice: Notice) => {
-    if (notice.isPopup) return { text: '팝업', className: styles.badgePopup };
-    return { text: '활성', className: styles.badgeActive };
-  };
 
   if (loading) {
     return <div className={styles.emptyState}><p>불러오는 중...</p></div>;
@@ -42,18 +45,33 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
       <thead>
         <tr>
           <th style={{ width: 60 }}>No</th>
+          <th style={{ width: 80 }}>카테고리</th>
           <th>제목</th>
           <th style={{ width: 110 }}>작성일</th>
           <th style={{ width: 80 }}>조회수</th>
-          <th style={{ width: 80 }}>상태</th>
+
         </tr>
       </thead>
       <tbody>
         {notices.map((notice, idx) => {
-          const badge = getBadge(notice);
+          const cat = CATEGORY_LABELS[notice.category] || CATEGORY_LABELS.GENERAL;
           return (
             <tr key={notice.id} className={notice.isPinned ? styles.pinnedRow : ''}>
               <td>{totalElements - ((currentPage - 1) * 10 + idx)}</td>
+              <td>
+                <span style={{
+                  display: 'inline-block',
+                  padding: '2px 10px',
+                  borderRadius: '12px',
+                  fontSize: '12px',
+                  fontWeight: 600,
+                  color: cat.color,
+                  background: cat.bg,
+                  whiteSpace: 'nowrap',
+                }}>
+                  {cat.label}
+                </span>
+              </td>
               <td>
                 <span
                   className={styles.titleCell}
@@ -65,11 +83,7 @@ export default function NoticeTable({ notices, totalElements, currentPage, loadi
               </td>
               <td>{formatDate(notice.createdAt)}</td>
               <td>{notice.viewCount?.toLocaleString()}</td>
-              <td>
-                <span className={`${styles.badge} ${badge.className}`}>
-                  {badge.text}
-                </span>
-              </td>
+
             </tr>
           );
         })}

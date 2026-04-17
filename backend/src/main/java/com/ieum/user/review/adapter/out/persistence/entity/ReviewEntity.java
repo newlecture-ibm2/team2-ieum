@@ -36,7 +36,11 @@ public class ReviewEntity {
 
     @Column(nullable = false, length = 10)
     @Builder.Default
+<<<<<<< HEAD
     private String status = "ACTIVE"; // ACTIVE / REMOVED
+=======
+    private String status = "ACTIVE";
+>>>>>>> ce61236a579d796cf9a033f8ad18fdff8f7fdc97
 
     @CreatedDate
     @Column(name = "created_at", updatable = false)

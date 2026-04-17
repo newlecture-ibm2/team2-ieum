@@ -1,6 +1,7 @@
 package com.ieum.admin.notice.application.port.out;
 
 import com.ieum.admin.notice.domain.AdminNotice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,7 +16,12 @@ public interface AdminNoticePort {
 
     Optional<AdminNotice> findById(Long noticeId);
 
-    Page<AdminNotice> findAll(Pageable pageable);
+    Page<AdminNotice> findAll(Pageable pageable, String searchType, String keyword, Boolean isPinned, Boolean isPopup,
+            Boolean isPushed, NoticeCategory category, String status);
 
     void deleteById(Long noticeId);
+
+    boolean existsPopupActive();
+
+    boolean existsPopupActiveExcept(Long noticeId);
 }

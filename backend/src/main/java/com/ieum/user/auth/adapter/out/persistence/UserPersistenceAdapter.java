@@ -36,7 +36,12 @@ public class UserPersistenceAdapter implements LoadUserPort, SaveUserPort {
 
     @Override
     public boolean existsByNickname(String nickname) {
-        return userRepository.findByNickname(nickname).isPresent();
+        return userRepository.existsByNickname(nickname);
+    }
+
+    @Override
+    public boolean existsByPhone(String phone) {
+        return userRepository.existsByPhone(phone);
     }
 
     @Override

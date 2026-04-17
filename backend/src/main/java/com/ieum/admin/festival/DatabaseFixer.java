@@ -5,21 +5,23 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * 초기 카테고리 마스터 데이터 보정용 Runner.
  * 일반 기동 시에는 실행되지 않으며, --spring.profiles.active=init 으로 명시적으로 실행해야 합니다.
  */
+@Slf4j
 @Component
 @RequiredArgsConstructor
-// @Profile("init")
+@Profile("init")
 public class DatabaseFixer implements CommandLineRunner {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
     public void run(String... args) throws Exception {
         int rows = jdbcTemplate.update("UPDATE festival_master_category SET is_active = true WHERE type = 'STANDARD'");
-        System.out.println("FIXED DB: set " + rows + " categories to active");
+        log.info("카테고리 마스터 보정: {}건 활성화", rows);
 
         String insertSql = "INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'STANDARD', true, ?, ?) ON CONFLICT (code) DO NOTHING";
@@ -40,6 +42,6 @@ public class DatabaseFixer implements CommandLineRunner {
         inserts += jdbcTemplate.update("INSERT INTO festival_master_category (code, name, type, is_active, level, parent_code) " +
                 "VALUES (?, ?, 'CUSTOM', true, ?, ?) ON CONFLICT (code) DO NOTHING", "CUS_C01_M2", "대학 축제", 2, "CUSTOM_C01");
         
-        System.out.println("FIXED DB: inserted " + inserts + " missing subcategories");
+        log.info("누락 서브카테고리 삽입: {}건", inserts);
     }
 }

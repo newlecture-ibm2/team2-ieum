@@ -11,12 +11,15 @@ Icon?
 *.iml
 *.iws
 *.ipr
+.agents/rules/skpark.md
+curl_out.txt
 
 # env files
 .env
 .env.*
 !.env.example
 firebase-service-key.json
+backend/src/main/resources/application-local.yml
 
 # Node
 node_modules/
@@ -49,7 +52,8 @@ docker-compose-dev.yml
 docker-compose.dev.yml
 
 # Uploads (로컬 이미지 저장 — 운영은 Nginx 볼륨)
-**/uploads/
+**/uploads/*
+!**/uploads/.gitkeep
 
 # JVM crash logs
 hs_err_pid*

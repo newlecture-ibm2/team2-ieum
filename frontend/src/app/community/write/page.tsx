@@ -1,20 +1,91 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense, useRef, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import { ImagePlus, X } from 'lucide-react';
 import api from '@/lib/api';
 import { CATEGORY_OPTIONS, REGION_OPTIONS } from '@/constants/filterOptions';
 import { useToast } from '@/_component/common/Toast';
+import { USER_STATUS } from '@/constants/userStatus';
 import { ConfirmModal } from '@/_component/common/Modal';
+import Dropdown from '@/_component/common/Dropdown';
+import 'react-quill-new/dist/quill.snow.css';
 import styles from './write.module.css';
 
-export default function CommunityWritePage() {
+const ReactQuill = dynamic(async () => {
+  const { default: RQ } = await import('react-quill-new');
+  return function Comp({ forwardedRef, ...props }: any) {
+    return <RQ ref={forwardedRef} {...props} />;
+  };
+}, {
+  ssr: false,
+  loading: () => <div style={{ height: '260px', padding: '16px', border: '1px solid #cbd5e1', borderRadius: '8px' }}>에디터를 불러오는 중입니다...</div>
+});
+
+function CommunityWriteContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { toast } = useToast();
   const [authChecked, setAuthChecked] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isSuspended, setIsSuspended] = useState(false);
+  const quillRef = useRef<any>(null);
+
+  // 커스텀 이미지 핸들러 - 에디터 툴바에서 이미지 아이콘 클릭 시 동작
+  const imageHandler = () => {
+    const input = document.createElement('input');
+    input.setAttribute('type', 'file');
+    input.setAttribute('accept', 'image/*');
+    input.click();
+
+    input.onchange = async () => {
+      const file = input.files?.[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        // 백엔드 Attachment API 호출 (에디터 내 인라인 삽입용 사진은 임시로 targetId=0으로 저장)
+        const res = await api.post(`/api/attachments?targetType=POST&targetId=0`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        
+        if (res.data && res.data.success) {
+          const attachmentId = res.data.data.id;
+          const url = `${process.env.NEXT_PUBLIC_API_URL || ''}/api/attachments/${attachmentId}/download`;
+          
+          const quill = quillRef.current?.getEditor();
+          if (quill) {
+            const range = quill.getSelection(true);
+            quill.insertEmbed(range.index, 'image', url);
+            quill.setSelection(range.index + 1);
+          }
+        } else {
+          toast('에디터 내 이미지 업로드에 실패했습니다.', 'error');
+        }
+      } catch (err) {
+        console.error(err);
+        toast('에디터 내 이미지 업로드 중 오류가 발생했습니다.', 'error');
+      }
+    };
+  };
+
+  const quillModules = useMemo(() => ({
+    toolbar: {
+      container: [
+        [{ header: [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ list: 'ordered' }, { list: 'bullet' }],
+        ['link', 'image'],
+        ['clean'],
+      ],
+      handlers: {
+        image: imageHandler,
+      },
+    },
+  }), []);
 
   // 수정 모드 판별
   const editPostId = searchParams.get('edit');
@@ -28,6 +99,9 @@ export default function CommunityWritePage() {
       .then(data => {
         if (!data.isLoggedIn) {
           setShowLoginModal(true);
+        } else if (data.user?.status === USER_STATUS.SUSPENDED) {
+          setIsSuspended(true);
+          setAuthChecked(true);
         } else {
           setAuthChecked(true);
         }
@@ -42,8 +116,6 @@ export default function CommunityWritePage() {
   const [festivalName, setFestivalName] = useState('');
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [images, setImages] = useState<File[]>([]);
-  const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
 
   // 수정 모드: 기존 게시글 데이터 불러오기
@@ -73,27 +145,6 @@ export default function CommunityWritePage() {
     fetchPost();
   }, [isEditMode, authChecked, editPostId]);
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = e.target.files;
-    if (!files) return;
-
-    const newFiles = Array.from(files).slice(0, 5 - images.length);
-    setImages(prev => [...prev, ...newFiles]);
-
-    newFiles.forEach(file => {
-      const reader = new FileReader();
-      reader.onload = () => {
-        setPreviews(prev => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
-  };
-
-  const removeImage = (idx: number) => {
-    setImages(prev => prev.filter((_, i) => i !== idx));
-    setPreviews(prev => prev.filter((_, i) => i !== idx));
-  };
-
   const handleSubmit = async () => {
     if (!category || !title.trim() || !content.trim()) {
       toast('말머리, 제목, 내용은 필수 입력 항목입니다.', 'warning');
@@ -102,31 +153,18 @@ export default function CommunityWritePage() {
 
     setSubmitting(true);
     try {
-      const payload = { 
-        category, 
-        areaCode: areaCode || null, 
-        festivalName: festivalName.trim() || null, 
-        title: title.trim(), 
-        content: content.trim() 
+      const payload = {
+        category,
+        areaCode: areaCode || null,
+        festivalName: festivalName.trim() || null,
+        title: title.trim(),
+        content: content.trim()
       };
 
       if (isEditMode) {
         // 수정 모드: PUT API 호출
         const res = await api.put(`/api/community/posts/${editPostId}`, payload);
         if (res.data && res.data.success) {
-          // 새 이미지가 있으면 업로드
-          if (images.length > 0) {
-            const formData = new FormData();
-            images.forEach(file => formData.append('files', file));
-            try {
-              await api.post(`/api/attachments/batch?targetType=POST&targetId=${editPostId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-              });
-            } catch (uploadErr) {
-              console.error('이미지 업로드 실패:', uploadErr);
-              toast('게시글은 수정되었으나 일부 사진을 올리지 못했습니다.', 'warning');
-            }
-          }
           toast('게시글이 수정되었습니다!', 'success');
           router.push(`/community/${editPostId}`);
         } else {
@@ -136,24 +174,6 @@ export default function CommunityWritePage() {
         // 작성 모드: POST API 호출
         const res = await api.post('/api/community/posts', payload);
         if (res.data && res.data.success) {
-          const postId = res.data.data.id;
-
-          // 이미지 업로드 로직
-          if (images.length > 0) {
-            const formData = new FormData();
-            images.forEach(file => formData.append('files', file));
-            try {
-              await api.post(`/api/attachments/batch?targetType=POST&targetId=${postId}`, formData, {
-                headers: { 'Content-Type': 'multipart/form-data' },
-              });
-            } catch (uploadErr) {
-              console.error('이미지 업로드 실패:', uploadErr);
-              toast('게시글은 등록되었으나 일부 사진을 올리지 못했습니다.', 'warning');
-              router.push('/community');
-              return;
-            }
-          }
-
           toast('게시글이 등록되었습니다!', 'success');
           router.push('/community');
         } else {
@@ -185,6 +205,33 @@ export default function CommunityWritePage() {
     );
   }
 
+  // 정지 회원은 글쓰기/수정 불가
+  if (isSuspended) {
+    return (
+      <main style={{ textAlign: 'center', padding: '100px 20px' }}>
+        <h2 style={{ color: '#ef4444', marginBottom: '12px' }}>활동 정지 안내</h2>
+        <p style={{ color: '#64748b', marginBottom: '24px' }}>
+          활동이 정지된 계정입니다. 정지 해제 후 게시글을 작성할 수 있습니다.
+        </p>
+        <button
+          style={{
+            padding: '10px 24px',
+            borderRadius: '8px',
+            border: 'none',
+            background: 'linear-gradient(135deg, #7c3aed, #a855f7)',
+            color: '#fff',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontWeight: 600,
+          }}
+          onClick={() => router.replace('/community')}
+        >
+          커뮤니티로 돌아가기
+        </button>
+      </main>
+    );
+  }
+
   // 수정 모드에서 데이터 로딩 중
   if (editLoading) {
     return <div style={{ textAlign: 'center', padding: '100px 0', color: '#94a3b8' }}>게시글 정보를 불러오는 중...</div>;
@@ -212,32 +259,24 @@ export default function CommunityWritePage() {
             <label className={styles.formLabel}>
               말머리<span className={styles.req}>*</span>
             </label>
-            <select
-              className={styles.formSelect}
+            <Dropdown
+              options={CATEGORY_OPTIONS.map(opt => ({ value: opt.value, label: opt.label, disabled: opt.value === '' }))}
               value={category}
-              onChange={e => setCategory(e.target.value)}
-            >
-              {CATEGORY_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value} disabled={opt.value === ''}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setCategory(v)}
+              ariaLabel="말머리 선택"
+              fullWidth
+            />
           </div>
 
           <div className={styles.formRow}>
             <label className={styles.formLabel}>지역 분류</label>
-            <select
-              className={styles.formSelect}
+            <Dropdown
+              options={REGION_OPTIONS.map(opt => ({ value: opt.value, label: opt.label }))}
               value={areaCode}
-              onChange={e => setAreaCode(e.target.value)}
-            >
-              {REGION_OPTIONS.map(opt => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
+              onChange={(v) => setAreaCode(v)}
+              ariaLabel="지역 선택"
+              fullWidth
+            />
           </div>
         </div>
 
@@ -267,6 +306,9 @@ export default function CommunityWritePage() {
             onChange={e => setTitle(e.target.value)}
             maxLength={200}
           />
+          <span className={styles.countLabel}>
+            {title.length} / 200
+          </span>
         </div>
 
         {/* 내용 */}
@@ -274,52 +316,22 @@ export default function CommunityWritePage() {
           <label className={styles.formLabel}>
             내용<span className={styles.req}>*</span>
           </label>
-          <textarea
-            className={styles.formTextarea}
-            placeholder="게시글 내용을 입력하세요"
-            value={content}
-            onChange={e => setContent(e.target.value)}
-          />
-        </div>
-
-        {/* 이미지 업로드 */}
-        <div className={styles.formRow}>
-          <label className={styles.formLabel}>사진 첨부</label>
-          <label className={styles.imageUploadBox}>
-            <input
-              type="file"
-              accept="image/*"
-              multiple
-              onChange={handleImageChange}
-              style={{ display: 'none' }}
-              disabled={images.length >= 5}
+          <div className={styles.quillWrapper}>
+            <ReactQuill
+              forwardedRef={quillRef}
+              theme="snow"
+              value={content}
+              onChange={(val: string) => setContent(val)}
+              modules={quillModules}
+              placeholder="게시글 내용을 작성하고 사진 버튼을 눌러 이미지를 첨부해보세요! (10자 이상 5000자 이내 최소 텍스트 작성)"
             />
-            <ImagePlus size={28} className={styles.imageUploadIcon} />
-            <div className={styles.imageUploadText}>
-              클릭하여 이미지 업로드 (최대 5장)
-            </div>
-            <div className={styles.imageUploadHint}>
-              {images.length}/5장 선택됨
-            </div>
-          </label>
-
-          {previews.length > 0 && (
-            <div className={styles.imagePreviewList}>
-              {previews.map((src, idx) => (
-                <div key={idx} className={styles.imagePreviewItem}>
-                  <img src={src} alt={`미리보기 ${idx + 1}`} />
-                  <button
-                    type="button"
-                    className={styles.imageRemoveBtn}
-                    onClick={() => removeImage(idx)}
-                  >
-                    <X size={12} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+          </div>
+          <span className={styles.countLabel}>
+            {content.replace(/<[^>]*>?/gm, '').length} / 5000 (태그 제외 텍스트 길이)
+          </span>
         </div>
+
+
 
         {/* 하단 버튼 */}
         <div className={styles.formActions}>
@@ -344,5 +356,13 @@ export default function CommunityWritePage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function CommunityWritePage() {
+  return (
+    <Suspense fallback={<div style={{ textAlign: 'center', padding: '100px 0', color: '#94a3b8' }}>데이터를 불러오는 중입니다...</div>}>
+      <CommunityWriteContent />
+    </Suspense>
   );
 }

@@ -2,26 +2,7 @@
 
 import { useState, useEffect, useCallback } from "react";
 import api from "@/lib/api";
-
-/** 월별 일자 카운트 응답 타입 */
-export interface DayCount {
-  day: number;
-  cnt: number;
-}
-
-/** 달력용 축제 카드 타입 (GET /api/calendar/festivals 응답 아이템) */
-export interface CalendarFestival {
-  id: number;
-  title: string;
-  address: string;
-  imageUrl: string | null;
-  thumbnailUrl: string | null;
-  startDate: string;
-  endDate: string;
-  status: "UPCOMING" | "ONGOING" | "ENDED";
-  areaCode: string | null;
-  eventPlace: string | null;
-}
+import { DayCount, CalendarFestival } from "@/types/calendar";
 
 interface UseCalendarViewReturn {
   /** 현재 보고 있는 연도 */
@@ -125,7 +106,11 @@ export default function useCalendarView(): UseCalendarViewReturn {
     }
   }, [month]);
 
+  const maxYear = today.getFullYear() + 1;
+
   const goToNextMonth = useCallback(() => {
+    // 미래 1년(maxYear) 12월을 넘지 않도록 제한
+    if (year === maxYear && month === 12) return;
     setSelectedDay(null);
     setSelectedFestivals([]);
     if (month === 12) {
@@ -134,7 +119,7 @@ export default function useCalendarView(): UseCalendarViewReturn {
     } else {
       setMonth((prev) => prev + 1);
     }
-  }, [month]);
+  }, [year, month, maxYear]);
 
   const selectDay = useCallback(
     (day: number) => {

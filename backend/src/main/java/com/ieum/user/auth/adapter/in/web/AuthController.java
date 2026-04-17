@@ -1,12 +1,15 @@
 package com.ieum.user.auth.adapter.in.web;
 
 import com.ieum.global.response.ApiResponse;
+import com.ieum.global.security.CurrentUserId;
 import com.ieum.user.auth.adapter.in.web.dto.AuthReq;
 import com.ieum.user.auth.adapter.in.web.dto.AuthRes;
 import com.ieum.user.auth.application.port.in.AuthUseCase;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +24,7 @@ public class AuthController {
 
     @Operation(summary = "회원가입", description = "아이디, 비밀번호, 닉네임으로 회원가입합니다.")
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signup(@RequestBody AuthReq.Register request) {
+    public ResponseEntity<ApiResponse<Void>> signup(@Valid @RequestBody AuthReq.Register request) {
         authUseCase.register(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success());
     }
@@ -46,21 +49,21 @@ public class AuthController {
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 요청", description = "입력한 아이디로 비밀번호 재설정용 인증 코드를 전송합니다.")
+    @Operation(summary = "비밀번호 찾기 - 보안질문 요청", description = "입력한 아이디로 해당 사용자의 보안 질문을 조회합니다.")
     @PostMapping("/password-recovery/request")
-    public ResponseEntity<ApiResponse<Void>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
-        authUseCase.requestRecovery(request);
-        return ResponseEntity.ok(ApiResponse.success());
+    public ResponseEntity<ApiResponse<AuthRes.PasswordRecoveryQuestion>> requestPasswordRecovery(@RequestBody AuthReq.PasswordRecoveryRequest request) {
+        AuthRes.PasswordRecoveryQuestion question = authUseCase.requestRecovery(request);
+        return ResponseEntity.ok(ApiResponse.success(question));
     }
 
-    @Operation(summary = "비밀번호 찾기 - 인증 코드 검증", description = "아이디 인증 코드를 검증합니다.")
+    @Operation(summary = "비밀번호 찾기 - 답변 검증", description = "아이디와 매칭되는 보안 질문의 답변을 검증합니다.")
     @PostMapping("/password-recovery/verify")
-    public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryCode(@RequestBody AuthReq.PasswordRecoveryVerify request) {
-        authUseCase.verifyCode(request);
+    public ResponseEntity<ApiResponse<Void>> verifyPasswordRecoveryAnswer(@RequestBody AuthReq.PasswordRecoveryVerify request) {
+        authUseCase.verifyAnswer(request);
         return ResponseEntity.ok(ApiResponse.success());
     }
 
-    @Operation(summary = "비밀번호 찾기 - 비밀번호 재설정", description = "인증 완료 후 새로운 비밀번호로 변경합니다.")
+    @Operation(summary = "비밀번호 찾기 - 비밀번호 재설정", description = "인증 완료 후 아이디 기준으로 새로운 비밀번호로 변경합니다.")
     @PostMapping("/password-recovery/reset")
     public ResponseEntity<ApiResponse<Void>> resetPassword(@RequestBody AuthReq.PasswordReset request) {
         authUseCase.resetPassword(request);
@@ -69,10 +72,27 @@ public class AuthController {
 
     @Operation(summary = "회원 탈퇴", description = "비밀번호 확인 후 30일간의 유예 기간을 두고 계정을 탈퇴(Soft Delete) 처리합니다.")
     @DeleteMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> deleteAccount(@RequestBody AuthReq.Withdraw request) {
-        // 현재 로그인한 사용자 ID 추출 (Spring Security 연동)
-        String userIdStr = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
-        authUseCase.withdraw(Long.valueOf(userIdStr), request.getPassword());
+    public ResponseEntity<ApiResponse<Void>> deleteAccount(
+            @CurrentUserId Long userId,
+            @RequestBody AuthReq.Withdraw request) {
+        authUseCase.withdraw(userId, request.getPassword());
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    @Operation(summary = "세션 정보 조회", description = "현재 로그인된 사용자의 세션 및 간이 프로필 정보를 조회합니다.")
+    @GetMapping("/me")
+    public ResponseEntity<ApiResponse<AuthRes.SessionDto>> getMySession(
+            @CurrentUserId Long userId) {
+        AuthRes.SessionDto sessionDto = authUseCase.getMySession(userId);
+        return ResponseEntity.ok(ApiResponse.success(sessionDto));
+    }
+
+    @Operation(summary = "닉네임 중복 체크", description = "입력한 닉네임의 사용 가능 여부를 확인합니다. (true: 사용가능, false: 중복)")
+    @GetMapping("/check-nickname")
+    public ResponseEntity<ApiResponse<Boolean>> checkNickname(
+            @Parameter(description = "확인할 닉네임", example = "우혁")
+            @RequestParam String nickname) {
+        boolean isAvailable = authUseCase.checkNicknameAvailability(nickname);
+        return ResponseEntity.ok(ApiResponse.success(isAvailable));
     }
 }

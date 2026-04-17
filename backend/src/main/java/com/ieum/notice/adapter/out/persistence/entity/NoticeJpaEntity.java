@@ -1,6 +1,7 @@
 package com.ieum.notice.adapter.out.persistence.entity;
 
 import com.ieum.notice.domain.model.Notice;
+import com.ieum.notice.domain.model.NoticeCategory;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -37,6 +38,11 @@ public class NoticeJpaEntity {
     private String summary;
 
     @Builder.Default
+    @Enumerated(EnumType.STRING)
+    @Column(name = "category", length = 20, nullable = false, columnDefinition = "varchar(20) default 'GENERAL'")
+    private NoticeCategory category = NoticeCategory.GENERAL;
+
+    @Builder.Default
     @Column(name = "view_count")
     private Integer viewCount = 0;
 
@@ -47,6 +53,14 @@ public class NoticeJpaEntity {
     @Builder.Default
     @Column(name = "is_popup")
     private Boolean isPopup = false;
+
+    @Builder.Default
+    @Column(name = "is_pushed")
+    private Boolean isPushed = false;
+
+    @Builder.Default
+    @Column(name = "is_active")
+    private Boolean isActive = true;
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
@@ -71,9 +85,12 @@ public class NoticeJpaEntity {
                 .title(this.title)
                 .content(this.content)
                 .summary(this.summary)
+                .category(this.category)
                 .viewCount(this.viewCount)
                 .isPinned(this.isPinned)
                 .isPopup(this.isPopup)
+                .isPushed(this.isPushed)
+                .isActive(this.isActive)
                 .startDate(this.startDate)
                 .endDate(this.endDate)
                 .createdAt(this.createdAt)
@@ -90,9 +107,12 @@ public class NoticeJpaEntity {
                 .title(notice.getTitle())
                 .content(notice.getContent())
                 .summary(notice.getSummary())
+                .category(notice.getCategory())
                 .viewCount(notice.getViewCount())
                 .isPinned(notice.getIsPinned())
                 .isPopup(notice.getIsPopup())
+                .isPushed(notice.getIsPushed())
+                .isActive(notice.getIsActive())
                 .startDate(notice.getStartDate())
                 .endDate(notice.getEndDate())
                 .createdAt(notice.getCreatedAt())

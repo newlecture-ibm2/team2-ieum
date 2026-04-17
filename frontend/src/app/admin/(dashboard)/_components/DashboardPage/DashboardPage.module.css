@@ -12,6 +12,19 @@
   margin-bottom: 16px;
 }
 
+@media (max-width: 1024px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 480px) {
+  .kpiGrid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+  }
+}
+
 /* ── KPI 카드 공통 (톤다운 스타일) ── */
 .kpiCard {
   padding: 16px 20px;
@@ -22,6 +35,13 @@
   text-decoration: none;
   display: block;
   color: inherit;
+}
+
+@media (max-width: 480px) {
+  .kpiCard {
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
 }
 
 .kpiCard:hover {
@@ -124,6 +144,15 @@
   border-radius: 14px;
   padding: 16px 20px;
   margin-bottom: 16px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (max-width: 768px) {
+  .chartCard {
+    padding: 12px;
+    border-radius: 10px;
+  }
 }
 
 .chartTitle {
@@ -218,7 +247,7 @@
   margin-bottom: 20px;
 }
 
-@media (max-width: 1024px) {
+@media (max-width: 600px) {
   .twoColGridEq {
     grid-template-columns: 1fr;
   }
@@ -334,4 +363,35 @@
   border-radius: 50%;
   background: #10b981;
   animation: dotBlink 1.5s ease-in-out infinite;
+}
+
+/* ── 모바일 반응형 ── */
+@media (max-width: 768px) {
+  .kpiValue {
+    font-size: 22px;
+  }
+
+  .kpiLabel {
+    font-size: 11px;
+  }
+
+  .legend {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+
+  .miniTable {
+    font-size: 12px;
+  }
+
+  .miniTable th,
+  .miniTable td {
+    padding: 6px 6px;
+  }
+
+  .liveIndicator {
+    margin-left: 8px;
+    font-size: 10px;
+    padding: 3px 6px;
+  }
 }

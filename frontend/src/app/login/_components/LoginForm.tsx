@@ -3,18 +3,19 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { User, Lock, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
 import styles from '../login.module.css';
+import { useToast } from '@/_component/common/Toast';
 
 export default function LoginForm() {
   const router = useRouter();
+  const { toast } = useToast();
   
   const [id, setId] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   
-  const [autoLogin, setAutoLogin] = useState(false);
   const [saveId, setSaveId] = useState(false);
   
   const [isLoading, setIsLoading] = useState(false);
@@ -66,13 +67,19 @@ export default function LoginForm() {
           localStorage.removeItem('savedId');
         }
 
+        // 🌟 백엔드에서 전달된 메시지(예: 계정 복구 안내)가 있으면 알림 표시
+        const successMsg = response.data?.data?.message;
+        if (successMsg) {
+          toast(successMsg, 'info');
+        }
+
         window.location.href = '/';
       } else {
         setGlobalError(response.data.message || '로그인에 실패했습니다.');
       }
     } catch (error: any) {
       if (error.response?.status === 401) {
-        setGlobalError('아이디 또는 비밀번호가 일치하지 않습니다.');
+        setGlobalError(error.response.data.errorMessage || '아이디 또는 비밀번호를 확인해주세요.');
       } else {
         setGlobalError('서버와의 통신에 실패했습니다.');
       }
@@ -99,7 +106,7 @@ export default function LoginForm() {
         <div className={styles.inputGroup}>
           <label htmlFor="id" className={styles.inputLabel}>아이디</label>
           <div className={styles.inputWrapper}>
-            <Mail className={styles.inputIcon} />
+            <User className={styles.inputIcon} />
             <input 
               id="id"
               type="text" 
@@ -145,15 +152,6 @@ export default function LoginForm() {
               <input 
                 type="checkbox" 
                 className={styles.checkbox}
-                checked={autoLogin}
-                onChange={(e) => setAutoLogin(e.target.checked)}
-              />
-              자동 로그인
-            </label>
-            <label className={styles.checkboxLabel}>
-              <input 
-                type="checkbox" 
-                className={styles.checkbox}
                 checked={saveId}
                 onChange={(e) => setSaveId(e.target.checked)}
               />
@@ -175,6 +173,22 @@ export default function LoginForm() {
       </div>
 
       <div className={styles.socialGroup}>
+        {/* ✨ 구글 로그인 (최상단 추가) */}
+        <a 
+          href={`${API_BASE_URL}/oauth2/authorization/google`}
+          className={`${styles.socialBtn} ${styles.googleBtn} ${isSocialLoading ? styles.btnDisabled : ''}`}
+          onClick={handleSocialClick}
+        >
+          {/* 구글 공식 G 로고 (컬러) */}
+          <svg className={styles.socialIcon} viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+          </svg>
+          {isSocialLoading ? '인증 진행 중...' : '구글 로그인'}
+        </a>
+
         {/* ✨ 카카오 로그인 (표준 링크 방식으로 뒤로 가기 문제 해결 및 로고 추가) */}
         <a 
           href={`${API_BASE_URL}/oauth2/authorization/kakao`}

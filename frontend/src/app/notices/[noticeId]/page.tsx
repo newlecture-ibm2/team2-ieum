@@ -1,50 +1,18 @@
 'use client';
 
-import { Calendar, Eye, User, FileWarning } from 'lucide-react';
+import { Calendar, Eye, User, FileWarning, Paperclip, Download, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter, useParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import api from '@/lib/api';
-import { Notice } from '@/types/notice';
-import styles from './page.module.css';
 
-interface NavNotice {
-  id: number;
-  title: string;
-}
+import { useNoticeDetail } from './useNoticeDetail';
+import styles from './page.module.css';
 
 export default function NoticeDetailPage() {
   const router = useRouter();
   const params = useParams();
   const noticeId = params.noticeId as string;
 
-  const [notice, setNotice] = useState<Notice | null>(null);
-  const [prevNotice, setPrevNotice] = useState<NavNotice | null>(null);
-  const [nextNotice, setNextNotice] = useState<NavNotice | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const fetchDetail = async () => {
-      setLoading(true);
-      setError(false);
-      try {
-        const res = await api.get(`/api/notices/${noticeId}`);
-        if (res.data?.success) {
-          const data = res.data.data;
-          setNotice(data.notice || data);
-          setPrevNotice(data.prevNotice || null);
-          setNextNotice(data.nextNotice || null);
-        }
-      } catch (err) {
-        console.error('공지사항 상세 조회 실패:', err);
-        setError(true);
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (noticeId) fetchDetail();
-  }, [noticeId]);
+  const { notice, prevNotice, nextNotice, attachments, loading, error } = useNoticeDetail(noticeId);
 
   const formatDate = (dt: string) => {
     if (!dt) return '-';
@@ -90,22 +58,78 @@ export default function NoticeDetailPage() {
         </div>
       </div>
 
-      <div className={styles.detailBody} dangerouslySetInnerHTML={{ __html: notice.content }} />
+      <div
+        className={`${styles.detailBody} ${styles.markdownBody || ''}`}
+        dangerouslySetInnerHTML={{ __html: notice.content }}
+      />
+
+      {/* 첨부파일 */}
+      {attachments.length > 0 && (
+        <div className={styles.attachSection}>
+          {/* 이미지 미리보기 */}
+          {attachments.filter(a => a.contentType?.startsWith('image/')).length > 0 && (
+            <div className={styles.imagePreviewArea}>
+              {attachments
+                .filter(a => a.contentType?.startsWith('image/'))
+                .map(img => (
+                  <div key={img.id} className={styles.imagePreviewWrap}>
+                    <img
+                      src={`/api/attachments/${img.id}/download`}
+                      alt={img.fileName}
+                      className={styles.imagePreview}
+                    />
+                    <span className={styles.imageCaption}>{img.fileName}</span>
+                  </div>
+                ))}
+            </div>
+          )}
+
+          {/* 파일 다운로드 리스트 */}
+          <div className={styles.fileSection}>
+            <h4 className={styles.fileSectionTitle}>
+              <Paperclip size={14} /> 첨부파일 ({attachments.length})
+            </h4>
+            <ul className={styles.fileList}>
+              {attachments.map(file => (
+                <li key={file.id} className={styles.fileItem}>
+                  <a
+                    href={`/api/attachments/${file.id}/download`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={styles.fileLink}
+                  >
+                    <Download size={13} />
+                    <span>{file.fileName}</span>
+                    <span className={styles.fileSizeText}>
+                      {(file.fileSize / 1024).toFixed(1)} KB
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      )}
 
       <div className={styles.detailNav}>
         {prevNotice ? (
-          <button className={styles.navLink} onClick={() => router.push(`/notices/${prevNotice.id}`)}>
-            ◀ 이전글: {prevNotice.title}
+          <button className={`${styles.navLink} ${styles.prevNavLink}`} onClick={() => router.push(`/notices/${prevNotice.id}`)}>
+            <ArrowDownLeft size={16} /> 이전글
           </button>
         ) : (
-          <span className={`${styles.navLink} ${styles.navDisabled}`}>◀ 이전글 없음</span>
+          <span className={`${styles.navLink} ${styles.prevNavLink} ${styles.navDisabled}`}>
+            <ArrowDownLeft size={16} /> 이전글
+          </span>
         )}
+        
         {nextNotice ? (
-          <button className={styles.navLink} onClick={() => router.push(`/notices/${nextNotice.id}`)}>
-            다음글: {nextNotice.title} ▶
+          <button className={`${styles.navLink} ${styles.nextNavLink}`} onClick={() => router.push(`/notices/${nextNotice.id}`)}>
+            다음글 <ArrowUpRight size={16} />
           </button>
         ) : (
-          <span className={`${styles.navLink} ${styles.navDisabled}`}>다음글 없음 ▶</span>
+          <span className={`${styles.navLink} ${styles.nextNavLink} ${styles.navDisabled}`}>
+            다음글 <ArrowUpRight size={16} />
+          </span>
         )}
       </div>
 

@@ -7,6 +7,7 @@ import adminApi from '@/lib/adminApi';
 import type { InquiryItem } from '@/types/admin-inquiry';
 import { Modal } from '@/_component/common/Modal';
 import { useToast } from '@/_component/common/Toast';
+import { INQUIRY_STATUS } from '@/constants/statusLabels';
 
 /* ── Props ── */
 interface Props {
@@ -20,7 +21,7 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
   const [detail, setDetail] = useState<InquiryItem>(inquiry);
   const [detailLoading, setDetailLoading] = useState(true);
 
-  const isPending = detail.status === 'PENDING';
+  const isPending = detail.status === INQUIRY_STATUS.PENDING;
 
   const { toast } = useToast();
 
@@ -67,8 +68,9 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
       });
       toast('답변이 성공적으로 등록되었습니다.', 'success');
       onAnswered();
-    } catch (err: any) {
-      const errorCode = err?.response?.data?.error?.code;
+    } catch (err: unknown) {
+      type BackendError = { response?: { data?: { error?: { code?: string } } } };
+      const errorCode = (err as BackendError)?.response?.data?.error?.code;
       if (errorCode === 'ALREADY_ANSWERED') {
         toast('이미 답변이 등록된 문의입니다. 목록을 새로고침합니다.', 'error');
         onAnswered();
@@ -93,49 +95,44 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
           </div>
         ) : (
           <div className={s.modalBody}>
-            {/* ── ① 문의 기본 정보 ── */}
-            <div className={s.section}>
-              <div className={s.sectionTitle}>
-                <span className={s.sectionIcon}>📋</span> 문의 정보
-              </div>
-              <div className={s.infoGrid}>
-                <span className={s.infoLabel}>제목</span>
-                <span className={s.infoValue} style={{ gridColumn: '2 / -1', fontWeight: 600 }}>
-                  {detail.title}
-                </span>
-
-                <span className={s.infoLabel}>작성자</span>
-                <span className={s.infoValue}>{detail.authorNickname}</span>
-
-                <span className={s.infoLabel}>작성일</span>
-                <span className={s.infoValue}>
-                  {detail.createdAt?.replace('T', ' ').slice(0, 16)}
-                </span>
-              </div>
-            </div>
-
-            <div className={s.divider} />
-
-            {/* ── ② 문의 내용 ── */}
-            <div className={s.section}>
-              <div className={s.sectionTitle}>
-                <span className={s.sectionIcon}>📄</span> 문의 내용
-              </div>
-              <div className={s.contentCard}>
-                {detail.content}
-              </div>
-            </div>
-
-            <div className={s.divider} />
-
-            {/* ── ③ 답변 작성 / 답변 이력 ── */}
-            {isPending ? (
-              <div className={s.section}>
-                <div className={s.sectionTitle}>
-                  <span className={s.sectionIcon}>✏️</span>
-                  <span className={s.requiredStar}>*</span> 답변 작성
+            {/* ── 타이틀 & 메타 헤더 ── */}
+            <div className={s.headerArea}>
+              <div className={s.titleRow}>
+                <div 
+                  className={s.statusBadge} 
+                  style={isPending ? { background: '#f5f3ff', color: '#8b5cf6' } : { background: '#f0fdf4', color: '#16a34a' }}
+                >
+                  {isPending ? '대기중' : '답변완료'}
                 </div>
+                <div className={s.mainTitle}>
+                  {detail.title}
+                </div>
+              </div>
+              
+              {/* ── 2. 메타 정보 (우측 정렬) ── */}
+              <div className={s.metaWrap}>
+                <div className={s.metaRowBox}>
+                  <span>작성자: 👤 {detail.authorNickname}</span>
+                  <span className={s.metaDot}>•</span>
+                  <span>접수 일시: {detail.createdAt?.replace('T', ' ').slice(0, 16)}</span>
+                </div>
+              </div>
+            </div>
 
+            <hr className={s.divider} />
+
+            {/* ── 사용자 문의 본문 (버블 스타일 & 스크롤) ── */}
+            <div className={s.questionBubble}>
+              <div className={s.bubbleHeader}>💡 문의 내용</div>
+              <div className={s.questionTextScroll}>{detail.content}</div>
+            </div>
+
+            {/* ── 답변 작성 / 기록 구역 ── */}
+            {isPending ? (
+              <div>
+                <div className={s.answerSectionTitle}>
+                  관리자 답변 작성
+                </div>
                 <div className={s.responseArea}>
                   <textarea
                     className={`${s.responseTextarea} ${answerError ? s.responseTextareaError : ''}`}
@@ -144,28 +141,29 @@ export default function InquiryDetailModal({ inquiry, onClose, onAnswered }: Pro
                       setAnswer(e.target.value);
                       if (answerError) setAnswerError('');
                     }}
-                    placeholder="문의에 대한 답변을 작성해주세요."
+                    placeholder="문의에 대한 상세한 답변을 작성해주세요."
                     maxLength={2000}
                   />
                   <span className={`${s.charCount} ${answer.length < 5 && answer.length > 0 ? s.charCountError : ''}`}>
                     {answer.length} / 2000
                   </span>
                 </div>
-                {answerError && <span className={s.errorText}>⚠ {answerError}</span>}
+                {answerError && <span className={s.errorText}>{answerError}</span>}
               </div>
             ) : (
-              /* 답변 이력 (readonly) */
-              <div className={s.section}>
-                <div className={s.sectionTitle}>
-                  <span className={s.sectionIcon}>📑</span> 답변 이력
+              <div>
+                <div className={s.answerSectionTitle}>
+                  처리 결과
                 </div>
-                <div className={s.historyCard}>
-                  <div className={s.historyMeta}>
-                    <span className={s.historyStatus}>✅ 답변완료</span>
-                    <span>답변자: 관리자</span>
-                    <span>{detail.answeredAt?.replace('T', ' ').slice(0, 19) || '-'}</span>
+                <div className={s.answerBubble}>
+                  <div className={s.answerMeta}>
+                    <span style={{ color: '#16a34a' }}>✅ 답변 완료</span>
+                    <span className={s.metaDot}>•</span>
+                    <span>담당자</span>
+                    <span className={s.metaDot}>•</span>
+                    <span>{detail.answeredAt?.replace('T', ' ').slice(0, 16) || '-'}</span>
                   </div>
-                  <div className={s.historyMessage}>
+                  <div className={s.answerContent}>
                     {detail.answer || '(답변 내용 없음)'}
                   </div>
                 </div>

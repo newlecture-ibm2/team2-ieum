@@ -1,13 +1,19 @@
 package com.ieum.user.notification.adapter.in.web;
 
 import com.ieum.global.response.ApiResponse;
+import com.ieum.global.security.CurrentUserId;
+import com.ieum.user.notification.adapter.in.web.dto.MarkNotificationsReadRequest;
+import com.ieum.user.notification.adapter.in.web.dto.NotificationListResponse;
+import com.ieum.user.notification.adapter.in.web.dto.RegisterFcmTokenRequest;
+import com.ieum.user.notification.adapter.in.web.dto.UpdateNotificationSettingRequest;
+import com.ieum.user.notification.application.port.in.DeleteNotificationUseCase;
 import com.ieum.user.notification.application.port.in.GetMyNotificationsUseCase;
 import com.ieum.user.notification.application.port.in.MarkNotificationsReadUseCase;
 import com.ieum.user.notification.application.port.in.RegisterFcmTokenUseCase;
 import com.ieum.user.notification.application.port.in.UpdateNotificationSettingUseCase;
+import com.ieum.user.notification.application.port.in.GetNotificationSettingsUseCase;
 import com.ieum.user.notification.domain.model.NotificationSetting;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -30,19 +36,21 @@ public class NotificationController {
     private final GetMyNotificationsUseCase getMyNotificationsUseCase;
     private final RegisterFcmTokenUseCase registerFcmTokenUseCase;
     private final UpdateNotificationSettingUseCase updateNotificationSettingUseCase;
+    private final GetNotificationSettingsUseCase getNotificationSettingsUseCase;
     private final MarkNotificationsReadUseCase markNotificationsReadUseCase;
-
-    // TODO: 현재는 테스트를 위해 userId = 1L 로 고정합니다. (Security 도입 시 @AuthenticationPrincipal 같은 인증 객체로 변경)
-    private final Long TEMP_USER_ID = 1L;
+    private final DeleteNotificationUseCase deleteNotificationUseCase;
 
     /**
      * 내 알림 조회 (API_USR_0040)
      */
     @Operation(summary = "내 알림 목록", description = "나에게 온 알림 목록과 읽지 않은 알림 개수를 조회합니다.")
     @GetMapping("/notifications")
-    public ResponseEntity<ApiResponse<Map<String, Object>>> getMyNotifications() {
+    public ResponseEntity<ApiResponse<NotificationListResponse>> getMyNotifications(
+            @CurrentUserId Long userId) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         return ResponseEntity.ok(ApiResponse.success(
-                getMyNotificationsUseCase.getMyNotifications(TEMP_USER_ID)));
+                getMyNotificationsUseCase.getMyNotifications(userId)));
     }
 
     /**
@@ -51,12 +59,24 @@ public class NotificationController {
     @Operation(summary = "FCM 토큰 등록", description = "푸시 알림용 FCM 디바이스 토큰을 등록합니다.")
     @PostMapping("/fcm-token")
     public ResponseEntity<ApiResponse<Void>> registerFcmToken(
-            @RequestBody Map<String, String> request) {
-        String token = request.get("token");
-        if (token != null && !token.isBlank()) {
-            registerFcmTokenUseCase.register(TEMP_USER_ID, token);
-        }
+            @CurrentUserId Long userId,
+            @RequestBody RegisterFcmTokenRequest request) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        registerFcmTokenUseCase.register(userId, request.getToken());
         return ResponseEntity.ok(ApiResponse.success());
+    }
+
+    /**
+     * 알림 설정 조회
+     */
+    @Operation(summary = "알림 설정 조회", description = "푸시 수신 동의 여부 및 세부 알림 설정을 조회합니다.")
+    @GetMapping("/notifications/settings")
+    public ResponseEntity<ApiResponse<NotificationSetting>> getSettings(
+            @CurrentUserId Long userId) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        return ResponseEntity.ok(ApiResponse.success(getNotificationSettingsUseCase.getSettings(userId)));
     }
 
     /**
@@ -65,15 +85,17 @@ public class NotificationController {
     @Operation(summary = "알림 설정 변경", description = "푸시 수신 동의 여부 및 세부 알림 설정을 변경합니다.")
     @PatchMapping("/notifications/settings")
     public ResponseEntity<ApiResponse<NotificationSetting>> updateSettings(
-            @RequestBody Map<String, Boolean> request) {
+            @CurrentUserId Long userId,
+            @RequestBody UpdateNotificationSettingRequest request) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
         NotificationSetting updated = updateNotificationSettingUseCase.updateSettings(
-                TEMP_USER_ID,
-                request.get("pushEnabled"),
-                request.get("festivalStart"),
-                request.get("festivalEnd"),
-                request.get("notice"),
-                request.get("comment")
-        );
+                userId,
+                request.getPushEnabled(),
+                request.getFestivalStart(),
+                request.getFestivalEnd(),
+                request.getNotice(),
+                request.getComment());
         return ResponseEntity.ok(ApiResponse.success(updated));
     }
 
@@ -83,9 +105,26 @@ public class NotificationController {
     @Operation(summary = "알림 읽음 처리", description = "특정 알림들 혹은 전체 알림을 읽음 처리합니다.")
     @PatchMapping("/notifications/read")
     public ResponseEntity<ApiResponse<Map<String, Integer>>> markAsRead(
-            @RequestBody(required = false) Map<String, List<Long>> request) {
-        List<Long> ids = (request != null) ? request.get("notificationIds") : null;
-        int count = markNotificationsReadUseCase.markAsRead(TEMP_USER_ID, ids);
+            @CurrentUserId Long userId,
+            @RequestBody(required = false) MarkNotificationsReadRequest request) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        List<Long> ids = (request != null) ? request.getNotificationIds() : null;
+        int count = markNotificationsReadUseCase.markAsRead(userId, ids);
         return ResponseEntity.ok(ApiResponse.success(Map.of("updatedCount", count)));
+    }
+
+    /**
+     * 알림 개별 삭제
+     */
+    @Operation(summary = "알림 삭제", description = "특정 알림을 삭제합니다.")
+    @DeleteMapping("/notifications/{notificationId}")
+    public ResponseEntity<ApiResponse<Void>> deleteNotification(
+            @CurrentUserId Long userId,
+            @PathVariable Long notificationId) {
+        if (userId == null)
+            return ResponseEntity.status(401).build();
+        deleteNotificationUseCase.deleteNotification(userId, notificationId);
+        return ResponseEntity.ok(ApiResponse.success());
     }
 }

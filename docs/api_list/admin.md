@@ -426,68 +426,171 @@ Authorization: Bearer {adminAccessToken}
 
 ---
 
-## 📌 6. 회원 관리 (User Management)
+## 📌 6. 회원 관리 (Member Management)
+
+> 관리자가 회원 목록을 조회하고, 상태 변경(7일 정지/해제), 역할 변경(USER↔ADMIN), 강제 탈퇴를 수행합니다.
 
 ### 6-1. 회원 목록 조회
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `GET /api/admin/users` |
+| **URL** | `GET /api/admin/members` |
 | **권한** | ADMIN |
 
 #### Query Parameters
 
 | 파라미터 | 타입 | 필수 | 설명 |
 |----------|------|------|------|
-| `page` | Integer | ❌ | 페이지 번호 |
-| `size` | Integer | ❌ | 페이지 크기 |
-| `keyword` | String | ❌ | 검색 (이메일, 닉네임) |
-| `role` | String | ❌ | 역할 (`USER`, `ADMIN`) |
+| `page` | Integer | ❌ | 페이지 번호 (기본: 1) |
+| `size` | Integer | ❌ | 페이지 크기 (기본: 10) |
+| `status` | String | ❌ | 상태 필터 (`ACTIVE` / `SUSPENDED` / `DELETED`) |
+| `role` | String | ❌ | 역할 필터 (`USER` / `ADMIN`) |
+| `searchType` | String | ❌ | 검색 기준 (`ALL` / `NAME` / `NICKNAME` / `LOGIN_ID`) |
+| `keyword` | String | ❌ | 검색어 |
 
 #### Response (200 OK)
 
 ```json
 {
-  "code": 200,
+  "success": true,
   "data": {
     "content": [
       {
-        "id": 1,
-        "email": "user@example.com",
+        "userId": 1,
+        "loginId": "user@example.com",
+        "name": "홍길동",
         "nickname": "축제매니아",
+        "phone": "010-1234-5678",
+        "profileImage": "/uploads/profiles/1.jpg",
         "role": "USER",
-        "reviewCount": 15,
-        "postCount": 8,
-        "reportCount": 0,
+        "status": "ACTIVE",
+        "suspendedUntil": null,
         "createdAt": "2026-03-25T10:00:00",
-        "isActive": true
+        "updatedAt": null,
+        "deletedAt": null,
+        "reportedCount": 2
       }
-    ]
+    ],
+    "totalPages": 5,
+    "totalElements": 45,
+    "activeCount": 40,
+    "suspendedCount": 3,
+    "deletedCount": 2
   }
 }
 ```
 
-### 6-2. 회원 상태 변경 (정지/복구)
+### 6-2. 회원 상세 조회
 
 | 항목 | 내용 |
 |------|------|
-| **URL** | `PUT /api/admin/users/{userId}/status` |
+| **URL** | `GET /api/admin/members/{userId}` |
+| **권한** | ADMIN |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": {
+    "userId": 1,
+    "loginId": "user@example.com",
+    "name": "홍길동",
+    "nickname": "축제매니아",
+    "phone": "010-1234-5678",
+    "profileImage": "/uploads/profiles/1.jpg",
+    "role": "USER",
+    "status": "ACTIVE",
+    "suspendedUntil": null,
+    "createdAt": "2026-03-25T10:00:00",
+    "updatedAt": null,
+    "deletedAt": null,
+    "reportedCount": 5
+  }
+}
+```
+
+**에러:** 404 — 존재하지 않는 회원 ID
+
+### 6-3. 회원 상태 변경 (7일 정지 / 해제)
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `PATCH /api/admin/members/{userId}/status` |
+| **권한** | ADMIN |
+
+> 신고 횟수가 4건 이상인 회원에 대해 7일 정지를 적용합니다. 정지 시 `suspended_until`에 7일 후 일시가 자동 설정됩니다.
+
+#### Request Body
+
+```json
+{
+  "status": "SUSPENDED"
+}
+```
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `status` | String | ✅ | `SUSPENDED` (7일 정지) 또는 `ACTIVE` (정지 해제) |
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": "회원이 7일간 정지되었습니다."
+}
+```
+
+**에러:** 400 — 유효하지 않은 상태값
+
+### 6-4. 회원 강제 탈퇴
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `DELETE /api/admin/members/{userId}` |
+| **권한** | ADMIN |
+
+> 관리자가 회원을 강제 탈퇴시킵니다. 소프트 삭제(status='DELETED', deleted_at 기록)로 처리됩니다.
+
+#### Response (200 OK)
+
+```json
+{
+  "success": true,
+  "data": "회원이 탈퇴 처리되었습니다."
+}
+```
+
+**에러:** 404 — 존재하지 않는 회원 ID
+
+### 6-5. 회원 역할 변경 (USER ↔ ADMIN)
+
+| 항목 | 내용 |
+|------|------|
+| **URL** | `PATCH /api/admin/members/{userId}/role` |
 | **권한** | ADMIN |
 
 #### Request Body
 
 ```json
 {
-  "isActive": false,
-  "reason": "신고 누적으로 인한 계정 정지"
+  "role": "ADMIN"
 }
 ```
+
+| 파라미터 | 타입 | 필수 | 설명 |
+|----------|------|------|------|
+| `role` | String | ✅ | `USER` 또는 `ADMIN` |
 
 #### Response (200 OK)
 
 ```json
 {
-  "code": 200,
-  "message": "회원 상태가 변경되었습니다."
+  "success": true,
+  "data": "관리자 권한이 부여되었습니다."
 }
 ```
+
+**에러:** 400 — 유효하지 않은 역할값
+
